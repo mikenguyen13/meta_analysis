@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>6.1  | Meta-analysis</title>
+  <meta name="description" content="Guide on meta-analysis" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="6.1  | Meta-analysis" />
+  <meta property="og:type" content="book" />
+  <meta property="og:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+  <meta property="og:description" content="Guide on meta-analysis" />
+  <meta name="github-repo" content="mikenguyen13/meta_analysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="6.1  | Meta-analysis" />
+  
+  <meta name="twitter:description" content="Guide on meta-analysis" />
+  <meta name="twitter:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+
+<meta name="author" content="Mike Nguyen" />
+
+
+<meta name="date" content="2023-01-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="logo.png" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="prev" href="meta-analysis-structural-equation-modeling.html"/>
+<link rel="next" href="univariate-approach.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9S5ZG1XCWF');
+</script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Meta-analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>3</b> Literature</a></li>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="moderation-interpretation.html"><a href="moderation-interpretation.html"><i class="fa fa-check"></i><b>4.1</b> Moderation Interpretation</a></li>
+<li class="chapter" data-level="4.2" data-path="metafor.html"><a href="metafor.html"><i class="fa fa-check"></i><b>4.2</b> metafor</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="metafor.html"><a href="metafor.html#log-risk"><i class="fa fa-check"></i><b>4.2.1</b> Log Risk</a></li>
+<li class="chapter" data-level="4.2.2" data-path="metafor.html"><a href="metafor.html#correlation"><i class="fa fa-check"></i><b>4.2.2</b> Correlation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>5</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="6" data-path="meta-analysis-structural-equation-modeling.html"><a href="meta-analysis-structural-equation-modeling.html"><i class="fa fa-check"></i><b>6</b> Meta-Analysis Structural Equation Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="section.html"><a href="section.html"><i class="fa fa-check"></i><b>6.1</b> </a></li>
+<li class="chapter" data-level="6.2" data-path="univariate-approach.html"><a href="univariate-approach.html"><i class="fa fa-check"></i><b>6.2</b> Univariate approach</a></li>
+<li class="chapter" data-level="6.3" data-path="gls-approach.html"><a href="gls-approach.html"><i class="fa fa-check"></i><b>6.3</b> GLS Approach</a></li>
+<li class="chapter" data-level="6.4" data-path="tssem-approach.html"><a href="tssem-approach.html"><i class="fa fa-check"></i><b>6.4</b> TSSEM Approach</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="tssem-approach.html"><a href="tssem-approach.html#fixed-effects"><i class="fa fa-check"></i><b>6.4.1</b> Fixed-effects</a></li>
+<li class="chapter" data-level="6.4.2" data-path="tssem-approach.html"><a href="tssem-approach.html#random-effects"><i class="fa fa-check"></i><b>6.4.2</b> Random-effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="application.html"><a href="application.html"><i class="fa fa-check"></i><b>7</b> Application</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="data-input-and-preparation.html"><a href="data-input-and-preparation.html"><i class="fa fa-check"></i><b>7.1</b> Data input and preparation</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlation-based-masem.html"><a href="correlation-based-masem.html"><i class="fa fa-check"></i><b>8</b> Correlation-Based MASEM</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="check-the-correlation-matrices-for-positive-definiteness.html"><a href="check-the-correlation-matrices-for-positive-definiteness.html"><i class="fa fa-check"></i><b>8.1</b> Check the correlation matrices for positive definiteness</a></li>
+<li class="chapter" data-level="8.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html"><i class="fa fa-check"></i><b>8.2</b> Stage 1: Pooling of correlation matrices</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-random-effects-model"><i class="fa fa-check"></i><b>8.2.1</b> Pooling under a random-effects model</a></li>
+<li class="chapter" data-level="8.2.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-fixed-effects-model"><i class="fa fa-check"></i><b>8.2.2</b> Pooling under a fixed-effects model</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html"><i class="fa fa-check"></i><b>8.3</b> Stage 2: Structural equation modeling</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-1-path-model-with-the-direct-effect"><i class="fa fa-check"></i><b>8.3.1</b> Model 1: Path model with the direct effect</a></li>
+<li class="chapter" data-level="8.3.2" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-2-path-model-without-the-direct-effect"><i class="fa fa-check"></i><b>8.3.2</b> Model 2: Path model without the direct effect</a></li>
+<li class="chapter" data-level="8.3.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-comparison-model-1-vs.-model-2"><i class="fa fa-check"></i><b>8.3.3</b> Model comparison: Model 1 vs. Model 2</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="r-session-info.html"><a href="r-session-info.html"><i class="fa fa-check"></i><b>9</b> R session info</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Meta-analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="section" class="section level2" number="6.1">
+<h2><span class="header-section-number">6.1</span> </h2>
+<p>metaSEM</p>
+<p><a href="https://sjak.shinyapps.io/webMASEM/">webMASEM</a></p>
+<p><a href="https://osf.io/wh6d3/">Document</a></p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="section.html#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(metaSEM)</span>
+<span id="cb17-2"><a href="section.html#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;Roorda11&quot;</span>)</span>
+<span id="cb17-3"><a href="section.html#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="section.html#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="section.html#cb17-5" aria-hidden="true" tabindex="-1"></a>my.df <span class="ot">&lt;-</span> <span class="fu">Cor2DataFrame</span>(Roorda11<span class="sc">$</span>data, Roorda11<span class="sc">$</span>n)</span>
+<span id="cb17-6"><a href="section.html#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="section.html#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="do">## Add centered SES as a moderator (standardizing SES helps to improve the stability of the results)</span></span>
+<span id="cb17-8"><a href="section.html#cb17-8" aria-hidden="true" tabindex="-1"></a>my.df<span class="sc">$</span>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(my.df<span class="sc">$</span>data, <span class="at">SES=</span><span class="fu">scale</span>(Roorda11<span class="sc">$</span>SES), <span class="at">check.names=</span><span class="cn">FALSE</span>)</span>
+<span id="cb17-9"><a href="section.html#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(my.df<span class="sc">$</span>data)</span>
+<span id="cb17-10"><a href="section.html#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   neg_pos enga_pos achiev_pos enga_neg achiev_neg achiev_enga</span></span>
+<span id="cb17-11"><a href="section.html#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1   -0.54       NA       0.18       NA      -0.29          NA</span></span>
+<span id="cb17-12"><a href="section.html#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2      NA     0.64       0.29       NA         NA        0.23</span></span>
+<span id="cb17-13"><a href="section.html#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3      NA     0.29         NA       NA         NA          NA</span></span>
+<span id="cb17-14"><a href="section.html#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4      NA     0.29         NA       NA         NA          NA</span></span>
+<span id="cb17-15"><a href="section.html#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5      NA       NA         NA       NA      -0.24          NA</span></span>
+<span id="cb17-16"><a href="section.html#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6      NA     0.06      -0.09       NA         NA        0.20</span></span>
+<span id="cb17-17"><a href="section.html#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(neg_pos neg_pos) C(enga_pos neg_pos) C(achiev_pos neg_pos)</span></span>
+<span id="cb17-18"><a href="section.html#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       0.0005989503       -0.0001515535         -9.072888e-05</span></span>
+<span id="cb17-19"><a href="section.html#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2       0.0018375288       -0.0004649535         -2.783491e-04</span></span>
+<span id="cb17-20"><a href="section.html#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3       0.0063790635       -0.0016141079         -9.663017e-04</span></span>
+<span id="cb17-21"><a href="section.html#cb17-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4       0.0118882493       -0.0030081057         -1.800829e-03</span></span>
+<span id="cb17-22"><a href="section.html#cb17-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5       0.0043833791       -0.0011091346         -6.639929e-04</span></span>
+<span id="cb17-23"><a href="section.html#cb17-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6       0.0084368192       -0.0021347816         -1.278004e-03</span></span>
+<span id="cb17-24"><a href="section.html#cb17-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(enga_neg neg_pos) C(achiev_neg neg_pos) C(achiev_enga neg_pos)</span></span>
+<span id="cb17-25"><a href="section.html#cb17-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1        0.0001507643          3.883504e-05          -2.214649e-05</span></span>
+<span id="cb17-26"><a href="section.html#cb17-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2        0.0004625324          1.191428e-04          -6.794417e-05</span></span>
+<span id="cb17-27"><a href="section.html#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3        0.0016057006          4.136083e-04          -2.358707e-04</span></span>
+<span id="cb17-28"><a href="section.html#cb17-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4        0.0029924455          7.708180e-04          -4.395732e-04</span></span>
+<span id="cb17-29"><a href="section.html#cb17-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5        0.0011033574          2.842108e-04          -1.620776e-04</span></span>
+<span id="cb17-30"><a href="section.html#cb17-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6        0.0021236669          5.470286e-04          -3.119521e-04</span></span>
+<span id="cb17-31"><a href="section.html#cb17-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(enga_pos enga_pos) C(achiev_pos enga_pos) C(enga_neg enga_pos)</span></span>
+<span id="cb17-32"><a href="section.html#cb17-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1         0.0006397566           0.0001647861        -0.0001910368</span></span>
+<span id="cb17-33"><a href="section.html#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2         0.0019627193           0.0005055497        -0.0005860852</span></span>
+<span id="cb17-34"><a href="section.html#cb17-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3         0.0068136693           0.0017550402        -0.0020346212</span></span>
+<span id="cb17-35"><a href="section.html#cb17-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4         0.0126982048           0.0032707507        -0.0037918008</span></span>
+<span id="cb17-36"><a href="section.html#cb17-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5         0.0046820181           0.0012059759        -0.0013980892</span></span>
+<span id="cb17-37"><a href="section.html#cb17-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6         0.0090116233           0.0023211770        -0.0026909450</span></span>
+<span id="cb17-38"><a href="section.html#cb17-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(achiev_neg enga_pos) C(achiev_enga enga_pos) C(achiev_pos achiev_pos)</span></span>
+<span id="cb17-39"><a href="section.html#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1          -5.134692e-05            3.127062e-05             0.0007526507</span></span>
+<span id="cb17-40"><a href="section.html#cb17-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2          -1.575275e-04            9.593552e-05             0.0023090684</span></span>
+<span id="cb17-41"><a href="section.html#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3          -5.468647e-04            3.330468e-04             0.0080160366</span></span>
+<span id="cb17-42"><a href="section.html#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4          -1.019160e-03            6.206678e-04             0.0149389709</span></span>
+<span id="cb17-43"><a href="section.html#cb17-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5          -3.757769e-04            2.288519e-04             0.0055082223</span></span>
+<span id="cb17-44"><a href="section.html#cb17-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6          -7.232702e-04            4.404767e-04             0.0106018447</span></span>
+<span id="cb17-45"><a href="section.html#cb17-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(enga_neg achiev_pos) C(achiev_neg achiev_pos) C(achiev_enga achiev_pos)</span></span>
+<span id="cb17-46"><a href="section.html#cb17-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1          -0.0000639557            -0.0002463388              0.0001998713</span></span>
+<span id="cb17-47"><a href="section.html#cb17-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2          -0.0001962109            -0.0007557451              0.0006131873</span></span>
+<span id="cb17-48"><a href="section.html#cb17-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3          -0.0006811551            -0.0026236049              0.0021287076</span></span>
+<span id="cb17-49"><a href="section.html#cb17-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4          -0.0012694257            -0.0048894474              0.0039671336</span></span>
+<span id="cb17-50"><a href="section.html#cb17-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5          -0.0004680519            -0.0018028091              0.0014627431</span></span>
+<span id="cb17-51"><a href="section.html#cb17-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6          -0.0009008759            -0.0034699233              0.0028153854</span></span>
+<span id="cb17-52"><a href="section.html#cb17-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(enga_neg enga_neg) C(achiev_neg enga_neg) C(achiev_enga enga_neg)</span></span>
+<span id="cb17-53"><a href="section.html#cb17-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1         0.0006389859           0.0001558887           -7.403048e-05</span></span>
+<span id="cb17-54"><a href="section.html#cb17-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2         0.0019603553           0.0004782534           -2.271198e-04</span></span>
+<span id="cb17-55"><a href="section.html#cb17-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3         0.0068054597           0.0016602745           -7.884545e-04</span></span>
+<span id="cb17-56"><a href="section.html#cb17-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4         0.0126829099           0.0030941522           -1.469390e-03</span></span>
+<span id="cb17-57"><a href="section.html#cb17-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5         0.0046763734           0.0011408577           -5.417836e-04</span></span>
+<span id="cb17-58"><a href="section.html#cb17-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6         0.0090007606           0.0021958460           -1.042788e-03</span></span>
+<span id="cb17-59"><a href="section.html#cb17-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   C(achiev_neg achiev_neg) C(achiev_enga achiev_neg) C(achiev_enga achiev_enga)</span></span>
+<span id="cb17-60"><a href="section.html#cb17-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1             0.0007298084             -0.0001921435               0.0006716402</span></span>
+<span id="cb17-61"><a href="section.html#cb17-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2             0.0022389887             -0.0005894789               0.0020605349</span></span>
+<span id="cb17-62"><a href="section.html#cb17-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3             0.0077727476             -0.0020463990               0.0071532349</span></span>
+<span id="cb17-63"><a href="section.html#cb17-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4             0.0144855833             -0.0038137502               0.0133310333</span></span>
+<span id="cb17-64"><a href="section.html#cb17-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5             0.0053410484             -0.0014061844               0.0049153512</span></span>
+<span id="cb17-65"><a href="section.html#cb17-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6             0.0102800837             -0.0027065274               0.0094607287</span></span>
+<span id="cb17-66"><a href="section.html#cb17-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          SES</span></span>
+<span id="cb17-67"><a href="section.html#cb17-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  0.4464188</span></span>
+<span id="cb17-68"><a href="section.html#cb17-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  0.7145383</span></span>
+<span id="cb17-69"><a href="section.html#cb17-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  0.8821129</span></span>
+<span id="cb17-70"><a href="section.html#cb17-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 -0.8941783</span></span>
+<span id="cb17-71"><a href="section.html#cb17-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 -0.9947231</span></span>
+<span id="cb17-72"><a href="section.html#cb17-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6 -0.5925439</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="section.html#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(Scalco17)</span>
+<span id="cb18-2"><a href="section.html#cb18-2" aria-hidden="true" tabindex="-1"></a>my.df <span class="ot">&lt;-</span> <span class="fu">Cor2DataFrame</span>(Scalco17<span class="sc">$</span>data, Scalco17<span class="sc">$</span>n, <span class="at">acov =</span> <span class="st">&quot;weighted&quot;</span>)</span>
+<span id="cb18-3"><a href="section.html#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="section.html#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="do">## Add the centered Age as a moderator</span></span>
+<span id="cb18-5"><a href="section.html#cb18-5" aria-hidden="true" tabindex="-1"></a>my.df<span class="sc">$</span>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(my.df<span class="sc">$</span>data, <span class="at">Age=</span><span class="fu">scale</span>(Scalco17<span class="sc">$</span>Age,  <span class="at">scale=</span><span class="cn">FALSE</span>), <span class="at">check.names=</span><span class="cn">FALSE</span>)</span>
+<span id="cb18-6"><a href="section.html#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(my.df<span class="sc">$</span>data)</span>
+<span id="cb18-7"><a href="section.html#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       SN_ATT PBC_ATT BI_ATT BEH_ATT PBC_SN</span></span>
+<span id="cb18-8"><a href="section.html#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                  0.562    0.18  0.798      NA  0.314</span></span>
+<span id="cb18-9"><a href="section.html#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)  0.690    0.44  0.730      NA  0.460</span></span>
+<span id="cb18-10"><a href="section.html#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)  0.520    0.22  0.600      NA  0.280</span></span>
+<span id="cb18-11"><a href="section.html#cb18-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)  0.570    0.40  0.670      NA  0.340</span></span>
+<span id="cb18-12"><a href="section.html#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)  0.760    0.35  0.710      NA  0.360</span></span>
+<span id="cb18-13"><a href="section.html#cb18-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)  0.460    0.03  0.550      NA  0.150</span></span>
+<span id="cb18-14"><a href="section.html#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       BI_SN BEH_SN BI_PBC BEH_PBC BEH_BI</span></span>
+<span id="cb18-15"><a href="section.html#cb18-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                 0.696     NA  0.216      NA     NA</span></span>
+<span id="cb18-16"><a href="section.html#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT) 0.620     NA  0.410      NA     NA</span></span>
+<span id="cb18-17"><a href="section.html#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK) 0.560     NA  0.310      NA     NA</span></span>
+<span id="cb18-18"><a href="section.html#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI) 0.550     NA  0.360      NA     NA</span></span>
+<span id="cb18-19"><a href="section.html#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT) 0.640     NA  0.240      NA     NA</span></span>
+<span id="cb18-20"><a href="section.html#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK) 0.580     NA  0.100      NA     NA</span></span>
+<span id="cb18-21"><a href="section.html#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(SN_ATT SN_ATT) C(PBC_ATT SN_ATT)</span></span>
+<span id="cb18-22"><a href="section.html#cb18-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.003943229      0.0007678353</span></span>
+<span id="cb18-23"><a href="section.html#cb18-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.003591861      0.0006994172</span></span>
+<span id="cb18-24"><a href="section.html#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.002687245      0.0005232762</span></span>
+<span id="cb18-25"><a href="section.html#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.003627776      0.0007064166</span></span>
+<span id="cb18-26"><a href="section.html#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.003591855      0.0006994208</span></span>
+<span id="cb18-27"><a href="section.html#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.002687245      0.0005232761</span></span>
+<span id="cb18-28"><a href="section.html#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_ATT SN_ATT) C(BEH_ATT SN_ATT)</span></span>
+<span id="cb18-29"><a href="section.html#cb18-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0011950618      0.0012021391</span></span>
+<span id="cb18-30"><a href="section.html#cb18-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0010885722      0.0010950198</span></span>
+<span id="cb18-31"><a href="section.html#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0008144188      0.0008192439</span></span>
+<span id="cb18-32"><a href="section.html#cb18-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0010994610      0.0011059724</span></span>
+<span id="cb18-33"><a href="section.html#cb18-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0010885737      0.0010950199</span></span>
+<span id="cb18-34"><a href="section.html#cb18-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0008144187      0.0008192440</span></span>
+<span id="cb18-35"><a href="section.html#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(PBC_SN SN_ATT) C(BI_SN SN_ATT)</span></span>
+<span id="cb18-36"><a href="section.html#cb18-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0010869769     0.001853521</span></span>
+<span id="cb18-37"><a href="section.html#cb18-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0009901025     0.001688358</span></span>
+<span id="cb18-38"><a href="section.html#cb18-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0007407646     0.001263146</span></span>
+<span id="cb18-39"><a href="section.html#cb18-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0010000307     0.001705244</span></span>
+<span id="cb18-40"><a href="section.html#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0009901226     0.001688357</span></span>
+<span id="cb18-41"><a href="section.html#cb18-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0007407654     0.001263145</span></span>
+<span id="cb18-42"><a href="section.html#cb18-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_SN SN_ATT) C(BI_PBC SN_ATT)</span></span>
+<span id="cb18-43"><a href="section.html#cb18-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.001499233     0.0005441095</span></span>
+<span id="cb18-44"><a href="section.html#cb18-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001365640     0.0004956130</span></span>
+<span id="cb18-45"><a href="section.html#cb18-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001021706     0.0003708108</span></span>
+<span id="cb18-46"><a href="section.html#cb18-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.001379300     0.0005005915</span></span>
+<span id="cb18-47"><a href="section.html#cb18-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001365641     0.0004956285</span></span>
+<span id="cb18-48"><a href="section.html#cb18-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001021706     0.0003708104</span></span>
+<span id="cb18-49"><a href="section.html#cb18-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_PBC SN_ATT) C(BEH_BI SN_ATT)</span></span>
+<span id="cb18-50"><a href="section.html#cb18-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.0004086058     0.0006118278</span></span>
+<span id="cb18-51"><a href="section.html#cb18-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0003721897     0.0005573051</span></span>
+<span id="cb18-52"><a href="section.html#cb18-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0002784662     0.0004169550</span></span>
+<span id="cb18-53"><a href="section.html#cb18-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0003759267     0.0005628855</span></span>
+<span id="cb18-54"><a href="section.html#cb18-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0003721980     0.0005573105</span></span>
+<span id="cb18-55"><a href="section.html#cb18-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0002784645     0.0004169550</span></span>
+<span id="cb18-56"><a href="section.html#cb18-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(PBC_ATT PBC_ATT) C(BI_ATT PBC_ATT)</span></span>
+<span id="cb18-57"><a href="section.html#cb18-57" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                        0.004547982      0.0007764255</span></span>
+<span id="cb18-58"><a href="section.html#cb18-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)        0.004142722      0.0007072478</span></span>
+<span id="cb18-59"><a href="section.html#cb18-59" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)        0.003099380      0.0005291289</span></span>
+<span id="cb18-60"><a href="section.html#cb18-60" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)        0.004184156      0.0007143181</span></span>
+<span id="cb18-61"><a href="section.html#cb18-61" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)        0.004142726      0.0007072449</span></span>
+<span id="cb18-62"><a href="section.html#cb18-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)        0.003099378      0.0005291285</span></span>
+<span id="cb18-63"><a href="section.html#cb18-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_ATT PBC_ATT) C(PBC_SN PBC_ATT)</span></span>
+<span id="cb18-64"><a href="section.html#cb18-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                       0.0013663048       0.001663771</span></span>
+<span id="cb18-65"><a href="section.html#cb18-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.0012445548       0.001515506</span></span>
+<span id="cb18-66"><a href="section.html#cb18-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.0009311243       0.001133843</span></span>
+<span id="cb18-67"><a href="section.html#cb18-67" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.0012570092       0.001530685</span></span>
+<span id="cb18-68"><a href="section.html#cb18-68" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.0012445619       0.001515525</span></span>
+<span id="cb18-69"><a href="section.html#cb18-69" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.0009311233       0.001133842</span></span>
+<span id="cb18-70"><a href="section.html#cb18-70" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_SN PBC_ATT) C(BEH_SN PBC_ATT)</span></span>
+<span id="cb18-71"><a href="section.html#cb18-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0004362904      0.0005789535</span></span>
+<span id="cb18-72"><a href="section.html#cb18-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0003974116      0.0005273586</span></span>
+<span id="cb18-73"><a href="section.html#cb18-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0002973332      0.0003945553</span></span>
+<span id="cb18-74"><a href="section.html#cb18-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0004013953      0.0005326467</span></span>
+<span id="cb18-75"><a href="section.html#cb18-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0003974189      0.0005273715</span></span>
+<span id="cb18-76"><a href="section.html#cb18-76" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0002973319      0.0003945558</span></span>
+<span id="cb18-77"><a href="section.html#cb18-77" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_PBC PBC_ATT) C(BEH_PBC PBC_ATT)</span></span>
+<span id="cb18-78"><a href="section.html#cb18-78" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                       0.002592421        0.001688971</span></span>
+<span id="cb18-79"><a href="section.html#cb18-79" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.002361403        0.001538468</span></span>
+<span id="cb18-80"><a href="section.html#cb18-80" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001766701        0.001151015</span></span>
+<span id="cb18-81"><a href="section.html#cb18-81" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.002385041        0.001553864</span></span>
+<span id="cb18-82"><a href="section.html#cb18-82" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.002361423        0.001538477</span></span>
+<span id="cb18-83"><a href="section.html#cb18-83" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001766699        0.001151012</span></span>
+<span id="cb18-84"><a href="section.html#cb18-84" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_BI PBC_ATT) C(BI_ATT BI_ATT)</span></span>
+<span id="cb18-85"><a href="section.html#cb18-85" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.0006653419      0.002028710</span></span>
+<span id="cb18-86"><a href="section.html#cb18-86" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0006060481      0.001847937</span></span>
+<span id="cb18-87"><a href="section.html#cb18-87" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0004534267      0.001382534</span></span>
+<span id="cb18-88"><a href="section.html#cb18-88" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0006121213      0.001866417</span></span>
+<span id="cb18-89"><a href="section.html#cb18-89" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0006060600      0.001847936</span></span>
+<span id="cb18-90"><a href="section.html#cb18-90" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0004534261      0.001382533</span></span>
+<span id="cb18-91"><a href="section.html#cb18-91" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_ATT BI_ATT) C(PBC_SN BI_ATT)</span></span>
+<span id="cb18-92"><a href="section.html#cb18-92" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.0012950276     0.0004215196</span></span>
+<span id="cb18-93"><a href="section.html#cb18-93" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0011796378     0.0003839543</span></span>
+<span id="cb18-94"><a href="section.html#cb18-94" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0008825445     0.0002872670</span></span>
+<span id="cb18-95"><a href="section.html#cb18-95" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0011914296     0.0003878078</span></span>
+<span id="cb18-96"><a href="section.html#cb18-96" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0011796320     0.0003839639</span></span>
+<span id="cb18-97"><a href="section.html#cb18-97" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0008825443     0.0002872672</span></span>
+<span id="cb18-98"><a href="section.html#cb18-98" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_SN BI_ATT) C(BEH_SN BI_ATT)</span></span>
+<span id="cb18-99"><a href="section.html#cb18-99" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                    0.0005366974     0.0005252412</span></span>
+<span id="cb18-100"><a href="section.html#cb18-100" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0004888724     0.0004784379</span></span>
+<span id="cb18-101"><a href="section.html#cb18-101" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0003657550     0.0003579479</span></span>
+<span id="cb18-102"><a href="section.html#cb18-102" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0004937657     0.0004832269</span></span>
+<span id="cb18-103"><a href="section.html#cb18-103" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0004888751     0.0004784409</span></span>
+<span id="cb18-104"><a href="section.html#cb18-104" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0003657543     0.0003579484</span></span>
+<span id="cb18-105"><a href="section.html#cb18-105" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_PBC BI_ATT) C(BEH_PBC BI_ATT)</span></span>
+<span id="cb18-106"><a href="section.html#cb18-106" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0005461570      0.0003593276</span></span>
+<span id="cb18-107"><a href="section.html#cb18-107" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0004974762      0.0003273048</span></span>
+<span id="cb18-108"><a href="section.html#cb18-108" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0003722050      0.0002448829</span></span>
+<span id="cb18-109"><a href="section.html#cb18-109" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0005024729      0.0003305885</span></span>
+<span id="cb18-110"><a href="section.html#cb18-110" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0004974942      0.0003273117</span></span>
+<span id="cb18-111"><a href="section.html#cb18-111" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0003722044      0.0002448816</span></span>
+<span id="cb18-112"><a href="section.html#cb18-112" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_BI BI_ATT) C(BEH_ATT BEH_ATT)</span></span>
+<span id="cb18-113"><a href="section.html#cb18-113" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0005717457        0.003394128</span></span>
+<span id="cb18-114"><a href="section.html#cb18-114" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0005207960        0.003091691</span></span>
+<span id="cb18-115"><a href="section.html#cb18-115" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0003896390        0.002313045</span></span>
+<span id="cb18-116"><a href="section.html#cb18-116" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0005260095        0.003122603</span></span>
+<span id="cb18-117"><a href="section.html#cb18-117" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0005208004        0.003091684</span></span>
+<span id="cb18-118"><a href="section.html#cb18-118" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0003896390        0.002313044</span></span>
+<span id="cb18-119"><a href="section.html#cb18-119" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(PBC_SN BEH_ATT) C(BI_SN BEH_ATT)</span></span>
+<span id="cb18-120"><a href="section.html#cb18-120" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.0006189012     0.0006147086</span></span>
+<span id="cb18-121"><a href="section.html#cb18-121" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0005637450     0.0005599316</span></span>
+<span id="cb18-122"><a href="section.html#cb18-122" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0004217819     0.0004189201</span></span>
+<span id="cb18-123"><a href="section.html#cb18-123" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0005694011     0.0005655367</span></span>
+<span id="cb18-124"><a href="section.html#cb18-124" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0005637574     0.0005599346</span></span>
+<span id="cb18-125"><a href="section.html#cb18-125" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0004217821     0.0004189193</span></span>
+<span id="cb18-126"><a href="section.html#cb18-126" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_SN BEH_ATT) C(BI_PBC BEH_ATT)</span></span>
+<span id="cb18-127"><a href="section.html#cb18-127" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.0010606176      0.0007797375</span></span>
+<span id="cb18-128"><a href="section.html#cb18-128" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0009661052      0.0007102441</span></span>
+<span id="cb18-129"><a href="section.html#cb18-129" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0007227989      0.0005313897</span></span>
+<span id="cb18-130"><a href="section.html#cb18-130" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0009757742      0.0007173696</span></span>
+<span id="cb18-131"><a href="section.html#cb18-131" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0009661109      0.0007102615</span></span>
+<span id="cb18-132"><a href="section.html#cb18-132" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0007227999      0.0005313885</span></span>
+<span id="cb18-133"><a href="section.html#cb18-133" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_PBC BEH_ATT) C(BEH_BI BEH_ATT)</span></span>
+<span id="cb18-134"><a href="section.html#cb18-134" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                       0.0007167360      0.0014083899</span></span>
+<span id="cb18-135"><a href="section.html#cb18-135" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.0006528574      0.0012828864</span></span>
+<span id="cb18-136"><a href="section.html#cb18-136" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.0004884532      0.0009597985</span></span>
+<span id="cb18-137"><a href="section.html#cb18-137" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.0006594061      0.0012957229</span></span>
+<span id="cb18-138"><a href="section.html#cb18-138" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.0006528724      0.0012828925</span></span>
+<span id="cb18-139"><a href="section.html#cb18-139" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.0004884512      0.0009597983</span></span>
+<span id="cb18-140"><a href="section.html#cb18-140" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(PBC_SN PBC_SN) C(BI_SN PBC_SN)</span></span>
+<span id="cb18-141"><a href="section.html#cb18-141" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.004844337    0.0010602659</span></span>
+<span id="cb18-142"><a href="section.html#cb18-142" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.004412645    0.0009657902</span></span>
+<span id="cb18-143"><a href="section.html#cb18-143" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.003301337    0.0007225602</span></span>
+<span id="cb18-144"><a href="section.html#cb18-144" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.004456806    0.0009754554</span></span>
+<span id="cb18-145"><a href="section.html#cb18-145" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.004412673    0.0009657909</span></span>
+<span id="cb18-146"><a href="section.html#cb18-146" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.003301337    0.0007225593</span></span>
+<span id="cb18-147"><a href="section.html#cb18-147" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_SN PBC_SN) C(BI_PBC PBC_SN)</span></span>
+<span id="cb18-148"><a href="section.html#cb18-148" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.001559444      0.002233177</span></span>
+<span id="cb18-149"><a href="section.html#cb18-149" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001420476      0.002034161</span></span>
+<span id="cb18-150"><a href="section.html#cb18-150" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001062741      0.001521882</span></span>
+<span id="cb18-151"><a href="section.html#cb18-151" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.001434701      0.002054540</span></span>
+<span id="cb18-152"><a href="section.html#cb18-152" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001420490      0.002034191</span></span>
+<span id="cb18-153"><a href="section.html#cb18-153" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001062742      0.001521881</span></span>
+<span id="cb18-154"><a href="section.html#cb18-154" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_PBC PBC_SN) C(BEH_BI PBC_SN)</span></span>
+<span id="cb18-155"><a href="section.html#cb18-155" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                       0.001572054     0.0006097968</span></span>
+<span id="cb18-156"><a href="section.html#cb18-156" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.001431963     0.0005554512</span></span>
+<span id="cb18-157"><a href="section.html#cb18-157" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001071337     0.0004155733</span></span>
+<span id="cb18-158"><a href="section.html#cb18-158" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.001446305     0.0005610229</span></span>
+<span id="cb18-159"><a href="section.html#cb18-159" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.001431979     0.0005554636</span></span>
+<span id="cb18-160"><a href="section.html#cb18-160" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001071335     0.0004155736</span></span>
+<span id="cb18-161"><a href="section.html#cb18-161" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_SN BI_SN) C(BEH_SN BI_SN)</span></span>
+<span id="cb18-162"><a href="section.html#cb18-162" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                    0.002860050     0.001725480</span></span>
+<span id="cb18-163"><a href="section.html#cb18-163" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.002605197     0.001571732</span></span>
+<span id="cb18-164"><a href="section.html#cb18-164" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.001949076     0.001175888</span></span>
+<span id="cb18-165"><a href="section.html#cb18-165" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.002631251     0.001587447</span></span>
+<span id="cb18-166"><a href="section.html#cb18-166" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.002605196     0.001571727</span></span>
+<span id="cb18-167"><a href="section.html#cb18-167" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.001949075     0.001175888</span></span>
+<span id="cb18-168"><a href="section.html#cb18-168" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_PBC BI_SN) C(BEH_PBC BI_SN)</span></span>
+<span id="cb18-169"><a href="section.html#cb18-169" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                    0.0005120301     0.0003559385</span></span>
+<span id="cb18-170"><a href="section.html#cb18-170" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0004663971     0.0003242191</span></span>
+<span id="cb18-171"><a href="section.html#cb18-171" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0003489479     0.0002425730</span></span>
+<span id="cb18-172"><a href="section.html#cb18-172" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0004710778     0.0003274721</span></span>
+<span id="cb18-173"><a href="section.html#cb18-173" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0004664073     0.0003242235</span></span>
+<span id="cb18-174"><a href="section.html#cb18-174" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0003489462     0.0002425706</span></span>
+<span id="cb18-175"><a href="section.html#cb18-175" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_BI BI_SN) C(BEH_SN BEH_SN)</span></span>
+<span id="cb18-176"><a href="section.html#cb18-176" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                    0.0006331430      0.003763996</span></span>
+<span id="cb18-177"><a href="section.html#cb18-177" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0005767206      0.003428598</span></span>
+<span id="cb18-178"><a href="section.html#cb18-178" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0004314804      0.002565100</span></span>
+<span id="cb18-179"><a href="section.html#cb18-179" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0005824958      0.003462883</span></span>
+<span id="cb18-180"><a href="section.html#cb18-180" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0005767263      0.003428595</span></span>
+<span id="cb18-181"><a href="section.html#cb18-181" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0004314796      0.002565101</span></span>
+<span id="cb18-182"><a href="section.html#cb18-182" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BI_PBC BEH_SN) C(BEH_PBC BEH_SN)</span></span>
+<span id="cb18-183"><a href="section.html#cb18-183" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0006727146      0.0005788221</span></span>
+<span id="cb18-184"><a href="section.html#cb18-184" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0006127584      0.0005272421</span></span>
+<span id="cb18-185"><a href="section.html#cb18-185" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0004584512      0.0003944639</span></span>
+<span id="cb18-186"><a href="section.html#cb18-186" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0006189093      0.0005325263</span></span>
+<span id="cb18-187"><a href="section.html#cb18-187" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0006127757      0.0005272482</span></span>
+<span id="cb18-188"><a href="section.html#cb18-188" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0004584515      0.0003944633</span></span>
+<span id="cb18-189"><a href="section.html#cb18-189" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_BI BEH_SN) C(BI_PBC BI_PBC)</span></span>
+<span id="cb18-190"><a href="section.html#cb18-190" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                     0.0011957567      0.004234769</span></span>
+<span id="cb18-191"><a href="section.html#cb18-191" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0010891977      0.003857382</span></span>
+<span id="cb18-192"><a href="section.html#cb18-192" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0008148913      0.002885930</span></span>
+<span id="cb18-193"><a href="section.html#cb18-193" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0011001015      0.003896002</span></span>
+<span id="cb18-194"><a href="section.html#cb18-194" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0010892077      0.003857422</span></span>
+<span id="cb18-195"><a href="section.html#cb18-195" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0008148917      0.002885928</span></span>
+<span id="cb18-196"><a href="section.html#cb18-196" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_PBC BI_PBC) C(BEH_BI BI_PBC)</span></span>
+<span id="cb18-197"><a href="section.html#cb18-197" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                       0.002227327     0.0009451278</span></span>
+<span id="cb18-198"><a href="section.html#cb18-198" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.002028848     0.0008608926</span></span>
+<span id="cb18-199"><a href="section.html#cb18-199" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001517894     0.0006440956</span></span>
+<span id="cb18-200"><a href="section.html#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.002049154     0.0008695262</span></span>
+<span id="cb18-201"><a href="section.html#cb18-201" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.002028861     0.0008609134</span></span>
+<span id="cb18-202"><a href="section.html#cb18-202" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001517891     0.0006440947</span></span>
+<span id="cb18-203"><a href="section.html#cb18-203" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_PBC BEH_PBC) C(BEH_BI BEH_PBC)</span></span>
+<span id="cb18-204"><a href="section.html#cb18-204" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                        0.003778508      0.0006339296</span></span>
+<span id="cb18-205"><a href="section.html#cb18-205" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)        0.003441808      0.0005774402</span></span>
+<span id="cb18-206"><a href="section.html#cb18-206" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)        0.002574993      0.0004320183</span></span>
+<span id="cb18-207"><a href="section.html#cb18-207" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)        0.003476237      0.0005832222</span></span>
+<span id="cb18-208"><a href="section.html#cb18-208" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)        0.003441815      0.0005774444</span></span>
+<span id="cb18-209"><a href="section.html#cb18-209" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)        0.002574990      0.0004320170</span></span>
+<span id="cb18-210"><a href="section.html#cb18-210" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                                       C(BEH_BI BEH_BI)       Age</span></span>
+<span id="cb18-211"><a href="section.html#cb18-211" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Al-Swidi et al., 2014                      0.002176141 -2.398421</span></span>
+<span id="cb18-212"><a href="section.html#cb18-212" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001982216  2.871579</span></span>
+<span id="cb18-213"><a href="section.html#cb18-213" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001483005  2.871579</span></span>
+<span id="cb18-214"><a href="section.html#cb18-214" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.002002054  2.871579</span></span>
+<span id="cb18-215"><a href="section.html#cb18-215" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001982230  2.871579</span></span>
+<span id="cb18-216"><a href="section.html#cb18-216" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001483004  2.871579</span></span></code></pre></div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="meta-analysis-structural-equation-modeling.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="univariate-approach.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/mikenguyen13/meta_analysis/edit/main/masem.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": "https://github.com/mikenguyen13/meta_analysis/blob/main/masem.Rmd",
+"text": null
+},
+"download": ["meta-analysis.pdf", "meta-analysis.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section",
+"scroll_highlight": true,
+"sharing": {
+"facebook": true,
+"github": true,
+"twitter": true,
+"linkedin": true
+},
+"info": true,
+"edit": "https://github.com/mikenguyen13/meta_analysis/edit/main/%s"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

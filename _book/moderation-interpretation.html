@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>4.1 Moderation Interpretation | Meta-analysis</title>
+  <meta name="description" content="Guide on meta-analysis" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="4.1 Moderation Interpretation | Meta-analysis" />
+  <meta property="og:type" content="book" />
+  <meta property="og:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+  <meta property="og:description" content="Guide on meta-analysis" />
+  <meta name="github-repo" content="mikenguyen13/meta_analysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4.1 Moderation Interpretation | Meta-analysis" />
+  
+  <meta name="twitter:description" content="Guide on meta-analysis" />
+  <meta name="twitter:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+
+<meta name="author" content="Mike Nguyen" />
+
+
+<meta name="date" content="2023-01-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="logo.png" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="prev" href="methods.html"/>
+<link rel="next" href="metafor.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9S5ZG1XCWF');
+</script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Meta-analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>3</b> Literature</a></li>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="moderation-interpretation.html"><a href="moderation-interpretation.html"><i class="fa fa-check"></i><b>4.1</b> Moderation Interpretation</a></li>
+<li class="chapter" data-level="4.2" data-path="metafor.html"><a href="metafor.html"><i class="fa fa-check"></i><b>4.2</b> metafor</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="metafor.html"><a href="metafor.html#log-risk"><i class="fa fa-check"></i><b>4.2.1</b> Log Risk</a></li>
+<li class="chapter" data-level="4.2.2" data-path="metafor.html"><a href="metafor.html#correlation"><i class="fa fa-check"></i><b>4.2.2</b> Correlation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>5</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="6" data-path="meta-analysis-structural-equation-modeling.html"><a href="meta-analysis-structural-equation-modeling.html"><i class="fa fa-check"></i><b>6</b> Meta-Analysis Structural Equation Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="section.html"><a href="section.html"><i class="fa fa-check"></i><b>6.1</b> </a></li>
+<li class="chapter" data-level="6.2" data-path="univariate-approach.html"><a href="univariate-approach.html"><i class="fa fa-check"></i><b>6.2</b> Univariate approach</a></li>
+<li class="chapter" data-level="6.3" data-path="gls-approach.html"><a href="gls-approach.html"><i class="fa fa-check"></i><b>6.3</b> GLS Approach</a></li>
+<li class="chapter" data-level="6.4" data-path="tssem-approach.html"><a href="tssem-approach.html"><i class="fa fa-check"></i><b>6.4</b> TSSEM Approach</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="tssem-approach.html"><a href="tssem-approach.html#fixed-effects"><i class="fa fa-check"></i><b>6.4.1</b> Fixed-effects</a></li>
+<li class="chapter" data-level="6.4.2" data-path="tssem-approach.html"><a href="tssem-approach.html#random-effects"><i class="fa fa-check"></i><b>6.4.2</b> Random-effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="application.html"><a href="application.html"><i class="fa fa-check"></i><b>7</b> Application</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="data-input-and-preparation.html"><a href="data-input-and-preparation.html"><i class="fa fa-check"></i><b>7.1</b> Data input and preparation</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlation-based-masem.html"><a href="correlation-based-masem.html"><i class="fa fa-check"></i><b>8</b> Correlation-Based MASEM</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="check-the-correlation-matrices-for-positive-definiteness.html"><a href="check-the-correlation-matrices-for-positive-definiteness.html"><i class="fa fa-check"></i><b>8.1</b> Check the correlation matrices for positive definiteness</a></li>
+<li class="chapter" data-level="8.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html"><i class="fa fa-check"></i><b>8.2</b> Stage 1: Pooling of correlation matrices</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-random-effects-model"><i class="fa fa-check"></i><b>8.2.1</b> Pooling under a random-effects model</a></li>
+<li class="chapter" data-level="8.2.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-fixed-effects-model"><i class="fa fa-check"></i><b>8.2.2</b> Pooling under a fixed-effects model</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html"><i class="fa fa-check"></i><b>8.3</b> Stage 2: Structural equation modeling</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-1-path-model-with-the-direct-effect"><i class="fa fa-check"></i><b>8.3.1</b> Model 1: Path model with the direct effect</a></li>
+<li class="chapter" data-level="8.3.2" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-2-path-model-without-the-direct-effect"><i class="fa fa-check"></i><b>8.3.2</b> Model 2: Path model without the direct effect</a></li>
+<li class="chapter" data-level="8.3.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-comparison-model-1-vs.-model-2"><i class="fa fa-check"></i><b>8.3.3</b> Model comparison: Model 1 vs. Model 2</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="r-session-info.html"><a href="r-session-info.html"><i class="fa fa-check"></i><b>9</b> R session info</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Meta-analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="moderation-interpretation" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> Moderation Interpretation<a href="moderation-interpretation.html#moderation-interpretation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>A little reminder of the moderation effect</p>
+<p><span class="math display">\[
+Y = b_1 X+ b_2 W + b_3 XW
+\]</span></p>
+<p>Johnson-Neyman finds the values of the moderators <span class="math inline">\(W\)</span> such that the p-value of the conditional effect of the predictor is equal to the level of significance <span class="math inline">\(\alpha\)</span></p>
+<p><span class="math display">\[
+t_{crit} = \frac{b_1 + b_3 W}{\sqrt{s^2_{b1} + 2 Ws_{b_1b_3} + W^2 s^2_{b_3}}}
+\]</span></p>
+<p>The solution for <span class="math inline">\(W\)</span> is</p>
+<p><span class="math display">\[
+W = \frac{-2(t_{crit}^2 s_{b_1b_3} - b_1b_3)\pm \sqrt{(2t^2_{crit}s_{b_1b_3}- 2b_1 b_3)^2-4(t_{crit}^2s^2_{b_3} - b_3^2)(t_{crit}^2 s^2_{b_1}-b_1^2)}}{2(t^2_{crit}s^2_{b_3}-b^2_3)}
+\]</span></p>
+<p>To implement the custom function, I model the code after <a href="https://rpubs.com/bachl/jn-plot">Marko Bachl</a></p>
+<p>To get the Johnson-Neyman signficance area</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="moderation-interpretation.html#cb1-1" aria-hidden="true" tabindex="-1"></a>jnt <span class="ot">=</span> <span class="cf">function</span>(.rma.mv, predictor, moderator, <span class="at">alpha =</span> .<span class="dv">05</span>) {</span>
+<span id="cb1-2"><a href="moderation-interpretation.html#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">require</span>(stringi)</span>
+<span id="cb1-3"><a href="moderation-interpretation.html#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="moderation-interpretation.html#cb1-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-5"><a href="moderation-interpretation.html#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get coefficient for the predictor</span></span>
+<span id="cb1-6"><a href="moderation-interpretation.html#cb1-6" aria-hidden="true" tabindex="-1"></a>    b1 <span class="ot">=</span> .rma.mv<span class="sc">$</span>b[predictor, <span class="dv">1</span>]</span>
+<span id="cb1-7"><a href="moderation-interpretation.html#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get coefficient for the interaction term</span></span>
+<span id="cb1-8"><a href="moderation-interpretation.html#cb1-8" aria-hidden="true" tabindex="-1"></a>    b3 <span class="ot">=</span> .rma.mv<span class="sc">$</span>b[<span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator), <span class="dv">1</span>]</span>
+<span id="cb1-9"><a href="moderation-interpretation.html#cb1-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-10"><a href="moderation-interpretation.html#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># standard error for the predictor term</span></span>
+<span id="cb1-11"><a href="moderation-interpretation.html#cb1-11" aria-hidden="true" tabindex="-1"></a>    se_b1 <span class="ot">=</span> .rma.mv<span class="sc">$</span>se[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> predictor)]</span>
+<span id="cb1-12"><a href="moderation-interpretation.html#cb1-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-13"><a href="moderation-interpretation.html#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># standard error for the interaction term</span></span>
+<span id="cb1-14"><a href="moderation-interpretation.html#cb1-14" aria-hidden="true" tabindex="-1"></a>    se_b3 <span class="ot">=</span> .rma.mv<span class="sc">$</span>se[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> <span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator))]</span>
+<span id="cb1-15"><a href="moderation-interpretation.html#cb1-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-16"><a href="moderation-interpretation.html#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># covariance for the predictor and the interaction term</span></span>
+<span id="cb1-17"><a href="moderation-interpretation.html#cb1-17" aria-hidden="true" tabindex="-1"></a>    COV_b1b3 <span class="ot">=</span> .rma.mv<span class="sc">$</span>vb[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> predictor), <span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> <span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator))]</span>
+<span id="cb1-18"><a href="moderation-interpretation.html#cb1-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-19"><a href="moderation-interpretation.html#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="co"># the t-critical value</span></span>
+<span id="cb1-20"><a href="moderation-interpretation.html#cb1-20" aria-hidden="true" tabindex="-1"></a>    t_crit <span class="ot">=</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>, <span class="fu">df.residual</span>(.rma.mv))</span>
+<span id="cb1-21"><a href="moderation-interpretation.html#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="moderation-interpretation.html#cb1-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-23"><a href="moderation-interpretation.html#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># see Bauer &amp; Curran, 2005</span></span>
+<span id="cb1-24"><a href="moderation-interpretation.html#cb1-24" aria-hidden="true" tabindex="-1"></a>    a <span class="ot">=</span> t_crit <span class="sc">^</span> <span class="dv">2</span> <span class="sc">*</span> se_b3 <span class="sc">^</span> <span class="dv">2</span> <span class="sc">-</span> b3 <span class="sc">^</span> <span class="dv">2</span></span>
+<span id="cb1-25"><a href="moderation-interpretation.html#cb1-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-26"><a href="moderation-interpretation.html#cb1-26" aria-hidden="true" tabindex="-1"></a>    b <span class="ot">=</span> <span class="dv">2</span> <span class="sc">*</span> (t_crit <span class="sc">^</span> <span class="dv">2</span> <span class="sc">*</span> COV_b1b3 <span class="sc">-</span> b1 <span class="sc">*</span> b3)</span>
+<span id="cb1-27"><a href="moderation-interpretation.html#cb1-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-28"><a href="moderation-interpretation.html#cb1-28" aria-hidden="true" tabindex="-1"></a>    c <span class="ot">=</span> t_crit <span class="sc">^</span> <span class="dv">2</span> <span class="sc">*</span> se_b1 <span class="sc">^</span> <span class="dv">2</span> <span class="sc">-</span> b1 <span class="sc">^</span> <span class="dv">2</span></span>
+<span id="cb1-29"><a href="moderation-interpretation.html#cb1-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-30"><a href="moderation-interpretation.html#cb1-30" aria-hidden="true" tabindex="-1"></a>    jn <span class="ot">=</span> <span class="fu">c</span>((<span class="sc">-</span>b <span class="sc">-</span> <span class="fu">sqrt</span>(b <span class="sc">^</span> <span class="dv">2</span> <span class="sc">-</span> <span class="dv">4</span> <span class="sc">*</span> a <span class="sc">*</span> c)) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> a),</span>
+<span id="cb1-31"><a href="moderation-interpretation.html#cb1-31" aria-hidden="true" tabindex="-1"></a>           (<span class="sc">-</span>b <span class="sc">+</span> <span class="fu">sqrt</span>(b <span class="sc">^</span> <span class="dv">2</span> <span class="sc">-</span> <span class="dv">4</span> <span class="sc">*</span> a <span class="sc">*</span> c)) <span class="sc">/</span> (<span class="dv">2</span> <span class="sc">*</span> a))</span>
+<span id="cb1-32"><a href="moderation-interpretation.html#cb1-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-33"><a href="moderation-interpretation.html#cb1-33" aria-hidden="true" tabindex="-1"></a>    JN <span class="ot">=</span> <span class="fu">sort</span>(<span class="fu">unname</span>(jn))</span>
+<span id="cb1-34"><a href="moderation-interpretation.html#cb1-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-35"><a href="moderation-interpretation.html#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># see whether it&#39;s inside the two numbers or outside</span></span>
+<span id="cb1-36"><a href="moderation-interpretation.html#cb1-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-37"><a href="moderation-interpretation.html#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(JN) <span class="sc">!=</span> <span class="dv">0</span>){</span>
+<span id="cb1-38"><a href="moderation-interpretation.html#cb1-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># randomly pick a number between the two cutoffs</span></span>
+<span id="cb1-39"><a href="moderation-interpretation.html#cb1-39" aria-hidden="true" tabindex="-1"></a>        test_num <span class="ot">&lt;-</span> <span class="fu">runif</span>(<span class="dv">1</span>, JN[<span class="dv">1</span>], JN[<span class="dv">2</span>])</span>
+<span id="cb1-40"><a href="moderation-interpretation.html#cb1-40" aria-hidden="true" tabindex="-1"></a>        test_theta <span class="ot">=</span> b1 <span class="sc">+</span> test_num <span class="sc">*</span> b3</span>
+<span id="cb1-41"><a href="moderation-interpretation.html#cb1-41" aria-hidden="true" tabindex="-1"></a>        test_se_theta <span class="ot">=</span> <span class="fu">sqrt</span>(se_b1 <span class="sc">^</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> test_num <span class="sc">*</span> COV_b1b3 <span class="sc">+</span> test_num <span class="sc">^</span> <span class="dv">2</span> <span class="sc">*</span> se_b3 <span class="sc">^</span> <span class="dv">2</span>)</span>
+<span id="cb1-42"><a href="moderation-interpretation.html#cb1-42" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb1-43"><a href="moderation-interpretation.html#cb1-43" aria-hidden="true" tabindex="-1"></a>        test.ci.lo_theta <span class="ot">=</span> test_theta <span class="sc">-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>, <span class="fu">df.residual</span>(.rma.mv)) <span class="sc">*</span> test_se_theta</span>
+<span id="cb1-44"><a href="moderation-interpretation.html#cb1-44" aria-hidden="true" tabindex="-1"></a>        test.ci.hi_theta <span class="ot">=</span> test_theta <span class="sc">+</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>, <span class="fu">df.residual</span>(.rma.mv)) <span class="sc">*</span> test_se_theta</span>
+<span id="cb1-45"><a href="moderation-interpretation.html#cb1-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (<span class="dv">0</span> <span class="sc">%in%</span> <span class="fu">c</span>(test.ci.lo_theta<span class="sc">:</span>test.ci.hi_theta)){</span>
+<span id="cb1-46"><a href="moderation-interpretation.html#cb1-46" aria-hidden="true" tabindex="-1"></a>            <span class="fu">print</span>(<span class="st">&quot;inside the range&quot;</span>)</span>
+<span id="cb1-47"><a href="moderation-interpretation.html#cb1-47" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb1-48"><a href="moderation-interpretation.html#cb1-48" aria-hidden="true" tabindex="-1"></a>            <span class="fu">print</span>(<span class="st">&quot;outside the range&quot;</span>)</span>
+<span id="cb1-49"><a href="moderation-interpretation.html#cb1-49" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb1-50"><a href="moderation-interpretation.html#cb1-50" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-51"><a href="moderation-interpretation.html#cb1-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-52"><a href="moderation-interpretation.html#cb1-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-53"><a href="moderation-interpretation.html#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(JN)</span>
+<span id="cb1-54"><a href="moderation-interpretation.html#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rm</span>(.rma.mv)</span>
+<span id="cb1-55"><a href="moderation-interpretation.html#cb1-55" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>If the results are 0, 1, 2, then the whole range of the predictors are significant.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="moderation-interpretation.html#cb2-1" aria-hidden="true" tabindex="-1"></a>theta_plot <span class="ot">=</span> <span class="cf">function</span>(.rma.mv,</span>
+<span id="cb2-2"><a href="moderation-interpretation.html#cb2-2" aria-hidden="true" tabindex="-1"></a>                      predictor,</span>
+<span id="cb2-3"><a href="moderation-interpretation.html#cb2-3" aria-hidden="true" tabindex="-1"></a>                      moderator,</span>
+<span id="cb2-4"><a href="moderation-interpretation.html#cb2-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">alpha =</span> .<span class="dv">05</span>,</span>
+<span id="cb2-5"><a href="moderation-interpretation.html#cb2-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">jn =</span> F) {</span>
+<span id="cb2-6"><a href="moderation-interpretation.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">require</span>(dplyr)</span>
+<span id="cb2-7"><a href="moderation-interpretation.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">require</span>(ggplot2)</span>
+<span id="cb2-8"><a href="moderation-interpretation.html#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_set</span>(<span class="fu">theme_minimal</span>())</span>
+<span id="cb2-9"><a href="moderation-interpretation.html#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">require</span>(stringi)</span>
+<span id="cb2-10"><a href="moderation-interpretation.html#cb2-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-11"><a href="moderation-interpretation.html#cb2-11" aria-hidden="true" tabindex="-1"></a>    .data <span class="ot">=</span> <span class="fu">tibble</span>(</span>
+<span id="cb2-12"><a href="moderation-interpretation.html#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get coefficient for the predictor</span></span>
+<span id="cb2-13"><a href="moderation-interpretation.html#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">b1 =</span> .rma.mv<span class="sc">$</span>b[predictor, <span class="dv">1</span>],</span>
+<span id="cb2-14"><a href="moderation-interpretation.html#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># get coefficient for the interaction term</span></span>
+<span id="cb2-15"><a href="moderation-interpretation.html#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">b3 =</span> .rma.mv<span class="sc">$</span>b[<span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator), <span class="dv">1</span>],</span>
+<span id="cb2-16"><a href="moderation-interpretation.html#cb2-16" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-17"><a href="moderation-interpretation.html#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">Z =</span> <span class="fu">quantile</span>(.rma.mv<span class="sc">$</span>X[, moderator], <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>)),</span>
+<span id="cb2-18"><a href="moderation-interpretation.html#cb2-18" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-19"><a href="moderation-interpretation.html#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">theta =</span> b1 <span class="sc">+</span> Z <span class="sc">*</span> b3,</span>
+<span id="cb2-20"><a href="moderation-interpretation.html#cb2-20" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-21"><a href="moderation-interpretation.html#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="co"># standard error for the predictor term</span></span>
+<span id="cb2-22"><a href="moderation-interpretation.html#cb2-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">se_b1 =</span> .rma.mv<span class="sc">$</span>se[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> predictor)],</span>
+<span id="cb2-23"><a href="moderation-interpretation.html#cb2-23" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-24"><a href="moderation-interpretation.html#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># standard error for the interaction term</span></span>
+<span id="cb2-25"><a href="moderation-interpretation.html#cb2-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">se_b3 =</span> .rma.mv<span class="sc">$</span>se[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> <span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator))],</span>
+<span id="cb2-26"><a href="moderation-interpretation.html#cb2-26" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-27"><a href="moderation-interpretation.html#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="co"># covariance for the predictor and the interaction term</span></span>
+<span id="cb2-28"><a href="moderation-interpretation.html#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">COV_b1b3 =</span> .rma.mv<span class="sc">$</span>vb[<span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> predictor), <span class="fu">which</span>(<span class="fu">rownames</span>(<span class="fu">summary</span>(.rma.mv)<span class="sc">$</span>b) <span class="sc">==</span> <span class="fu">paste0</span>(predictor, <span class="st">&quot;:&quot;</span>, moderator))], </span>
+<span id="cb2-29"><a href="moderation-interpretation.html#cb2-29" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-30"><a href="moderation-interpretation.html#cb2-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">se_theta =</span> <span class="fu">sqrt</span>(se_b1 <span class="sc">^</span> <span class="dv">2</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> Z <span class="sc">*</span> COV_b1b3 <span class="sc">+</span> Z <span class="sc">^</span> <span class="dv">2</span> <span class="sc">*</span> se_b3 <span class="sc">^</span> <span class="dv">2</span>),</span>
+<span id="cb2-31"><a href="moderation-interpretation.html#cb2-31" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-32"><a href="moderation-interpretation.html#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">ci.lo_theta =</span> theta <span class="sc">-</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>, <span class="fu">df.residual</span>(.rma.mv)) <span class="sc">*</span> se_theta,</span>
+<span id="cb2-33"><a href="moderation-interpretation.html#cb2-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">ci.hi_theta =</span> theta <span class="sc">+</span> <span class="fu">qt</span>(<span class="dv">1</span> <span class="sc">-</span> alpha <span class="sc">/</span> <span class="dv">2</span>, <span class="fu">df.residual</span>(.rma.mv)) <span class="sc">*</span> se_theta</span>
+<span id="cb2-34"><a href="moderation-interpretation.html#cb2-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-35"><a href="moderation-interpretation.html#cb2-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-36"><a href="moderation-interpretation.html#cb2-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-37"><a href="moderation-interpretation.html#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (jn) {</span>
+<span id="cb2-38"><a href="moderation-interpretation.html#cb2-38" aria-hidden="true" tabindex="-1"></a>        JN <span class="ot">=</span> <span class="fu">jnt</span>(</span>
+<span id="cb2-39"><a href="moderation-interpretation.html#cb2-39" aria-hidden="true" tabindex="-1"></a>            <span class="at">.rma.mv =</span> .rma.mv,</span>
+<span id="cb2-40"><a href="moderation-interpretation.html#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="at">predictor =</span> predictor,</span>
+<span id="cb2-41"><a href="moderation-interpretation.html#cb2-41" aria-hidden="true" tabindex="-1"></a>            <span class="at">moderator =</span> moderator,</span>
+<span id="cb2-42"><a href="moderation-interpretation.html#cb2-42" aria-hidden="true" tabindex="-1"></a>            <span class="at">alpha =</span> alpha</span>
+<span id="cb2-43"><a href="moderation-interpretation.html#cb2-43" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb2-44"><a href="moderation-interpretation.html#cb2-44" aria-hidden="true" tabindex="-1"></a>        JN_lines <span class="ot">=</span> <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> JN, <span class="at">linetype =</span> <span class="dv">2</span>)</span>
+<span id="cb2-45"><a href="moderation-interpretation.html#cb2-45" aria-hidden="true" tabindex="-1"></a>        JN_regions <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="fu">length</span>(JN) <span class="sc">==</span> <span class="dv">0</span>,</span>
+<span id="cb2-46"><a href="moderation-interpretation.html#cb2-46" aria-hidden="true" tabindex="-1"></a>                            <span class="st">&quot;no significance regions&quot;</span>,</span>
+<span id="cb2-47"><a href="moderation-interpretation.html#cb2-47" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">paste</span>(<span class="fu">round</span>(JN, <span class="dv">2</span>), <span class="at">collapse =</span> <span class="st">&quot;; &quot;</span>))</span>
+<span id="cb2-48"><a href="moderation-interpretation.html#cb2-48" aria-hidden="true" tabindex="-1"></a>        Xlab <span class="ot">=</span> <span class="fu">paste0</span>(moderator, <span class="st">&quot; (JN Significance Regions: &quot;</span>, JN_regions, <span class="st">&quot;)&quot;</span>)</span>
+<span id="cb2-49"><a href="moderation-interpretation.html#cb2-49" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb2-50"><a href="moderation-interpretation.html#cb2-50" aria-hidden="true" tabindex="-1"></a>        Xlab <span class="ot">=</span> moderator</span>
+<span id="cb2-51"><a href="moderation-interpretation.html#cb2-51" aria-hidden="true" tabindex="-1"></a>        JN_lines <span class="ot">=</span> <span class="cn">NULL</span></span>
+<span id="cb2-52"><a href="moderation-interpretation.html#cb2-52" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-53"><a href="moderation-interpretation.html#cb2-53" aria-hidden="true" tabindex="-1"></a>    .data <span class="sc">%&gt;%</span></span>
+<span id="cb2-54"><a href="moderation-interpretation.html#cb2-54" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Z, <span class="at">y =</span> theta)) <span class="sc">+</span></span>
+<span id="cb2-55"><a href="moderation-interpretation.html#cb2-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> ci.lo_theta, <span class="at">ymax =</span> ci.hi_theta), <span class="at">fill =</span> <span class="st">&quot;grey70&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-56"><a href="moderation-interpretation.html#cb2-56" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb2-57"><a href="moderation-interpretation.html#cb2-57" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ggtitle</span>(<span class="fu">paste</span>(</span>
+<span id="cb2-58"><a href="moderation-interpretation.html#cb2-58" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;Conditional Effect of&quot;</span>,</span>
+<span id="cb2-59"><a href="moderation-interpretation.html#cb2-59" aria-hidden="true" tabindex="-1"></a>            predictor,</span>
+<span id="cb2-60"><a href="moderation-interpretation.html#cb2-60" aria-hidden="true" tabindex="-1"></a>            <span class="st">&quot;as function of&quot;</span>,</span>
+<span id="cb2-61"><a href="moderation-interpretation.html#cb2-61" aria-hidden="true" tabindex="-1"></a>            moderator</span>
+<span id="cb2-62"><a href="moderation-interpretation.html#cb2-62" aria-hidden="true" tabindex="-1"></a>        )) <span class="sc">+</span></span>
+<span id="cb2-63"><a href="moderation-interpretation.html#cb2-63" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-64"><a href="moderation-interpretation.html#cb2-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">labs</span>(<span class="at">x =</span> Xlab, <span class="at">y =</span> <span class="fu">expression</span>(theta)) <span class="sc">+</span></span>
+<span id="cb2-65"><a href="moderation-interpretation.html#cb2-65" aria-hidden="true" tabindex="-1"></a>        JN_lines <span class="sc">+</span></span>
+<span id="cb2-66"><a href="moderation-interpretation.html#cb2-66" aria-hidden="true" tabindex="-1"></a>        <span class="fu">xlim</span>(<span class="fu">min</span>(.rma.mv<span class="sc">$</span>X[, moderator]), <span class="fu">max</span>(.rma.mv<span class="sc">$</span>X[, moderator]))</span>
+<span id="cb2-67"><a href="moderation-interpretation.html#cb2-67" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>Let’s try it on a model</p>
+<p>Note: both the moderator and the predictor must be <strong>continuous</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="moderation-interpretation.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(metafor)</span>
+<span id="cb3-2"><a href="moderation-interpretation.html#cb3-2" aria-hidden="true" tabindex="-1"></a>mod <span class="ot">&lt;-</span> <span class="fu">rma.mv</span>(yi, vi, <span class="at">mods =</span> <span class="sc">~</span> year <span class="sc">*</span> pubstatus, <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">|</span> study<span class="sc">/</span>esid, <span class="at">data=</span> dat.assink2016)</span>
+<span id="cb3-3"><a href="moderation-interpretation.html#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mod)</span>
+<span id="cb3-4"><a href="moderation-interpretation.html#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-5"><a href="moderation-interpretation.html#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 100; method: REML)</span></span>
+<span id="cb3-6"><a href="moderation-interpretation.html#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-7"><a href="moderation-interpretation.html#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   logLik  Deviance       AIC       BIC      AICc   </span></span>
+<span id="cb3-8"><a href="moderation-interpretation.html#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -66.6051  133.2102  145.2102  160.5963  146.1540   </span></span>
+<span id="cb3-9"><a href="moderation-interpretation.html#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-10"><a href="moderation-interpretation.html#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Variance Components:</span></span>
+<span id="cb3-11"><a href="moderation-interpretation.html#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-12"><a href="moderation-interpretation.html#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             estim    sqrt  nlvls  fixed      factor </span></span>
+<span id="cb3-13"><a href="moderation-interpretation.html#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; sigma^2.1  0.1143  0.3381     17     no       study </span></span>
+<span id="cb3-14"><a href="moderation-interpretation.html#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; sigma^2.2  0.1138  0.3373    100     no  study/esid </span></span>
+<span id="cb3-15"><a href="moderation-interpretation.html#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-16"><a href="moderation-interpretation.html#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span id="cb3-17"><a href="moderation-interpretation.html#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; QE(df = 96) = 447.7313, p-val &lt; .0001</span></span>
+<span id="cb3-18"><a href="moderation-interpretation.html#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-19"><a href="moderation-interpretation.html#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Test of Moderators (coefficients 2:4):</span></span>
+<span id="cb3-20"><a href="moderation-interpretation.html#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; QM(df = 3) = 9.8164, p-val = 0.0202</span></span>
+<span id="cb3-21"><a href="moderation-interpretation.html#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-22"><a href="moderation-interpretation.html#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Model Results:</span></span>
+<span id="cb3-23"><a href="moderation-interpretation.html#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-24"><a href="moderation-interpretation.html#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 estimate      se     zval    pval    ci.lb    ci.ub     </span></span>
+<span id="cb3-25"><a href="moderation-interpretation.html#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; intrcpt           0.6985  0.2621   2.6655  0.0077   0.1849   1.2121  ** </span></span>
+<span id="cb3-26"><a href="moderation-interpretation.html#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; year             -0.0928  0.0464  -1.9990  0.0456  -0.1837  -0.0018   * </span></span>
+<span id="cb3-27"><a href="moderation-interpretation.html#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; pubstatus        -0.3308  0.2826  -1.1704  0.2418  -0.8847   0.2231     </span></span>
+<span id="cb3-28"><a href="moderation-interpretation.html#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; year:pubstatus    0.0608  0.0499   1.2170  0.2236  -0.0371   0.1586     </span></span>
+<span id="cb3-29"><a href="moderation-interpretation.html#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-30"><a href="moderation-interpretation.html#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ---</span></span>
+<span id="cb3-31"><a href="moderation-interpretation.html#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</span></span>
+<span id="cb3-32"><a href="moderation-interpretation.html#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="moderation-interpretation.html#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="fu">jnt</span>(mod, <span class="at">predictor =</span> <span class="st">&quot;year&quot;</span>, <span class="at">moderator =</span> <span class="st">&quot;pubstatus&quot;</span>)</span>
+<span id="cb3-34"><a href="moderation-interpretation.html#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;outside the range&quot;</span></span>
+<span id="cb3-35"><a href="moderation-interpretation.html#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] -0.02071889  0.94999771</span></span>
+<span id="cb3-36"><a href="moderation-interpretation.html#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="moderation-interpretation.html#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="fu">theta_plot</span>(mod, <span class="at">predictor =</span> <span class="st">&quot;year&quot;</span>, <span class="at">moderator =</span> <span class="st">&quot;pubstatus&quot;</span>, <span class="at">jn =</span> T)</span>
+<span id="cb3-38"><a href="moderation-interpretation.html#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;outside the range&quot;</span></span></code></pre></div>
+<p><img src="03-method_files/figure-html/unnamed-chunk-3-1.png" width="90%" style="display: block; margin: auto;" /></p>
+<p>Then we interpret that the impact of year on the outcome variable is only significant when the publication status is greater than 0.95 or less than -0.02 (but this is not possible because the lower limit is 0).</p>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="methods.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="metafor.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/mikenguyen13/meta_analysis/edit/main/03-method.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": "https://github.com/mikenguyen13/meta_analysis/blob/main/03-method.Rmd",
+"text": null
+},
+"download": ["meta-analysis.pdf", "meta-analysis.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section",
+"scroll_highlight": true,
+"sharing": {
+"facebook": true,
+"github": true,
+"twitter": true,
+"linkedin": true
+},
+"info": true,
+"edit": "https://github.com/mikenguyen13/meta_analysis/edit/main/%s"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

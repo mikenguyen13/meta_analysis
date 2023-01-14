@@ -1,0 +1,64 @@
+# metafor
+
+```{r}
+library(metafor)
+library(dmetar)
+data("SleepProblems")
+```
+
+## Confirmatory Factor Analysis
+
+### Stage 1
+
+1.  pool correlation matrices using `tssem1`
+
+```{r}
+cfa1 <- tssem1(SleepProblems$data, 
+               SleepProblems$n, 
+               method="REM",
+               RE.type = "Diag")
+
+summary(cfa1)
+```
+
+```{r}
+# Extract the fixed coefficients (correlations)
+fixed.coefs <- coef(cfa1, "fixed")
+
+# Make a symmetric matrix
+fc.mat <- vec2symMat(fixed.coefs, diag = FALSE)
+
+# Label rows and columns
+dimnames(fc.mat)[[1]] <- c("Quality", "Latency", 
+                           "Efficiency", "DTDysf", "HypSomnia")
+dimnames(fc.mat)[[2]] <- c("Quality", "Latency", 
+                           "Efficiency", "DTDysf", "HypSomnia")
+
+# Print correlation matrix (3 digits)
+round(fc.mat, 3)
+```
+
+We can now see the pooled correlation matrix for our variables. Looking back at the model output, we also see that all correlation coefficients are significant (p\< 0.05), except one: the correlation between sleep quality and daytime dysfunction was not significant. From the perspective of our assumed model, this makes sense, because we expect these variables to load on different factors. We also see that the I2 values of the different estimates are very large (65-93%).
+
+### Stage 2
+
+After pooling the correlation matrices, we have to specify our model.
+
+We have to use RAM formulation and specify the A, S and F matrices.
+
+To fill the fields in each of these matrices, it's best to construct an empty matrix first.
+
+Structure-wise, all matrices we define do not only contain the observed variables, but also the assumed latent variables.
+
+```{r}
+# Create vector of column/row names
+dims <- c("Quality", "Latency", "Efficiency", 
+          "DTDysf", "HypSomnia", "f_Insomnia", "f_Lassitude")
+
+# Create 7x7 matrix of zeros
+mat <- matrix(rep(0, 7*7), nrow = 7, ncol = 7)
+
+# Label the rows and columns
+dimnames(mat)[[1]] <- dimnames(mat)[[2]] <- dims
+mat
+```

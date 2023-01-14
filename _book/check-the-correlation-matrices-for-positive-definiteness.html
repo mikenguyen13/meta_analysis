@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>8.1 Check the correlation matrices for positive definiteness | Meta-analysis</title>
+  <meta name="description" content="Guide on meta-analysis" />
+  <meta name="generator" content="bookdown 0.29 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="8.1 Check the correlation matrices for positive definiteness | Meta-analysis" />
+  <meta property="og:type" content="book" />
+  <meta property="og:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+  <meta property="og:description" content="Guide on meta-analysis" />
+  <meta name="github-repo" content="mikenguyen13/meta_analysis" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="8.1 Check the correlation matrices for positive definiteness | Meta-analysis" />
+  
+  <meta name="twitter:description" content="Guide on meta-analysis" />
+  <meta name="twitter:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg" />
+
+<meta name="author" content="Mike Nguyen" />
+
+
+<meta name="date" content="2023-01-14" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="logo.png" />
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+<link rel="prev" href="correlation-based-masem.html"/>
+<link rel="next" href="stage-1-pooling-of-correlation-matrices.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-9S5ZG1XCWF');
+</script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<style type="text/css">
+/* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Meta-analysis</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Prerequisites</a></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a></li>
+<li class="chapter" data-level="3" data-path="literature.html"><a href="literature.html"><i class="fa fa-check"></i><b>3</b> Literature</a></li>
+<li class="chapter" data-level="4" data-path="methods.html"><a href="methods.html"><i class="fa fa-check"></i><b>4</b> Methods</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="moderation-interpretation.html"><a href="moderation-interpretation.html"><i class="fa fa-check"></i><b>4.1</b> Moderation Interpretation</a></li>
+<li class="chapter" data-level="4.2" data-path="metafor.html"><a href="metafor.html"><i class="fa fa-check"></i><b>4.2</b> metafor</a>
+<ul>
+<li class="chapter" data-level="4.2.1" data-path="metafor.html"><a href="metafor.html#log-risk"><i class="fa fa-check"></i><b>4.2.1</b> Log Risk</a></li>
+<li class="chapter" data-level="4.2.2" data-path="metafor.html"><a href="metafor.html#correlation"><i class="fa fa-check"></i><b>4.2.2</b> Correlation</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="final-words.html"><a href="final-words.html"><i class="fa fa-check"></i><b>5</b> Final Words</a></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="chapter" data-level="6" data-path="meta-analysis-structural-equation-modeling.html"><a href="meta-analysis-structural-equation-modeling.html"><i class="fa fa-check"></i><b>6</b> Meta-Analysis Structural Equation Modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="section.html"><a href="section.html"><i class="fa fa-check"></i><b>6.1</b> </a></li>
+<li class="chapter" data-level="6.2" data-path="univariate-approach.html"><a href="univariate-approach.html"><i class="fa fa-check"></i><b>6.2</b> Univariate approach</a></li>
+<li class="chapter" data-level="6.3" data-path="gls-approach.html"><a href="gls-approach.html"><i class="fa fa-check"></i><b>6.3</b> GLS Approach</a></li>
+<li class="chapter" data-level="6.4" data-path="tssem-approach.html"><a href="tssem-approach.html"><i class="fa fa-check"></i><b>6.4</b> TSSEM Approach</a>
+<ul>
+<li class="chapter" data-level="6.4.1" data-path="tssem-approach.html"><a href="tssem-approach.html#fixed-effects"><i class="fa fa-check"></i><b>6.4.1</b> Fixed-effects</a></li>
+<li class="chapter" data-level="6.4.2" data-path="tssem-approach.html"><a href="tssem-approach.html#random-effects"><i class="fa fa-check"></i><b>6.4.2</b> Random-effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="application.html"><a href="application.html"><i class="fa fa-check"></i><b>7</b> Application</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="data-input-and-preparation.html"><a href="data-input-and-preparation.html"><i class="fa fa-check"></i><b>7.1</b> Data input and preparation</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="correlation-based-masem.html"><a href="correlation-based-masem.html"><i class="fa fa-check"></i><b>8</b> Correlation-Based MASEM</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="check-the-correlation-matrices-for-positive-definiteness.html"><a href="check-the-correlation-matrices-for-positive-definiteness.html"><i class="fa fa-check"></i><b>8.1</b> Check the correlation matrices for positive definiteness</a></li>
+<li class="chapter" data-level="8.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html"><i class="fa fa-check"></i><b>8.2</b> Stage 1: Pooling of correlation matrices</a>
+<ul>
+<li class="chapter" data-level="8.2.1" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-random-effects-model"><i class="fa fa-check"></i><b>8.2.1</b> Pooling under a random-effects model</a></li>
+<li class="chapter" data-level="8.2.2" data-path="stage-1-pooling-of-correlation-matrices.html"><a href="stage-1-pooling-of-correlation-matrices.html#pooling-under-a-fixed-effects-model"><i class="fa fa-check"></i><b>8.2.2</b> Pooling under a fixed-effects model</a></li>
+</ul></li>
+<li class="chapter" data-level="8.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html"><i class="fa fa-check"></i><b>8.3</b> Stage 2: Structural equation modeling</a>
+<ul>
+<li class="chapter" data-level="8.3.1" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-1-path-model-with-the-direct-effect"><i class="fa fa-check"></i><b>8.3.1</b> Model 1: Path model with the direct effect</a></li>
+<li class="chapter" data-level="8.3.2" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-2-path-model-without-the-direct-effect"><i class="fa fa-check"></i><b>8.3.2</b> Model 2: Path model without the direct effect</a></li>
+<li class="chapter" data-level="8.3.3" data-path="stage-2-structural-equation-modeling.html"><a href="stage-2-structural-equation-modeling.html#model-comparison-model-1-vs.-model-2"><i class="fa fa-check"></i><b>8.3.3</b> Model comparison: Model 1 vs. Model 2</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="r-session-info.html"><a href="r-session-info.html"><i class="fa fa-check"></i><b>9</b> R session info</a></li>
+<li class="divider"></li>
+<li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Meta-analysis</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="check-the-correlation-matrices-for-positive-definiteness" class="section level2 hasAnchor" number="8.1">
+<h2><span class="header-section-number">8.1</span> Check the correlation matrices for positive definiteness<a href="check-the-correlation-matrices-for-positive-definiteness.html#check-the-correlation-matrices-for-positive-definiteness" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PD check</span></span>
+<span id="cb21-2"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-2" aria-hidden="true" tabindex="-1"></a>pd_check <span class="ot">&lt;-</span> <span class="fu">is.pd</span>(TAMu<span class="sc">$</span>data)</span>
+<span id="cb21-3"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(pd_check))</span>
+<span id="cb21-4"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 50</span></span>
+<span id="cb21-5"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-5" aria-hidden="true" tabindex="-1"></a>pd_check</span>
+<span id="cb21-6"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  Okazaki &amp; Renda dos Santos (2012)                     Parkman (2015) </span></span>
+<span id="cb21-7"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-8"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        Wong (2015)              Cote &amp; Miliner (2015) </span></span>
+<span id="cb21-9"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-10"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Teo &amp; Milutinovic (2015)          Teo &amp; Fan et al. (2015)-1 </span></span>
+<span id="cb21-11"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-12"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          Teo &amp; Fan et al. (2015)-2        Koutromanos et al. (2015)-1 </span></span>
+<span id="cb21-13"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-14"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        Koutromanos et al. (2015)-2                   Wu et al. (2015) </span></span>
+<span id="cb21-15"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-16"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     Kabakci-Yurdakul et al. (2014)                     Kirmizi (2014) </span></span>
+<span id="cb21-17"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-18"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Mac Callum et al. (2014)                 Wong et al. (2013) </span></span>
+<span id="cb21-19"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-20"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Teo &amp; Ursavas et al. (2011a)           Teo &amp; Luan et al. (2008) </span></span>
+<span id="cb21-21"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-22"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             Sumak &amp; Sorgo (2016)-1             Sumak &amp; Sorgo (2016)-2 </span></span>
+<span id="cb21-23"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-24"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                   Wu et al. (2016)                 Wong et al. (2016) </span></span>
+<span id="cb21-25"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-26"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Atif et al. (2015)               Tokel &amp; Isler (2015) </span></span>
+<span id="cb21-27"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-28"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Sadeghi et al. (2014)                Pynoo et al. (2012) </span></span>
+<span id="cb21-29"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-30"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                Aypay et al. (2012)                Chen &amp; Tseng (2012) </span></span>
+<span id="cb21-31"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-32"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        Teo (2012a)            Teo &amp; van Schaik (2012) </span></span>
+<span id="cb21-33"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-34"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Teo &amp; Noyes (2011)         Teo &amp; Lee et al. (2009a)-1 </span></span>
+<span id="cb21-35"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-36"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;         Teo &amp; Lee et al. (2009a)-2                        Teo (2009a) </span></span>
+<span id="cb21-37"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-38"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 Park et al. (2007)              Cheung &amp; Sachs (2006) </span></span>
+<span id="cb21-39"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-40"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                         Teo (2011)                       Shiue (2007) </span></span>
+<span id="cb21-41"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-42"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                        Chiu (2017)                  Lai et al. (2013) </span></span>
+<span id="cb21-43"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-44"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Teo &amp; Zhou et al. (2016)                         Teo (2008) </span></span>
+<span id="cb21-45"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-46"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;           Wong &amp; Teo et al. (2012)                  Luan &amp; Teo (2009) </span></span>
+<span id="cb21-47"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-48"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        Teo &amp; Ursavas et al. (2012)                  Teo &amp; Zhou (2014) </span></span>
+<span id="cb21-49"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-50"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                         Teo (2013) Teo &amp; Milutinovic et al. (2016a)-1 </span></span>
+<span id="cb21-51"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-52"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Teo &amp; Milutinovic et al. (2016a)-2         Pittalis &amp; Christou (2010) </span></span>
+<span id="cb21-53"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE </span></span>
+<span id="cb21-54"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-54" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;              Fathema et al. (2015)                  Luan &amp; Teo (2011) </span></span>
+<span id="cb21-55"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                               TRUE                               TRUE</span></span>
+<span id="cb21-56"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-57"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-57" aria-hidden="true" tabindex="-1"></a><span class="co"># if some Fail, need to exclude because its matrix is not positive definite</span></span>
+<span id="cb21-58"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-59"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Some description of the studies</span></span>
+<span id="cb21-60"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-60" aria-hidden="true" tabindex="-1"></a><span class="co"># Available studies per correlation</span></span>
+<span id="cb21-61"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-61" aria-hidden="true" tabindex="-1"></a><span class="fu">pattern.na</span>(TAMu<span class="sc">$</span>data, <span class="at">show.na=</span><span class="cn">FALSE</span>)</span>
+<span id="cb21-62"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-62" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     PU PEU ATT BI</span></span>
+<span id="cb21-63"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-63" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; PU  50  50  50 50</span></span>
+<span id="cb21-64"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-64" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; PEU 50  50  50 50</span></span>
+<span id="cb21-65"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-65" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ATT 50  50  50 50</span></span>
+<span id="cb21-66"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-66" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BI  50  50  50 50</span></span>
+<span id="cb21-67"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-68"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-69"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-69" aria-hidden="true" tabindex="-1"></a><span class="co"># Available sample sizes per correlation</span></span>
+<span id="cb21-70"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-70" aria-hidden="true" tabindex="-1"></a><span class="fu">pattern.n</span>(TAMu<span class="sc">$</span>data, TAMu<span class="sc">$</span>n)</span>
+<span id="cb21-71"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-71" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        PU   PEU   ATT    BI</span></span>
+<span id="cb21-72"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-72" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; PU  14918 14918 14918 14918</span></span>
+<span id="cb21-73"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-73" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; PEU 14918 14918 14918 14918</span></span>
+<span id="cb21-74"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-74" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ATT 14918 14918 14918 14918</span></span>
+<span id="cb21-75"><a href="check-the-correlation-matrices-for-positive-definiteness.html#cb21-75" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; BI  14918 14918 14918 14918</span></span></code></pre></div>
+<p>All 50 correlation matrices are positive definite and can be submitted to stage 1 of the correlation-based MASEM approach (i.e., two-stage SEM). If some correlation matrices were not positive definite, we would either have to exclude them or find the nearest positive definite matrix (using the <code>nearPD()</code> function in the <code>Matrix</code> package).</p>
+<p>Notice that none of the correlations were missing.</p>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="correlation-based-masem.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="stage-1-pooling-of-correlation-matrices.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/mikenguyen13/meta_analysis/edit/main/masem.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": "https://github.com/mikenguyen13/meta_analysis/blob/main/masem.Rmd",
+"text": null
+},
+"download": ["meta-analysis.pdf", "meta-analysis.epub"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "section",
+"scroll_highlight": true,
+"sharing": {
+"facebook": true,
+"github": true,
+"twitter": true,
+"linkedin": true
+},
+"info": true,
+"edit": "https://github.com/mikenguyen13/meta_analysis/edit/main/%s"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

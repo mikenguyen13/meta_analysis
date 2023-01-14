@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 6 Meta-Analysis Structural Equation Modeling | Meta-analysis</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="Readings Fixed-effects MASEM (Mike W. L. Cheung and Chan 2009) Fixed and random-effects MASEM (M. W.-L. Cheung 2013) Random-effect MASEM (M. W.-L. Cheung and Cheung 2016) Health psychology...">
+<meta name="generator" content="bookdown 0.29 with bs4_book()">
+<meta property="og:title" content="Chapter 6 Meta-Analysis Structural Equation Modeling | Meta-analysis">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://bookdown.org/mike/meta_analysis/meta-analysis-structural-equation-modeling.html">
+<meta property="og:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg">
+<meta property="og:description" content="Readings Fixed-effects MASEM (Mike W. L. Cheung and Chan 2009) Fixed and random-effects MASEM (M. W.-L. Cheung 2013) Random-effect MASEM (M. W.-L. Cheung and Cheung 2016) Health psychology...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 6 Meta-Analysis Structural Equation Modeling | Meta-analysis">
+<meta name="twitter:description" content="Readings Fixed-effects MASEM (Mike W. L. Cheung and Chan 2009) Fixed and random-effects MASEM (M. W.-L. Cheung 2013) Random-effect MASEM (M. W.-L. Cheung and Cheung 2016) Health psychology...">
+<meta name="twitter:image" content="https://bookdown.org/mike/meta_analysis//images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.0/transition.js"></script><script src="libs/bs3compat-0.4.0/tabs.js"></script><script src="libs/bs3compat-0.4.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-analysis</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Prerequisites</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Introduction</a></li>
+<li><a class="" href="literature.html"><span class="header-section-number">3</span> Literature</a></li>
+<li><a class="" href="methods.html"><span class="header-section-number">4</span> Methods</a></li>
+<li><a class="" href="final-words.html"><span class="header-section-number">5</span> Final Words</a></li>
+<li><a class="" href="references.html">References</a></li>
+<li><a class="active" href="meta-analysis-structural-equation-modeling.html"><span class="header-section-number">6</span> Meta-Analysis Structural Equation Modeling</a></li>
+<li><a class="" href="application.html"><span class="header-section-number">7</span> Application</a></li>
+<li><a class="" href="correlation-based-masem.html"><span class="header-section-number">8</span> Correlation-Based MASEM</a></li>
+<li><a class="" href="r-session-info.html"><span class="header-section-number">9</span> R session info</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="meta-analysis-structural-equation-modeling" class="section level1" number="6">
+<h1>
+<span class="header-section-number">6</span> Meta-Analysis Structural Equation Modeling<a class="anchor" aria-label="anchor" href="#meta-analysis-structural-equation-modeling"><i class="fas fa-link"></i></a>
+</h1>
+<p>Readings</p>
+<ul>
+<li><p>Fixed-effects MASEM <span class="citation">(<a href="r-session-info.html#ref-cheung2009" role="doc-biblioref">Mike W. L. Cheung and Chan 2009</a>)</span></p></li>
+<li><p>Fixed and random-effects MASEM <span class="citation">(<a href="r-session-info.html#ref-cheung2013" role="doc-biblioref">M. W.-L. Cheung 2013</a>)</span></p></li>
+<li><p>Random-effect MASEM <span class="citation">(<a href="r-session-info.html#ref-cheung2016" role="doc-biblioref">M. W.-L. Cheung and Cheung 2016</a>)</span></p></li>
+<li><p>Health psychology application <span class="citation">(<a href="r-session-info.html#ref-cheung2017" role="doc-biblioref">M. W.-L. Cheung and Hong 2017</a>)</span></p></li>
+<li><p>Review <span class="citation">(<a href="r-session-info.html#ref-cheung2018" role="doc-biblioref">M. W.-L. Cheung 2018</a>)</span></p></li>
+</ul>
+<p><a href="https://openmx.ssri.psu.edu//forums/third-party-software/metasem">Forum</a> to get help</p>
+<p>Notes:</p>
+<ul>
+<li><p>SEM is also known as covariance structural analysis, covariance structure model, analysis of covariance structures, analysis of correlation structure</p></li>
+<li><p>MASEM is also known as meta-analytic path analysis, meta-analysis of factor analysis, meta-analytically structural euqaiton analysis, path analysis of meta-analytically derived correlation matrices, SEM of a meta-analytic correlation matrix, path analysis based on meta-analytic findings, model-based meta-analysis</p></li>
+</ul>
+<p>Advantages of MASEM <span class="citation">(<a href="r-session-info.html#ref-bergh2016using" role="doc-biblioref">Bergh et al. 2016</a>)</span></p>
+<ul>
+<li><p>Can test intermediate mechanisms and opposing hypotheses.</p></li>
+<li><p>Increase external validity.</p></li>
+</ul>
+<p>Disadvantages of MASEM</p>
+<ul>
+<li><p>Not useful in cases where no competing hypotheses or</p></li>
+<li><p>Cannot be performed with limited primary studies (40 studies minimum)</p></li>
+<li><p>Number of variables should not be too large</p></li>
+<li><p>Is not immune to construct validity threats.</p></li>
+<li><p>Can be misleading when imputation is in great proportion</p></li>
+<li><p>Limited use of moderation analysis within SEM</p></li>
+<li>
+<p>cannot make causal inferences (except when all primary data are from experimental designs)</p>
+<ul>
+<li>
+<p>One can only do her best to address endogeneity concerns</p>
+<ul>
+<li><p>use lagged term for autocorrelation</p></li>
+<li><p>adjust for measurement error</p></li>
+<li><p>Include as many relevant controls as possible</p></li>
+<li><p>test alternative specification.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Two-stage method</p>
+<div class="inline-figure"><img src="images/image-230865052.png"></div>
+<p>(image by <a href="https://www.youtube.com/watch?v=0v-CdNLa_eo&amp;ab_channel=ZPID-LeibnizInstituteforPsychology">Dr. Suzanne Jak</a>)</p>
+<div class="inline-figure"><img src="images/image-105444969.png"></div>
+<p>(image by <a href="https://www.youtube.com/watch?v=0v-CdNLa_eo&amp;ab_channel=ZPID-LeibnizInstituteforPsychology">Dr. Suzanne Jak</a>)</p>
+<p>Steps to do MASEM <span class="citation">(<a href="r-session-info.html#ref-bergh2016using" role="doc-biblioref">Bergh et al. 2016, 480</a>)</span>:</p>
+<p>Step 1: Specify conceptual models:</p>
+<ol style="list-style-type: decimal">
+<li>Specify competing models o be tested</li>
+<li>Specify whether the models are a priori or post hoc</li>
+</ol>
+<p>Step 2: Meta-analytic procedures:</p>
+<ol style="list-style-type: decimal">
+<li>Solutions to missing data (recommend the first three)
+<ol style="list-style-type: decimal">
+<li><p>Search again (based on the same or different search criteria.</p></li>
+<li><p>Contact authors to request correlation values <span class="citation">(<a href="r-session-info.html#ref-shadish1996" role="doc-biblioref">Shadish 1996</a>)</span></p></li>
+<li><p>Replicate the primary study</p></li>
+<li><p>Use surrogate or proxy variables that are conceptually similar <span class="citation">(<a href="r-session-info.html#ref-eby1999motivational" role="doc-biblioref">Eby et al. 1999</a>)</span></p></li>
+<li><p>Use composite correlations by combining specific constructs into broader ones <span class="citation">(<a href="r-session-info.html#ref-viswesvaran1995theory" role="doc-biblioref">Viswesvaran and Ones 1995</a>)</span></p></li>
+<li><p>Use a two-stage SEM <span class="citation">(<a href="r-session-info.html#ref-cheung2005meta" role="doc-biblioref">Mike W-L Cheung and Chan 2005</a>; <a href="r-session-info.html#ref-fan2010factor" role="doc-biblioref">Fan et al. 2010</a>)</span></p></li>
+<li><p>Data imputation (e.g., full information maximum likelihood) <span class="citation">(<a href="r-session-info.html#ref-cheung2008model" role="doc-biblioref">Mike W-L Cheung 2008</a>)</span></p></li>
+<li><p>Use the average effect size across nonmissing effect sizes <span class="citation">(<a href="r-session-info.html#ref-viswesvaran1995theory" role="doc-biblioref">Viswesvaran and Ones 1995</a>)</span></p></li>
+</ol>
+</li>
+<li>Different pairs of variables can have different sample size values to calculate the meta-analytic correlations. Solutions:
+<ol style="list-style-type: decimal">
+<li><p>Harmonic mean <span class="citation">(<a href="r-session-info.html#ref-burke2003methodological" role="doc-biblioref">Burke, Landis, and Murphy 2003</a>)</span>: <span class="math inline">\(k/(1/N_1 + 1/N_2 + \dots + 1/N_k)\)</span> where <span class="math inline">\(k\)</span> is the number of correlations, and <span class="math inline">\(N_k\)</span> refers to the sample used to calculate the <span class="math inline">\(k\)</span>-th correlation. This is <strong>recommended</strong> because it limits the influence of very big numbers and increases the influence of smaller values and is usually smaller than the arithmetic mean <span class="citation">(<a href="r-session-info.html#ref-landis2013successfully" role="doc-biblioref">Landis 2013</a>; <a href="r-session-info.html#ref-johnson2001synthetic" role="doc-biblioref">Johnson et al. 2001</a>)</span></p></li>
+<li><p>The smallest total sample size <span class="citation">(<a href="r-session-info.html#ref-roesch2001meta" role="doc-biblioref">Roesch and Weiner 2001</a>)</span></p></li>
+<li><p>Median <span class="citation">(<a href="r-session-info.html#ref-tokunaga2010evaluation" role="doc-biblioref">Tokunaga and Rains 2010</a>)</span></p></li>
+<li><p>Arithmetic mean <span class="citation">(<a href="r-session-info.html#ref-graham2011measuring" role="doc-biblioref">Graham 2011</a>; <a href="r-session-info.html#ref-judge2002personality" role="doc-biblioref">Judge et al. 2002</a>)</span></p></li>
+</ol>
+</li>
+<li>Derive meta-analytic matrix</li>
+</ol>
+<p>Step 3: Structural equation modeling</p>
+<ol style="list-style-type: decimal">
+<li>Approaches
+<ol style="list-style-type: decimal">
+<li>
+<p>Two-stage methods <span class="citation">(<a href="r-session-info.html#ref-cheung2005meta" role="doc-biblioref">Mike W-L Cheung and Chan 2005</a>)</span></p>
+<ol style="list-style-type: decimal">
+<li>can’t do moderation analysis really. (can only do subgroup analysis)</li>
+<li>Stage 1: Combine the correlation matrices into a pooled correlation matrix</li>
+<li>Stage 2: Fit SEM on the pooled correlation matrix</li>
+<li>Can use (1) Uni variate approach <span class="citation">(<a href="r-session-info.html#ref-hunter1990" role="doc-biblioref">Hunter and Schmidt 1990</a>)</span>, (2) GLM <span class="citation">(<a href="r-session-info.html#ref-becker1992" role="doc-biblioref">Becker 1992</a>)</span>, (3) TSSEM <span class="citation">(<a href="r-session-info.html#ref-cheung2005meta" role="doc-biblioref">Mike W-L Cheung and Chan 2005</a>)</span>
+</li>
+</ol>
+</li>
+<li>
+<p>One-stage methods <span class="citation">(<a href="r-session-info.html#ref-jak2020meta" role="doc-biblioref">Jak and Cheung 2020</a>)</span></p>
+<ol style="list-style-type: decimal">
+<li><p>Can do moderation analysis (for continuous moderator)</p></li>
+<li><p>handles missing data similar to 2-stage</p></li>
+<li><p>provides fit indices similar to two-stage</p></li>
+<li><p>can use webMASEM to apply</p></li>
+</ol>
+</li>
+<li>
+<p>Parameter-based MASEM <span class="citation">(<a href="r-session-info.html#ref-becker2007synthesis" role="doc-biblioref">Becker and Wu 2007</a>; <a href="r-session-info.html#ref-gnambs2016parameter" role="doc-biblioref">Gnambs and Staufenbiel 2016</a>)</span></p>
+<ol style="list-style-type: decimal">
+<li><p>Steps: Fit SEM, then pool the SEM parameters</p></li>
+<li><p>need complete data, and model needs to fit equally well in all samples, but can be solved by Bayesian <span class="citation">(<a href="r-session-info.html#ref-ke2019bayesian" role="doc-biblioref">Ke, Zhang, and Tong 2019</a>)</span></p></li>
+</ol>
+</li>
+</ol>
+</li>
+<li>nonpositive definite matrix (i.e., 0 or negative eigenvalues) fix (either because of a small total number of studies in some cells, two variables are highly correlated, or overuse of imputation)
+<ol style="list-style-type: decimal">
+<li><p>Choose alternative global starting values. <span class="citation">(<a href="r-session-info.html#ref-eby1999motivational" role="doc-biblioref">Eby et al. 1999</a>)</span></p></li>
+<li><p>Select precise starting values for parameter estimates <span class="citation">(<a href="r-session-info.html#ref-eby1999motivational" role="doc-biblioref">Eby et al. 1999</a>)</span></p></li>
+<li><p>Reduce the set of variables</p></li>
+</ol>
+</li>
+<li>Reliability missing: can either use
+<ol style="list-style-type: decimal">
+<li><p>Mean reliability <span class="citation">(<a href="r-session-info.html#ref-kirca2005market" role="doc-biblioref">Kirca, Jayachandran, and Bearden 2005</a>; <a href="r-session-info.html#ref-rosengren2020meta" role="doc-biblioref">Rosengren et al. 2020</a>)</span></p></li>
+<li><p>Use 0.8 as a conservative number for all constructs <span class="citation">(<a href="r-session-info.html#ref-bergh2016using" role="doc-biblioref">Bergh et al. 2016</a>; <a href="r-session-info.html#ref-aguinis2011debunking" role="doc-biblioref">Aguinis et al. 2011</a>)</span></p></li>
+</ol>
+</li>
+<li>Sample dependencies fix:
+<ol style="list-style-type: decimal">
+<li>
+<p><span class="citation">(<a href="r-session-info.html#ref-geyskens2006make" role="doc-biblioref">Geyskens, Steenkamp, and Kumar 2006</a>)</span> recommendations in steps:</p>
+<ol style="list-style-type: decimal">
+<li><p>Include all meaningful correlations from each sample for consideration</p></li>
+<li><p>calculate composite correlation from conceptually similar component correlations from each sample</p></li>
+<li><p>If different studies used totally or partially overlapping datasets, choose correlation(s) based on the bigger sample size(s).</p></li>
+</ol>
+</li>
+<li><p>use generalized least squares <span class="citation">(<a href="r-session-info.html#ref-furlow2005meta" role="doc-biblioref">Furlow and Beretvas 2005</a>; <a href="r-session-info.html#ref-shadish1996" role="doc-biblioref">Shadish 1996</a>)</span></p></li>
+<li><p>use random effect meta-analyses in conjunction with MASEM <span class="citation">(<a href="r-session-info.html#ref-erez1996using" role="doc-biblioref">Erez, Bloom, and Wells 1996</a>)</span></p></li>
+<li><p>use multilevel meta-analytic in conjunction with MASEM <span class="citation">(<a href="r-session-info.html#ref-van2003combining" role="doc-biblioref">Van den Noortgate and Onghena 2003</a>)</span></p></li>
+</ol>
+</li>
+<li>Use multiple fit measures (no general cutoff, all context-specific [<span class="citation">Nye and Drasgow (<a href="r-session-info.html#ref-nye2011effect" role="doc-biblioref">2011</a>)</span>)
+<ol style="list-style-type: decimal">
+<li>
+<p>Chi-square (careful because of its dependent on sample size): since MASEM can have a large number of observations, chi-square usually has poor fit even in cases where the empirical correlation matrix is quite close to the hypothesized model’s correlation matrix. <span class="citation">(<a href="r-session-info.html#ref-aguinis2009cautionary" role="doc-biblioref">Aguinis and Harden 2009</a>)</span>. Hence, use other fit indices as well.</p>
+<ol style="list-style-type: decimal">
+<li><p>Tests the null hypothesis of exact fit</p></li>
+<li><p>If <span class="math inline">\(p &lt; 0.05\)</span>, exact fit is rejected</p></li>
+</ol>
+</li>
+<li><p>Comparative fit index (CFI)</p></li>
+<li><p>Goodness-of-fit index (GFI)</p></li>
+<li>
+<p>Root mean square residual (RMSR): measure of approximate fit</p>
+<ol style="list-style-type: decimal">
+<li><p>&lt; .05 close approximate fit</p></li>
+<li><p>.5 to .8 reasonable fit</p></li>
+<li><p>&gt;.1 poor fit <span class="citation">(<a href="r-session-info.html#ref-browne1992alternative" role="doc-biblioref">Browne and Cudeck 1992</a>)</span></p></li>
+</ol>
+</li>
+<li><p>Standardized Root Mean Squared Residual (SRMSR)</p></li>
+</ol>
+</li>
+<li>Inclusion and exclusion criteria <span class="citation">(<a href="r-session-info.html#ref-bergh2016using" role="doc-biblioref">Bergh et al. 2016, 482</a>)</span>:
+<ol style="list-style-type: decimal">
+<li><p>Select the meta-analytic correlation for variables whose operationalizations are congruent with the a priori definitions of interest</p></li>
+<li><p>Select meta-analytic correlation reported by meta-analyses that used prespecified meta-analytic methodologies (e.g., how unreliability was adjusted/corrected)</p></li>
+<li><p>Utilize meta-analytic correlations derived from meta-analyses with the greatest sample sizes.</p></li>
+</ol>
+</li>
+</ol>
+<p>Step 4: Reporting procedures</p>
+<ol style="list-style-type: decimal">
+<li>Follow the meta-analysis reporting standards (MARS)
+<ol style="list-style-type: decimal">
+<li>If the model only has observed variables, the procedure should be called path analysis rather than MASEM</li>
+</ol>
+</li>
+<li>Include a table that has all estimated bivariate meta-analytic correlations and 95% CIs for each correlation, the number of studies for each correlation (k), and the total sample size (n)</li>
+<li>Include a table of results of each tested model with figures</li>
+<li>Include a table of coefficients (always standardized) and statistical significance level, SEs, 95% CIs.</li>
+</ol>
+<p>Data</p>
+<div class="inline-figure"><img src="images/image-325187377.png"></div>
+<p>(image by <a href="https://www.youtube.com/watch?v=0v-CdNLa_eo&amp;ab_channel=ZPID-LeibnizInstituteforPsychology">Dr. Suzanne Jak</a>)</p>
+<div id="section" class="section level2" number="6.1">
+<h2>
+<span class="header-section-number">6.1</span> <a class="anchor" aria-label="anchor" href="#section"><i class="fas fa-link"></i></a>
+</h2>
+<p>metaSEM</p>
+<p><a href="https://sjak.shinyapps.io/webMASEM/">webMASEM</a></p>
+<p><a href="https://osf.io/wh6d3/">Document</a></p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikewlcheung/metasem">metaSEM</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"Roorda11"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">my.df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/Cor2DataFrame.html">Cor2DataFrame</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">data</span>, <span class="va">Roorda11</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Add centered SES as a moderator (standardizing SES helps to improve the stability of the results)</span></span>
+<span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span>, SES<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">SES</span><span class="op">)</span>, check.names<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   neg_pos enga_pos achiev_pos enga_neg achiev_neg achiev_enga</span></span>
+<span><span class="co">#&gt; 1   -0.54       NA       0.18       NA      -0.29          NA</span></span>
+<span><span class="co">#&gt; 2      NA     0.64       0.29       NA         NA        0.23</span></span>
+<span><span class="co">#&gt; 3      NA     0.29         NA       NA         NA          NA</span></span>
+<span><span class="co">#&gt; 4      NA     0.29         NA       NA         NA          NA</span></span>
+<span><span class="co">#&gt; 5      NA       NA         NA       NA      -0.24          NA</span></span>
+<span><span class="co">#&gt; 6      NA     0.06      -0.09       NA         NA        0.20</span></span>
+<span><span class="co">#&gt;   C(neg_pos neg_pos) C(enga_pos neg_pos) C(achiev_pos neg_pos)</span></span>
+<span><span class="co">#&gt; 1       0.0005989503       -0.0001515535         -9.072888e-05</span></span>
+<span><span class="co">#&gt; 2       0.0018375288       -0.0004649535         -2.783491e-04</span></span>
+<span><span class="co">#&gt; 3       0.0063790635       -0.0016141079         -9.663017e-04</span></span>
+<span><span class="co">#&gt; 4       0.0118882493       -0.0030081057         -1.800829e-03</span></span>
+<span><span class="co">#&gt; 5       0.0043833791       -0.0011091346         -6.639929e-04</span></span>
+<span><span class="co">#&gt; 6       0.0084368192       -0.0021347816         -1.278004e-03</span></span>
+<span><span class="co">#&gt;   C(enga_neg neg_pos) C(achiev_neg neg_pos) C(achiev_enga neg_pos)</span></span>
+<span><span class="co">#&gt; 1        0.0001507643          3.883504e-05          -2.214649e-05</span></span>
+<span><span class="co">#&gt; 2        0.0004625324          1.191428e-04          -6.794417e-05</span></span>
+<span><span class="co">#&gt; 3        0.0016057006          4.136083e-04          -2.358707e-04</span></span>
+<span><span class="co">#&gt; 4        0.0029924455          7.708180e-04          -4.395732e-04</span></span>
+<span><span class="co">#&gt; 5        0.0011033574          2.842108e-04          -1.620776e-04</span></span>
+<span><span class="co">#&gt; 6        0.0021236669          5.470286e-04          -3.119521e-04</span></span>
+<span><span class="co">#&gt;   C(enga_pos enga_pos) C(achiev_pos enga_pos) C(enga_neg enga_pos)</span></span>
+<span><span class="co">#&gt; 1         0.0006397566           0.0001647861        -0.0001910368</span></span>
+<span><span class="co">#&gt; 2         0.0019627193           0.0005055497        -0.0005860852</span></span>
+<span><span class="co">#&gt; 3         0.0068136693           0.0017550402        -0.0020346212</span></span>
+<span><span class="co">#&gt; 4         0.0126982048           0.0032707507        -0.0037918008</span></span>
+<span><span class="co">#&gt; 5         0.0046820181           0.0012059759        -0.0013980892</span></span>
+<span><span class="co">#&gt; 6         0.0090116233           0.0023211770        -0.0026909450</span></span>
+<span><span class="co">#&gt;   C(achiev_neg enga_pos) C(achiev_enga enga_pos) C(achiev_pos achiev_pos)</span></span>
+<span><span class="co">#&gt; 1          -5.134692e-05            3.127062e-05             0.0007526507</span></span>
+<span><span class="co">#&gt; 2          -1.575275e-04            9.593552e-05             0.0023090684</span></span>
+<span><span class="co">#&gt; 3          -5.468647e-04            3.330468e-04             0.0080160366</span></span>
+<span><span class="co">#&gt; 4          -1.019160e-03            6.206678e-04             0.0149389709</span></span>
+<span><span class="co">#&gt; 5          -3.757769e-04            2.288519e-04             0.0055082223</span></span>
+<span><span class="co">#&gt; 6          -7.232702e-04            4.404767e-04             0.0106018447</span></span>
+<span><span class="co">#&gt;   C(enga_neg achiev_pos) C(achiev_neg achiev_pos) C(achiev_enga achiev_pos)</span></span>
+<span><span class="co">#&gt; 1          -0.0000639557            -0.0002463388              0.0001998713</span></span>
+<span><span class="co">#&gt; 2          -0.0001962109            -0.0007557451              0.0006131873</span></span>
+<span><span class="co">#&gt; 3          -0.0006811551            -0.0026236049              0.0021287076</span></span>
+<span><span class="co">#&gt; 4          -0.0012694257            -0.0048894474              0.0039671336</span></span>
+<span><span class="co">#&gt; 5          -0.0004680519            -0.0018028091              0.0014627431</span></span>
+<span><span class="co">#&gt; 6          -0.0009008759            -0.0034699233              0.0028153854</span></span>
+<span><span class="co">#&gt;   C(enga_neg enga_neg) C(achiev_neg enga_neg) C(achiev_enga enga_neg)</span></span>
+<span><span class="co">#&gt; 1         0.0006389859           0.0001558887           -7.403048e-05</span></span>
+<span><span class="co">#&gt; 2         0.0019603553           0.0004782534           -2.271198e-04</span></span>
+<span><span class="co">#&gt; 3         0.0068054597           0.0016602745           -7.884545e-04</span></span>
+<span><span class="co">#&gt; 4         0.0126829099           0.0030941522           -1.469390e-03</span></span>
+<span><span class="co">#&gt; 5         0.0046763734           0.0011408577           -5.417836e-04</span></span>
+<span><span class="co">#&gt; 6         0.0090007606           0.0021958460           -1.042788e-03</span></span>
+<span><span class="co">#&gt;   C(achiev_neg achiev_neg) C(achiev_enga achiev_neg) C(achiev_enga achiev_enga)</span></span>
+<span><span class="co">#&gt; 1             0.0007298084             -0.0001921435               0.0006716402</span></span>
+<span><span class="co">#&gt; 2             0.0022389887             -0.0005894789               0.0020605349</span></span>
+<span><span class="co">#&gt; 3             0.0077727476             -0.0020463990               0.0071532349</span></span>
+<span><span class="co">#&gt; 4             0.0144855833             -0.0038137502               0.0133310333</span></span>
+<span><span class="co">#&gt; 5             0.0053410484             -0.0014061844               0.0049153512</span></span>
+<span><span class="co">#&gt; 6             0.0102800837             -0.0027065274               0.0094607287</span></span>
+<span><span class="co">#&gt;          SES</span></span>
+<span><span class="co">#&gt; 1  0.4464188</span></span>
+<span><span class="co">#&gt; 2  0.7145383</span></span>
+<span><span class="co">#&gt; 3  0.8821129</span></span>
+<span><span class="co">#&gt; 4 -0.8941783</span></span>
+<span><span class="co">#&gt; 5 -0.9947231</span></span>
+<span><span class="co">#&gt; 6 -0.5925439</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Scalco17</span><span class="op">)</span></span>
+<span><span class="va">my.df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/Cor2DataFrame.html">Cor2DataFrame</a></span><span class="op">(</span><span class="va">Scalco17</span><span class="op">$</span><span class="va">data</span>, <span class="va">Scalco17</span><span class="op">$</span><span class="va">n</span>, acov <span class="op">=</span> <span class="st">"weighted"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co">## Add the centered Age as a moderator</span></span>
+<span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span>, Age<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">Scalco17</span><span class="op">$</span><span class="va">Age</span>,  scale<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>, check.names<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">my.df</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                       SN_ATT PBC_ATT BI_ATT BEH_ATT PBC_SN</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                  0.562    0.18  0.798      NA  0.314</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)  0.690    0.44  0.730      NA  0.460</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)  0.520    0.22  0.600      NA  0.280</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)  0.570    0.40  0.670      NA  0.340</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)  0.760    0.35  0.710      NA  0.360</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)  0.460    0.03  0.550      NA  0.150</span></span>
+<span><span class="co">#&gt;                                       BI_SN BEH_SN BI_PBC BEH_PBC BEH_BI</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                 0.696     NA  0.216      NA     NA</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT) 0.620     NA  0.410      NA     NA</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK) 0.560     NA  0.310      NA     NA</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI) 0.550     NA  0.360      NA     NA</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT) 0.640     NA  0.240      NA     NA</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK) 0.580     NA  0.100      NA     NA</span></span>
+<span><span class="co">#&gt;                                       C(SN_ATT SN_ATT) C(PBC_ATT SN_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.003943229      0.0007678353</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.003591861      0.0006994172</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.002687245      0.0005232762</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.003627776      0.0007064166</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.003591855      0.0006994208</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.002687245      0.0005232761</span></span>
+<span><span class="co">#&gt;                                       C(BI_ATT SN_ATT) C(BEH_ATT SN_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0011950618      0.0012021391</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0010885722      0.0010950198</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0008144188      0.0008192439</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0010994610      0.0011059724</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0010885737      0.0010950199</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0008144187      0.0008192440</span></span>
+<span><span class="co">#&gt;                                       C(PBC_SN SN_ATT) C(BI_SN SN_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0010869769     0.001853521</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0009901025     0.001688358</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0007407646     0.001263146</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0010000307     0.001705244</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0009901226     0.001688357</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0007407654     0.001263145</span></span>
+<span><span class="co">#&gt;                                       C(BEH_SN SN_ATT) C(BI_PBC SN_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.001499233     0.0005441095</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001365640     0.0004956130</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001021706     0.0003708108</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.001379300     0.0005005915</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001365641     0.0004956285</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001021706     0.0003708104</span></span>
+<span><span class="co">#&gt;                                       C(BEH_PBC SN_ATT) C(BEH_BI SN_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.0004086058     0.0006118278</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0003721897     0.0005573051</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0002784662     0.0004169550</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0003759267     0.0005628855</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0003721980     0.0005573105</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0002784645     0.0004169550</span></span>
+<span><span class="co">#&gt;                                       C(PBC_ATT PBC_ATT) C(BI_ATT PBC_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                        0.004547982      0.0007764255</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)        0.004142722      0.0007072478</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)        0.003099380      0.0005291289</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)        0.004184156      0.0007143181</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)        0.004142726      0.0007072449</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)        0.003099378      0.0005291285</span></span>
+<span><span class="co">#&gt;                                       C(BEH_ATT PBC_ATT) C(PBC_SN PBC_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                       0.0013663048       0.001663771</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.0012445548       0.001515506</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.0009311243       0.001133843</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.0012570092       0.001530685</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.0012445619       0.001515525</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.0009311233       0.001133842</span></span>
+<span><span class="co">#&gt;                                       C(BI_SN PBC_ATT) C(BEH_SN PBC_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0004362904      0.0005789535</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0003974116      0.0005273586</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0002973332      0.0003945553</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0004013953      0.0005326467</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0003974189      0.0005273715</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0002973319      0.0003945558</span></span>
+<span><span class="co">#&gt;                                       C(BI_PBC PBC_ATT) C(BEH_PBC PBC_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                       0.002592421        0.001688971</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.002361403        0.001538468</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001766701        0.001151015</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.002385041        0.001553864</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.002361423        0.001538477</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001766699        0.001151012</span></span>
+<span><span class="co">#&gt;                                       C(BEH_BI PBC_ATT) C(BI_ATT BI_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.0006653419      0.002028710</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0006060481      0.001847937</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0004534267      0.001382534</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0006121213      0.001866417</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0006060600      0.001847936</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0004534261      0.001382533</span></span>
+<span><span class="co">#&gt;                                       C(BEH_ATT BI_ATT) C(PBC_SN BI_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.0012950276     0.0004215196</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0011796378     0.0003839543</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0008825445     0.0002872670</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0011914296     0.0003878078</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0011796320     0.0003839639</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0008825443     0.0002872672</span></span>
+<span><span class="co">#&gt;                                       C(BI_SN BI_ATT) C(BEH_SN BI_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                    0.0005366974     0.0005252412</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0004888724     0.0004784379</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0003657550     0.0003579479</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0004937657     0.0004832269</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0004888751     0.0004784409</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0003657543     0.0003579484</span></span>
+<span><span class="co">#&gt;                                       C(BI_PBC BI_ATT) C(BEH_PBC BI_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0005461570      0.0003593276</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0004974762      0.0003273048</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0003722050      0.0002448829</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0005024729      0.0003305885</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0004974942      0.0003273117</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0003722044      0.0002448816</span></span>
+<span><span class="co">#&gt;                                       C(BEH_BI BI_ATT) C(BEH_ATT BEH_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0005717457        0.003394128</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0005207960        0.003091691</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0003896390        0.002313045</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0005260095        0.003122603</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0005208004        0.003091684</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0003896390        0.002313044</span></span>
+<span><span class="co">#&gt;                                       C(PBC_SN BEH_ATT) C(BI_SN BEH_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.0006189012     0.0006147086</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0005637450     0.0005599316</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0004217819     0.0004189201</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0005694011     0.0005655367</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0005637574     0.0005599346</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0004217821     0.0004189193</span></span>
+<span><span class="co">#&gt;                                       C(BEH_SN BEH_ATT) C(BI_PBC BEH_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.0010606176      0.0007797375</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.0009661052      0.0007102441</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.0007227989      0.0005313897</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.0009757742      0.0007173696</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.0009661109      0.0007102615</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.0007227999      0.0005313885</span></span>
+<span><span class="co">#&gt;                                       C(BEH_PBC BEH_ATT) C(BEH_BI BEH_ATT)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                       0.0007167360      0.0014083899</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.0006528574      0.0012828864</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.0004884532      0.0009597985</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.0006594061      0.0012957229</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.0006528724      0.0012828925</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.0004884512      0.0009597983</span></span>
+<span><span class="co">#&gt;                                       C(PBC_SN PBC_SN) C(BI_SN PBC_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.004844337    0.0010602659</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.004412645    0.0009657902</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.003301337    0.0007225602</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.004456806    0.0009754554</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.004412673    0.0009657909</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.003301337    0.0007225593</span></span>
+<span><span class="co">#&gt;                                       C(BEH_SN PBC_SN) C(BI_PBC PBC_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.001559444      0.002233177</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001420476      0.002034161</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001062741      0.001521882</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.001434701      0.002054540</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001420490      0.002034191</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001062742      0.001521881</span></span>
+<span><span class="co">#&gt;                                       C(BEH_PBC PBC_SN) C(BEH_BI PBC_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                       0.001572054     0.0006097968</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.001431963     0.0005554512</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001071337     0.0004155733</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.001446305     0.0005610229</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.001431979     0.0005554636</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001071335     0.0004155736</span></span>
+<span><span class="co">#&gt;                                       C(BI_SN BI_SN) C(BEH_SN BI_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                    0.002860050     0.001725480</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.002605197     0.001571732</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.001949076     0.001175888</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.002631251     0.001587447</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.002605196     0.001571727</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.001949075     0.001175888</span></span>
+<span><span class="co">#&gt;                                       C(BI_PBC BI_SN) C(BEH_PBC BI_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                    0.0005120301     0.0003559385</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0004663971     0.0003242191</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0003489479     0.0002425730</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0004710778     0.0003274721</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0004664073     0.0003242235</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0003489462     0.0002425706</span></span>
+<span><span class="co">#&gt;                                       C(BEH_BI BI_SN) C(BEH_SN BEH_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                    0.0006331430      0.003763996</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)    0.0005767206      0.003428598</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)    0.0004314804      0.002565100</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)    0.0005824958      0.003462883</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)    0.0005767263      0.003428595</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)    0.0004314796      0.002565101</span></span>
+<span><span class="co">#&gt;                                       C(BI_PBC BEH_SN) C(BEH_PBC BEH_SN)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0006727146      0.0005788221</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0006127584      0.0005272421</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0004584512      0.0003944639</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0006189093      0.0005325263</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0006127757      0.0005272482</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0004584515      0.0003944633</span></span>
+<span><span class="co">#&gt;                                       C(BEH_BI BEH_SN) C(BI_PBC BI_PBC)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                     0.0011957567      0.004234769</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)     0.0010891977      0.003857382</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)     0.0008148913      0.002885930</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)     0.0011001015      0.003896002</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)     0.0010892077      0.003857422</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)     0.0008148917      0.002885928</span></span>
+<span><span class="co">#&gt;                                       C(BEH_PBC BI_PBC) C(BEH_BI BI_PBC)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                       0.002227327     0.0009451278</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)       0.002028848     0.0008608926</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)       0.001517894     0.0006440956</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)       0.002049154     0.0008695262</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)       0.002028861     0.0008609134</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)       0.001517891     0.0006440947</span></span>
+<span><span class="co">#&gt;                                       C(BEH_PBC BEH_PBC) C(BEH_BI BEH_PBC)</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                        0.003778508      0.0006339296</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)        0.003441808      0.0005774402</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)        0.002574993      0.0004320183</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)        0.003476237      0.0005832222</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)        0.003441815      0.0005774444</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)        0.002574990      0.0004320170</span></span>
+<span><span class="co">#&gt;                                       C(BEH_BI BEH_BI)       Age</span></span>
+<span><span class="co">#&gt; Al-Swidi et al., 2014                      0.002176141 -2.398421</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from IT)      0.001982216  2.871579</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from UK)      0.001483005  2.871579</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study A from FI)      0.002002054  2.871579</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from IT)      0.001982230  2.871579</span></span>
+<span><span class="co">#&gt; Arvola et al., 2008 (Study B from UK)      0.001483004  2.871579</span></span></code></pre></div>
+</div>
+<div id="univariate-approach" class="section level2" number="6.2">
+<h2>
+<span class="header-section-number">6.2</span> Univariate approach<a class="anchor" aria-label="anchor" href="#univariate-approach"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">(<a href="r-session-info.html#ref-viswesvaran1995" role="doc-biblioref">VISWESVARAN and ONES 1995</a>)</span></p>
+<p>Stage 1:</p>
+<ul>
+<li><p>Synthesize the correlation coefficients in a correlation matrix as if the correlation coefficients were independent</p></li>
+<li><p>Incomplete correlation coefficients are handled by either list-wise deletion or pairwise deletion</p></li>
+<li><p>But when using pairwise decision, missing correlations are assumed to be missing completely at random</p></li>
+</ul>
+<p>Stage 2:</p>
+<ul>
+<li>
+<p>The pooled correlation matrix is used as if it was a covariance matrix</p>
+<ul>
+<li><p>But the SEs may be incorrect</p></li>
+<li><p>Treating correlation matrices as covariance matrices in SEM is very dangerous <span class="citation">(<a href="r-session-info.html#ref-cudeck1989" role="doc-biblioref">Cudeck 1989</a>)</span></p></li>
+</ul>
+</li>
+<li>
+<p>Use harmonic mean of the sample sizes as the sample size</p>
+<ul>
+<li><p>very hard to argue to have a single sample size to be used to represent the precision fo the average correlation matrix</p></li>
+<li><p>(some SEs can be overestimated and some can be underestimated) <span class="citation">(<a href="r-session-info.html#ref-cudeck1989" role="doc-biblioref">Cudeck 1989</a>)</span></p></li>
+<li><p>Chi-square test and GOF will be affected</p></li>
+</ul>
+</li>
+</ul>
+</div>
+<div id="gls-approach" class="section level2" number="6.3">
+<h2>
+<span class="header-section-number">6.3</span> GLS Approach<a class="anchor" aria-label="anchor" href="#gls-approach"><i class="fas fa-link"></i></a>
+</h2>
+<p>Stage 1</p>
+<ul>
+<li>GLS is utilized to create correlation matrices by considering the impact of sampling error.</li>
+</ul>
+<p>Stage 2</p>
+<ul>
+<li>parameter estimates are obtained through matrix calculations and SEs are determined using the multivariate delta method.</li>
+<li>However, this method is not easily adaptable to models that are over-identified or latent variables.</li>
+</ul>
+</div>
+<div id="tssem-approach" class="section level2" number="6.4">
+<h2>
+<span class="header-section-number">6.4</span> TSSEM Approach<a class="anchor" aria-label="anchor" href="#tssem-approach"><i class="fas fa-link"></i></a>
+</h2>
+<p>Fixed-effects models assume that and . Random-effects models, on the other hand, treat</p>
+<div id="fixed-effects" class="section level3" number="6.4.1">
+<h3>
+<span class="header-section-number">6.4.1</span> Fixed-effects<a class="anchor" aria-label="anchor" href="#fixed-effects"><i class="fas fa-link"></i></a>
+</h3>
+<ul>
+<li><p>researchers are only concerned with the specific studies included in the meta-analysis</p></li>
+<li><p>a single correlation matrix is assumed</p></li>
+<li><p>need to impose nonlinear constraints to ensure the diagonals are 1 <code>diag.constraints = T</code></p></li>
+</ul>
+</div>
+<div id="random-effects" class="section level3" number="6.4.2">
+<h3>
+<span class="header-section-number">6.4.2</span> Random-effects<a class="anchor" aria-label="anchor" href="#random-effects"><i class="fas fa-link"></i></a>
+</h3>
+<ul>
+<li><p>the studies as samples from a larger population</p></li>
+<li><p>researchers may want to generalize their findings to beyond the studies included in the meta-analysis</p></li>
+<li><p>studies may have different correlation matrices</p></li>
+</ul>
+</div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="references.html">References</a></div>
+<div class="next"><a href="application.html"><span class="header-section-number">7</span> Application</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#meta-analysis-structural-equation-modeling"><span class="header-section-number">6</span> Meta-Analysis Structural Equation Modeling</a></li>
+<li><a class="nav-link" href="#section"><span class="header-section-number">6.1</span></a></li>
+<li><a class="nav-link" href="#univariate-approach"><span class="header-section-number">6.2</span> Univariate approach</a></li>
+<li><a class="nav-link" href="#gls-approach"><span class="header-section-number">6.3</span> GLS Approach</a></li>
+<li>
+<a class="nav-link" href="#tssem-approach"><span class="header-section-number">6.4</span> TSSEM Approach</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#fixed-effects"><span class="header-section-number">6.4.1</span> Fixed-effects</a></li>
+<li><a class="nav-link" href="#random-effects"><span class="header-section-number">6.4.2</span> Random-effects</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/main/masem.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/main/masem.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-analysis</strong>" was written by Mike Nguyen. It was last built on 2023-01-14.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
