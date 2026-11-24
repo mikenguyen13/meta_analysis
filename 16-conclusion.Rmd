@@ -1,0 +1,170 @@
+# A Workflow Checklist {#sec-conclusion}
+
+The preceding chapters each took one part of a meta-analysis apart. This closing chapter puts
+the parts back together as a sequence of decisions, flags the mistakes that most often undermine
+published meta-analyses, and ends with a compact analysis template that runs the core steps on
+one dataset. It is meant to be used as a checklist while planning, analyzing, and reviewing.
+
+## Before the analysis {#sec-conclusion-before}
+
+A meta-analysis inherits every weakness of the review that feeds it. The decisions below should
+be fixed in a protocol and registered before the data are seen (Chapter \@ref(sec-systematic-review)).
+
+1. **Question.** State the population, intervention or exposure, comparator, outcomes, and
+   study designs. Decide whether the target is a single common effect or the mean and spread of a
+   distribution of effects, because that choice drives the model (Chapter \@ref(sec-models)).
+2. **Protocol and registration.** Register on PROSPERO or OSF. Specify the primary outcome, the
+   effect-size metric, the model and heterogeneity estimator, planned moderators, the handling of
+   dependent effects, and the sensitivity analyses. Deviations are allowed; undisclosed deviations
+   are not.
+3. **Search and screening.** Search several databases plus registries and grey literature, screen
+   in duplicate, and record counts for the PRISMA 2020 flow diagram.
+4. **Extraction.** Pilot the form, extract in duplicate, and keep the raw statistics (means, SDs,
+   counts, test statistics) rather than only computed effect sizes, so that every effect size can
+   be recomputed (Chapter \@ref(sec-effect-sizes)).
+5. **Risk of bias.** Rate each study with a design-appropriate tool (RoB 2, ROBINS-I, QUADAS-2) and
+   plan how the ratings will enter the synthesis.
+
+## Choosing the model {#sec-conclusion-model}
+
+Table \@ref(tab:conclusion-decisions) maps common data situations to the approach this book
+recommends and the chapter that develops it.
+
+```{r conclusion-decisions, echo = FALSE}
+decisions <- data.frame(
+  Situation = c(
+    "One effect per study, studies differ in design or population",
+    "Very few studies (k < 5)",
+    "Binary outcome with rare events or zero cells",
+    "Several effects per study, sampling covariances unknown",
+    "Effects nested in studies nested in labs or papers",
+    "Moderators of interest",
+    "Suspected selective publication",
+    "Influential or outlying studies",
+    "Three or more competing interventions",
+    "Correlation matrices and a theoretical path model",
+    "Correlated outcomes with known within-study correlations",
+    "Participant-level data available",
+    "Sensitivity and specificity of a test",
+    "Estimates from quasi-experiments with different estimands"
+  ),
+  Approach = c(
+    "Random-effects model, REML or Paule-Mandel tau^2, Hartung-Knapp CI, prediction interval",
+    "Bayesian model with an informative or weakly informative prior on tau; report sensitivity",
+    "Mantel-Haenszel, Peto, or binomial GLMM instead of continuity corrections",
+    "CHE working model with robust variance estimation (CR2, Satterthwaite df)",
+    "Three-level model; RVE on top if the dependence structure is uncertain",
+    "Mixed-effects meta-regression with Knapp-Hartung tests; permutation tests; few pre-specified moderators",
+    "Funnel plot plus a triangulation of PET-PEESE, selection models, and sensitivity analysis",
+    "Influence diagnostics, leave-one-out, GOSH; report results with and without",
+    "Network meta-analysis, checking transitivity and consistency",
+    "Two-stage or one-stage MASEM",
+    "Multivariate random-effects model",
+    "One-stage or two-stage IPD meta-analysis separating within- and across-study interactions",
+    "Bivariate random-effects (Reitsma) or HSROC model",
+    "Pool only comparable estimands; design as moderator; bias-adjusted or hierarchical models"
+  ),
+  Chapter = c(
+    "4", "9", "4", "6", "6", "5", "7", "8", "10", "11", "12", "12", "13", "14"
+  )
+)
+knitr::kable(decisions, caption = "Data situations, recommended approaches, and where they are covered.")
+```
+
+Two defaults deserve emphasis. First, report the prediction interval alongside the confidence
+interval for the mean whenever a random-effects model is used: the confidence interval describes
+uncertainty about the average effect, while the prediction interval describes where the true
+effect of a new comparable study is likely to fall, and the two can lead to very different
+practical conclusions. Second, prefer methods with honest small-sample behavior: the
+Hartung-Knapp-Sidik-Jonkman adjustment for the mean, and small-sample corrected robust variance
+estimation for dependent effects.
+
+## Common pitfalls {#sec-conclusion-pitfalls}
+
+The following errors recur in published meta-analyses and in manuscripts sent for review.
+
+- **Double counting.** Using a shared control group several times, or entering several outcomes
+  from the same participants as independent effects, understates standard errors
+  (Chapter \@ref(sec-dependent-effects)).
+- **Mixing metrics without conversion.** Pooling standardized mean differences computed from
+  change scores with those from post-test scores, or correlations with partial correlations from
+  regressions with different control sets, combines quantities that estimate different things.
+- **Reading I² as the amount of heterogeneity.** I² is a ratio that depends on study precision.
+  Report tau and the prediction interval to describe how much effects vary.
+- **Fishing for moderators.** Testing many moderators on few studies produces false positives.
+  Pre-specify, adjust for multiplicity, and treat post hoc findings as hypotheses.
+- **Ecological inference.** A study-level association between mean age and effect size says
+  nothing reliable about whether older individuals benefit more.
+- **Treating trim-and-fill as a correction.** It is a sensitivity analysis resting on a strong
+  assumption about why studies are missing. No single publication-bias method should be read
+  as the answer.
+- **Fixed-effect inference with heterogeneous studies.** A common-effect model applied to
+  heterogeneous studies produces confidence intervals that are too narrow for any claim beyond
+  the included studies.
+- **Ignoring risk of bias.** Averaging high- and low-quality studies without examining whether
+  results differ by risk of bias can let the weakest evidence dominate.
+
+## A compact analysis template {#sec-conclusion-template}
+
+The code below runs the core steps of a univariate random-effects meta-analysis from raw data to
+diagnostics, using the BCG vaccine trials. Each step corresponds to a chapter, and each would be
+expanded in a real project.
+
+```{r conclusion-template}
+library(metafor)
+
+# 1. Effect sizes: log risk ratios and sampling variances (Chapter 3)
+dat <- escalc(measure = "RR", ai = tpos, bi = tneg, ci = cpos, di = cneg,
+              data = dat.bcg, slab = paste(author, year, sep = ", "))
+
+# 2. Random-effects model with REML and Hartung-Knapp inference (Chapter 4)
+res <- rma(yi, vi, data = dat, method = "REML", test = "knha")
+res
+
+# 3. Average effect, confidence interval, and prediction interval on the RR scale
+predict(res, transf = exp, digits = 2)
+
+# 4. Confidence interval for tau^2 and tau
+confint(res)
+
+# 5. Moderator: absolute latitude (Chapter 5)
+res_mod <- rma(yi, vi, mods = ~ ablat, data = dat, method = "REML", test = "knha")
+res_mod
+
+# 6. Influence diagnostics (Chapter 8)
+inf <- influence(res)
+which(inf$is.infl)
+
+# 7. Small-study effects: Egger-type test and trim-and-fill (Chapter 7)
+regtest(res)
+trimfill(rma(yi, vi, data = dat))
+```
+
+The pooled risk ratio printed in step 3 is about 0.49, a substantial average protective effect
+of BCG, but the 95% prediction interval runs from about 0.14 to 1.76: in a new setting comparable
+to these trials, the vaccine could be highly protective or have no benefit at all. Step 5 shows
+that absolute latitude accounts for roughly three quarters of the between-trial variance (the
+pseudo-R² printed by the model): trials farther from the equator report stronger protection. This is the typical shape of a careful
+answer. The average effect matters less than the question of where and for whom the effect holds,
+and the diagnostics in steps 6 and 7 show how much the conclusion depends on individual studies
+and on assumptions about missing ones.
+
+## Reporting checklist {#sec-conclusion-reporting}
+
+Whatever the method, a report should let a reader reproduce the analysis and judge the certainty
+of its conclusions (Chapter \@ref(sec-reporting)). At a minimum it states the registered protocol
+and any deviations; presents the PRISMA 2020 flow diagram; tabulates study characteristics and
+risk-of-bias ratings; names the effect-size metric, model, heterogeneity estimator, and
+confidence-interval method; reports the pooled estimate with its confidence interval, tau, and
+the prediction interval; describes moderator, sensitivity, and publication-bias analyses,
+including those that did not change the conclusion; rates certainty with GRADE; and shares the
+extracted data and analysis code.
+
+## Further reading {#sec-conclusion-reading}
+
+The *Cochrane Handbook for Systematic Reviews of Interventions* [@higgins2019cochrane] remains
+the most complete practical reference for reviews of interventions, and
+@borenstein2021introduction is a clear conceptual introduction to the statistics of meta-analysis.
+The documentation and worked examples on the metafor website, and the CRAN Task View on
+Meta-Analysis, track current software. Methodological developments appear in *Research Synthesis
+Methods*, *Psychological Methods*, *Statistics in Medicine*, and the *Journal of Economic Surveys*.

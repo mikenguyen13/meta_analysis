@@ -1,0 +1,681 @@
+# Effect Sizes {#sec-effect-sizes}
+
+A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, $t$ and $F$ statistics, $2 \times 2$ tables, correlation matrices, regression coefficients, medians with interquartile ranges, hazard ratios read from survival curves. Before any pooling model can be fitted, each result has to be expressed on a common scale, together with an estimate of its sampling variance. That common scale is the *effect size*, and the decisions made at this stage (which metric, which sign convention, which formula for the variance, how to handle a study that reports only a $p$-value) shape every downstream result. Errors made here cannot be repaired by a sophisticated model later: a random-effects model fitted to effect sizes with the wrong sign or the wrong variance is precisely wrong.
+
+This chapter covers the effect size families that account for the bulk of applied meta-analyses in psychology, medicine, economics, management and marketing: mean differences for continuous outcomes, including pre-post designs; odds ratios, risk ratios and risk differences for binary outcomes; correlation coefficients, including partial and semi-partial correlations from regression models; single proportions and incidence rates. It then turns to the practical problem of extracting effect sizes from whatever a paper happens to report, to conversions between metrics, to cluster-randomized trials, and to the psychometric corrections for measurement error and range restriction associated with Hunter and Schmidt. Throughout, effect sizes are computed with `metafor::escalc()` [@viechtbauer2010conducting] on public datasets from the `metadat` package. How these effect sizes are then pooled is the subject of Chapter \@ref(sec-models).
+
+```{r es-setup}
+library(metafor)   # loaded by _common.R as well; repeated for clarity
+library(esc)
+library(effectsize)
+library(psychmeta)
+```
+
+## What an effect size is {#sec-effect-sizes-what}
+
+An effect size is a quantitative index of the magnitude, and usually the direction, of a relationship or difference in a population. In meta-analysis we work with an *estimate* $y_i$ of a study-specific parameter $\theta_i$, computed from study $i$'s data, together with an estimate $v_i$ of its sampling variance. The pair $(y_i, v_i)$ is the unit of analysis for nearly every model in this book. The pooling models in Chapter \@ref(sec-models) treat $v_i$ as known, so two properties of the metric matter a great deal: the sampling distribution of $y_i$ should be close to normal, and $v_i$ should be estimated accurately and should not depend strongly on $y_i$ itself. Several transformations used below (the logarithm for ratios, Fisher's $z$ for correlations, the logit for proportions) exist precisely to achieve these two properties.
+
+A useful effect size has three further properties. It should be *comparable* across studies that used different instruments or units. It should be *interpretable*, either in natural units (days of hospital stay, mmHg, percentage points) or by reference to a well-understood scale. And it should be *computable* from the information that studies actually report. These goals conflict. The raw mean difference is the most interpretable metric for a continuous outcome but is only comparable when every study used the same scale. The standardized mean difference is comparable across scales but its interpretation depends on the population standard deviation used as the yardstick.
+
+### Choosing a metric {#sec-effect-sizes-choosing}
+
+The choice of metric should be made at the protocol stage (Chapter \@ref(sec-systematic-review)) and should follow from the research question and the design of the primary studies, not from which metric gives the most attractive result. A few principles cover most cases.
+
+For continuous outcomes measured on the *same* scale in all studies (blood pressure in mmHg, length of stay in days, revenue in a common currency), the raw mean difference is preferable because it is directly interpretable and does not import between-study differences in sample variability into the effect size. When studies used different instruments for the same construct (different depression inventories, different job satisfaction scales), a standardized mean difference is needed. When the outcome is a ratio-scale quantity and effects are plausibly multiplicative (biomass, costs, reaction times), the log ratio of means is often the most natural metric.
+
+For binary outcomes, the odds ratio has the best mathematical properties (it is symmetric in the definition of the event, unbounded on the log scale, and estimable from case-control designs), the risk ratio is easier to communicate, and the risk difference is the most directly relevant for decisions but is usually the least homogeneous across studies with different baseline risks [@higgins2019cochrane]. For associations between two continuous variables the correlation coefficient is the default, typically analyzed on Fisher's $z$ scale. Proportions from single-arm studies and incidence rates from studies with person-time denominators have their own metrics, discussed below.
+
+::: {.rmdtip}
+When different studies report different designs (some two-group comparisons, some correlations, some $2 \times 2$ tables), choose the metric that most studies report naturally and convert the minority. Every conversion rests on assumptions, so record which studies were converted and examine whether they differ systematically from the rest (a moderator analysis or a sensitivity analysis; Chapters \@ref(sec-heterogeneity) and \@ref(sec-sensitivity)).
+:::
+
+### Direction and sign conventions {#sec-effect-sizes-direction}
+
+Every effect size needs an explicit sign convention, stated in the protocol and in the methods section. For two-group comparisons the usual convention is experimental (or exposed) minus control, so that a positive mean difference means a higher outcome in the experimental group. Whether a higher outcome is good depends on the outcome: a positive difference in depression scores is harmful, a positive difference in quality of life is beneficial. When a meta-analysis combines outcomes in which "higher" means different things, the effect sizes must be reflected so that a common direction (for example "positive = favours the intervention") holds for all of them. In `escalc()` this can be done after computing effect sizes by multiplying `yi` by $-1$ for the relevant rows; the variance is unchanged. For ratio measures the same reflection is achieved by inverting the ratio, which on the log scale is again a sign change.
+
+Two errors are common in practice. The first is mixing conventions silently, for example taking some studies' differences as treatment minus control and others' as control minus treatment because that is how they were printed. The second is reflecting a scale but forgetting that the study's own analysis used a change score, so that "improvement" is a negative number in some studies and a positive number in others. Both errors inflate heterogeneity and bias the pooled estimate toward zero. A simple safeguard is to tabulate, for each study, the group means (or event rates) alongside the computed effect size and check that the sign agrees with what the paper's text says about which group did better.
+
+## Continuous outcomes from two independent groups {#sec-effect-sizes-continuous}
+
+Let group 1 (experimental) have sample mean $\bar X_1$, standard deviation $S_1$ and size $n_1$, and group 2 (control) have $\bar X_2$, $S_2$, $n_2$. Four effect sizes are in common use.
+
+### Raw mean difference {#sec-effect-sizes-md}
+
+The raw (unstandardized) mean difference is
+
+$$
+\text{MD} = \bar X_1 - \bar X_2, \qquad \widehat{\operatorname{Var}}(\text{MD}) = \frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}.
+$$
+
+The variance formula above does not assume equal population variances. If homoscedasticity is plausible one can instead use $S_p^2 (1/n_1 + 1/n_2)$, with the pooled variance $S_p^2 = [(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2]/(n_1 + n_2 - 2)$; `escalc()` uses the heteroscedastic form by default (`vtype = "LS"`) and the pooled form with `vtype = "HO"`. The MD is approximately normal for moderate group sizes even when the raw data are not, by the central limit theorem.
+
+### Standardized mean difference: Cohen's d and Hedges' g {#sec-effect-sizes-smd}
+
+When studies measure the outcome on different scales, the mean difference is divided by a standard deviation. With the pooled within-group SD this gives
+
+$$
+d = \frac{\bar X_1 - \bar X_2}{S_p}.
+$$
+
+The quantity $d$ is commonly called Cohen's $d$, after @cohen1988statistical, who popularized benchmarks of 0.2, 0.5 and 0.8 for small, medium and large effects. Those benchmarks were offered as a fallback for when nothing better is known and are a poor substitute for substantive interpretation in a specific field.
+
+@hedges1981distribution showed that $d$ is biased upward in small samples: $E(d) \approx \delta / J(m)$, where $\delta$ is the population SMD and $m = n_1 + n_2 - 2$ the degrees of freedom. Multiplying by the exact correction factor
+
+$$
+J(m) = \frac{\Gamma(m/2)}{\sqrt{m/2}\; \Gamma\!\left((m-1)/2\right)}
+$$
+
+yields the unbiased estimator $g = J(m)\, d$, usually called Hedges' $g$. The widely used approximation $J(m) \approx 1 - 3/(4m - 1)$ is accurate to three or four decimal places once $m$ exceeds about 10. The large-sample sampling variance of $g$ is
+
+$$
+\widehat{\operatorname{Var}}(g) = \frac{1}{n_1} + \frac{1}{n_2} + \frac{g^2}{2(n_1 + n_2)}.
+$$
+
+The second term shows that the variance of an SMD depends on the effect size itself. This is a mild violation of the "known variance" assumption: studies with larger $|g|$ receive slightly smaller weights than their sample sizes alone would imply. Variants of this formula exist (some use $d$ instead of $g$, or $n_1 + n_2 - 2$ in the denominator); `escalc()` provides an unbiased variance estimator with `vtype = "UB"`. The differences matter only for very small studies.
+
+In `escalc()`, `measure = "SMD"` returns Hedges' $g$ with the exact correction.
+
+### Glass's delta {#sec-effect-sizes-glass}
+
+If the intervention is expected to change the variability of the outcome as well as its mean, the pooled SD mixes a treatment effect into the denominator. @glass1976primary proposed standardizing by the control group SD only,
+
+$$
+\Delta = \frac{\bar X_1 - \bar X_2}{S_2},
+$$
+
+with a small-sample correction based on $m = n_2 - 1$ degrees of freedom. Glass's $\Delta$ is less efficient than $g$ because $S_2$ is estimated from one group only, so it is best reserved for settings in which unequal variances are substantively expected. In `escalc()` it is `measure = "SMD1"`, which divides by the SD of the second group.
+
+### Ratio of means {#sec-effect-sizes-rom}
+
+For outcomes measured on a ratio scale (strictly positive, with a meaningful zero), the log-transformed ratio of means, also called the log response ratio, is
+
+$$
+\text{lnROM} = \ln\!\left(\frac{\bar X_1}{\bar X_2}\right), \qquad
+\widehat{\operatorname{Var}}(\text{lnROM}) = \frac{S_1^2}{n_1 \bar X_1^2} + \frac{S_2^2}{n_2 \bar X_2^2}
+$$
+
+[@hedges1999meta]. Back-transformed, $\exp(\text{lnROM})$ is the proportional change in the mean, which is often how clinicians and ecologists think about effects ("specialist care shortened stays by 30%"). The delta-method variance assumes that the means are well away from zero relative to their standard errors; @hedges1999meta suggest checking that $\bar X / (S/\sqrt{n})$ exceeds about 3 in each group.
+
+### Worked example: specialist stroke care {#sec-effect-sizes-normand}
+
+The `dat.normand1999` dataset contains nine studies comparing the length of hospital stay (in days) of stroke patients under specialist care (group 1) and routine care (group 2) [@normand1999metaanalysis]. All studies measure the outcome in days, so the raw MD is available, but the example also computes the SMD and the log ROM for comparison.
+
+```{r es-normand}
+dat <- dat.normand1999
+md  <- escalc(measure = "MD",  m1i = m1i, sd1i = sd1i, n1i = n1i,
+              m2i = m2i, sd2i = sd2i, n2i = n2i, data = dat)
+smd <- escalc(measure = "SMD", m1i = m1i, sd1i = sd1i, n1i = n1i,
+              m2i = m2i, sd2i = sd2i, n2i = n2i, data = dat)
+rom <- escalc(measure = "ROM", m1i = m1i, sd1i = sd1i, n1i = n1i,
+              m2i = m2i, sd2i = sd2i, n2i = n2i, data = dat)
+data.frame(source = dat$source, n1 = dat$n1i, n2 = dat$n2i,
+           MD = md$yi, var_MD = md$vi,
+           g = smd$yi, var_g = smd$vi,
+           lnROM = rom$yi, var_lnROM = rom$vi)
+```
+
+All three metrics agree on the sign in every study: negative values mean shorter stays under specialist care. The magnitudes tell different stories, however. The Orpington-Mild study has a trivial raw difference of $-2$ days but an SMD of $-0.35$, because its SDs are small (7 and 4 days); the Edinburgh study has a ten times larger raw difference ($-20$ days) and essentially the same SMD ($-0.36$), because its SDs are large. Whether these two studies show "the same" effect depends on whether one thinks in days or in standard deviation units. When all studies share a scale, the MD avoids letting differences in patient heterogeneity across sites masquerade as differences in effectiveness.
+
+The exact and approximate correction factors are easy to check by hand for the first study:
+
+```{r es-hedges-j}
+with(dat[1, ], {
+  sp  <- sqrt(((n1i - 1) * sd1i^2 + (n2i - 1) * sd2i^2) / (n1i + n2i - 2))
+  d   <- (m1i - m2i) / sp
+  m   <- n1i + n2i - 2
+  J_exact  <- exp(lgamma(m / 2) - 0.5 * log(m / 2) - lgamma((m - 1) / 2))
+  J_approx <- 1 - 3 / (4 * m - 1)
+  c(d = d, J_exact = J_exact, J_approx = J_approx, g = J_exact * d,
+    var_g = 1 / n1i + 1 / n2i + (J_exact * d)^2 / (2 * (n1i + n2i)))
+})
+```
+
+With 309 degrees of freedom the correction is negligible ($J = 0.9976$ by both formulas) and $g = -0.3552$ reproduces the `escalc()` output. For the Montreal-Home study ($n_1 = 8$, $n_2 = 13$) the correction shrinks $d$ by about 4%, which is why reporting $g$ rather than $d$ is the default for meta-analysis.
+
+## Pre-post and change-score designs {#sec-effect-sizes-prepost}
+
+Many studies measure the same participants before and after an intervention, sometimes without a control group. Let $\bar X_{\text{pre}}$ and $\bar X_{\text{post}}$ be the means at the two occasions, $S_{\text{pre}}$ and $S_{\text{post}}$ the SDs, $n$ the number of participants and $r$ the pre-post correlation. Two standardized mean changes are in use, and they estimate *different parameters* [@morris2002combining].
+
+The standardized mean change using *change-score* standardization (SMCC) divides by the SD of the change scores,
+
+$$
+\text{SMCC} = J(n-1)\,\frac{\bar X_{\text{post}} - \bar X_{\text{pre}}}{S_D}, \qquad S_D = \sqrt{S_{\text{pre}}^2 + S_{\text{post}}^2 - 2 r S_{\text{pre}} S_{\text{post}}},
+$$
+
+with sampling variance approximately $1/n + \text{SMCC}^2/(2n)$. The SMCC is the effect size that a paired $t$ test sees: $\text{SMCC} \approx t/\sqrt{n}$.
+
+The standardized mean change using *raw-score* standardization (SMCR) divides by the pretest SD [@becker1988synthesizing],
+
+$$
+\text{SMCR} = J(n-1)\,\frac{\bar X_{\text{post}} - \bar X_{\text{pre}}}{S_{\text{pre}}}, \qquad
+\widehat{\operatorname{Var}}(\text{SMCR}) = \frac{2(1 - r)}{n} + \frac{\text{SMCR}^2}{2n}.
+$$
+
+The SMCR is on the same metric as an independent-groups SMD: it expresses the change in units of the between-person SD of the outcome. If the two occasions have equal SDs, $\text{SMCC} = \text{SMCR}/\sqrt{2(1-r)}$, so with $r = 0.8$ the SMCC is about 1.6 times the SMCR. Mixing SMCC values from repeated-measures studies with SMD values from between-subjects studies therefore produces apples-and-oranges pooling; @morris2002combining recommend converting everything to the raw-score metric when designs are mixed.
+
+Note that $r$ enters both metrics. For the SMCC it enters the point estimate; for the SMCR only the sampling variance. A higher pre-post correlation makes the SMCR more precise and the SMCC larger.
+
+### The missing pre-post correlation {#sec-effect-sizes-prepost-r}
+
+Primary studies rarely report $r$. It can sometimes be recovered: if the paper reports the SD of the change scores, $r = (S_{\text{pre}}^2 + S_{\text{post}}^2 - S_D^2)/(2 S_{\text{pre}} S_{\text{post}})$; if it reports a paired $t$ statistic, $S_D = (\bar X_{\text{post}} - \bar X_{\text{pre}})\sqrt{n}/t$ and the same identity applies. Otherwise the value has to be imputed, for example from other studies in the review that report it, from test-retest reliabilities of the instrument over a comparable interval, or from external data. The Cochrane Handbook describes these imputation strategies and recommends a sensitivity analysis over a plausible range of values [@higgins2019cochrane].
+
+The simulated example below generates six pre-post studies with known true correlations, computes both metrics with the observed correlations, and then recomputes the pooled estimates assuming a common $r$ of 0.3, 0.5 or 0.7.
+
+```{r es-prepost-sim}
+set.seed(2026)
+sim_prepost <- function(n, rho, delta = 0.5, sd = 10) {
+  pre  <- rnorm(n, 50, sd)
+  post <- 50 + delta * sd + rho * (pre - 50) + sqrt(1 - rho^2) * rnorm(n, 0, sd)
+  c(m_pre = mean(pre), m_post = mean(post), sd_pre = sd(pre),
+    sd_post = sd(post), ri = cor(pre, post))
+}
+pp <- data.frame(study = 1:6, ni = c(24, 40, 18, 60, 32, 45),
+                 rho = c(0.5, 0.7, 0.6, 0.8, 0.4, 0.65))
+pp <- cbind(pp, round(t(mapply(sim_prepost, pp$ni, pp$rho)), 2))
+pp
+
+smcr <- escalc(measure = "SMCR", m1i = m_post, m2i = m_pre, sd1i = sd_pre,
+               ni = ni, ri = ri, data = pp)
+smcc <- escalc(measure = "SMCC", m1i = m_post, m2i = m_pre, sd1i = sd_post,
+               sd2i = sd_pre, ni = ni, ri = ri, data = pp)
+cbind(study = pp$study, ri = pp$ri, SMCR = round(smcr$yi, 3),
+      SMCC = round(smcc$yi, 3))
+```
+
+The true raw-score standardized change is $\delta = 0.5$ in every study, and the SMCR values scatter around it (from 0.51 to 0.89 in these small samples). The SMCC values tend to exceed the SMCR values when the observed correlation is above 0.5 and to fall below them when it is lower, as the identity above predicts. The largest discrepancy is in study 4, with $r = 0.81$, where the SMCC of 0.97 is 1.7 times the SMCR of 0.57. (In `escalc()`, the `sd1i` argument supplies the standardizer for SMCR; passing the pretest SD while `m1i` is the posttest mean gives the Becker metric with a positive sign for improvement.)
+
+```{r es-prepost-sens}
+r_grid <- round(seq(0.1, 0.9, by = 0.1), 1)
+sens <- do.call(rbind, lapply(r_grid, function(r) {
+  a <- escalc(measure = "SMCR", m1i = m_post, m2i = m_pre, sd1i = sd_pre,
+              ni = ni, ri = rep(r, 6), data = pp)
+  b <- escalc(measure = "SMCC", m1i = m_post, m2i = m_pre, sd1i = sd_post,
+              sd2i = sd_pre, ni = ni, ri = rep(r, 6), data = pp)
+  fa <- rma(yi, vi, data = a); fb <- rma(yi, vi, data = b)
+  data.frame(r = r, metric = c("SMCR", "SMCC"),
+             est = c(coef(fa), coef(fb)),
+             lb = c(fa$ci.lb, fb$ci.lb), ub = c(fa$ci.ub, fb$ci.ub))
+}))
+subset(sens, r %in% c(0.3, 0.5, 0.7))
+```
+
+```{r es-prepost-fig, fig.cap = "Pooled standardized mean change (with 95% CI) as a function of the assumed pre-post correlation, for raw-score (SMCR) and change-score (SMCC) standardization. Six simulated studies with a true raw-score effect of 0.5 (dashed line).", fig.height = 4}
+ggplot(sens, aes(r, est, colour = metric, fill = metric)) +
+  geom_ribbon(aes(ymin = lb, ymax = ub), alpha = 0.15, colour = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  labs(x = "Assumed pre-post correlation r", y = "Pooled estimate",
+       colour = NULL, fill = NULL) +
+  theme(legend.position = "top")
+```
+
+Figure \@ref(fig:es-prepost-fig) makes the practical lesson visible. The pooled SMCR is essentially flat in the assumed $r$ (only the weights and the width of the interval change), while the pooled SMCC rises steeply, from `r round(sens$est[sens$r == 0.3 & sens$metric == "SMCC"], 2)` at $r = 0.3$ to `r round(sens$est[sens$r == 0.7 & sens$metric == "SMCC"], 2)` at $r = 0.7$. When $r$ must be imputed, the raw-score metric is far more robust to the imputation.
+
+### Designs with a control group {#sec-effect-sizes-ppc}
+
+When both an intervention and a control group are measured before and after, the effect of interest is the difference in change. A simple and widely used approach computes the SMCR within each group and takes the difference, with the variance equal to the sum of the two within-group variances (the groups are independent). @morris2007estimating compared several estimators for this pretest-posttest-control design and recommended standardizing the difference in mean changes by the pooled pretest SD, with a small-sample correction; this estimator is unbiased and has a known variance that again depends on the pre-post correlation. Both approaches yield values on the same metric as a posttest-only SMD, which allows combining randomized trials with and without baseline measurements.
+
+## Binary outcomes {#sec-effect-sizes-binary}
+
+Consider a $2 \times 2$ table with $a$ events and $b$ non-events among $n_1 = a + b$ treated participants, and $c$ events and $d$ non-events among $n_2 = c + d$ controls. Write $p_1 = a/n_1$ and $p_2 = c/n_2$.
+
+The log odds ratio and its large-sample (Woolf) variance are
+
+$$
+\ln \text{OR} = \ln\!\left(\frac{a d}{b c}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{OR}) = \frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}.
+$$
+
+The log risk ratio and its variance are
+
+$$
+\ln \text{RR} = \ln\!\left(\frac{p_1}{p_2}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{RR}) = \frac{1}{a} - \frac{1}{n_1} + \frac{1}{c} - \frac{1}{n_2},
+$$
+
+and the risk difference and its variance are
+
+$$
+\text{RD} = p_1 - p_2, \qquad \widehat{\operatorname{Var}}(\text{RD}) = \frac{p_1(1 - p_1)}{n_1} + \frac{p_2(1 - p_2)}{n_2}.
+$$
+
+Ratio measures are always analyzed on the log scale, where their sampling distributions are closer to normal and where a ratio and its reciprocal are symmetric around zero. Results are back-transformed for reporting.
+
+The BCG vaccine trials (`dat.bcg`) record tuberculosis cases among vaccinated and unvaccinated participants [@colditz1994efficacy]. The three binary metrics for the first five trials are:
+
+```{r es-bcg}
+bcg <- dat.bcg
+lor <- escalc(measure = "OR", ai = tpos, bi = tneg, ci = cpos, di = cneg, data = bcg)
+lrr <- escalc(measure = "RR", ai = tpos, bi = tneg, ci = cpos, di = cneg, data = bcg)
+rd  <- escalc(measure = "RD", ai = tpos, bi = tneg, ci = cpos, di = cneg, data = bcg)
+head(data.frame(trial = paste(bcg$author, bcg$year),
+                p_vacc = round(bcg$tpos / (bcg$tpos + bcg$tneg), 4),
+                p_ctrl = round(bcg$cpos / (bcg$cpos + bcg$cneg), 4),
+                lnOR = lor$yi, lnRR = lrr$yi, RD = rd$yi), 5)
+```
+
+Because tuberculosis was rare in these cohorts (the control risks are well below 10%), the log odds ratios and log risk ratios are nearly identical: in the Hart & Sutherland trial, $\ln\text{OR} = -1.456$ and $\ln\text{RR} = -1.442$. The risk differences, by contrast, are tiny in absolute terms ($-0.015$ for the same trial) and vary mainly with the baseline risk. This illustrates the general pattern: relative measures tend to be more stable across populations with different baseline risks, absolute measures are what matter for a decision in a specific population. A common reporting strategy pools on a relative scale and then converts the pooled ratio to an absolute effect at one or more assumed baseline risks [@higgins2019cochrane].
+
+### Zero cells and continuity corrections {#sec-effect-sizes-zero}
+
+If any cell of the table is zero, $\ln \text{OR}$ and its variance are undefined. The traditional remedy adds a constant, usually 0.5, to every cell of tables with a zero; this is what `escalc()` does by default (`add = 1/2, to = "only0"`). Tables in which *both* arms have zero events (double-zero studies) are kept with the correction unless `drop00 = TRUE`. The correction is a pragmatic fix, not a principled one. @sweeting2004what showed that the constant 0.5 biases pooled odds ratios toward the null, particularly when group sizes are unbalanced, and proposed alternatives such as treatment-arm continuity corrections. For sparse data the better solution is to avoid the correction altogether by using methods that work with the $2 \times 2$ counts directly: the Mantel-Haenszel and Peto methods, or generalized linear mixed models (GLMMs) that model the event counts as binomial [@stijnen2010random; @bradburn2006much]. These are covered in Chapter \@ref(sec-models), which also compares them on a rare-event dataset.
+
+## Correlations {#sec-effect-sizes-correlations}
+
+For two continuous variables measured on the same $n$ participants, the Pearson correlation $r$ is the natural effect size. Its large-sample variance is
+
+$$
+\widehat{\operatorname{Var}}(r) = \frac{(1 - r^2)^2}{n - 1},
+$$
+
+which depends strongly on $r$: correlations near $\pm 1$ are estimated much more precisely than correlations near zero. The sampling distribution of $r$ is also skewed when $|\rho|$ is large. Both problems are addressed by Fisher's variance-stabilizing transformation,
+
+$$
+z = \tfrac{1}{2} \ln\!\left(\frac{1 + r}{1 - r}\right) = \operatorname{artanh}(r), \qquad \widehat{\operatorname{Var}}(z) = \frac{1}{n - 3},
+$$
+
+whose sampling distribution is close to normal and whose variance depends only on the sample size. Pooled estimates and confidence limits are computed on the $z$ scale and back-transformed with $r = \tanh(z)$.
+
+The sample correlation is also slightly biased toward zero. @olkin1958a derived the unbiased estimator, closely approximated by
+
+$$
+r_u \approx r \left[ 1 + \frac{1 - r^2}{2(n - 3)} \right],
+$$
+
+which `escalc()` computes (with the exact hypergeometric form) as `measure = "UCOR"`. The bias is of order $1/n$ and is negligible for the sample sizes typical in correlational research, but it can matter when many small studies are combined.
+
+The `dat.molloy2014` dataset contains 16 studies of the correlation between conscientiousness and medication adherence [@molloy2013conscientiousness].
+
+```{r es-molloy}
+mol <- dat.molloy2014
+zc  <- escalc(measure = "ZCOR", ri = ri, ni = ni, data = mol)
+uc  <- escalc(measure = "UCOR", ri = ri, ni = ni, data = mol)
+head(data.frame(study = paste(mol$authors, mol$year), n = mol$ni, r = mol$ri,
+                r_unbiased = round(uc$yi, 4), z = round(zc$yi, 4),
+                var_z = round(zc$vi, 5)), 5)
+
+res_z <- rma(yi, vi, data = zc)
+res_z
+predict(res_z, transf = transf.ztor)
+
+# for comparison: untransformed r with inverse-variance weights,
+# and the sample-size weighted mean of r (Hunter-Schmidt bare-bones)
+res_r <- rma(measure = "COR", ri = ri, ni = ni, data = mol)
+c(z_based = transf.ztor(coef(res_z)), r_based = coef(res_r),
+  n_weighted = weighted.mean(mol$ri, mol$ni))
+```
+
+On the $z$ scale the REML estimate is `r round(coef(res_z), 4)`, which back-transforms to a mean correlation of 0.149 (95% CI 0.088 to 0.209). The prediction interval, $-0.037$ to 0.325, shows that in some settings the association may be essentially absent. Note that `predict()` back-transforms each quantity separately; $\tanh$ of the mean $z$ is not the mean of the correlation distribution but approximately its median, a point we return to under psychometric meta-analysis below.
+
+Why not pool $r$ directly? Pooling raw correlations with inverse-variance weights $1/\widehat{\operatorname{Var}}(r)$ gives more weight to studies with larger $|r|$, because their estimated variances are smaller, which introduces a correlation between effect sizes and weights. Pooling on $z$ avoids that, and its confidence intervals have better coverage. The Hunter-Schmidt tradition pools $r$ with sample-size weights instead, which avoids the dependence of weights on $r$ by construction; we discuss this choice in Section \@ref(sec-effect-sizes-artifacts).
+
+### Partial and semi-partial correlations {#sec-effect-sizes-partial}
+
+In economics, management and the social sciences, the association of interest is often reported only as a coefficient in a multiple regression. A coefficient's $t$ statistic can be converted to a partial correlation,
+
+$$
+r_p = \frac{t}{\sqrt{t^2 + \nu}}, \qquad \nu = n - p - 1, \qquad \widehat{\operatorname{Var}}(r_p) = \frac{(1 - r_p^2)^2}{\nu},
+$$
+
+where $p$ is the number of predictors in the model, and, if the model's $R^2$ is reported, to a semi-partial correlation $r_{sp} = t \sqrt{1 - R^2} / \sqrt{\nu}$ with the sampling variance given by @aloe2012effect. The partial correlation measures the association between $X$ and $Y$ after removing the other predictors from both; the semi-partial correlation removes them from $X$ only and is on the same metric as the zero-order correlation with $Y$ in its original variance. Neither is directly comparable to a zero-order correlation, and both depend on *which* covariates were included, which typically varies from study to study. Meta-analyses of partial correlations should therefore code the covariate set and examine it as a moderator.
+
+The `dat.aloe2013` data contain $t$ statistics for the association between perceived supervision quality and work outcomes from five regression models:
+
+```{r es-pcor}
+al   <- dat.aloe2013
+pcor <- escalc(measure = "PCOR",  ti = tval, ni = n, mi = preds, data = al)
+spc  <- escalc(measure = "SPCOR", ti = tval, ni = n, mi = preds, r2i = R2, data = al)
+data.frame(al, pcor = round(pcor$yi, 4), spcor = round(spc$yi, 4),
+           var_spcor = round(spc$vi, 5))
+```
+
+For the first study, $t = 4.61$ with $\nu = 218 - 4 - 1 = 213$ gives $r_p = 4.61/\sqrt{4.61^2 + 213} = 0.301$; the semi-partial correlation, $0.275$, is smaller because it scales by $\sqrt{1 - R^2} = \sqrt{0.76}$.
+
+## Proportions and rates {#sec-effect-sizes-proportions}
+
+### Single proportions {#sec-effect-sizes-single-prop}
+
+Prevalence studies and single-arm trials report $x_i$ events out of $n_i$ participants. The raw proportion $p_i = x_i / n_i$ has variance $p_i(1 - p_i)/n_i$, which shrinks to zero as $p_i$ approaches 0 or 1 and so gives extreme studies extreme weights. Three transformations are used:
+
+$$
+\begin{aligned}
+\text{logit:} &\quad \ln\!\left(\frac{x}{n - x}\right), & \widehat{\operatorname{Var}} &= \frac{1}{x} + \frac{1}{n - x},\\
+\text{arcsine:} &\quad \arcsin\sqrt{x/n}, & \widehat{\operatorname{Var}} &= \frac{1}{4n},\\
+\text{Freeman-Tukey:} &\quad \tfrac12\left[\arcsin\sqrt{\tfrac{x}{n+1}} + \arcsin\sqrt{\tfrac{x+1}{n+1}}\right], & \widehat{\operatorname{Var}} &= \frac{1}{4n + 2}.
+\end{aligned}
+$$
+
+The logit is the canonical link for binomial data and back-transforms cleanly, but it needs a continuity correction when $x = 0$ or $x = n$. The arcsine and the Freeman-Tukey double-arcsine transformation [@freeman1950transformations] stabilize the variance and handle 0 and $n$ without correction. The Freeman-Tukey transformation, however, has no simple inverse: the back-transformation needs a sample size, and for a pooled estimate there is no single $n$. Common choices (the harmonic mean of the $n_i$, as in `transf.ipft.hm`) can produce misleading back-transformed estimates when sample sizes vary widely [@schwarzer2019seriously]; @doi2021freemantukey dispute how often this matters in practice. The `escalc()` documentation in `metafor` now advises against using the double-arcsine transformation for meta-analysis. The more principled alternative is a binomial GLMM (a random-effects logistic regression), which models the counts directly and needs neither a transformation of $p_i$ nor a continuity correction [@stijnen2010random; @lin2020metaanalysis].
+
+The `dat.pritz1997` dataset contains 14 single-arm studies of hyperdynamic therapy for cerebral vasospasm, with the number of patients who improved:
+
+```{r es-prop}
+pr  <- dat.pritz1997
+plo <- escalc(measure = "PLO", xi = xi, ni = ni, data = pr)
+pft <- escalc(measure = "PFT", xi = xi, ni = ni, data = pr)
+pas <- escalc(measure = "PAS", xi = xi, ni = ni, data = pr)
+fit_plo  <- rma(yi, vi, data = plo)
+fit_pft  <- rma(yi, vi, data = pft)
+fit_pas  <- rma(yi, vi, data = pas)
+fit_glmm <- rma.glmm(measure = "PLO", xi = xi, ni = ni, data = pr)
+preds <- list(
+  "logit, normal-normal"  = predict(fit_plo,  transf = transf.ilogit),
+  "Freeman-Tukey (hm)"    = predict(fit_pft,  transf = transf.ipft.hm,
+                                    targs = list(ni = pr$ni)),
+  "arcsine"               = predict(fit_pas,  transf = transf.iarcsin),
+  "binomial GLMM (logit)" = predict(fit_glmm, transf = transf.ilogit))
+props <- t(sapply(preds, function(p)
+  unlist(as.data.frame(p)[1, c("pred", "ci.lb", "ci.ub", "pi.lb", "pi.ub")])))
+round(props, 3)
+```
+
+The four analyses of the same 14 studies give pooled success rates between 0.76 and 0.81. The normal-normal logit model is the lowest, partly because one study (Tanabe et al., 10 of 10 improved) needs a continuity correction on the logit scale; the binomial GLMM uses that study's count as is and estimates 0.80 (95% CI 0.69 to 0.87). The Freeman-Tukey and arcsine prediction intervals extend to 0.999, an artifact of back-transforming a symmetric interval through a bounded function. For new analyses of proportions, the binomial GLMM is the recommended default.
+
+### Incidence rates and rate ratios {#sec-effect-sizes-irr}
+
+When outcomes are counts of events accumulated over person-time $t$ (strokes per patient-year, infections per catheter-day), the natural effect size for a two-group comparison is the log incidence rate ratio,
+
+$$
+\ln \text{IRR} = \ln\!\left(\frac{x_1 / t_1}{x_2 / t_2}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{IRR}) = \frac{1}{x_1} + \frac{1}{x_2},
+$$
+
+which assumes that events follow a Poisson process within each group. The `dat.hart1999` dataset contains six trials of warfarin for stroke prevention in atrial fibrillation, with person-years of follow-up:
+
+```{r es-irr}
+hart <- dat.hart1999
+irr  <- escalc(measure = "IRR", x1i = x1i, t1i = t1i, x2i = x2i, t2i = t2i,
+               data = hart, slab = study)
+irr[, c("study", "x1i", "t1i", "x2i", "t2i", "yi", "vi")]
+fit_irr <- rma(yi, vi, data = irr)
+predict(fit_irr, transf = exp)
+```
+
+The pooled rate ratio of `r round(exp(coef(fit_irr)), 2)` means that the stroke rate under warfarin is about a third of the control rate. Using person-time instead of the number randomized matters when follow-up differs between arms or trials; when events are rare, the Poisson GLMM in `rma.glmm(measure = "IRR")` again avoids continuity corrections.
+
+## Computing effect sizes from reported statistics {#sec-effect-sizes-reported}
+
+Papers do not always report the summary statistics that the formulas above need. A substantial part of data extraction consists of recovering an effect size and its variance from whatever *is* reported. Each recovery step should be documented in the extraction sheet, along with the exact numbers and page used.
+
+### Test statistics and p-values {#sec-effect-sizes-tests}
+
+For a two-group comparison with an independent-samples $t$ statistic,
+
+$$
+d = t \sqrt{\frac{1}{n_1} + \frac{1}{n_2}},
+$$
+
+and the small-sample correction and variance formula for $g$ apply as before. An $F$ statistic from a one-way ANOVA with two groups (one numerator degree of freedom) satisfies $t = \sqrt{F}$, with the sign taken from the direction of the mean difference reported in the text; $F$ statistics with more than one numerator degree of freedom cannot be converted to a single two-group contrast without additional information. A $\chi^2$ statistic with one degree of freedom from a $2 \times 2$ table gives the phi coefficient $\phi = \sqrt{\chi^2/N}$, which can be converted to $d$ (see Section \@ref(sec-effect-sizes-conversions)). An exact two-sided $p$-value can be converted back to $|t|$ with the quantile function, for example `qt(1 - p/2, df = n1 + n2 - 2)`. Statements such as "$p < .05$" only give a bound; using the bound as if it were the exact value biases the effect size toward zero, and such studies are better flagged for sensitivity analysis.
+
+`escalc()` accepts $t$ statistics directly through the `ti` argument for SMDs, correlations and partial correlations:
+
+```{r es-from-t}
+escalc(measure = "SMD", ti = 2.10, n1i = 30, n2i = 32)
+c(d_from_t = 2.10 * sqrt(1 / 30 + 1 / 32),
+  t_from_p = qt(1 - 0.04 / 2, df = 30 + 32 - 2))
+```
+
+The unstandardized $d = 0.534$ becomes $g = 0.527$ after the small-sample correction. The second line shows that an exact $p = .04$ with 60 degrees of freedom corresponds to $|t| = 2.10$, so the two routes agree.
+
+### Confidence intervals to standard errors {#sec-effect-sizes-ci}
+
+Many papers, especially in medicine, report a point estimate with a 95% confidence interval rather than a standard error. For a ratio measure the interval is symmetric on the log scale, so
+
+$$
+\widehat{SE} = \frac{\ln(\text{UL}) - \ln(\text{LL})}{2 \times 1.96}.
+$$
+
+`metafor::conv.wald()` does this conversion (and also accepts a test statistic or $p$-value), and with `check = TRUE` (the default) it warns when the interval is noticeably asymmetric on the transformed scale, which usually signals a transcription error or an interval that was not computed by the Wald method.
+
+```{r es-conv-wald}
+ors <- data.frame(study = 1:3, or = c(1.85, 0.72, 2.40),
+                  lb = c(1.10, 0.51, 1.05), ub = c(3.11, 1.02, 5.49))
+conv.wald(out = or, ci.lb = lb, ci.ub = ub, data = ors, transf = log)
+```
+
+For the first study, $\ln(1.85) = 0.615$ and $\widehat{SE} = [\ln(3.11) - \ln(1.10)]/3.92 = 0.265$, so $v = 0.070$. Adjusted odds ratios from logistic regressions are extracted the same way, with the caveat that they condition on study-specific covariate sets and are not directly comparable with unadjusted odds ratios (Chapter \@ref(sec-causal-estimates) discusses this in more depth).
+
+### Medians, quartiles and ranges {#sec-effect-sizes-fivenum}
+
+Skewed outcomes such as length of stay, costs or biomarker concentrations are often summarized by medians with the interquartile range or the full range. Several methods estimate the mean and SD from the five-number summary (minimum $a$, first quartile $q_1$, median $m$, third quartile $q_3$, maximum $b$) under an assumption of approximate normality. For the mean, @luo2016optimally proposed weighted combinations such as
+
+$$
+\bar X \approx \frac{4}{4 + n^{0.75}} \cdot \frac{a + b}{2} + \frac{n^{0.75}}{4 + n^{0.75}} \cdot m
+\qquad \text{and} \qquad
+\bar X \approx \left(0.7 + \frac{0.39}{n}\right) \frac{q_1 + q_3}{2} + \left(0.3 - \frac{0.39}{n}\right) m,
+$$
+
+and for the SD, @wan2014estimating proposed dividing the range or the IQR by the expected range or IQR of a standard normal sample of size $n$,
+
+$$
+S \approx \frac{b - a}{2\,\Phi^{-1}\!\left(\frac{n - 0.375}{n + 0.25}\right)}
+\qquad \text{and} \qquad
+S \approx \frac{q_3 - q_1}{2\,\Phi^{-1}\!\left(\frac{0.75 n - 0.125}{n + 0.25}\right)}.
+$$
+
+When all five numbers are available, @shi2020optimally combine both sources of information for the SD. These methods replaced the older approximations of @hozo2005estimating, which perform poorly for large $n$. `metafor::conv.fivenum()` implements these estimators as its default (`method = "luo/wan/shi"`), and also offers the quantile-estimation, Box-Cox and mean-of-log-normal approaches developed by McGrath and colleagues for skewed data (these require the `estmeansd` package; see `?conv.fivenum` for the original references).
+
+```{r es-fivenum}
+fn <- data.frame(study = 1:4,
+                 min = c(2, NA, 1, NA), q1 = c(NA, 12, 5, 8),
+                 median = c(15, 18, 11, 14), q3 = c(NA, 26, 19, 22),
+                 max = c(40, NA, 35, NA), n = c(45, 60, 38, 120))
+conv.fivenum(min = min, q1 = q1, median = median, q3 = q3, max = max,
+             n = n, data = fn)
+conv.fivenum(min = min, q1 = q1, median = median, q3 = q3, max = max,
+             n = n, data = fn, test = FALSE)
+```
+
+By default, `conv.fivenum()` applies a test of skewness to each study and declines to estimate a mean and SD when the summary is too asymmetric for the normal-theory formulas. Studies 1 and 3 are flagged (their medians sit much closer to the minimum than to the maximum), so the first call returns `NA` for them. Setting `test = FALSE` forces the computation: for study 2 the Luo and Wan formulas give a mean of 18.71 and an SD of 10.63, which is easy to verify by hand from the equations above. Skewness is itself informative. If the medians are far from the centres of the ranges, the outcome is probably better analyzed as a ratio of means or of medians, or on the log scale (`dist = "lnorm"`), than as a mean difference based on normal-theory estimates.
+
+### Regression coefficients {#sec-effect-sizes-regression}
+
+When the predictor of interest is a binary indicator (treatment versus control) in a regression without other covariates, its unstandardized coefficient $b$ is the raw mean difference. Dividing by the *pooled within-group* SD gives $d$. Papers often report only the total SD of the outcome, $S_Y$, which includes the between-group difference; the within-group variance can be recovered as
+
+$$
+S_p^2 = \frac{(N - 1) S_Y^2 - b^2\, n_1 n_2 / N}{N - 2}.
+$$
+
+When covariates are in the model, $b$ is an adjusted difference, and dividing it by an unadjusted SD gives a quantity whose meaning depends on the covariates. For continuous predictors, standardized coefficients $\beta$ are not correlations. @peterson2005use proposed imputing $r$ from $\beta$ with a simple linear rule, but @roth2018using showed that this imputation can bias both the mean correlation and the estimated variability of true effects, so it should be avoided or at least confined to a sensitivity analysis. Converting the coefficient's $t$ statistic to a partial or semi-partial correlation, as above, is usually the better option.
+
+### The esc package {#sec-effect-sizes-esc}
+
+The `esc` package collects many of these conversions behind a uniform interface; each function returns the effect size, its standard error, variance, confidence interval and inverse-variance weight in the requested metric (`es.type = "d"`, `"g"`, `"r"`, `"or"`, `"logit"`, and others).
+
+```{r es-esc}
+esc_t(t = 2.10, grp1n = 30, grp2n = 32, es.type = "g")
+esc_f(f = 4.41, grp1n = 30, grp2n = 32, es.type = "g")
+esc_chisq(chisq = 5.2, totaln = 120, es.type = "d")
+esc_B(b = 1.2, sdy = 2.6, grp1n = 40, grp2n = 38, es.type = "d")
+```
+
+The $t$ and the one-degree-of-freedom $F$ give identical results ($2.10^2 = 4.41$), $g = 0.527$, matching `escalc()` above. The $\chi^2$ of 5.2 with $N = 120$ corresponds to $\phi = 0.208$ and $d = 0.426$. For the regression coefficient, `esc_B()` treats `sdy` as the total SD and removes the between-group component before standardizing, which is why it returns $d = 0.471$ rather than $1.2/2.6 = 0.462$.
+
+`combine_esc()` stacks several such results into a data frame that can be passed straight to `rma()`:
+
+```{r es-combine}
+es_all <- combine_esc(
+  esc_t(t = 2.10, grp1n = 30, grp2n = 32, es.type = "g", study = "A"),
+  esc_mean_sd(grp1m = 10.3, grp1sd = 2.5, grp1n = 40,
+              grp2m = 9.1, grp2sd = 2.8, grp2n = 38, es.type = "g", study = "B"),
+  esc_B(b = 1.2, sdy = 2.6, grp1n = 40, grp2n = 38, es.type = "g", study = "C"))
+es_all
+rma(yi = es, vi = var, data = es_all, slab = study)
+```
+
+The three studies reported their results in three different ways (a $t$ statistic, means and SDs, a regression coefficient), yet end up on a common $g$ scale and are pooled in one line, giving $\hat\mu = 0.48$ (95% CI 0.21 to 0.75) with no detectable heterogeneity. The same could be done with `escalc()` and hand calculation; the value of `esc` is mainly that the conversions are documented and consistent.
+
+## Converting between metrics {#sec-effect-sizes-conversions}
+
+When a few studies report a different metric from the rest, conversion lets them contribute. All conversions rest on distributional assumptions that should be stated.
+
+**Log odds ratio and SMD.** If a binary outcome arises from dichotomizing a continuous latent variable that follows a logistic distribution with equal variance in both groups, the log odds ratio is proportional to the standardized mean difference on the latent scale:
+
+$$
+d = \ln \text{OR} \times \frac{\sqrt{3}}{\pi}, \qquad \operatorname{Var}(d) = \operatorname{Var}(\ln \text{OR}) \times \frac{3}{\pi^2},
+$$
+
+since the standard logistic distribution has SD $\pi/\sqrt{3} \approx 1.81$ [@hasselblad1995meta; @chinn2000simple]. Under a normal latent variable the conversion factor is about $1/1.65$ instead (the Cox transformation); @sanchezmeca2003effectsize compared the options by simulation and found that the logistic and Cox conversions both perform reasonably when the latent distributions are close to normal with equal variances. In `escalc()`, `measure = "OR2DL"` and `"OR2DN"` compute these directly from $2 \times 2$ tables, and `conv.delta()` transforms existing `yi`/`vi` pairs by the delta method:
+
+```{r es-or2d}
+or2d <- escalc(measure = "OR2DL", ai = tpos, bi = tneg, ci = cpos, di = cneg,
+               data = dat.bcg)
+head(cbind(lnOR = lor$yi, d_OR2DL = or2d$yi, d_by_hand = lor$yi * sqrt(3) / pi), 3)
+head(conv.delta(yi, vi, data = lor, transf = function(x) x * sqrt(3) / pi), 3)
+```
+
+For the Aronson trial, $\ln\text{OR} = -0.939$ converts to $d = -0.518$, and the three routes agree.
+
+**Correlation and SMD.** A point-biserial correlation $r$ between a continuous outcome and a two-group indicator, and the SMD $d$ between the groups, are related by
+
+$$
+d = \frac{r \sqrt{a}}{\sqrt{1 - r^2}}, \qquad r = \frac{d}{\sqrt{d^2 + a}}, \qquad a = \frac{(n_1 + n_2)^2}{n_1 n_2},
+$$
+
+with $a = 4$ for equal group sizes [@borenstein2021introduction; @rosenthal1994parametric]. The `effectsize` package implements these conversions:
+
+```{r es-r-d}
+c(r_from_d = effectsize::d_to_r(0.5), d_from_r = effectsize::r_to_d(0.3))
+```
+
+A $d$ of 0.5 corresponds to $r = 0.243$ with equal groups, and $r = 0.3$ to $d = 0.629$. The conversion is valid only when the binary variable is a genuine two-group variable. If a continuous variable was dichotomized (for example "high" versus "low" anxiety by a median split), the point-biserial $r$ underestimates the correlation with the underlying continuous variable, by a factor of about 0.80 for a median split, and the conversion should go through the biserial correlation or a dichotomization correction instead [@hunter1990].
+
+::: {.rmdwarning}
+Every conversion imports assumptions about distributions, variances and the nature of the variables. Two practical checks protect against problems: code a "converted" indicator for each effect size and test it as a moderator, and run the main analysis with and without the converted studies (Chapter \@ref(sec-sensitivity)).
+:::
+
+## Cluster-randomized trials {#sec-effect-sizes-cluster}
+
+In cluster-randomized trials (schools, clinics, stores, villages assigned to conditions), individuals within a cluster are correlated, and an analysis that ignores the clustering overstates the precision of the effect estimate. If a trial reports an individual-level analysis, its standard error must be inflated before it enters a meta-analysis. With average cluster size $m$ and intraclass correlation $\rho_{\text{ICC}}$, the design effect is
+
+$$
+\text{DE} = 1 + (m - 1)\,\rho_{\text{ICC}},
+$$
+
+and the effective sample size is $n / \text{DE}$. The simplest correction multiplies the naive sampling variance by DE, or equivalently divides each group's sample size (and, for binary outcomes, its event count) by DE before computing the effect size [@higgins2019cochrane]. Even small ICCs have large effects when clusters are large: with $m = 25$ and $\rho_{\text{ICC}} = 0.05$, $\text{DE} = 1 + 24 \times 0.05 = 2.2$, so a trial of 400 pupils carries the information of about 182 independent pupils.
+
+```{r es-cluster}
+design_effect <- function(m, icc) 1 + (m - 1) * icc
+de <- design_effect(m = 25, icc = 0.05)
+g_naive <- escalc(measure = "SMD", m1i = 52.1, sd1i = 9.8, n1i = 200,
+                  m2i = 49.6, sd2i = 10.1, n2i = 200)
+c(DE = de, n_eff = 400 / de, g = g_naive$yi,
+  var_naive = g_naive$vi, var_adjusted = g_naive$vi * de)
+```
+
+When the ICC is not reported, it can be borrowed from other trials in the review or from published compilations for the outcome and cluster type, with a sensitivity analysis over a plausible range. For cluster-randomized designs there is also a question of *which* standard deviation should standardize an SMD (the within-cluster SD, or the total SD including between-cluster variation). @hedges2007effect gives estimators and variances for each choice; the total-variance version is comparable with SMDs from individually randomized trials.
+
+## Psychometric artifact corrections {#sec-effect-sizes-artifacts}
+
+The Hunter-Schmidt approach to meta-analysis, developed in personnel and organizational psychology, starts from the observation that observed correlations are attenuated by study *artifacts*: sampling error, measurement error in the independent and dependent variables, dichotomization of continuous variables, range restriction, imperfect construct validity, and transcription errors [@schmidt2015a]. Most of these artifacts reduce observed correlations below the construct-level correlation of substantive interest. The goal of a psychometric meta-analysis is to estimate the mean and the standard deviation of the *construct-level* (true-score) correlations $\rho$, correcting each artifact for which information is available. This differs from the approaches in the rest of this chapter, which take the observed effect sizes as the estimand.
+
+### Sampling error and weighting {#sec-effect-sizes-hs-barebones}
+
+The "bare-bones" Hunter-Schmidt analysis corrects only for sampling error. It pools *untransformed* correlations with sample-size weights,
+
+$$
+\bar r = \frac{\sum_i n_i r_i}{\sum_i n_i}, \qquad
+S_r^2 = \frac{\sum_i n_i (r_i - \bar r)^2}{\sum_i n_i}, \qquad
+S_e^2 = \frac{(1 - \bar r^2)^2}{\bar n - 1},
+$$
+
+and estimates the variance of population correlations as $\hat\sigma_\rho^2 = S_r^2 - S_e^2$, where $\bar n$ is the average sample size. Two features distinguish this approach from the inverse-variance analysis of Fisher's $z$ above. First, weighting by $n_i$ rather than by $1/\widehat{\operatorname{Var}}(r_i)$ avoids the dependence between the weights and the observed $r_i$. Weighting by sample size is generally preferable to an unweighted mean because it gives large studies more influence, and in applied comparisons weighted and unweighted means can diverge substantially [@fuller1999comparing]. Second, the analysis stays on the $r$ scale. Hunter and Schmidt argue that averaging on the $z$ scale yields an upwardly biased estimate of the mean correlation when true correlations vary: because $\tanh$ is concave for positive values, the back-transformed mean $z$ estimates something closer to the median of the $\rho$ distribution than its mean, and the difference grows with heterogeneity. In simulations comparing the two random-effects traditions, @hall2002 found that the Hunter-Schmidt approach estimated the mean population correlation more accurately when true correlations varied. In practice the two give similar point estimates unless correlations are large and heterogeneous; for the Molloy data, the back-transformed $z$-based estimate of `r round(transf.ztor(coef(res_z)), 3)` compares with `r round(coef(res_r), 3)` from an inverse-variance analysis of untransformed correlations and `r round(weighted.mean(mol$ri, mol$ni), 3)` for the sample-size weighted mean.
+
+Several packages offer the Fisher transformation (for example `DescTools::FisherZ()` and `psych::fisherz()`), but base R already provides it as `atanh()`, with `tanh()` as the inverse, and `metafor` exposes the same pair as `transf.rtoz()` and `transf.ztor()`. A correct hand computation for $r = 0.5$, $n = 200$ is:
+
+```{r es-fisher-hand}
+r <- 0.5; n <- 200
+z    <- atanh(r)                       # 0.5 * log((1 + r) / (1 - r))
+se_z <- 1 / sqrt(n - 3)
+ci_r <- tanh(z + c(-1, 1) * qnorm(0.975) * se_z)
+c(z = z, se_z = se_z, r_lb = ci_r[1], r_ub = ci_r[2],
+  se_r = (1 - r^2) / sqrt(n - 1))
+```
+
+The interval is asymmetric on the $r$ scale (0.389 to 0.597 around 0.5), as it should be. The large-sample standard error of $r$ is $(1 - r^2)/\sqrt{n - 1}$; the expression $(1 - r^2)/\sqrt{n - 2}$ that appears in some sources is a variant that differs only trivially for moderate $n$.
+
+### Measurement error {#sec-effect-sizes-reliability}
+
+If $X$ and $Y$ are measured with reliabilities $r_{XX}$ and $r_{YY}$, classical test theory implies that the observed correlation is attenuated relative to the true-score correlation, $\rho_{XY} = \rho_{T_X T_Y} \sqrt{r_{XX}\, r_{YY}}$. The disattenuated correlation and its standard error are
+
+$$
+r_c = \frac{r_{XY}}{\sqrt{r_{XX}}\sqrt{r_{YY}}}, \qquad
+SE(r_c) = \frac{SE(r_{XY})}{\sqrt{r_{XX}}\sqrt{r_{YY}}}.
+$$
+
+The corrected correlation is always larger in absolute value than the observed one, and its standard error is larger by the same factor, which reflects the extra uncertainty from imperfect measurement. The same attenuation factor applies to standardized mean differences when the outcome is measured with error.
+
+```{r es-reliability}
+r_xy <- 0.50; n <- 200
+r_xx <- 0.90; r_yy <- 0.80
+a     <- sqrt(r_xx * r_yy)              # attenuation factor
+se_r  <- (1 - r_xy^2) / sqrt(n - 1)
+c(attenuation = a, r_corrected = r_xy / a,
+  se_observed = se_r, se_corrected = se_r / a)
+```
+
+With reliabilities of 0.90 and 0.80 the attenuation factor is 0.849, so an observed correlation of 0.50 corresponds to a true-score correlation of 0.589. The correction should use reliabilities estimated in the same sample where possible, and the type of reliability matters: internal consistency (coefficient alpha) corrects for item-specific error only, whereas test-retest coefficients also capture transient error [@schmidt2015a]. When reliabilities are reported for only some studies, Hunter-Schmidt methods use *artifact distributions*, correcting the mean and variance of the observed correlations using the distribution of reliabilities across the studies that report them.
+
+### Range restriction {#sec-effect-sizes-range}
+
+If a study's sample was selected on $X$ (for example, only applicants above a test cutoff were hired, and job performance is observed only for them), the SD of $X$ in the sample is smaller than in the population of interest, and the observed correlation is attenuated. Let $u_X = s_X / S_X$ be the ratio of the restricted to the unrestricted SD. For *direct* range restriction on $X$, Thorndike's Case II correction is
+
+$$
+r_c = \frac{r / u_X}{\sqrt{1 + r^2 \left(1/u_X^2 - 1\right)}}.
+$$
+
+Selection is more often *indirect*, on a third variable correlated with $X$ (such as an overall hiring judgement). @hunter2006implications developed a correction for indirect range restriction (Case IV) that first corrects for measurement error in the restricted sample and then applies the range restriction correction to true scores, and showed that applying the Case II formula when restriction is indirect underestimates the true correlation substantially. The order of corrections matters (reliability estimates obtained in restricted samples must themselves be adjusted), and the standard errors of corrected correlations require delta-method approximations; these details are handled by dedicated software.
+
+### A psychometric meta-analysis with psychmeta {#sec-effect-sizes-psychmeta}
+
+The `psychmeta` package [@dahlke2018psychmeta] implements bare-bones, individual-correction and artifact-distribution meta-analyses. The dataset `data_r_gonzalezmule_2014` contains 43 correlations between general mental ability and organizational citizenship behaviour, with the reliability of each measure (`rxxi`, `ryyi`) and a range-restriction ratio for ability (`ux = 0.63`). We first run a bare-bones analysis and then individual corrections, once for measurement error only and once for measurement error plus indirect range restriction.
+
+```{r es-psychmeta}
+gm <- data_r_gonzalezmule_2014
+bb <- ma_r_bb(r = rxyi, n = n, data = gm)
+ic_meas <- ma_r(rxyi = rxyi, n = n, rxx = rxxi, ryy = ryyi, ma_method = "ic",
+                correct_rr = FALSE, data = gm)
+ic_full <- ma_r(rxyi = rxyi, n = n, rxx = rxxi, ryy = ryyi, ux = ux,
+                ma_method = "ic", data = gm)
+cols <- c("k", "N", "mean_r", "sd_res")
+tab_bb <- as.data.frame(get_metatab(bb))[, c(cols, "CI_LL_95", "CI_UL_95",
+                                             "CR_LL_80", "CR_UL_80")]
+tab_ic <- rbind(
+  "reliability only" = as.data.frame(get_metatab(ic_meas, ma_method = "ic",
+                                                 correction_type = "ts")),
+  "reliability + range restriction" = as.data.frame(get_metatab(ic_full,
+                                                 ma_method = "ic", correction_type = "ts")))
+round(tab_bb, 3)
+round(tab_ic[, c("mean_r", "mean_rho", "sd_rho", "CI_LL_95", "CI_UL_95",
+                 "CR_LL_80", "CR_UL_80")], 3)
+attr(ic_full$meta_tables[[1]]$individual_correction, "method_details")
+```
+
+The bare-bones analysis gives a sample-size weighted mean observed correlation of 0.126 across 43 samples and 12,507 participants, with a residual SD of 0.084 after removing sampling error variance. Correcting for unreliability in both measures raises the mean true-score correlation to 0.142, and adding the correction for indirect range restriction on ability (which `psychmeta` selects automatically from the available artifacts, as the method details show) raises it further, to $\bar\rho = 0.235$ with $\text{SD}_\rho = 0.152$. The 80% credibility interval (0.038 to 0.433) describes the spread of construct-level correlations across settings; it plays the role that the prediction interval plays in the random-effects model of Chapter \@ref(sec-models). The confidence interval (0.179 to 0.291) describes uncertainty about the mean.
+
+::: {.rmdnote}
+Corrections for artifacts change the estimand: the question is no longer "what correlation will a typical study observe?" but "what is the relationship between the constructs, free of measurement error and selection?". Which question is relevant depends on the purpose. Validity generalization in personnel selection asks about operational validity (corrected for criterion unreliability and range restriction, but not for predictor unreliability, because selection decisions must use the fallible predictor). Theory testing asks about construct-level relations. The meta-analyst should state which correction targets which question, and report observed and corrected results side by side.
+:::
+
+## Practical recommendations {#sec-effect-sizes-recommendations}
+
+Define the effect size metric, its sign convention, and the hierarchy of extraction rules (which statistics to prefer when several are reported, how to handle adjusted versus unadjusted estimates) in the protocol, before data extraction begins. Extract the raw ingredients (means, SDs, counts, $n$, test statistics, correlations) rather than effect sizes computed by the primary authors, and compute all effect sizes with one documented script, so that formulas are applied consistently and the computations can be audited.
+
+For continuous outcomes on a common scale, use the raw mean difference; otherwise Hedges' $g$ with the exact correction. Use the log ratio of means for ratio-scale outcomes with multiplicative effects. For pre-post designs, prefer raw-score standardization whenever designs are mixed or $r$ must be imputed, and report a sensitivity analysis over plausible values of $r$. For binary outcomes, analyze log odds ratios or log risk ratios and translate the pooled result into absolute terms at relevant baseline risks; for sparse data, avoid continuity corrections in favour of Mantel-Haenszel, Peto or GLMM methods. Pool correlations on Fisher's $z$ scale (or with Hunter-Schmidt methods if artifact corrections are the goal), and analyze proportions with binomial GLMMs rather than with the double-arcsine transformation.
+
+When studies need conversion, prefer conversions with mild assumptions ($t$ to $d$, CI to SE) over conversions with strong ones (odds ratio to $d$, $\beta$ to $r$), and flag every converted or imputed value for sensitivity analysis. Inflate the variances of cluster-randomized trials analyzed at the individual level.
+
+## Common pitfalls {#sec-effect-sizes-pitfalls}
+
+The most damaging errors in effect size computation are mundane. Standard errors are mistaken for standard deviations (a reported "mean ± SE" read as "mean ± SD" understates the SD by a factor of $\sqrt{n}$ and inflates the SMD by the same factor). Signs are inconsistent across studies. Change-score SMDs from within-subject designs are pooled with between-subject SMDs as if they were the same parameter. The same participants contribute to several effect sizes (multiple outcomes, multiple treatment arms sharing one control group) without any adjustment, which violates the independence assumption of standard models; Chapter \@ref(sec-dependent-effects) treats this problem in detail. Inexact $p$-values ("$p < .05$") are converted as if they were exact. Effect sizes computed by primary authors with different formulas (Cohen's $d$ from a paired $t$ test, $\eta^2$ from a factorial ANOVA) are taken at face value. Finally, the double-arcsine back-transformation and continuity corrections are applied by default, without checking whether they distort the result. A reproducible extraction script, a second independent extractor, and a table of every effect size next to its raw ingredients catch most of these.
+
+## Key takeaways {#sec-effect-sizes-takeaways}
+
+- Every meta-analysis rests on study-level pairs $(y_i, v_i)$; the effect size metric determines what the pooled estimate means, and errors in $y_i$ or $v_i$ cannot be fixed by later modelling.
+- The raw mean difference is preferable when all studies share a scale; otherwise Hedges' $g$ with the exact small-sample correction is the standard SMD. Pre-post SMDs standardized by the change-score SD (SMCC) estimate a different, larger parameter than raw-score SMDs (SMCR), and SMCC is highly sensitive to the often-imputed pre-post correlation.
+- Ratio measures (OR, RR, IRR, ROM) are analyzed on the log scale. Correlations are pooled on Fisher's $z$ scale with variance $1/(n - 3)$, or with Hunter-Schmidt sample-size weighting when artifact corrections are the goal.
+- Continuity corrections and the Freeman-Tukey back-transformation can distort results for sparse data and proportions near 0 or 1; GLMMs model the counts directly and avoid both.
+- Recovering effect sizes from $t$, $F$, $\chi^2$, $p$-values, confidence intervals and five-number summaries is routine with `escalc()`, `conv.wald()`, `conv.fivenum()` and the `esc` package, but each conversion carries assumptions that should be documented and probed in sensitivity analyses.
+- Cluster-randomized trials analyzed at the individual level need their variances inflated by the design effect $1 + (m - 1)\rho_{\text{ICC}}$.
+- Psychometric corrections for unreliability and range restriction change the estimand from observed to construct-level correlations; report both, and use dedicated software such as `psychmeta` for the corrected analysis.
+
+## Further reading {#sec-effect-sizes-reading}
+
+@borenstein2021introduction give an accessible treatment of effect size computation for the main designs, with worked formulas, and the Cochrane Handbook [@higgins2019cochrane] covers effect measures for binary, continuous and time-to-event outcomes and the handling of cluster-randomized and crossover trials from a clinical perspective. @morris2002combining remains the reference for combining repeated-measures and independent-groups designs, and @morris2007estimating for pretest-posttest-control designs. For correlations and the psychometric approach, @schmidt2015a is the comprehensive source, @hunter2006implications describes the indirect range restriction correction, and @dahlke2018psychmeta document its implementation in R. The help page of `escalc()` in `metafor` [@viechtbauer2010conducting] is itself a compact reference for dozens of effect size measures, with formulas and original citations.

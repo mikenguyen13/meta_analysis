@@ -1,10 +1,30 @@
 book_filename: "meta-analysis"
+output_dir: "_book"
 repo: https://github.com/mikenguyen13/meta_analysis/
 delete_merged_file: true
+new_session: true
+before_chapter_script: "_common.R"
 language:
   ui:
     chapter_name: "Chapter "
-view: https://github.com/mikenguyen13/meta_analysis/blob/main/%s
-edit: https://github.com/mikenguyen13/meta_analysis/edit/main/%s
-new_session: true
-before_chapter_script: "_common.R"
+view: https://github.com/mikenguyen13/meta_analysis/blob/master/%s
+edit: https://github.com/mikenguyen13/meta_analysis/edit/master/%s
+rmd_files:
+  - index.Rmd
+  - 01-introduction.Rmd
+  - 02-systematic-review.Rmd
+  - 03-effect-sizes.Rmd
+  - 04-models.Rmd
+  - 05-heterogeneity.Rmd
+  - 06-dependent-effects.Rmd
+  - 07-publication-bias.Rmd
+  - 08-sensitivity.Rmd
+  - 09-bayesian.Rmd
+  - 10-network.Rmd
+  - 11-masem.Rmd
+  - 12-multivariate-ipd.Rmd
+  - 13-diagnostic-accuracy.Rmd
+  - 14-causal-estimates.Rmd
+  - 15-reporting-grade.Rmd
+  - 16-conclusion.Rmd
+  - 99-references.Rmd

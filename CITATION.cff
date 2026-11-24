@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "Meta-Analysis: A Practical and Modern Guide with R"
+message: "If you use this book in your work, please cite it as below."
+type: software
+authors:
+  - family-names: Nguyen
+    given-names: Mike
+    orcid: "https://orcid.org/0000-0002-3432-8595"
+    website: "https://mikenguyen.netlify.app"
+url: "https://mikenguyen13.github.io/meta_analysis/"
+repository-code: "https://github.com/mikenguyen13/meta_analysis"
+license: CC-BY-NC-SA-4.0
+keywords:
+  - meta-analysis
+  - systematic review
+  - research synthesis
+  - R
+  - metafor
+preferred-citation:
+  type: book
+  title: "Meta-Analysis: A Practical and Modern Guide with R"
+  authors:
+    - family-names: Nguyen
+      given-names: Mike
+  year: 2026
+  url: "https://mikenguyen13.github.io/meta_analysis/"

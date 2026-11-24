@@ -1,0 +1,71 @@
+Package: metaanalysisbook
+Title: Meta-Analysis: A Practical and Modern Guide with R
+Version: 1.0.0
+Authors@R:
+    person("Mike", "Nguyen", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-3432-8595"))
+Description: Not an R package. This file lists the packages needed to build
+    the book so that the build can install them with remotes or pak.
+License: CC BY-NC-SA 4.0
+URL: https://mikenguyen13.github.io/meta_analysis/
+Encoding: UTF-8
+Depends: R (>= 4.3)
+Imports:
+    baggr,
+    bayesmeta,
+    bayesplot,
+    BiasedUrn,
+    bookdown,
+    boot,
+    brms,
+    bslib,
+    clubSandwich,
+    curl,
+    DiagrammeR,
+    dosresmeta,
+    downlit,
+    dplyr,
+    effectsize,
+    esc,
+    gemtc,
+    ggdist,
+    ggplot2,
+    htmlwidgets,
+    irr,
+    jsonlite,
+    knitr,
+    lavaan,
+    lme4,
+    mada,
+    MASS,
+    Matrix,
+    meta,
+    metaBMA,
+    metadat,
+    metafor,
+    metaforest,
+    metaSEM,
+    metasens,
+    multinma,
+    MuMIn,
+    netmeta,
+    patchwork,
+    posterior,
+    PRISMA2020,
+    psych,
+    psychmeta,
+    PublicationBias,
+    puniform,
+    rjags,
+    rmarkdown,
+    rms,
+    RoBMA,
+    robumeta,
+    robvis,
+    rstan,
+    semPlot,
+    tidybayes,
+    tidyr,
+    weightr,
+    xml2,
+    yaml

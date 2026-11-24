@@ -1,0 +1,507 @@
+# (PART) Core Methods {#sec-part-core-methods .unnumbered}
+
+# Common-Effect and Random-Effects Models {#sec-models}
+
+With effect sizes $y_i$ and sampling variances $v_i$ in hand (Chapter \@ref(sec-effect-sizes)), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect model and the random-effects model, together with a third model, the fixed-effects model, that gives the same numbers as the common-effect model but answers a different question. Most of the methodological disagreement in applied meta-analysis is not about how to compute a weighted average but about what that average estimates, how uncertain it is, and how much the true effects vary around it. Those three questions organize the chapter: estimands, heterogeneity, and inference.
+
+The chapter then turns to the practical tools: estimators of the between-study variance $\tau^2$ and how they compare, confidence intervals for $\tau^2$, the Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment for inference on the mean, prediction intervals, forest plots, the same analysis in the `meta` package, and the special methods for binary outcomes with rare events (Mantel-Haenszel, Peto, and generalized linear mixed models). Moderator analyses and subgroup comparisons, which try to *explain* heterogeneity rather than merely quantify it, are the subject of Chapter \@ref(sec-heterogeneity).
+
+```{r models-setup}
+library(metafor)   # loaded by _common.R as well; repeated for clarity
+library(meta)
+```
+
+## Inverse-variance weighting {#sec-models-inverse-variance}
+
+Suppose $k$ studies each estimate the same quantity $\theta$ with independent, unbiased estimates $y_i$ whose variances $v_i$ are known. Among all weighted averages $\sum_i w_i y_i / \sum_i w_i$, the one with the smallest variance uses weights proportional to the inverse variances, $w_i = 1/v_i$:
+
+$$
+\hat\theta = \frac{\sum_{i=1}^k w_i y_i}{\sum_{i=1}^k w_i}, \qquad
+\operatorname{Var}(\hat\theta) = \frac{1}{\sum_{i=1}^k w_i}, \qquad w_i = \frac{1}{v_i}.
+$$
+
+This is a standard result for combining independent estimates and the reason inverse-variance weighting underlies almost every meta-analytic model. Two features deserve emphasis. First, the variance of the pooled estimate is the reciprocal of the total weight: information adds up across studies. Second, the derivation treats the $v_i$ as known constants. In practice they are estimates, and for some effect sizes (SMDs, log odds ratios) they depend on $y_i$ itself, which introduces small biases in the weights. The models below inherit this assumption; it is usually harmless when studies are not very small.
+
+Throughout the chapter we use the BCG vaccine trials [@colditz1994efficacy], with the log risk ratio of tuberculosis in vaccinated versus unvaccinated participants as the effect size. Negative values favour the vaccine.
+
+```{r models-bcg-data}
+dat <- escalc(measure = "RR", ai = tpos, bi = tneg, ci = cpos, di = cneg,
+              data = dat.bcg, slab = paste(author, year))
+dat[, c("author", "year", "tpos", "tneg", "cpos", "cneg", "yi", "vi")]
+```
+
+## Three models, three estimands {#sec-models-estimands}
+
+### The common-effect model {#sec-models-common}
+
+The common-effect model (often called the "fixed-effect" model, in the singular, or the equal-effects model) assumes that every study estimates the same true effect:
+
+$$
+y_i = \theta + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i).
+$$
+
+Under this model all variation among the $y_i$ is sampling error, the inverse-variance weighted average is the maximum likelihood estimate of $\theta$, and its standard error is $1/\sqrt{\sum w_i}$. The model is coherent when the studies are close replications: same intervention, same population, same outcome definition. In most applied fields that assumption is implausible on its face.
+
+### The fixed-effects model {#sec-models-fixed}
+
+There is a second reading of the same computation that does not require the true effects to be equal. Let each study have its own true effect $\theta_i$, treated as fixed (not random) quantities:
+
+$$
+y_i = \theta_i + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i).
+$$
+
+The inverse-variance weighted average is then an unbiased estimate of the weighted average of the study-specific true effects,
+
+$$
+\bar\theta_w = \frac{\sum_i w_i \theta_i}{\sum_i w_i},
+$$
+
+and its standard error is again $1/\sqrt{\sum w_i}$. @laird1990some described this fixed-effects interpretation, and @rice2017reevaluation argued that it is a legitimate and useful analysis: it answers the question "what was the average effect in the studies we have, weighted by their precision?" without assuming homogeneity. The price is that inference is *conditional on the included studies*. The estimand is defined by these particular $k$ studies and their particular weights; it says nothing directly about the effect in a new setting, and its value would change if a large study were added or removed. Because the numbers are identical, the distinction between the common-effect and the fixed-effects model lies entirely in the interpretation, and the reporting should make clear which is intended.
+
+### The random-effects model {#sec-models-random}
+
+The random-effects model treats the true effects as a random sample from a distribution of effects:
+
+$$
+y_i = \theta_i + \varepsilon_i, \qquad \theta_i = \mu + u_i, \qquad u_i \sim N(0, \tau^2), \qquad \varepsilon_i \sim N(0, v_i),
+$$
+
+so that marginally $y_i \sim N(\mu, v_i + \tau^2)$ [@dersimonian1986metaanalysis; @hedges1998fixed]. There are now two parameters of interest: the mean $\mu$ of the distribution of true effects and its standard deviation $\tau$, the between-study heterogeneity. Given an estimate $\hat\tau^2$, the mean is estimated with weights $w_i^* = 1/(v_i + \hat\tau^2)$:
+
+$$
+\hat\mu = \frac{\sum_i w_i^* y_i}{\sum_i w_i^*}, \qquad \widehat{\operatorname{Var}}(\hat\mu) = \frac{1}{\sum_i w_i^*}.
+$$
+
+Adding $\tau^2$ to every study's variance makes the weights more equal than under the common-effect model: large studies lose relative weight, small studies gain it. When $\hat\tau^2 = 0$ the two models coincide.
+
+The random-effects estimand $\mu$ refers to a (usually hypothetical) population of studies or settings from which the included ones are regarded as a sample, and inference therefore generalizes beyond the included studies, to the extent that the sampling story is credible [@higgins2009reevaluation]. The normality of the $u_i$ is a working assumption. It matters little for the estimate of $\mu$, more for its confidence interval when $k$ is small, and a great deal for prediction intervals.
+
+```{r models-ce-fe-re}
+ce <- rma(yi, vi, data = dat, method = "EE")
+fe <- rma(yi, vi, data = dat, method = "FE")
+re <- rma(yi, vi, data = dat, method = "REML")
+ce
+re
+rbind(EE = c(coef(ce), se = ce$se), FE = c(coef(fe), se = fe$se),
+      RE = c(coef(re), se = re$se))
+```
+
+`metafor` labels the first model "Equal-Effects" (`method = "EE"`) and the second "Fixed-Effects" (`method = "FE"`), and as expected they give identical results: $\hat\theta = -0.430$ with standard error 0.041, a pooled risk ratio of $\exp(-0.430) = 0.65$. The random-effects estimate is $\hat\mu = -0.715$ (SE 0.180), a risk ratio of 0.49. The difference is not a technicality. The common-effect analysis is dominated by the two largest trials (Stein & Aronson 1953 and the TPT Madras trial, which together carry about 65% of the common-effect weight), and the Madras trial found no benefit at all. The random-effects weights are much more even, and the estimate moves toward the larger benefits seen in the smaller trials. The standard error is more than four times larger, because $\hat\tau^2 = 0.313$ is large relative to most within-study variances.
+
+### Which model? {#sec-models-choice}
+
+The choice between models should be driven by the inferential goal and by what is known about the studies, not by a test for heterogeneity. If the aim is to make a statement about an intervention's effect across the range of settings represented by (and similar to) the studies, the random-effects model is the natural choice, and in most reviews in psychology, medicine, economics and management, where studies differ in populations, implementations and measures, it is the default [@borenstein2021introduction; @higgins2019cochrane]. A common-effect analysis is appropriate for genuine replications (for example, multi-site trials run under one protocol). The fixed-effects interpretation is appropriate when the question is explicitly about the included studies, for example when summarizing a closed set of trials submitted for a regulatory decision [@rice2017reevaluation].
+
+Two practical arguments cut in the other direction. With very few studies $\tau^2$ is estimated so imprecisely that random-effects inference can be unstable (Section \@ref(sec-models-small-k)). And because the random-effects model upweights small studies, it is more sensitive to small-study effects such as publication bias (Chapter \@ref(sec-publication-bias)); a large difference between common-effect and random-effects estimates, as in the BCG data, is itself a signal worth investigating.
+
+## Quantifying heterogeneity {#sec-models-heterogeneity}
+
+### Cochran's Q {#sec-models-q}
+
+The classical test of homogeneity uses Cochran's $Q$ statistic [@cochran1954combination], the weighted sum of squared deviations from the common-effect estimate,
+
+$$
+Q = \sum_{i=1}^k w_i (y_i - \hat\theta)^2, \qquad w_i = 1/v_i.
+$$
+
+Under the null hypothesis $\tau^2 = 0$, $Q$ follows approximately a $\chi^2$ distribution with $k - 1$ degrees of freedom. For the BCG trials $Q = 152.2$ on 12 degrees of freedom ($p < .0001$). The test has low power when $k$ is small and high power when studies are large, so a non-significant $Q$ is weak evidence of homogeneity and a significant $Q$ says nothing about whether the heterogeneity matters. The test is best viewed as a building block for the statistics below rather than as a decision rule for model selection.
+
+### tau, I-squared and H-squared {#sec-models-tau-i2}
+
+Three descriptive measures are reported by every meta-analysis program.
+
+The between-study variance $\tau^2$, and its square root $\tau$, describe heterogeneity on the scale of the effect size. They are the only one of the three that is an absolute measure: $\tau = 0.56$ on the log risk ratio scale means that the true risk ratios across settings have a standard deviation of 0.56 log units, so that roughly 95% of them lie within a factor of $\exp(1.96 \times 0.56) \approx 3$ of the mean.
+
+$H^2$ and $I^2$ [@higgins2002quantifying] are relative measures. In their original form, based on $Q$,
+
+$$
+H^2 = \frac{Q}{k - 1}, \qquad I^2 = \frac{Q - (k - 1)}{Q} \times 100\%,
+$$
+
+with $I^2$ truncated at zero. $I^2$ estimates the proportion of the total variability in the observed effects that is due to between-study heterogeneity rather than sampling error. Equivalently, with the "typical" within-study variance
+
+$$
+\tilde v = \frac{(k - 1) \sum_i w_i}{\left(\sum_i w_i\right)^2 - \sum_i w_i^2},
+$$
+
+one can write $I^2 = \hat\tau^2 / (\hat\tau^2 + \tilde v)$ and $H^2 = (\hat\tau^2 + \tilde v)/\tilde v$; these model-based versions are what `metafor` reports, and they coincide with the $Q$-based formulas when $\tau^2$ is estimated by the DerSimonian-Laird method. Rough benchmarks of 25%, 50% and 75% for low, moderate and high heterogeneity were suggested by @higgins2003measuring.
+
+```{r models-q-by-hand}
+w <- 1 / dat$vi
+k <- nrow(dat)
+theta_ce <- sum(w * dat$yi) / sum(w)
+Q  <- sum(w * (dat$yi - theta_ce)^2)
+C  <- sum(w) - sum(w^2) / sum(w)
+tau2_DL <- max(0, (Q - (k - 1)) / C)
+v_typ <- (k - 1) * sum(w) / (sum(w)^2 - sum(w^2))
+c(Q = Q, df = k - 1, H2 = Q / (k - 1), I2 = 100 * (Q - (k - 1)) / Q,
+  tau2_DL = tau2_DL, typical_v = v_typ)
+```
+
+### Why I-squared is not an absolute measure of heterogeneity {#sec-models-i2}
+
+Because $I^2 = \tau^2/(\tau^2 + \tilde v)$, it depends on the within-study variances as much as on $\tau^2$. The same dispersion of true effects produces a small $I^2$ in a meta-analysis of small studies and a large $I^2$ in a meta-analysis of large studies. $I^2$ therefore cannot tell a reader how much the effects vary: @borenstein2017basics show that a meta-analysis with $I^2 = 50\%$ is compatible with true effects that span a narrow and substantively unimportant range or a wide and clinically decisive one, and recommend reporting the predicted range of true effects (the prediction interval of Section \@ref(sec-models-prediction)) instead of relying on $I^2$ for that purpose.
+
+The point is easy to demonstrate: holding $\hat\tau^2$ fixed at its BCG value and making every study ten times larger (dividing each $v_i$ by 10), $I^2$ rises toward 100% although the distribution of true effects is unchanged.
+
+```{r models-i2-relative}
+i2_for <- function(vi, tau2) {
+  w <- 1 / vi
+  v_typ <- (length(vi) - 1) * sum(w) / (sum(w)^2 - sum(w^2))
+  100 * tau2 / (tau2 + v_typ)
+}
+sapply(c(original = 1, ten_times_larger = 10, ten_times_smaller = 0.1),
+       function(f) i2_for(dat$vi / f, tau2 = re$tau2))
+```
+
+With the actual study sizes $I^2 = 92\%$; with studies ten times smaller it would be `r round(i2_for(dat$vi / 0.1, re$tau2))`%, with the same $\tau = 0.56$. Report $\tau$ (with a confidence interval) and the prediction interval as the primary descriptions of heterogeneity, and $I^2$ as a secondary, relative one.
+
+## Estimating the between-study variance {#sec-models-tau2}
+
+### The estimators {#sec-models-tau2-estimators}
+
+Many estimators of $\tau^2$ have been proposed. They fall into three families [@veroniki2015methods].
+
+*Method-of-moments estimators* equate a weighted sum of squares to its expected value and solve for $\tau^2$, truncating negative solutions at zero. The DerSimonian-Laird estimator [@dersimonian1986metaanalysis] uses the inverse-variance weighted $Q$,
+
+$$
+\hat\tau^2_{\text{DL}} = \max\!\left(0, \frac{Q - (k - 1)}{\sum_i w_i - \sum_i w_i^2 / \sum_i w_i}\right).
+$$
+
+The Hedges (HE) estimator is the unweighted analogue, $\hat\tau^2_{\text{HE}} = \max\{0, \sum_i (y_i - \bar y)^2/(k - 1) - \sum_i v_i / k\}$. The generalized $Q$ (GENQ) estimator of @dersimonian2007randomeffects allows arbitrary weights $a_i$ and contains DL ($a_i = 1/v_i$) and HE ($a_i = 1$) as special cases. The Hunter-Schmidt (HS) estimator, $\max\{0, (Q - k)/\sum_i w_i\}$, comes from the psychometric tradition (Chapter \@ref(sec-effect-sizes)); its denominator ignores the loss of a degree of freedom and it is negatively biased [@viechtbauer2005bias].
+
+The Paule-Mandel (PM) estimator [@paule1982consensus] iterates instead: it finds the value of $\tau^2$ for which the generalized $Q$ statistic computed with random-effects weights equals its expected value,
+
+$$
+\sum_{i=1}^k \frac{(y_i - \hat\mu(\tau^2))^2}{v_i + \tau^2} = k - 1.
+$$
+
+The empirical Bayes (EB) estimator of @morris1983parametric turns out to be identical to PM, as the `metafor` documentation notes. The median-unbiased variant (PMM) sets the same statistic equal to the median rather than the mean of the $\chi^2_{k-1}$ distribution, which reduces the tendency of PM to return zero in small meta-analyses. The Sidik-Jonkman (SJ) estimator [@sidik2005simple] starts from a crude initial value and re-estimates $\tau^2$ once from weighted residuals; it never returns exactly zero and tends to overestimate $\tau^2$ when heterogeneity is small.
+
+*Likelihood-based estimators* maximize the marginal likelihood implied by $y_i \sim N(\mu, v_i + \tau^2)$. Maximum likelihood (ML) is negatively biased because it ignores the degree of freedom used to estimate $\mu$; restricted maximum likelihood (REML) corrects this and is approximately unbiased, with good efficiency [@viechtbauer2005bias].
+
+*Bayesian estimators* place a prior on $\tau$ and are discussed in Chapter \@ref(sec-bayesian).
+
+### Comparing the estimators on the BCG data {#sec-models-tau2-bcg}
+
+`rma()` fits all of these through the `method` argument. GENQ needs user-supplied weights; here we use the total sample size of each trial.
+
+```{r models-tau2-table}
+methods_tau2 <- c("DL", "HE", "HS", "SJ", "ML", "REML", "EB", "PM", "PMM", "GENQ")
+fits <- lapply(methods_tau2, function(m) {
+  if (m == "GENQ") {
+    rma(yi, vi, data = dat, method = m, weights = tpos + tneg + cpos + cneg)
+  } else {
+    rma(yi, vi, data = dat, method = m)
+  }
+})
+tab <- t(sapply(fits, function(f)
+  c(tau2 = f$tau2, tau = sqrt(f$tau2), I2 = f$I2, mu = coef(f)[[1]],
+    se = f$se, ci.lb = f$ci.lb, ci.ub = f$ci.ub, RR = exp(coef(f)[[1]]))))
+rownames(tab) <- methods_tau2
+round(tab, 3)
+```
+
+Across the nine estimators that use inverse-variance-type weights, $\hat\tau^2$ ranges from 0.228 (HS) to 0.346 (SJ), with REML at 0.313, DL at 0.309 and PM/EB at 0.318. As expected, HS and ML are at the low end. Yet the pooled log risk ratio barely moves, from $-0.705$ to $-0.717$, and its standard error from 0.159 to 0.187: with 13 studies and this much heterogeneity, the choice of estimator matters more for the description of heterogeneity than for the mean. The GENQ row is a warning about a different issue. With sample-size weights, `rma()` uses the same weights to estimate $\mu$, so the TPT Madras trial (about 177,000 participants and a null result) dominates and the pooled risk ratio becomes $\exp(-0.236) = 0.79$. User-supplied weights change the estimand, not just the variance estimate.
+
+### Recommendations {#sec-models-tau2-recommend}
+
+@veroniki2015methods reviewed the estimators and recommended the Paule-Mandel estimator for both dichotomous and continuous outcomes, with REML as an alternative for continuous outcomes. In a large simulation study, @langan2018comparison recommended REML over the other estimators, noted that with the small numbers of studies typical in health research no estimator gives a reliable gauge of heterogeneity, and found that HKSJ confidence intervals for the mean were much less sensitive to the choice of $\tau^2$ estimator than Wald intervals. The DerSimonian-Laird estimator, long the default in many programs, is negatively biased when heterogeneity is substantial and is no longer recommended as a default. REML (the default in `metafor` and `meta`) or PM are sensible defaults; reporting a sensitivity analysis with a second estimator is good practice when the conclusions hinge on $\tau^2$.
+
+### Confidence intervals for tau-squared {#sec-models-tau2-ci}
+
+A point estimate of $\tau^2$ from a handful of studies is very imprecise, and it should always be reported with a confidence interval. The Q-profile method [@viechtbauer2006confidence] inverts the generalized $Q$ statistic: the interval contains all values $\tau^2$ for which
+
+$$
+\chi^2_{k-1,\, 0.025} \le \sum_{i=1}^k \frac{(y_i - \hat\mu(\tau^2))^2}{v_i + \tau^2} \le \chi^2_{k-1,\, 0.975}.
+$$
+
+It is exact under the model assumptions (apart from the plug-in of $\hat\mu$) and is the default of `confint()` for `rma` objects. Intervals for $\tau$, $I^2$ and $H^2$ follow by transformation.
+
+```{r models-confint}
+confint(re)
+```
+
+The 95% CI for $\tau^2$ runs from 0.120 to 1.112, so $\tau$ is somewhere between 0.35 and 1.05: the heterogeneity is certainly substantial, but its size is uncertain by a factor of three. The interval for $I^2$ (82% to 98%) is correspondingly wide. Note that the Q-profile interval does not depend on which point estimator was used; `confint()` on a DL fit returns the same limits.
+
+## Inference on the mean effect {#sec-models-inference}
+
+### Wald-type intervals {#sec-models-wald}
+
+The standard random-effects confidence interval is $\hat\mu \pm z_{0.975} / \sqrt{\sum w_i^*}$. It treats $\hat\tau^2$ as if it were the true $\tau^2$ and uses the normal distribution, ignoring the uncertainty in $\hat\tau^2$. When $k$ is small, $\hat\tau^2$ is very uncertain, and the Wald interval is too narrow: simulation studies consistently show coverage well below the nominal 95% when there are few studies and moderate or large heterogeneity [@inthout2014hartung].
+
+### The Hartung-Knapp-Sidik-Jonkman method {#sec-models-hksj}
+
+@hartung2001refined and @sidik2002simple independently proposed a simple correction. The variance of $\hat\mu$ is re-estimated from the weighted residuals,
+
+$$
+\widehat{\operatorname{Var}}_{\text{HK}}(\hat\mu) = \frac{q}{\sum_i w_i^*}, \qquad q = \frac{1}{k - 1} \sum_{i=1}^k w_i^* (y_i - \hat\mu)^2,
+$$
+
+and the interval uses the $t$ distribution with $k - 1$ degrees of freedom, $\hat\mu \pm t_{k-1,\, 0.975} \sqrt{q / \sum_i w_i^*}$. The scaling factor $q$ captures how much the residuals actually scatter relative to what the model assumes; the $t$ quantile reflects that this scatter is itself estimated from $k$ observations. In `metafor` the method is requested with `test = "knha"` (the same adjustment applies to meta-regression models; @knapp2003improved), and in `meta` with `method.random.ci = "HK"`. @inthout2014hartung showed in simulations that HKSJ intervals keep close to nominal coverage in situations where DerSimonian-Laird Wald intervals fail badly, and @langan2018comparison found the same across estimators.
+
+```{r models-knha}
+re_hk <- rma(yi, vi, data = dat, method = "REML", test = "knha")
+re_hk
+```
+
+For the BCG data, $q$ is close to 1, so the HKSJ standard error (0.181) is almost the Wald one (0.180), and the widening of the interval, from $(-1.067, -0.362)$ to $(-1.108, -0.321)$, comes mainly from the $t_{12}$ quantile.
+
+### The ad hoc variance correction {#sec-models-adhoc}
+
+HKSJ has one known weakness. When the observed effects are *more* homogeneous than the model expects, $q < 1$ and the HKSJ standard error is *smaller* than the Wald one; with moderate $k$ the $t$ quantile may not compensate, and the HKSJ interval can then be narrower than the DerSimonian-Laird interval [@jackson2017hartung]. An ad hoc modification replaces $q$ by $\max(1, q)$, so that the adjustment can only widen the interval [@rover2015hartung; @jackson2017hartung]. `metafor` 4.8 implements this as `test = "adhoc"`, and `meta` as `adhoc.hakn.ci = "se"`.
+
+The six warfarin trials of Chapter \@ref(sec-effect-sizes) are a case with $q < 1$: they are more similar than sampling error alone would predict.
+
+```{r models-adhoc}
+irr <- escalc(measure = "IRR", x1i = x1i, t1i = t1i, x2i = x2i, t2i = t2i,
+              data = dat.hart1999, slab = study)
+cmp <- sapply(c(Wald = "z", HKSJ = "knha", adhoc = "adhoc"), function(tt) {
+  f <- rma(yi, vi, data = irr, method = "REML", test = tt)
+  c(Q = f$QE, tau2 = f$tau2, est = coef(f)[[1]], se = f$se,
+    ci.lb = f$ci.lb, ci.ub = f$ci.ub)
+})
+round(cmp, 4)
+```
+
+Here $Q = 2.96$ on 5 degrees of freedom and $\hat\tau^2 = 0$. The HKSJ standard error (0.126) is smaller than the Wald one (0.163), and the HKSJ interval ends up almost identical to the Wald interval; the ad hoc version keeps the Wald standard error and combines it with the $t_5$ quantile, giving a noticeably wider interval. Which is "right" cannot be settled from one dataset; the ad hoc version is the conservative choice when $k$ is small and the studies look suspiciously homogeneous.
+
+### A small simulation {#sec-models-simulation}
+
+To see why the HKSJ adjustment has become the recommended default, we simulate meta-analyses with $k = 5$ or $k = 10$ studies of SMD-like effects ($v_i \approx 4/n_i$ with total sample sizes between 20 and 200) and true heterogeneity $\tau^2 \in \{0, 0.05, 0.2\}$, and record how often each 95% interval contains the true mean $\mu = 0.3$. To keep the simulation fast, the DerSimonian-Laird estimator and the three intervals are computed directly from the formulas above; the first lines check them against `rma()` on the BCG data.
+
+```{r models-sim-functions}
+ci_dl <- function(yi, vi, level = 0.95) {
+  k <- length(yi); w <- 1 / vi
+  Q <- sum(w * (yi - sum(w * yi) / sum(w))^2)
+  tau2 <- max(0, (Q - (k - 1)) / (sum(w) - sum(w^2) / sum(w)))
+  ws <- 1 / (vi + tau2)
+  mu <- sum(ws * yi) / sum(ws)
+  q  <- sum(ws * (yi - mu)^2) / (k - 1)
+  se_w <- sqrt(1 / sum(ws))
+  se_h <- sqrt(q / sum(ws))
+  se_a <- sqrt(max(1, q) / sum(ws))
+  zc <- qnorm(1 - (1 - level) / 2); tc <- qt(1 - (1 - level) / 2, k - 1)
+  c(wald_lb = mu - zc * se_w, wald_ub = mu + zc * se_w,
+    hksj_lb = mu - tc * se_h, hksj_ub = mu + tc * se_h,
+    adhoc_lb = mu - tc * se_a, adhoc_ub = mu + tc * se_a)
+}
+chk <- ci_dl(dat$yi, dat$vi)
+rbind(by_hand = chk[c("wald_lb", "wald_ub", "hksj_lb", "hksj_ub")],
+      rma = c(unlist(rma(yi, vi, data = dat, method = "DL")[c("ci.lb", "ci.ub")]),
+              unlist(rma(yi, vi, data = dat, method = "DL", test = "knha")[c("ci.lb", "ci.ub")])))
+```
+
+```{r models-sim-run}
+set.seed(4)
+sim_coverage <- function(k, tau2, nrep = 1000, mu = 0.3) {
+  hits <- replicate(nrep, {
+    ni <- sample(20:200, k, replace = TRUE)
+    vi <- 4 / ni
+    yi <- rnorm(k, mu, sqrt(tau2 + vi))
+    ci <- ci_dl(yi, vi)
+    c(Wald = ci[["wald_lb"]] <= mu & mu <= ci[["wald_ub"]],
+      HKSJ = ci[["hksj_lb"]] <= mu & mu <= ci[["hksj_ub"]],
+      adhoc = ci[["adhoc_lb"]] <= mu & mu <= ci[["adhoc_ub"]])
+  })
+  rowMeans(hits)
+}
+grid <- expand.grid(k = c(5, 10), tau2 = c(0, 0.05, 0.2))
+cov_res <- cbind(grid, t(mapply(sim_coverage, grid$k, grid$tau2)))
+cov_res
+```
+
+```{r models-sim-fig, fig.cap = "Simulated coverage of nominal 95% confidence intervals for the random-effects mean (1000 replications per condition), using the DerSimonian-Laird estimate of tau-squared with Wald, HKSJ, and ad hoc HKSJ intervals. The dashed line marks 95%.", fig.height = 4}
+cov_long <- reshape(cov_res, direction = "long",
+                    varying = c("Wald", "HKSJ", "adhoc"), v.names = "coverage",
+                    timevar = "method", times = c("Wald", "HKSJ", "adhoc"))
+ggplot(cov_long, aes(factor(tau2), coverage, colour = method, group = method)) +
+  geom_point(size = 2.5) + geom_line() +
+  geom_hline(yintercept = 0.95, linetype = "dashed") +
+  facet_wrap(~ k, labeller = label_both) +
+  coord_cartesian(ylim = c(0.8, 1)) +
+  labs(x = expression(tau^2), y = "Coverage of 95% CI", colour = NULL) +
+  theme(legend.position = "top")
+```
+
+The pattern in Figure \@ref(fig:models-sim-fig) is the one reported in the literature. Without heterogeneity, all three intervals cover at or above the nominal rate (the Wald interval is then the correct common-effect interval, and the $t$-based intervals are conservative). As heterogeneity grows, the Wald interval undercovers, most severely with $k = 5$: at $\tau^2 = 0.2$ its coverage is `r round(100 * cov_res$Wald[cov_res$k == 5 & cov_res$tau2 == 0.2], 1)`% with five studies and `r round(100 * cov_res$Wald[cov_res$k == 10 & cov_res$tau2 == 0.2], 1)`% with ten. The HKSJ interval stays close to 95% throughout (`r round(100 * cov_res$HKSJ[cov_res$k == 5 & cov_res$tau2 == 0.2], 1)`% and `r round(100 * cov_res$HKSJ[cov_res$k == 10 & cov_res$tau2 == 0.2], 1)`% in the same conditions). The ad hoc version is never below the HKSJ coverage and is conservative when $\tau^2$ is small. With 1000 replications the Monte Carlo standard error of a coverage near 95% is about 0.7 percentage points, so differences of one point are noise.
+
+## Prediction intervals {#sec-models-prediction}
+
+The confidence interval for $\mu$ describes uncertainty about the *average* effect. It does not describe where the effect in a particular setting is likely to lie, and with many studies it shrinks toward a point even when the true effects are widely dispersed. A prediction interval answers the question "in a new study (or setting) comparable to those included, where is the true effect likely to be?" [@higgins2009reevaluation; @riley2011interpretation]. Accounting for both the spread of true effects and the uncertainty in $\hat\mu$, and for the estimation of $\tau^2$ by using a $t$ distribution with $k - 2$ degrees of freedom, the approximate 95% prediction interval is
+
+$$
+\hat\mu \pm t_{k-2,\, 0.975} \sqrt{\hat\tau^2 + \widehat{\operatorname{Var}}(\hat\mu)}.
+$$
+
+@inthout2016plea argue that prediction intervals should be routinely presented, because they frequently reveal that the effect in a new setting could be null or even harmful when the confidence interval for the mean excludes the null. `predict()` returns the prediction interval along with the confidence interval; `transf = exp` back-transforms both to the risk ratio scale. By default `metafor` uses the normal quantile for Wald-type fits and $t_{k-1}$ for HKSJ fits, and `pi.type = "Riley"` gives the $t_{k-2}$ version above.
+
+```{r models-predict}
+predict(re, transf = exp, digits = 3)
+predict(re, transf = exp, digits = 3, pi.type = "Riley")
+```
+
+The pooled risk ratio is 0.49 (95% CI 0.34 to 0.70), but the 95% prediction interval runs from 0.13 to 1.78 with the $t_{11}$ quantile: in some settings the vaccine might reduce tuberculosis risk by nearly 90%, in others it might have no effect at all. This is exactly what the trials show (the TPT Madras trial found a risk ratio of 1.01), and it is the most important message of this meta-analysis for decision makers. Chapter \@ref(sec-heterogeneity) shows that much of this heterogeneity is explained by the latitude of the trial site.
+
+A prediction interval should be reported as "the true effect in a new setting is expected to lie between ... in 95% of cases", alongside the estimate of $\tau$. It relies heavily on the normality assumption for the true effects and is poorly estimated when $k$ is small; with fewer than about five studies it is usually too wide to be useful, which is itself informative.
+
+## Forest plots {#sec-models-forest}
+
+The forest plot is the standard display of a meta-analysis: one row per study with its estimate and confidence interval, a summary diamond for the pooled estimate, and enough numeric detail for a reader to check the inputs. A good forest plot shows the raw data (or at least the sample sizes) next to each study, labels the direction of effect, uses the effect size's natural scale for the axis (risk ratios on a log axis, not log risk ratios), and shows the prediction interval.
+
+```{r models-forest, fig.cap = "Forest plot of the 13 BCG vaccine trials (risk ratio of tuberculosis, vaccinated versus control) with the REML random-effects estimate. The dotted line through the summary diamond is the 95% prediction interval.", fig.height = 6, fig.width = 9, out.width = "100%"}
+forest(re, atransf = exp, at = log(c(0.05, 0.25, 1, 4)), xlim = c(-16, 4.6),
+       ilab = cbind(dat$tpos, dat$tneg, dat$cpos, dat$cneg),
+       ilab.xpos = c(-9.5, -8, -6, -4.5), cex = 0.75,
+       header = c("Author(s) and Year", "Risk Ratio [95% CI]"),
+       addpred = TRUE, order = "obs",
+       mlab = "Random-effects model (REML)",
+       xlab = "Risk ratio (log scale)")
+op <- par(cex = 0.75, font = 2)
+text(c(-9.5, -8, -6, -4.5), re$k + 2, c("TB+", "TB-", "TB+", "TB-"))
+text(c(-8.75, -5.25), re$k + 3, c("Vaccinated", "Control"))
+par(op)
+```
+
+Figure \@ref(fig:models-forest) uses several options worth knowing. `atransf = exp` labels the axis on the risk ratio scale while plotting on the log scale; `ilab` and `ilab.xpos` add the $2 \times 2$ counts; `header` labels the columns; `order = "obs"` sorts the studies by effect size, which makes the spread easier to see (sorting by a moderator or by precision are common alternatives); and `addpred = TRUE` draws the prediction interval through the summary diamond. Square sizes are proportional to the random-effects weights. With many studies, `showweights = TRUE` adds the weights as a column, and `forest()` can also display subgroups (Chapter \@ref(sec-heterogeneity)).
+
+## The same analysis with the meta package {#sec-models-meta}
+
+The `meta` package [@balduzzi2019how] organizes the same models around functions for each data type (`metabin()` for $2 \times 2$ tables, `metacont()` for means, `metacor()` for correlations, `metaprop()` for proportions, `metagen()` for generic effect sizes with standard errors). Its printed output is designed for reporting, and its defaults have changed over versions, so the relevant options should always be set explicitly. In `meta` 8.x, the arguments are `method.tau` for the $\tau^2$ estimator, `method.random.ci` for the confidence interval of the random-effects mean (`"classic"` for Wald, `"HK"` for Hartung-Knapp), `method.predict` for the prediction interval, and `prediction = TRUE` to print it.
+
+```{r models-meta-metabin}
+m_bin <- metabin(event.e = tpos, n.e = tpos + tneg, event.c = cpos, n.c = cpos + cneg,
+                 studlab = paste(author, year), data = dat.bcg, sm = "RR",
+                 method = "Inverse", method.tau = "REML", method.random.ci = "HK",
+                 prediction = TRUE, method.predict = "HTS")
+summary(m_bin)
+```
+
+The results reproduce the `metafor` analysis: the HK random-effects risk ratio is 0.489 (95% CI 0.330 to 0.726), $\hat\tau^2 = 0.313$ with the same Q-profile interval, and with `method.predict = "HTS"` (the Higgins-Thompson-Spiegelhalter interval with $k - 2$ degrees of freedom) the prediction interval matches `pi.type = "Riley"` in `metafor`. The $I^2$ interval differs from the one reported by `confint()` because `meta` by default computes it from the confidence interval for $H$ [@higgins2002quantifying] rather than from the Q-profile interval for $\tau^2$. `metagen()` does the same for precomputed effect sizes:
+
+```{r models-meta-metagen}
+m_gen <- metagen(TE = yi, seTE = sqrt(vi), studlab = paste(author, year),
+                 data = dat, sm = "RR", common = FALSE,
+                 method.tau = "REML", method.random.ci = "HK",
+                 prediction = TRUE, method.predict = "HTS")
+m_gen
+```
+
+The `forest()` method for `meta` objects produces a publication-style forest plot with weights, heterogeneity statistics and the prediction interval in one call.
+
+## Binary outcomes and rare events {#sec-models-binary}
+
+Inverse-variance pooling of log odds ratios works well when events are common, but it relies on large-sample approximations that break down when cells are small. When events are rare, the per-study variances $1/a + 1/b + 1/c + 1/d$ are dominated by the smallest cell and are poorly estimated, and zero cells require continuity corrections that bias the result (Chapter \@ref(sec-effect-sizes)). Three alternatives work with the $2 \times 2$ tables directly.
+
+### Mantel-Haenszel and Peto methods {#sec-models-mh-peto}
+
+The Mantel-Haenszel estimator of a common odds ratio is
+
+$$
+\widehat{\text{OR}}_{\text{MH}} = \frac{\sum_i a_i d_i / N_i}{\sum_i b_i c_i / N_i},
+$$
+
+with $N_i$ the total sample size of study $i$; analogous forms exist for the risk ratio and risk difference. It needs no continuity correction for single-zero studies, is consistent both when there are few large strata and when there are many sparse ones, and its variance can be estimated with the estimator of @robins1986estimators. Double-zero studies contribute nothing to either sum and so drop out.
+
+Peto's one-step method [@yusuf1985beta] pools the differences between observed and expected events in the treatment group,
+
+$$
+\ln \widehat{\text{OR}}_{\text{Peto}} = \frac{\sum_i (O_i - E_i)}{\sum_i V_i}, \qquad \widehat{\operatorname{Var}} = \frac{1}{\sum_i V_i},
+$$
+
+where $E_i$ and $V_i$ are the hypergeometric mean and variance of $a_i$ given the margins of the table. It performs well when events are rare, groups are of similar size and effects are not large, but it is biased when these conditions fail [@bradburn2006much].
+
+Both are common-effect methods. In `metafor` they are `rma.mh()` and `rma.peto()`; in `meta`, `metabin(method = "MH")` and `metabin(method = "Peto")`.
+
+### Generalized linear mixed models {#sec-models-glmm}
+
+A more general approach models the event counts as binomial and fits a logistic regression with random treatment effects [@stijnen2010random]. In the unconditional model with fixed study effects (`model = "UM.FS"` in `rma.glmm()`), the log odds of an event for arm $j$ of study $i$ is
+
+$$
+\operatorname{logit}(\pi_{ij}) = \alpha_i + \theta_i x_{ij}, \qquad \theta_i \sim N(\mu, \tau^2),
+$$
+
+with $x_{ij}$ a treatment indicator and $\alpha_i$ a fixed study-specific baseline. The conditional model with exact likelihood (`model = "CM.EL"`) conditions on the total number of events in each study, which eliminates the $\alpha_i$; each study then contributes a non-central hypergeometric likelihood, the exact distribution underlying the Mantel-Haenszel and Peto approaches. Both avoid continuity corrections and handle zero cells naturally. @jackson2018comparison compared seven such random-effects models for the odds ratio and found that their performance differs and that no single model dominates, so the choice should be stated and, when results are sensitive, reported as a sensitivity analysis.
+
+### Example: anti-infective catheters {#sec-models-rare-example}
+
+The `dat.nielweise2007` data contain 18 trials comparing catheter-related bloodstream infections with anti-infective-treated versus standard catheters. Events are rare, six trials have a zero cell, and the Yucel 2004 trial has no events in either arm.
+
+```{r models-nielweise-data}
+nw <- dat.nielweise2007
+nw$zero <- with(nw, ifelse(ai == 0 & ci == 0, "double zero",
+                    ifelse(ai == 0 | ci == 0, "single zero", "")))
+nw
+```
+
+```{r models-rare-fits}
+iv_ee  <- rma(measure = "OR", ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+              data = nw, method = "EE")      # 0.5 added to tables with a zero
+iv_re  <- rma(measure = "OR", ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+              data = nw, method = "REML")
+mh     <- rma.mh(measure = "OR", ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = nw)
+peto   <- rma.peto(ai = ai, n1i = n1i, ci = ci, n2i = n2i, data = nw)
+mh
+```
+
+```{r models-glmm-fits, warning = TRUE}
+glmm_fs <- rma.glmm(measure = "OR", ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+                    data = nw, model = "UM.FS")
+glmm_el <- rma.glmm(measure = "OR", ai = ai, n1i = n1i, ci = ci, n2i = n2i,
+                    data = nw, model = "CM.EL")
+glmm_el
+```
+
+```{r models-rare-table}
+rare <- list("Inverse variance, EE (0.5 cc)" = iv_ee,
+             "Inverse variance, RE (0.5 cc)" = iv_re,
+             "Mantel-Haenszel" = mh, "Peto" = peto,
+             "GLMM UM.FS" = glmm_fs, "GLMM CM.EL" = glmm_el)
+rare_tab <- t(sapply(rare, function(f)
+  c(k = f$k, OR = exp(coef(f)[[1]]), ci.lb = exp(f$ci.lb), ci.ub = exp(f$ci.ub),
+    tau2 = if (is.null(f$tau2)) NA else f$tau2)))
+round(rare_tab, 3)
+```
+
+The methods agree that anti-infective catheters reduce infections, but not on how much. The inverse-variance analyses, which add 0.5 to every cell of the six tables containing a zero and keep the double-zero trial, give the smallest effect, an odds ratio of 0.385. The Mantel-Haenszel (0.299) and Peto (0.331) estimates and the two GLMMs (0.290 and 0.258) are further from the null, consistent with the known bias of continuity corrections toward the null [@sweeting2004what]. The GLMMs drop the double-zero trial (hence $k = 17$), and it contributes nothing to the Mantel-Haenszel and Peto sums either (their heterogeneity tests have 16 degrees of freedom): under the conditional model it contains no information about the odds ratio. The two GLMMs also estimate more heterogeneity ($\hat\tau^2 = 0.32$ and $0.69$) than the inverse-variance REML model (0.014), whose study variances are distorted by the corrections; on the log scale, these $\tau^2$ values imply that the odds ratio could differ substantially between settings, although the evidence is mixed: in the conditional model the Wald-type test for heterogeneity is far from significant (p = 0.75) while the likelihood ratio test gives p = 0.03. The unconditional model printed a convergence warning from the `lme4` optimizer (a gradient slightly above tolerance), which is common with sparse data; it is worth checking that the estimates are stable under a different optimizer, or preferring the conditional model, which here converged without complaint. The conditional model takes noticeably longer to fit.
+
+::: {.rmdtip}
+For rare events, a defensible analysis plan pre-specifies one primary method that avoids continuity corrections (Mantel-Haenszel for a common-effect analysis, a binomial GLMM for a random-effects analysis), states how double-zero studies are handled, and reports the alternatives as sensitivity analyses [@efthimiou2018practical]. For risk differences, double-zero studies do carry information (an estimated difference of zero) and should not be dropped automatically.
+:::
+
+## When the number of studies is very small {#sec-models-small-k}
+
+Many meta-analyses in medicine and the social sciences contain fewer than five studies. With so few studies, $\tau^2$ is essentially not estimable: its confidence interval typically spans from zero to values implying enormous heterogeneity, and point estimates are often exactly zero. Every random-effects method then struggles. Wald intervals are too narrow; HKSJ intervals, based on a $t$ distribution with one to three degrees of freedom, can be so wide as to be uninformative, or (when the few studies happen to agree closely) too narrow without the ad hoc correction. @bender2018methods review the options and conclude that no single frequentist method is satisfactory for very few studies.
+
+```{r models-small-k}
+sub4 <- dat[c(4, 6, 8, 12), ]   # four trials with very different results
+sapply(c(Wald = "z", HKSJ = "knha", adhoc = "adhoc"), function(tt) {
+  f <- rma(yi, vi, data = sub4, method = "REML", test = tt)
+  round(c(tau2 = f$tau2, RR = exp(coef(f)[[1]]), lb = exp(f$ci.lb),
+          ub = exp(f$ci.ub)), 3)
+})
+```
+
+With four heterogeneous trials, the Wald interval for the risk ratio is already wide, and the HKSJ interval based on $t_3$ is considerably wider. Neither is wrong in its own terms: the Wald interval ignores the uncertainty in $\hat\tau^2$, and the HKSJ interval reports it honestly. Options when $k$ is very small include reporting the studies individually with a descriptive synthesis, presenting a common-effect (or fixed-effects) analysis explicitly interpreted as conditional on the included studies, using the HKSJ interval with the ad hoc correction, and using a Bayesian random-effects model with a weakly informative or empirically based prior for $\tau$, which stabilizes inference by bringing in external information about plausible heterogeneity (Chapter \@ref(sec-bayesian)). Whatever is chosen, the reasons should be stated in the protocol before the results are known.
+
+## Practical recommendations {#sec-models-recommendations}
+
+Decide on the model and its estimand at the protocol stage. In most reviews the random-effects model is the appropriate default, with REML (or Paule-Mandel) for $\tau^2$ and the HKSJ method for the confidence interval of $\mu$, preferably with the ad hoc correction when the number of studies is small. Report $\hat\mu$ with its confidence interval, $\hat\tau$ with its Q-profile confidence interval, the prediction interval, and $I^2$ as a secondary relative measure; state the software, version and options used, because defaults differ between packages and versions. For binary outcomes with rare events, avoid continuity corrections by using Mantel-Haenszel or GLMM methods, and state how double-zero studies are handled. When the common-effect and random-effects estimates differ substantially, investigate why (small-study effects, a dominant large study, moderators) rather than simply choosing one. Present a forest plot on the natural scale of the effect size with the prediction interval.
+
+## Common pitfalls {#sec-models-pitfalls}
+
+Several errors recur in published meta-analyses. Choosing between common-effect and random-effects models on the basis of the $Q$ test or of $I^2$ confuses a modelling decision with a significance test, and the test has little power with few studies. Reporting $I^2$ as if it measured how much effects vary, or labelling heterogeneity "low" because $I^2$ is small in a meta-analysis of small studies, ignores that $I^2$ is a relative measure. Interpreting the random-effects confidence interval as the range of effects in different settings confuses the uncertainty of the mean with the dispersion of true effects; the prediction interval answers that question. Relying on DerSimonian-Laird Wald intervals with few studies produces overconfident conclusions. Using user-defined weights without realizing that they also change the estimate of the mean, as the GENQ example showed, changes the estimand. Finally, applying 0.5 continuity corrections by default in sparse binary data biases odds ratios toward the null.
+
+## Key takeaways {#sec-models-takeaways}
+
+- Inverse-variance weighting is the backbone of all three models; the common-effect, fixed-effects and random-effects models differ in what the weighted average estimates.
+- The common-effect and fixed-effects models give identical numbers; the former assumes one true effect, the latter estimates the precision-weighted average of the included studies' true effects and supports only conditional inference. The random-effects model estimates the mean $\mu$ of a distribution of true effects with variance $\tau^2$ and supports inference about settings like those studied.
+- $\tau$ is an absolute measure of heterogeneity on the effect size scale; $I^2$ is relative and depends on study precision. Report $\tau$ with a Q-profile confidence interval and a prediction interval.
+- REML and Paule-Mandel are recommended estimators of $\tau^2$; DerSimonian-Laird is negatively biased when heterogeneity is large. With moderate $k$ the choice of estimator matters more for $\tau^2$ than for $\hat\mu$.
+- Wald intervals for $\mu$ undercover when $k$ is small and heterogeneity is present; HKSJ intervals (`test = "knha"`, `method.random.ci = "HK"`) keep close to nominal coverage, and the ad hoc correction (`test = "adhoc"`) prevents them from being narrower than the Wald interval.
+- For rare events, Mantel-Haenszel, Peto and binomial GLMMs (`rma.mh()`, `rma.peto()`, `rma.glmm()`) avoid the bias of continuity corrections.
+- With very few studies, random-effects inference is fragile; state a strategy in advance (ad hoc HKSJ, a conditional fixed-effects interpretation, or a Bayesian model with an informative prior for $\tau$).
+
+## Further reading {#sec-models-reading}
+
+@borenstein2021introduction give a conceptual introduction to the common-effect and random-effects models and to heterogeneity statistics, and @borenstein2017basics explain concisely why $I^2$ should not be used to describe the dispersion of effects. @higgins2009reevaluation and @rice2017reevaluation are complementary re-evaluations of the random-effects and fixed-effects models from the perspective of what is being estimated. @veroniki2015methods review estimators of $\tau^2$ and their confidence intervals, and @langan2018comparison report the most extensive simulation comparison. @inthout2014hartung and @jackson2017hartung cover the HKSJ method and its limitations, @riley2011interpretation and @inthout2016plea make the case for prediction intervals, and @bender2018methods discuss the case of very few studies. For rare events, @stijnen2010random introduce the GLMMs implemented in `rma.glmm()` and @efthimiou2018practical give a practical guide. @viechtbauer2010conducting and @balduzzi2019how document the `metafor` and `meta` packages used in this chapter.

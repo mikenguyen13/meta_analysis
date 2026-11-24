@@ -1,9 +1,35 @@
-<!-- Google tag (gtag.js) -->
+<!-- ============================================================
+     Google Analytics (gtag.js) + SEO structured data.
+     Injected into <head> of every page via _output.yml in_header.
+     ============================================================ -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-9S5ZG1XCWF');
 </script>
+
+<!-- schema.org structured data: helps Google treat the book as an
+     authoritative, citable work and can enable rich results. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Book",
+  "name": "Meta-Analysis: A Practical and Modern Guide with R",
+  "url": "https://mikenguyen13.github.io/meta_analysis/",
+  "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+
+  "inLanguage": "en",
+  "bookFormat": "https://schema.org/EBook",
+  "description": "Open textbook on systematic reviews and meta-analysis with R",
+  "author": { "@type": "Person", "name": "Mike Nguyen" },
+  "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+}
+</script>
+
+<!-- Search Console / Bing ownership verification.
+     Google: https://search.google.com/search-console -> add URL-prefix property
+     -> "HTML tag" -> paste the content value below and uncomment the line. -->
+<!-- <meta name="google-site-verification" content="PASTE_GOOGLE_CODE"> -->
+<!-- <meta name="msvalidate.01" content="PASTE_BING_CODE"> -->
