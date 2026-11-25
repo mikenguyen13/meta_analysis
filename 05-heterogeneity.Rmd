@@ -11,7 +11,7 @@ fp <- function(p) ifelse(p < 0.001, "< .001", paste0("= ", sub("^0", "", formatC
 
 A random-effects model (Chapter \@ref(sec-models)) treats between-study variation as noise around a grand mean and summarises it with a single number, $\tau^2$. That is a reasonable first description, but it is rarely the end of the analysis. When the true effects of a vaccine, a training programme, or a marketing intervention differ across studies, the natural next question is *why*. Do they differ because the populations differ, because the interventions were delivered differently, because some studies were badly designed, or simply because the sampling error was underestimated? Answering that question is the job of subgroup analysis and meta-regression, and it is where meta-analysis moves from estimating an average to explaining variation.
 
-This chapter is also where meta-analysis is most often abused. Moderator analyses are observational comparisons *across* studies, typically with few studies and many candidate moderators, so false positives, confounding, and aggregation bias are the rule rather than the exception [@thompson2002how; @higgins2004controlling]. We therefore develop the tools together with their failure modes: how to test subgroup differences properly, how to fit and interpret meta-regression models, how to probe interactions with the Johnson–Neyman technique, how to calibrate inference with Knapp–Hartung and permutation tests, how to compare many candidate models with multimodel inference, how to model heterogeneity itself with location-scale models, and how to use machine learning for exploratory moderator search without fooling ourselves.
+This chapter is also where meta-analysis is most often abused. Moderator analyses are observational comparisons *across* studies, typically with few studies and many candidate moderators, so false positives, confounding, and aggregation bias are the rule rather than the exception [@thompson2002how; @higgins2004controlling]. We therefore develop the tools together with their failure modes: how to test subgroup differences properly, how to fit and interpret meta-regression models, how to probe interactions with the Johnson–Neyman technique, how to calibrate inference with Knapp–Hartung and permutation tests, how to compare many candidate models with multimodel inference or shrink them with regularisation, how to model heterogeneity itself with location-scale models, and how to use machine learning for exploratory moderator search without fooling ourselves.
 
 ## Where heterogeneity comes from {#sec-heterogeneity-sources}
 
@@ -254,6 +254,16 @@ typeI
 
 The nominal rate is 5%. The fixed-effect meta-regression rejects in `r f2(100 * typeI["fixed"], 1)`% of replications, the mixed-effects Wald test in `r f2(100 * typeI["re_z"], 1)`%, and the Knapp–Hartung test in `r f2(100 * typeI["re_kh"], 1)`%. And this is for a *single* pre-specified test; analysts who screen moderators one at a time and report the significant ones face a multiple-testing problem on top. A frequently quoted rule of thumb asks for about ten studies per moderator [@higgins2019cochrane], but no rule substitutes for pre-registration of a small set of moderators with a scientific rationale [@thompson2002how].
 
+### Regularised meta-regression {#sec-heterogeneity-regularised}
+
+When the number of candidate moderators is large relative to the number of studies and theory does not single out a few, an alternative to testing each coefficient is to *shrink* them. Penalised (regularised) estimation adds a penalty on the size of the coefficients to the likelihood. With the lasso penalty, for example, the coefficients maximise
+$$
+\ell(\boldsymbol\beta, \tau^2) - \lambda \sum_{j=1}^{p'} |\beta_j| ,
+$$
+where $\ell$ is the log-likelihood of the mixed-effects model and $\lambda \ge 0$ controls the amount of shrinkage; small coefficients are pulled to (or near) zero, so the penalty performs moderator selection and estimation at once. The Bayesian counterpart replaces the penalty with a shrinkage prior on the coefficients: a Laplace prior corresponds to the lasso, and the *horseshoe* prior, $\beta_j \mid \lambda_j, \nu \sim N(0, \lambda_j^2 \nu^2)$ with half-Cauchy priors on the local scales $\lambda_j$ and the global scale $\nu$, shrinks small coefficients strongly while leaving large ones nearly untouched.
+
+@vanlissa2023selecting developed this approach as Bayesian regularised meta-analysis (BRMA), implemented in the `pema` package and in JASP. In their simulations, BRMA predicted the effect sizes of new studies better than standard REML meta-regression and was better at rejecting irrelevant moderators but worse at detecting relevant ones, with an overall error rate similar to REML meta-regression; its coefficients were biased towards zero by design, its residual heterogeneity estimates were less biased than those of REML, and it performed well with as few as 20 studies. Three practical points follow. Moderators must be standardised before shrinkage, because the penalty or prior acts on the coefficients' scale. Shrunken coefficients are deliberately biased, so their intervals should not be read as confirmatory tests. And regularisation addresses overfitting, not confounding or aggregation bias. The same model can be fitted with general Bayesian software by placing a horseshoe prior on the regression coefficients of a random-effects meta-regression (Section \@ref(sec-bayesian-brms-metareg)). Like multimodel inference and MetaForest (Sections \@ref(sec-heterogeneity-mmi) and \@ref(sec-heterogeneity-metaforest)), regularised meta-regression is a tool for exploratory moderator selection.
+
 ### Aggregation bias and the ecological fallacy {#sec-heterogeneity-ecological}
 
 Many moderators are study-level summaries of participant characteristics: mean age, percentage female, mean baseline severity. A meta-regression on mean age estimates how the *average* effect varies across studies with different mean ages. It does not estimate how the effect varies with age *within* studies. The two can differ in magnitude and even in sign, because between-study differences in mean age are confounded with everything else that differs between studies (country, decade, recruitment, intervention version), while within-study differences are not. Inferring individual-level effect modification from study-level associations is the ecological fallacy, and the resulting discrepancy is called aggregation bias [@thompson2002how]. The bias is worst when within-study variation in the covariate is large relative to between-study variation, so that study means cluster in a narrow range. Questions about patient-level effect modification are best addressed with individual participant data (Chapter \@ref(sec-multivariate-ipd)) or with within-study interaction estimates if studies report them.
@@ -463,6 +473,48 @@ tp <- predict(ls_n, newscale = log(c(30, 100, 300)), transf = exp)
 
 The scale coefficient for $\log n_i$ is `r f2(ls_n$alpha[2], 3)` (SE `r f2(ls_n$se.alpha[2], 3)`): larger studies tend to be more homogeneous. The implied heterogeneity is $\hat\tau^2 =$ `r f2(tp$pred[1], 3)` for a study with 30 pupils, `r f2(tp$pred[2], 3)` with 100 pupils, and `r f2(tp$pred[3], 3)` with 300. The evidence is modest, however: the likelihood-ratio test against the homoscedastic model gives $\chi^2(1) =$ `r f2(lrt$LRT)`, $p$ `r fp(lrt$pval)`. Location-scale models need more data than location models, because variance components are estimated with less precision than means; with a few dozen studies they are best viewed as hypothesis-generating unless the scale predictors were specified in advance.
 
+### Interpreting and checking scale coefficients {#sec-heterogeneity-ls-interpret}
+
+Because of the log link, scale coefficients act multiplicatively on the heterogeneity: a one-unit increase in $z_{ij}$ multiplies $\tau^2_i$ by $\exp(\alpha_j)$. With $\log n_i$ as the predictor, $\tau^2_i = \exp(\alpha_0)\, n_i^{\alpha_1}$, so doubling the sample size multiplies the heterogeneity variance by $2^{\alpha_1}$. The sampling distribution of $\hat\alpha_j$ may be far from normal, which is why @viechtbauer2022location recommend profile-likelihood confidence intervals over Wald intervals, and the likelihood surface of a location-scale model can have ridges and local optima, which a profile plot reveals (Figure \@ref(fig:het-ls-profile)).
+
+```{r het-ls-interpret}
+c(alpha = ls_n$alpha[2], doubling = 2^ls_n$alpha[2], tenfold = 10^ls_n$alpha[2])
+ls_ci <- confint(ls_n, alpha = 2)
+ls_ci
+```
+
+```{r het-ls-profile, fig.width = 5.5, fig.height = 4.5, out.width = "65%", fig.cap = "Profile restricted log-likelihood for the scale coefficient of $\\log n_i$ in the writing-to-learn location-scale model. The single, well-defined peak indicates that the coefficient is identified."}
+profile(ls_n, alpha = 2, progbar = FALSE)
+```
+
+According to the point estimate, each doubling of the number of pupils multiplies $\tau^2$ by `r f2(2^ls_n$alpha[2])`, and a tenfold larger study by `r f2(10^ls_n$alpha[2])`. The profile-likelihood interval for $\alpha_1$, `r f2(ls_ci$random[1, 2], 2)` to `r f2(ls_ci$random[1, 3], 2)`, is somewhat wider than the Wald interval (`r f2(ls_n$ci.lb.alpha[2], 2)` to `r f2(ls_n$ci.ub.alpha[2], 2)`) and also includes zero, and the profile has a single peak. Three further cautions apply. First, the small-sample behaviour of these tests and intervals is not well understood, and @viechtbauer2022location caution against location-scale models in small meta-analyses; `permutest()` also works for location-scale models and gives permutation $p$-values for the scale coefficients, at the cost of refitting the model many times. Second, a misspecified location part can masquerade as a scale effect: if a moderator shifts the mean but is left out of the location part, the studies at extreme values of that moderator have larger residuals, and any scale predictor correlated with it will appear to explain heterogeneity. A sensible default is to include in the location part every variable that enters the scale part. Third, $I^2$ is of little help here, because it depends on the reference sampling variance as much as on $\tau_i^2$; report $\hat\tau_i^2$, or better the implied prediction intervals, at chosen moderator values.
+
+### Subgroup-specific heterogeneity as a location-scale model {#sec-heterogeneity-ls-subgroups}
+
+The question raised in Section \@ref(sec-heterogeneity-tau2-pooled), whether subgroups should share one $\tau^2$, becomes a formal test in the location-scale framework. Putting the same categorical moderator in both parts gives each subgroup its own mean and its own $\tau^2$, and in this special case the estimates are the same as those of separate random-effects models fitted to each subgroup [@viechtbauer2022location]. Comparing that model with one whose scale part contains only an intercept (a common $\tau^2$) tests whether the heterogeneity differs between subgroups. We use the grade level of the writing-to-learn studies (elementary, middle school, high school, college):
+
+```{r het-ls-subgroups}
+bd_all <- dat.bangertdrowns2004
+bd_all$grade_f <- factor(bd_all$grade, labels = c("elementary", "middle", "high", "college"))
+ls_grade  <- rma(yi, vi, mods = ~ grade_f, scale = ~ grade_f, data = bd_all)
+ls_grade0 <- rma(yi, vi, mods = ~ grade_f, scale = ~ 1, data = bd_all)
+sep_grade <- sapply(split(bd_all, bd_all$grade_f), function(d) {
+  fit <- rma(yi, vi, data = d)
+  c(k = fit$k, estimate = coef(fit)[[1]], tau2 = fit$tau2)
+})
+X4 <- rbind(c(0, 0, 0), diag(3))
+cbind(t(sep_grade), tau2_ls = predict(ls_grade, newscale = X4, transf = exp)$pred)
+anova(ls_grade, ls_grade0)
+predict(ls_grade, newmods = X4, newscale = X4, digits = 2)
+```
+
+```{r het-ls-subgroups-stats, include = FALSE}
+lrt_grade <- anova(ls_grade, ls_grade0)
+pred_grade <- predict(ls_grade, newmods = X4, newscale = X4)
+```
+
+The subgroup-specific $\hat\tau^2$ from the location-scale model (last column) reproduce those of the four separate analyses, ranging from `r f2(min(sep_grade["tau2", ]), 3)` to `r f2(max(sep_grade["tau2", ]), 3)`. The likelihood-ratio test of a common $\tau^2$ gives $\chi^2(3) =$ `r f2(lrt_grade$LRT)`, $p$ `r fp(lrt_grade$pval)`: there is no evidence that heterogeneity differs across grade levels, so a pooled residual variance is defensible here. The location-scale model also gives prediction intervals that reflect each subgroup's own heterogeneity; the high-school interval (`r f2(pred_grade$pi.lb[3])` to `r f2(pred_grade$pi.ub[3])`) is the widest, because its point estimate of $\tau^2$ is the largest, although with `r sep_grade["k", 3]` studies that estimate is very imprecise. One difference from separate fits concerns small-sample inference: with `test = "knha"` the location-scale model uses one pooled scaling factor rather than one per subgroup, so the location intervals differ from those of separate Knapp–Hartung analyses [@viechtbauer2022location].
+
 ## Exploratory moderator search with machine learning {#sec-heterogeneity-metaforest}
 
 When a literature offers many coded study characteristics and little theory to choose among them, a data-driven screen can suggest which characteristics are worth a confirmatory analysis in future syntheses. MetaForest adapts random forests to meta-analysis by growing trees on bootstrap samples of studies, weighting studies by their random-effects weights, and assessing predictive performance on the studies left out of each bootstrap sample (out-of-bag) [@vanlissa2020small]. Its appeal is that it can capture non-linear relations and interactions without specifying them; its cost is that it offers no inference in the usual sense.
@@ -499,8 +551,9 @@ The pitfalls in this area are well documented. Analysts fit fixed-effect meta-re
 - Mixed-effects meta-regression with Knapp–Hartung tests is the default; fixed-effect meta-regression and Wald tests are too liberal with few studies, and permutation tests offer a further check.
 - Pseudo-$R^2$ is unstable with fewer than about 40 studies; report coefficients, residual heterogeneity, and prediction intervals instead.
 - The Johnson–Neyman technique locates the moderator values at which a conditional effect is significant; it requires a continuous moderator, a supported interaction, and interpretation within the observed range.
-- Multimodel inference, location-scale models, and MetaForest extend the toolkit, but with typical meta-analytic sample sizes they are exploratory and must be reported as such.
+- Location-scale models let moderators explain the amount of heterogeneity; with a categorical moderator in both parts they reproduce separate subgroup analyses and give a likelihood-ratio test of a common $\tau^2$.
+- Multimodel inference, regularised meta-regression, location-scale models, and MetaForest extend the toolkit, but with typical meta-analytic sample sizes they are exploratory and must be reported as such.
 
 ## Further reading {#sec-heterogeneity-reading}
 
-@thompson2002how remains the best short guide to doing and interpreting meta-regression, and @higgins2004controlling documents the false-positive problem and the permutation remedy. @viechtbauer2015comparison compares moderator tests in mixed-effects models, and @viechtbauer2007accounting gives an accessible introduction to random- and mixed-effects models for moderator analysis. @rubioaparicio2017analysis study pooled versus separate heterogeneity estimates for categorical moderators, and @lopezlopez2013estimation the precision of $R^2$. @bauer2005probing develop the Johnson–Neyman technique for single-level and multilevel regression. @burnham2004multimodel explain the logic of multimodel inference, and @calcagno2010glmulti describe `glmulti`. @viechtbauer2022location introduce location-scale models for meta-analysis, and @vanlissa2020small presents MetaForest. The `metafor` paper [@viechtbauer2010conducting] and the package documentation cover the software used throughout.
+@thompson2002how remains the best short guide to doing and interpreting meta-regression, and @higgins2004controlling documents the false-positive problem and the permutation remedy. @viechtbauer2015comparison compares moderator tests in mixed-effects models, and @viechtbauer2007accounting gives an accessible introduction to random- and mixed-effects models for moderator analysis. @rubioaparicio2017analysis study pooled versus separate heterogeneity estimates for categorical moderators, and @lopezlopez2013estimation the precision of $R^2$. @bauer2005probing develop the Johnson–Neyman technique for single-level and multilevel regression. @burnham2004multimodel explain the logic of multimodel inference, and @calcagno2010glmulti describe `glmulti`. @viechtbauer2022location introduce location-scale models for meta-analysis, @vanlissa2023selecting Bayesian regularised meta-regression, and @vanlissa2020small presents MetaForest. The `metafor` paper [@viechtbauer2010conducting] and the package documentation cover the software used throughout.

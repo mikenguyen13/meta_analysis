@@ -21,7 +21,7 @@ if (args[1] == "search") {
 } else if (args[1] == "doi") {
   b <- get(sprintf("https://api.crossref.org/works/%s/transform/application/x-bibtex", args[2]))
   if (is.null(b) || !grepl("@", b)) { message("DOI NOT FOUND: ", args[2]); quit(status = 1) }
-  b <- gsub("<[^>]+>", "", b)
+  b <- gsub("</?[A-Za-z][^<>:]*>", "", b)  # strip markup tags, keep SICI DOIs like <2815::aid-sim110>
   b <- gsub("[[:space:]]+", " ", trimws(b))
   if (length(args) >= 3) b <- sub("^@([A-Za-z]+)[{][^,]*,", sprintf("@\\1{%s,", args[3]), b)
   # one field per line

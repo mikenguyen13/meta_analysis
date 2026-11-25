@@ -379,6 +379,46 @@ c(LR = lr, df = 2, p = pchisq(lr, df = 2, lower.tail = FALSE))
 
 The likelihood-ratio statistic is 13.3 on 2 df ($p = 0.001$), so the mode of administration is associated with accuracy. This is an observational comparison across studies, and IAQ and SAQ studies may differ in population and setting as well as in mode. The same model can be fitted as a GLMM by adding the covariate and its interactions with `sens` and `spec` to the `glmer()` formula, or with `rma.mv()` using `mods = ~ 0 + outcome + outcome:type`.
 
+## Multiple thresholds per study {#sec-dta-multiple-thresholds}
+
+Studies of a continuous biomarker or a questionnaire score often report accuracy at several thresholds. The models so far take one two-by-two table per study, which forces the analyst to pick one threshold from each study. Picking the threshold that the authors emphasized invites bias, because authors tend to emphasize the threshold that performed best in their data, and analysing each threshold separately ignores that tables from the same study are correlated and leaves a separate, small meta-analysis for each threshold. @steinhauser2016modelling proposed to use every reported threshold by modelling the distribution of the test result itself. Within study $i$, the observed specificities at thresholds $c$ trace the cumulative distribution function of the test result in non-diseased participants, $\text{Sp}_i(c) = P(Y \le c \mid D^-)$, and one minus the sensitivities trace it in diseased participants. Assuming a logistic (or normal) distribution, each transformed proportion is linear in the threshold or its logarithm,
+$$
+\operatorname{logit}\{\text{Sp}_i(c)\} = \alpha_0 + a_{i0} + (\beta_0 + b_{i0})\log c, \qquad
+\operatorname{logit}\{1 - \text{Se}_i(c)\} = \alpha_1 + a_{i1} + (\beta_1 + b_{i1})\log c,
+$$
+with study-level random intercepts and slopes that may be shared between, or differ across, the two groups. The model is a linear mixed model fitted to all thresholds of all studies at once. It returns pooled sensitivity and specificity at every threshold, an SROC curve along which the threshold is known at each point, and an estimate of the threshold that maximizes a weighted sum $\lambda\,\text{Se} + (1 - \lambda)\,\text{Sp}$, the Youden index when $\lambda = 0.5$. The `diagmeta` package implements it.
+
+Our example is a systematic review of fractional exhaled nitric oxide (FeNO) for the diagnosis of asthma, reanalysed with this model by @schneider2017novel. Some studies contribute separate subgroups (for example by smoking status), which we treat as separate units, as in the package example.
+
+```{r dta-diagmeta}
+library(diagmeta)
+data(Schneider2017)
+dm <- diagmeta(tpos, fpos, tneg, fneg, cutpoint,
+               studlab = paste(author, year, group), data = Schneider2017,
+               log.cutoff = TRUE)
+dm
+n_cut <- table(paste(Schneider2017$author, Schneider2017$year, Schneider2017$group))
+summary(as.vector(n_cut))
+diagstats(dm, cutoff = c(15, 25, 35, 50))
+```
+
+The data contain `r nrow(Schneider2017)` two-by-two tables at `r length(unique(Schneider2017$cutpoint))` different thresholds from `r length(n_cut)` study units. `r sum(n_cut == 1)` units report a single threshold and one reports `r max(n_cut)`; a one-table-per-study analysis would discard most of the information, and would have to decide which of the reported tables to keep. By default `diagmeta()` uses the logistic distribution and the "CICS" model, with a random intercept and a random slope per study that are common to the two groups. The threshold that maximizes the Youden index is about `r round(dm$optcut)` ppb, with pooled sensitivity `r sprintf("%.2f", dm$Sens.optcut)` and specificity `r sprintf("%.2f", dm$Spec.optcut)`, and the area under the SROC curve is about `r sprintf("%.2f", dm$AUCSens)`. `diagstats()` shows the trade-off at clinically used cut-offs: at 15 ppb the test is sensitive but unspecific, and at 50 ppb it is specific but misses most patients with asthma. @schneider2017novel combine such threshold-specific estimates with pre-test probabilities to identify thresholds for ruling asthma in or out.
+
+```{r dta-diagmeta-plot, fig.cap = "Multiple thresholds model for FeNO. Left: observed proportions of positive tests by threshold (log scale) for diseased (filled points, solid lines) and non-diseased participants (open points, dashed lines), with the fitted pooled curves and the optimal threshold (vertical line). Right: the SROC curve implied by the model, with the observed pairs and the pooled operating points at each reported threshold.", fig.width = 10, fig.height = 4.8, out.width = "100%"}
+op <- par(mfrow = c(1, 2))
+plot(dm, which = "survival", lines = TRUE, xlab = "FeNO threshold (ppb)")
+plot(dm, which = "sroc", ciSens = TRUE, mark.optcut = TRUE, mark.cutpoints = TRUE)
+par(op)
+```
+
+Figure \@ref(fig:dta-diagmeta-plot) shows the main advantage of the approach. Every point on the SROC curve corresponds to a known threshold, so the result can be read as a recommendation ("at 25 ppb, expect a sensitivity of about 0.63 and a specificity of about 0.76") rather than as an operating point at an unspecified threshold. The price is a parametric assumption about the shape of the test-result distributions, which the left panel allows the reader to check, and the usual caveat that thresholds may not be comparable across studies that used different devices or protocols. The "optimal" threshold depends on the weight $\lambda$, which should reflect the relative costs of false negative and false positive results in the intended setting, not a default of 0.5.
+
+## Imperfect reference standards and Bayesian models {#sec-dta-imperfect-reference}
+
+All models in this chapter take the reference standard as error-free. When it is not, for example when the reference is a culture with limited sensitivity or a clinical diagnosis, errors in the reference standard are counted as errors of the index test, and the estimated accuracy of the index test is biased. @reitsma2009review reviewed the solutions and grouped them into four families: methods that impute or adjust for missing reference results (partial verification), methods that correct accuracy estimates for a reference of known imperfection, methods that construct a reference standard from several tests (by a fixed rule, a consensus panel or a statistical latent class model), and validation designs that abandon the accuracy paradigm and relate the index test to clinical outcomes. Latent class models treat the true disease status as unobserved and estimate the accuracy of the index and reference tests jointly. They are identified only under assumptions, typically conditional independence of the tests given disease status, or informative priors on the accuracy of the reference standard. @dendukuri2012bayesian extended the hierarchical summary ROC model to this setting in a Bayesian latent class meta-analysis of nucleic acid amplification tests for tuberculous pleuritis. Compared with a model that treated the reference as perfect, their estimate of specificity was higher and that of sensitivity lower, and they also described extensions for several reference tests and for conditional dependence between index and reference tests.
+
+Bayesian estimation is attractive in DTA beyond this problem. With few studies, the between-study correlation of the bivariate model is often estimated on the boundary $\pm 1$ (Section \@ref(sec-dta-glmm)), and weakly informative priors on the variances and the correlation keep the estimates away from the boundary, as for heterogeneity in Chapter \@ref(sec-bayesian). The posterior also delivers predictive distributions for sensitivity and specificity in a new setting directly. The `bamdit` package fits Bayesian bivariate models with such priors and with heavy-tailed random-effects distributions that downweight conflicting studies, using JAGS [@verde2018bamdit]. The binomial GLMM of Section \@ref(sec-dta-glmm) can be fitted without JAGS in `brms` with the same formula, `y | trials(n) ~ 0 + sens + spec + (0 + sens + spec | study)` and `family = binomial()`, plus priors on the standard deviations and an LKJ prior on the correlation. Latent class models, by contrast, are usually written directly in JAGS or Stan, because the likelihood is a mixture over the unknown disease status.
+
 ## Small-study effects: Deeks' funnel plot test {#sec-dta-deeks}
 
 Publication bias in DTA research is poorly understood. Accuracy studies are often not registered, and there is no single "positive" result that would drive selective publication in the way a significant treatment effect does. Standard funnel plot tests (Chapter \@ref(sec-publication-bias)) based on the DOR and its standard error have badly inflated type I error in DTA, because the standard error of the log DOR depends on the DOR itself and on the threshold. @deeks2005performance proposed instead to regress the log DOR on $1/\sqrt{\text{ESS}}$, where the *effective sample size* is
@@ -409,6 +449,40 @@ The validity of a DTA meta-analysis depends on the validity of its primary studi
 
 The review itself should be reported according to PRISMA-DTA [@mcinnes2018preferred], which adapts PRISMA to the specifics of DTA reviews: the definition of the target condition, index test and reference standard; the handling of thresholds; the statistical model (bivariate or HSROC, with software); presentation of study-level sensitivity and specificity in forest plots or ROC space; and summary estimates with confidence and prediction regions. Certainty of evidence for DTA reviews can be rated with GRADE (Chapter \@ref(sec-reporting)), which considers the consequences of false positive and false negative results in the target setting.
 
+## Meta-analysis of prediction model performance {#sec-dta-prediction-models}
+
+Many classification tools are not a single test but a multivariable *prediction model*: a risk score that combines several predictors into an estimated probability of a diagnosis or a future event. When the same model has been externally validated in several populations, a meta-analysis of its performance shows how well it works on average and, more importantly, how much its performance varies across settings [@debray2017guide; @debray2018framework]. Two aspects of performance are summarized. *Discrimination*, the ability to rank patients with and without the event, is measured by the concordance or $c$-statistic, which for a binary outcome equals the area under the ROC curve. *Calibration*, the agreement between predicted and observed risks, is summarized by the ratio of the total observed to the total expected number of events (O:E), by calibration-in-the-large, and by the calibration slope. A model can discriminate well and still be badly calibrated in a new population, for instance when baseline risk differs, so both must be examined.
+
+The statistical machinery is the random-effects model of Chapter \@ref(sec-models), applied on a scale on which between-study normality is plausible. In a simulation study, @snell2017metaanalysis found that the between-study distributions of the $c$-statistic and of the O:E ratio were often skewed on their natural scales, and that the logit transformation for the $c$-statistic and the log transformation for O:E largely removed the skewness. The models are therefore
+$$
+\operatorname{logit}(\hat c_i) \sim N\!\left(\mu_c,\; s_i^2 + \tau_c^2\right), \qquad
+\log(\widehat{\text{O:E}}_i) \sim N\!\left(\mu_{\text{OE}},\; v_i + \tau_{\text{OE}}^2\right),
+$$
+where, by the delta method, $s_i = \operatorname{se}(\hat c_i) / \{\hat c_i(1 - \hat c_i)\}$, and $v_i \approx 1/O_i - 1/N_i$ when only the observed events $O_i$ and the sample size $N_i$ are known. Validation studies often report only some of these quantities, a $c$-statistic with a confidence interval but no standard error, or observed and expected proportions instead of counts, and the `metamisc` package reconstructs the missing pieces with the formulas of @debray2018framework. Its `valmeta()` function fits the models by REML with the Hartung-Knapp-Sidik-Jonkman adjustment by default and reports an approximate prediction interval, which is the most informative summary: it says what discrimination or calibration to expect when the model is applied in a new hospital or country.
+
+The `EuroSCORE` data in `metamisc` contain the results of 23 validations of EuroSCORE II, a model for predicting in-hospital mortality after cardiac surgery, collected for the meta-analysis of @guida2014performance.
+
+```{r dta-valmeta-cstat}
+library(metamisc)
+data(EuroSCORE)
+vm_c <- valmeta(cstat = c.index, cstat.se = se.c.index, cstat.cilb = c.index.95CIl,
+                cstat.ciub = c.index.95CIu, N = n, O = n.events,
+                slab = Study, data = EuroSCORE)
+vm_c
+c(tau_logit_c = sqrt(vm_c$fit$tau2))
+```
+
+The summary $c$-statistic is `r sprintf("%.2f", vm_c$est)` (95% CI `r sprintf("%.2f", vm_c$ci.lb)` to `r sprintf("%.2f", vm_c$ci.ub)`), and the 95% prediction interval runs from `r sprintf("%.2f", vm_c$pi.lb)` to `r sprintf("%.2f", vm_c$pi.ub)`. Discrimination is good on average and reasonably stable: even at the lower end of the prediction interval the model separates patients who die from those who survive better than chance by a clear margin. Four validations reported neither a standard error nor a confidence interval for the $c$-statistic; `valmeta()` approximated their standard errors from the numbers of patients and events with a method of Newcombe, and records the source of each standard error in `vm_c$data`.
+
+```{r dta-valmeta-oe, fig.cap = "Forest plot of the total observed to expected (O:E) mortality ratio of EuroSCORE II in 23 validation studies, with the random-effects summary (pooled on the log scale) and the 95% prediction interval.", fig.height = 6.5}
+vm_oe <- valmeta(measure = "OE", O = n.events, E = e.events, N = n,
+                 slab = Study, data = EuroSCORE)
+vm_oe
+plot(vm_oe)
+```
+
+Calibration is a different story. The summary O:E ratio is `r sprintf("%.2f", vm_oe$est)` (95% CI `r sprintf("%.2f", vm_oe$ci.lb)` to `r sprintf("%.2f", vm_oe$ci.ub)`), so on average the model predicts about the right number of deaths. But the between-study standard deviation of the log O:E ratio is `r sprintf("%.2f", sqrt(vm_oe$fit$tau2))`, and the prediction interval from `r sprintf("%.2f", vm_oe$pi.lb)` to `r sprintf("%.2f", vm_oe$pi.ub)` means that in a new setting the observed number of deaths could be less than half the predicted number or nearly three times as large (Figure \@ref(fig:dta-valmeta-oe)). The average O:E ratio hides this, and so would a statement that the model is "well calibrated". @guida2014performance reported a pooled O:E ratio of 1.02 on the ratio scale, a little lower than the log-scale estimate here; they found heterogeneity among retrospective studies of less recent procedures and overprediction of mortality after isolated coronary artery bypass grafting. Heterogeneity in calibration is the rule rather than the exception, because baseline risk varies between populations; it often calls for local recalibration of the intercept before a model is used, and meta-regression on case mix can show where this is needed. When IPD from several studies are available, the same models apply to performance estimates obtained by internal-external cross-validation, in which the model is developed in all studies but one and validated in the omitted one, in turn [@riley2021individual].
+
 ## Practical recommendations and common pitfalls {#sec-dta-pitfalls}
 
 **Use a hierarchical model.** The bivariate model or the equivalent HSROC model is the default [@reitsma2005bivariate; @harbord2006unification; @deeks2023cochrane]. Separate univariate pooling, pooling of likelihood ratios or predictive values, and the Moses-Littenberg method are not appropriate primary analyses.
@@ -417,7 +491,7 @@ The review itself should be reported according to PRISMA-DTA [@mcinnes2018prefer
 
 **Simplify when the model cannot be fitted.** With few studies, the between-study correlation is often estimated at $\pm 1$ or the model fails to converge. Simulation evidence supports falling back to separate univariate random-effects logistic models for sensitivity and specificity, or to an HSROC model without the shape parameter [@takwoingi2015performance]; report which simplification was used.
 
-**Choose the summary that matches the question.** If studies used a common threshold, report the summary operating point with its confidence and prediction regions. If thresholds vary widely, report the SROC curve and avoid quoting a single sensitivity and specificity as though they applied at every threshold. For studies that report accuracy at several thresholds, use models designed for multiple thresholds [@steinhauser2016modelling] rather than picking one per study, which invites selective reporting.
+**Choose the summary that matches the question.** If studies used a common threshold, report the summary operating point with its confidence and prediction regions. If thresholds vary widely, report the SROC curve and avoid quoting a single sensitivity and specificity as though they applied at every threshold. For studies that report accuracy at several thresholds, use models designed for multiple thresholds (Section \@ref(sec-dta-multiple-thresholds)) [@steinhauser2016modelling] rather than picking one per study, which invites selective reporting.
 
 **Report heterogeneity on the probability scale.** State the prediction region, or the range of sensitivities and specificities it implies, alongside the summary point. Avoid a single $I^2$, whose bivariate versions disagree.
 
@@ -436,6 +510,7 @@ The review itself should be reported according to PRISMA-DTA [@mcinnes2018prefer
 - Heterogeneity in DTA is usually large. Report between-study standard deviations, the correlation, and the prediction region, and investigate sources with bivariate meta-regression.
 - Deeks' test is the appropriate funnel plot test for DTA, but it has low power and detects asymmetry, not publication bias.
 - Assess risk of bias with QUADAS-2 (now QUADAS-3) and report following PRISMA-DTA.
+- When studies report several thresholds, the multiple thresholds model uses all of them and attaches a threshold to every point of the SROC curve. Validations of a prediction model are pooled on the logit scale for the $c$-statistic and the log scale for the O:E ratio, and the prediction interval, especially for calibration, is the key result.
 
 ## Further reading {#sec-dta-reading}
 

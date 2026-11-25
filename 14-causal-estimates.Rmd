@@ -2,7 +2,7 @@
 
 Economics, management, marketing and policy research increasingly report effects estimated with designs built for causal identification: randomized controlled trials (RCTs) in the field and the lab, difference-in-differences (DiD) and event studies, regression discontinuity (RD), instrumental variables (IV) and synthetic control. A literature on the effect of minimum wages on employment, of loyalty programs on customer spending, of microcredit on household income or of advertising on sales typically mixes all of these. Meta-analysis of such literatures raises problems that the clinical-trial template of earlier chapters does not prepare us for. Different designs identify different causal quantities, standard errors are reported in heterogeneous and sometimes incomplete ways, effect sizes are often regression coefficients on incompatible scales, many estimates come from the same paper, and publication selection is pervasive and design-specific.
 
-This chapter is written for researchers who synthesize such evidence. We first ask what is being pooled, that is, which estimand each design targets and when estimates from different designs can sensibly be combined. We then cover the practicalities of extracting effects and standard errors from regression tables, and the use and misuse of partial correlation coefficients. The middle part of the chapter deals with publication selection as it is studied in economics (FAT-PET-PEESE, WAAP-WLS and selection models), design and identification strength as moderators, and bias-adjusted meta-analysis that combines randomized and non-randomized evidence. A worked example on simulated, design-labelled estimates brings these tools together. The last part turns to generalizability: Bayesian hierarchical aggregation of the microcredit RCTs, pooling factors, and the predictive distribution for a new site.
+This chapter is written for researchers who synthesize such evidence. We first ask what is being pooled, that is, which estimand each design targets and when estimates from different designs can sensibly be combined. We then cover the practicalities of extracting effects and standard errors from regression tables, and the use and misuse of partial correlation coefficients. The middle part of the chapter deals with publication selection as it is studied in economics (FAT-PET-PEESE, WAAP-WLS, the MAIVE estimator for spuriously precise standard errors, and selection models for dependent estimates), design and identification strength as moderators, bias-adjusted meta-analysis that combines randomized and non-randomized evidence, and sensitivity analysis for unmeasured confounding. A worked example on simulated, design-labelled estimates brings these tools together. The last part turns to generalizability: Bayesian hierarchical aggregation of the microcredit RCTs, pooling factors, and the predictive distribution for a new site.
 
 ```{r causal-packages, cache = FALSE}
 library(clubSandwich)
@@ -147,9 +147,23 @@ the **precision-effect estimate with standard error** (PEESE), and report $\hat\
 
 @stanley2017finding proposed the **weighted average of the adequately powered** (WAAP). First, the UWLS average $\hat\mu_{\text{UWLS}}$ is computed from all estimates. A study is adequately powered (power of at least 80% for a two-sided 5% test) to detect an effect of that size if $\text{SE}_i \le |\hat\mu_{\text{UWLS}}| / 2.8$, since $1.96 + 0.84 = 2.8$. WAAP is the UWLS average computed from the adequately powered estimates only; if fewer than two estimates qualify, UWLS over all estimates is reported instead. Their simulations show that WAAP has smaller bias than the conventional random-effects estimator under selective reporting at essentially no cost when there is none, although notable bias can remain under severe selection or very large heterogeneity [@stanley2017finding]. @ioannidis2017power used WAAP to document the extent of exaggeration across economics.
 
+### Spurious precision and MAIVE {#sec-causal-maive}
+
+FAT-PET-PEESE and WAAP treat the reported standard error as a fixed, known property of a study. In observational research it is not. The standard error depends on how the authors cluster, which variance estimator they use, which controls they include and which subsample they analyze, so it is shaped by the same discretionary choices as the estimate. @irsova2025spurious show that when these choices interact with selection for significance, the reported precision of some estimates is spuriously high. Two forms of selection can be distinguished: selection on the estimate (a specification is chosen because it makes $\hat b_i$ larger) and selection on the standard error (one is chosen because it makes $\text{SE}_i$ smaller). The second is the damaging one for precision-based methods. An estimate whose standard error has been pushed down receives a large inverse-variance weight and sits near the top of the funnel, where PET and PEESE take it as close to the truth. In their simulations, the bias of inverse-variance weighting, PET-PEESE, WAAP and the endogenous kink model grew with the amount of spurious precision until the simple unweighted mean of the reported estimates was less biased, and selection models (Andrews-Kasy, $p$-uniform*) did not solve the problem either [@irsova2025spurious].
+
+In econometric terms, the regressor $\text{SE}_i$ in the PET-PEESE regression is endogenous: it is correlated with the error term because both the estimate and its standard error were chosen. The **meta-analysis instrumental variable estimator** (MAIVE) of @irsova2025spurious uses the sample size as an instrument for the reported precision. The sample size is usually fixed before any specification search, and the sampling variance of almost any estimator is proportional to $1/N_i$. The first stage regresses the reported variances on the inverse sample size,
+
+$$
+\text{SE}_i^2 = \psi_0 + \psi_1 \frac{1}{N_i} + \nu_i ,
+$$
+
+and the fitted values $\widehat{\text{SE}}{}_i^2 = \hat\psi_0 + \hat\psi_1 / N_i$ replace the reported variances in the second stage, a PET regression on $\widehat{\text{SE}}_i$ or a PEESE regression on $\widehat{\text{SE}}{}_i^2$, combined by the usual conditional rule. The baseline version is unweighted, because inverse-variance weights built from the reported standard errors would bring back the spurious precision; weights based on the fitted variances are an option. The authors recommend Anderson-Rubin confidence intervals, which remain valid when the instrument is weak, and caution against relying on MAIVE when the first-stage $F$ statistic is below 10.
+
+MAIVE has two costs. It is a two-stage estimator and therefore much less precise than PET-PEESE, so it works best in large meta-analyses. And the sample size is a valid instrument only if it was not itself chosen in light of the expected result; if authors choose sample sizes strategically, MAIVE may offer no advantage [@irsova2025spurious]. When there is no spurious precision, MAIVE performs about as well as the standard estimators in their simulations, so its main use is as a check: a large gap between MAIVE and conventional PET-PEESE (formally, a Hausman-type test) signals that the reported standard errors cannot be trusted as weights. Section \@ref(sec-causal-example-maive) applies it to the worked example.
+
 ### Selection models {#sec-causal-selection-models}
 
-@andrews2019identification show that the publication probability as a function of the test statistic can be identified from replication studies or, under an independence assumption, from the joint distribution of estimates and standard errors in a meta-analysis, and they propose corrected estimators and confidence sets. Step-function selection models (Chapter \@ref(sec-publication-bias)) with thresholds at the conventional significance levels implement the same idea and are available in `metafor` through `selmodel()`. In causal literatures, where reported specifications are themselves selected, these models are a useful complement to the regression-based methods, but they assume that estimates are independent, so they are best applied to one estimate per paper.
+@andrews2019identification show that the publication probability as a function of the test statistic can be identified from replication studies or, under an independence assumption, from the joint distribution of estimates and standard errors in a meta-analysis, and they propose corrected estimators and confidence sets. Step-function selection models (Chapter \@ref(sec-publication-bias)) with thresholds at the conventional significance levels implement the same idea and are available in `metafor` through `selmodel()`. In causal literatures, where reported specifications are themselves selected, these models are a useful complement to the regression-based methods. The classical versions assume that estimates are independent, which most economics meta-analyses violate. @pustejovsky2026estimation study step-function models for dependent effect sizes. They estimate the parameters of the marginal distribution of the effects by composite marginal likelihood, treating each estimate as if it were independent, and they account for the dependence in the standard errors through cluster-robust variance estimation or a clustered bootstrap. In their simulations the selection models gave estimates of the average effect with low bias, and clustered bootstrap confidence intervals had acceptable coverage in meta-analyses with at least 30 studies. The `metaselection` package implements these methods, and Section \@ref(sec-causal-example-selmodel) applies them.
 
 ## Design and identification strength as moderators {#sec-causal-design-moderators}
 
@@ -172,6 +186,63 @@ y_i^{\text{adj}} = y_i - \mu_i^{I} - \mu_i^{E}, \qquad v_i^{\text{adj}} = v_i + 
 $$
 
 and these replace $(y_i, v_i)$ in a standard meta-analysis. In the original application, adjustment shifted the combined estimate by about 10% and almost tripled its variance, so less rigorous or less relevant studies were effectively downweighted [@turner2008bias]. The approach is transparent and computationally trivial, and it makes explicit the judgments that a simple design moderator leaves implicit. Its weakness is its dependence on elicitation; different assessors may disagree, and the elicited distributions should be reported and varied. @efthimiou2017combining discuss related approaches for combining randomized and non-randomized evidence in network meta-analysis, including using non-randomized evidence as an informative prior.
+
+## Sensitivity analysis for unmeasured confounding {#sec-causal-confounding}
+
+Bias modeling requires someone to state how large the bias is. When the evidence is observational and no credible elicitation is available, a sensitivity analysis can ask the reverse question: how strong would unmeasured confounding have to be to change the conclusion? For a single study, @vanderweele2017sensitivity proposed the **E-value**, the minimum strength of association, on the risk ratio scale, that an unmeasured confounder would need to have with both the exposure and the outcome, conditional on the measured covariates, to fully explain away an observed risk ratio $RR > 1$:
+
+$$
+E = RR + \sqrt{RR\,(RR - 1)} .
+$$
+
+It rests on the bound of @ding2016sensitivity: a confounder associated with the exposure by risk ratio $RR_{EU}$ and with the outcome by $RR_{UD}$ can inflate the observed risk ratio by at most the bias factor $B = RR_{EU} RR_{UD} / (RR_{EU} + RR_{UD} - 1)$, without any assumption about the confounder's distribution.
+
+Applying the E-value to a pooled estimate ignores heterogeneity. If the true effects vary across studies, a confounder that explains away the mean may leave many studies with substantial effects, and vice versa. @mathur2019sensitivity therefore shift the target to the **proportion of meaningfully strong effects**: the share of studies whose true causal effect exceeds a threshold $q$, after the observed log risk ratios have been corrected by a bias of $\log B$. Their sensitivity analysis reports this proportion for chosen values of the bias, $T_{\min}$, the smallest bias factor that would reduce the proportion of effects above $q$ to less than $r$, and $G_{\min} = T_{\min} + \sqrt{T_{\min}(T_{\min} - 1)}$, the same quantity expressed as the confounding strength (the E-value transformation of $T_{\min}$). The original *parametric* method assumes normally distributed true effects and allows the bias to vary across studies; the *calibrated* method of @mathur2020robust estimates the proportion from calibrated study-specific estimates, makes no assumption about the distribution of the effects, and assumes a bias of the same strength in every study. Both are implemented in `confounded_meta()` in the `EValue` package.
+
+We apply them to the tobacco-smoke data of Chapter \@ref(sec-publication-bias): 37 observational studies of lung cancer in non-smoking women whose spouses smoke, with odds ratios as the effect measure. Lung cancer is rare in this population, so the odds ratio approximates the risk ratio, which the methods require. Spousal smoking is plausibly confounded by diet, socioeconomic status or other household exposures.
+
+```{r causal-evalue}
+library(EValue)
+ets_c <- dat.hackshaw1998
+res_ets_c <- rma(yi, vi, data = ets_c)
+pred_ets_c <- predict(res_ets_c, transf = exp)
+evalues.OR(est = pred_ets_c$pred, lo = pred_ets_c$ci.lb, hi = pred_ets_c$ci.ub, rare = TRUE)
+
+# proportion of true odds ratios above 1.1, and the bias needed to push it below 10%
+cm_cal <- confounded_meta(method = "calibrated", q = log(1.1), r = 0.10, tail = "above",
+                          muB = 0, dat = ets_c, yi.name = "yi", vi.name = "vi",
+                          give.CI = FALSE)
+cm_par <- confounded_meta(method = "parametric", q = log(1.1), r = 0.10, tail = "above",
+                          muB = 0, sigB = 0, yr = res_ets_c$b[1], vyr = res_ets_c$se^2,
+                          t2 = res_ets_c$tau2, vt2 = res_ets_c$se.tau2^2)
+cm_cal
+cm_par
+```
+
+```{r causal-evalue-curve, fig.cap = "Estimated proportion of tobacco-smoke studies whose true causal odds ratio exceeds 1.1, as a function of the bias factor B of a homogeneous unmeasured confounder (calibrated method). The dotted line marks 10 percent.", fig.height = 4}
+B_grid <- seq(1, 1.4, by = 0.01)
+prop_B <- sapply(B_grid, function(b)
+  EValue::confounded_meta(method = "calibrated", q = log(1.1), tail = "above", muB = log(b),
+                          dat = ets_c, yi.name = "yi", vi.name = "vi", give.CI = FALSE)$Est[1])
+ggplot(data.frame(B = B_grid, prop = prop_B), aes(B, prop)) +
+  geom_step(linewidth = 1) +
+  geom_hline(yintercept = 0.10, linetype = 3) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = "Bias factor B (risk ratio scale)",
+       y = "Proportion of true ORs above 1.1")
+```
+
+```{r causal-evalue-values, include = FALSE}
+ev_ets <- EValue::evalues.OR(est = pred_ets_c$pred, lo = pred_ets_c$ci.lb, hi = pred_ets_c$ci.ub,
+                     rare = TRUE)
+cal_est <- setNames(cm_cal$Est, cm_cal$Value)
+par_est <- setNames(cm_par$Est, cm_par$Value)
+par_lo  <- setNames(cm_par$CI.lo, cm_par$Value)
+```
+
+The pooled odds ratio is `r round(pred_ets_c$pred, 2)`, and its E-value is `r round(ev_ets["E-values", "point"], 2)` (`r round(ev_ets["E-values", "lower"], 2)` for the lower confidence limit): a confounder associated with both spousal smoking and lung cancer by risk ratios of `r round(ev_ets["E-values", "point"], 1)` each could explain away the average association, and a weaker one, with risk ratios of `r round(ev_ets["E-values", "lower"], 1)`, could move the confidence interval to include the null. The heterogeneity-aware analysis tells a related story. Without bias, the calibrated method estimates that `r round(100 * cal_est[["Prop"]])`% of the studies have a true odds ratio above 1.1 (the parametric method, `r round(100 * par_est[["Prop"]])`%). A homogeneous bias factor of `r round(cal_est[["Tmin"]], 2)` (parametric: `r round(par_est[["Tmin"]], 2)`, 95% CI lower limit `r round(par_lo[["Tmin"]], 2)`) would be needed to reduce this proportion to below 10%, which corresponds to a confounder associated with both exposure and outcome by a risk ratio of `r round(cal_est[["Gmin"]], 2)` (Figure \@ref(fig:causal-evalue-curve)). Whether a confounder of that strength is plausible is a substantive question. Associations with a risk ratio of 2 between spousal smoking and a lung cancer risk factor, beyond those already adjusted for, would be strong. A bias factor of 1.2, on the other hand, is easy to imagine, and it would still leave an estimated `r round(100 * prop_B[which.min(abs(B_grid - 1.2))])`% of the studies with a true odds ratio above 1.1.
+
+The analysis has limits. It addresses confounding only, not publication bias or measurement error, and its conclusions are conditional on the chosen threshold $q$, which should be justified substantively and varied. The calibrated method assumes the same bias in every study, the parametric method a normal distribution of true effects. The `EValue` documentation advises against reporting either with fewer than 10 studies or when the heterogeneity estimate is zero; the E-value for the pooled estimate is then the appropriate summary. In a literature that mixes designs, the bias plausibly differs by design, which favors the explicit bias model of the previous section.
 
 ## Worked example: a simulated literature of design-labelled estimates {#sec-causal-example}
 
@@ -263,6 +334,89 @@ coef_test(pet_design, vcov = "CR2", cluster = dat_ce$paper)
 
 The intercept, 0.052 (SE 0.010), is now the selection-corrected estimate for RCTs. It is much closer to the true value of 0.04 than the uncorrected RCT mean (0.065), although some upward bias remains: when true effects vary, selection filters out even very precise estimates whose true effects happen to be small, and no correction based on the relation between estimates and standard errors can fully undo that. The Satterthwaite degrees of freedom (2.3 for the intercept) show that a few large, precise papers carry most of the information. This is typical of economics meta-analyses and a reason to report several correction methods side by side rather than a single "corrected" number [@irsova2023metaanalysis].
 
+### Instrumenting precision with MAIVE {#sec-causal-example-maive}
+
+The `MAIVE` package implements the estimator of Section \@ref(sec-causal-maive). It expects columns named `bs` (estimates), `sebs` (standard errors), `Ns` (sample sizes) and `study_id`, and its options are coded as integers. We request the instrumented (`instrument = 1`), unweighted (`weight = 0`) PET-PEESE (`method = 3`), with standard errors clustered by paper (`studylevel = 2`) using the CR2 estimator (`SE = 2`) and an Anderson-Rubin interval (`AR = 1`). The package default for `SE` is a wild bootstrap, which takes much longer.
+
+```{r causal-maive}
+library(MAIVE)
+maive_dat <- data.frame(bs = dat_ce$yi, sebs = dat_ce$sei, Ns = dat_ce$N,
+                        study_id = dat_ce$paper)
+fit_maive <- maive(maive_dat, method = 3, weight = 0, instrument = 1,
+                   studylevel = 2, SE = 2, AR = 1)
+unlist(fit_maive[c("beta", "SE", "F-test", "beta_standard", "SE_standard", "Hausman")])
+fit_maive$AR_CI
+fit_maive$petpeese_selected
+
+# the same estimate by hand: first stage, then unweighted PET on the fitted SE
+first_stage <- lm(vi ~ I(1 / N), data = dat_ce)
+dat_ce$se_iv <- sqrt(fitted(first_stage))
+coef_test(lm(yi ~ se_iv, data = dat_ce), vcov = "CR2", cluster = dat_ce$paper)
+```
+
+The first-stage $F$ statistic is `r round(fit_maive[["F-test"]], 1)`, above the threshold of 10 but far from strong, because in these data the standard error depends on the design as well as on the sample size. MAIVE selects `r fit_maive$petpeese_selected` and estimates `r round(fit_maive$beta, 3)` (SE `r round(fit_maive$SE, 3)`; Anderson-Rubin interval `r round(fit_maive$AR_CI[1], 3)` to `r round(fit_maive$AR_CI[2], 3)`), against `r round(fit_maive$beta_standard, 3)` for the conventional PET-PEESE. The hand-computed second stage reproduces the package's estimate and standard error. The standard error is `r round(fit_maive$SE / fit_maive$SE_standard, 1)` times that of the conventional estimator, which is the price of instrumenting. The Hausman-type statistic (`r round(fit_maive$Hausman, 1)`) flags the gap between the two estimates, but nothing in this simulated literature produces spurious precision: every reported standard error is the true sampling standard deviation. With a first-stage $F$ this modest, the gap reflects the imprecision of the two-stage estimator (re-running the simulation with other seeds moves the MAIVE estimate between roughly 0.03 and 0.09). MAIVE answers a specific threat and is not a free improvement.
+
+To see the threat, we simulate literatures in which it is present. Following the stylized design of @irsova2025spurious, each of 80 studies estimates a true effect of 0.04 (with heterogeneity SD 0.015) and its sampling standard error $2/\sqrt{N_i}$. Half of the researchers whose estimate is positive but not significant change the result: with probability $\varphi$ they report a smaller standard error that just makes the estimate significant (selection on the standard error), and otherwise they report a larger estimate that just reaches significance (selection on the estimate). We compare the unweighted mean, UWLS, PET, PEESE and the two instrumented regressions over 400 replications for $\varphi = 0$, 0.5 and 1. There is no further publication selection, so the $p$-hacking is the only source of bias.
+
+```{r causal-maive-sim}
+sim_lit <- function(n = 80, mu = 0.04, phi = 0.5) {
+  N <- round(exp(runif(n, log(100), log(10000))))
+  se <- 2 / sqrt(N)
+  b <- rnorm(n, mu + rnorm(n, 0, 0.015), se)
+  alter <- b > 0 & b / se < 1.96 & runif(n) < 0.5   # p-hacked results
+  se_sel <- alter & runif(n) < phi
+  se[se_sel] <- b[se_sel] / 1.96                       # selection on the standard error
+  b[alter & !se_sel] <- 1.96 * se[alter & !se_sel]     # selection on the estimate
+  data.frame(b = b, se = se, N = N)
+}
+estimators <- function(d) {
+  w <- 1 / d$se^2
+  se2_hat <- fitted(lm(I(se^2) ~ I(1 / N), data = d))  # MAIVE first stage
+  c(mean        = mean(d$b),
+    UWLS        = sum(w * d$b) / sum(w),
+    PET         = coef(lm(b ~ se, weights = w, data = d))[[1]],
+    PEESE       = coef(lm(b ~ I(se^2), weights = w, data = d))[[1]],
+    MAIVE_PET   = coef(lm(d$b ~ sqrt(pmax(se2_hat, 0))))[[1]],
+    MAIVE_PEESE = coef(lm(d$b ~ se2_hat))[[1]])
+}
+set.seed(2026)
+mc <- lapply(c(0, 0.5, 1), function(phi) replicate(400, estimators(sim_lit(phi = phi))))
+mc_tab <- do.call(cbind, lapply(mc, function(r)
+  cbind(bias = rowMeans(r) - 0.04, rmse = sqrt(rowMeans((r - 0.04)^2)))))
+colnames(mc_tab) <- paste(rep(c("phi = 0", "phi = 0.5", "phi = 1"), each = 2),
+                          colnames(mc_tab))
+knitr::kable(mc_tab, digits = 3,
+             caption = "Bias and root mean squared error of six estimators of a true effect of 0.04 when a share phi of p-hacked results is produced by understating the standard error (400 simulated meta-analyses of 80 studies per scenario).")
+```
+
+When all $p$-hacking operates on the estimates ($\varphi = 0$), the precision-based estimators work as intended: PET and PEESE remove most of the upward bias of the unweighted mean and UWLS. MAIVE-PET is unbiased too but has about twice the root mean squared error of PEESE, and MAIVE-PEESE keeps part of the bias. Once standard errors are manipulated, the picture reverses. The spuriously precise estimates are the ones that were too small to be significant, they receive enormous weights, and UWLS, PET and PEESE all end up far *below* the true effect (bias of `r round(mc_tab["PET", "phi = 0.5 bias"], 3)` for PET at $\varphi = 0.5$ and `r round(mc_tab["PET", "phi = 1 bias"], 3)` at $\varphi = 1$, most of the effect), worse than the simple mean. MAIVE-PET has almost no bias in every scenario. MAIVE-PEESE has the smallest root mean squared error at $\varphi = 0.5$, and at $\varphi = 1$ it is about as accurate as the unweighted mean, which is unbiased in this extreme scenario because only the standard errors, never the estimates, are altered. The lesson matches @irsova2025spurious: in literatures where standard errors are discretionary, compare MAIVE with the conventional corrections, and treat a large discrepancy as a warning about the weights rather than as a precise new estimate.
+
+### A selection model for dependent estimates {#sec-causal-example-selmodel}
+
+The PET-PEESE regressions above handle the clustering of estimates within papers through their robust standard errors. A step-function selection model can do the same with `metaselection::selection_model()` [@pustejovsky2026estimation]. The simulated publication process is itself a step function: a positive estimate significant at the 5% level (one-sided $p < 0.025$) is always published and any other with probability 0.25, so a model with one step at 0.025 is correctly specified for the selection process. We fit it to all estimates, with papers as clusters, and then with design as a moderator of the mean.
+
+```{r causal-selmodel}
+library(metaselection)
+sel_ce <- selection_model(data = dat_ce, yi = yi, sei = sei, cluster = paper,
+                          selection_type = "step", steps = 0.025)
+sel_ce
+sel_ce_design <- selection_model(data = dat_ce, yi = yi, sei = sei, cluster = paper,
+                                 selection_type = "step", steps = 0.025,
+                                 mean_mods = ~ design)
+sel_ce_design
+# average true effect of all generated estimates, before selection
+mean(mu + shift[as.character(all_est$design)])
+```
+
+```{r causal-selmodel-values, include = FALSE}
+sel_est <- setNames(sel_ce$est$Est, sel_ce$est$param)
+true_all <- mean(mu + shift[as.character(all_est$design)])
+sel_lambda <- sel_ce$est[sel_ce$est$param == "zeta1", ]
+sel_d_est <- setNames(sel_ce_design$est$Est, sel_ce_design$est$param)
+```
+
+The estimated relative probability of publication for estimates that are not significant, `r round(exp(sel_lambda$Est), 2)` (95% CI `r round(exp(sel_lambda$CI_lo), 2)` to `r round(exp(sel_lambda$CI_hi), 2)`), covers the true value of 0.25. When designs are pooled, the model targets the mean of the effect distribution before selection, here the average true effect of all generated estimates, `r round(true_all, 3)`. The adjusted mean, `r round(sel_est[["beta"]], 3)`, lies between that value and the CHE estimate of `r round(che_rve$beta, 3)`, removing about `r round(100 * (che_rve$beta - sel_est[["beta"]]) / (che_rve$beta - true_all))`% of the gap. With design as a moderator, the intercept for RCTs is `r round(sel_d_est[["beta_(Intercept)"]], 3)`, smaller than the uncorrected RCT mean of 0.065 but still above the true 0.04, a residual bias similar to that of PET with design. The large-sample intervals above use cluster-robust standard errors. @pustejovsky2026estimation found that clustered bootstrap intervals had acceptable coverage in meta-analyses with at least 30 studies; `bootstrap = "multinomial"` requests a conventional clustered bootstrap, which takes about a minute for these data and is not run here. Unlike `selmodel()`, this approach keeps every estimate, so the analyst does not have to discard information by picking one estimate per paper.
+
 ### Bias-adjusted analysis {#sec-causal-example-bias-adjusted}
 
 Finally, suppose that a panel of assessors, after reading the papers, elicited the following bias distributions relative to the target estimand (the ATE in the population of retailers considering a program): no bias for RCTs; internal bias with mean 0.02 and SD 0.02 for DiD; for IV, a mean shift of 0.03 with SD 0.04, reflecting both possible exclusion violations and the difference between complier and population effects; and for RD, no mean bias but an external-bias SD of 0.02 because the local population at the cutoff may differ from the target. The adjusted estimates subtract the bias means, and the bias variances are added to the sampling variances. Because all estimates from a paper share the same design and data, we treat the bias as common to all estimates within a paper, which adds the bias variance to every within-paper covariance as well.
@@ -282,7 +436,7 @@ round(rbind(CHE_unadjusted = c(che_rve$beta, che_rve$SE),
 
 The bias-adjusted average is 0.062 instead of 0.077, because the DiD and IV estimates have been shifted down, and the less rigorous or less relevant estimates receive less weight because their variances now include the bias uncertainty. The adjustment does nothing about publication selection, which was not part of the elicitation, so in a real application bias modeling and selection correction would both be reported. Figure \@ref(fig:causal-summary-plot) collects the estimates from all methods.
 
-```{r causal-summary-plot, fig.cap = "Average effect of the (simulated) loyalty program under different estimators. The dashed line marks the true average effect in RCT populations (0.04). Intervals are 95% confidence intervals using cluster-robust (CR2) standard errors where estimates are clustered within papers.", fig.height = 4}
+```{r causal-summary-plot, fig.cap = "Average effect of the (simulated) loyalty program under different estimators. The dashed line marks the true average effect in RCT populations (0.04). Intervals are 95% confidence intervals using cluster-robust (CR2) standard errors where estimates are clustered within papers; the MAIVE interval is the Anderson-Rubin interval and the selection-model interval uses cluster-robust large-sample standard errors.", fig.height = 4.8}
 ci_row <- function(label, est, se, df = Inf) {
   data.frame(method = label, est = est, lo = est - qt(0.975, df) * se,
              hi = est + qt(0.975, df) * se)
@@ -300,6 +454,10 @@ summary_df <- rbind(
   ci_row("PEESE (all designs)", peese_ct$beta[1], peese_ct$SE[1], peese_ct$df_Satt[1]),
   ci_row("WAAP", waap_ct$beta[1], waap_ct$SE[1], waap_ct$df_Satt[1]),
   ci_row("PET with design, RCT intercept", petd_ct$beta[1], petd_ct$SE[1], petd_ct$df_Satt[1]),
+  data.frame(method = "MAIVE (all designs, Anderson-Rubin CI)", est = fit_maive$beta,
+             lo = fit_maive$AR_CI[1], hi = fit_maive$AR_CI[2]),
+  data.frame(method = "Step selection model, clustered (all designs)",
+             est = sel_ce$est$Est[1], lo = sel_ce$est$CI_lo[1], hi = sel_ce$est$CI_hi[1]),
   ci_row("Bias-adjusted CHE + RVE", adj_rve$beta, adj_rve$SE, adj_rve$df_Satt)
 )
 summary_df$method <- factor(summary_df$method, levels = rev(summary_df$method))
@@ -318,6 +476,8 @@ The lesson of the simulation is not that one method wins. It is that, in a liter
 ### External validity as a meta-analytic question {#sec-causal-external-validity}
 
 A single well-identified study answers a question about one population, place and time. Whether its result generalizes is a question about heterogeneity across sites, and meta-analysis is the natural tool for it. @vivalt2020much assembled a large database of impact evaluations in development economics and found a large amount of effect heterogeneity. Effect sizes varied systematically with study characteristics: government-implemented programs had smaller effects than programs implemented by academics or non-governmental organizations, even controlling for sample size. Accounting for study characteristics reduced the heterogeneity appreciably. @allcott2015site documented site selection bias: the sites that choose to host an evaluation can differ systematically from the sites where a program is later scaled, so that even a meta-analysis of many RCTs may not predict effects in new sites. For a policymaker, the relevant quantity is often the **predictive distribution** of the effect in a new site, not the mean of the sites studied so far.
+
+A different route to generalization starts from the target population rather than from the distribution of sites. @dahabreh2020toward develop methods for **transporting** causal inferences from a collection of randomized trials to a new target population, one trial at a time or pooling all trials. They give conditions under which the average treatment effect in the target population is identified, estimators that rely on different working models, ways to check whether the inferences transported from different trials agree, and approaches to sensitivity analysis. The estimand is then defined by the population of interest instead of being an average over whichever populations happened to be studied. The price is data: the methods use individual participant data from the trials (Chapter \@ref(sec-multivariate-ipd)) together with covariate data from a sample of the target population, which summary-level meta-analyses of published estimates rarely have.
 
 ### Bayesian hierarchical aggregation of the microcredit trials {#sec-causal-microcredit}
 
@@ -421,8 +581,8 @@ For a meta-analysis of causal estimates, we suggest adding four elements to thes
 
 ## Key takeaways {#sec-causal-takeaways}
 
-Causal designs identify different estimands: RCTs the ATE in the experimental sample, IV a LATE for compliers, RD a local effect at the cutoff, DiD an ATT that conventional TWFE regressions may weight oddly under staggered adoption, synthetic control the effect for one unit. Pooling them is meaningful on a common scale and with the estimand coded as a moderator. Standard errors must be recovered with the reference distribution the authors used, and partial correlations should be a last resort because they depend on the control set. Publication selection is well documented in economics and varies by design, so selection corrections (FAT-PET-PEESE, WAAP-WLS, selection models) should be reported together and, where possible, within design. Multiple estimates per paper call for CHE models with robust variance estimation. Bias-adjusted meta-analysis combines randomized and non-randomized estimates by making elicited bias distributions explicit. Finally, the generalizability of causal findings is a question about heterogeneity across sites, and Bayesian hierarchical models with pooling factors and predictive distributions, as in the microcredit analysis, answer it more directly than the pooled mean.
+Causal designs identify different estimands: RCTs the ATE in the experimental sample, IV a LATE for compliers, RD a local effect at the cutoff, DiD an ATT that conventional TWFE regressions may weight oddly under staggered adoption, synthetic control the effect for one unit. Pooling them is meaningful on a common scale and with the estimand coded as a moderator. Standard errors must be recovered with the reference distribution the authors used, and partial correlations should be a last resort because they depend on the control set. Publication selection is well documented in economics and varies by design, so selection corrections (FAT-PET-PEESE, WAAP-WLS, selection models) should be reported together and, where possible, within design. When standard errors are themselves discretionary, precision-weighted corrections can fail badly, and MAIVE, which instruments the reported variance with the inverse sample size, is a useful check. Multiple estimates per paper call for CHE models with robust variance estimation, and step-function selection models can be fitted to all estimates with cluster-robust or clustered-bootstrap inference. Bias-adjusted meta-analysis combines randomized and non-randomized estimates by making elicited bias distributions explicit; when no elicitation is available, E-values and the proportion of meaningfully strong effects under hypothetical confounding show how much unmeasured confounding a conclusion can withstand. Finally, the generalizability of causal findings is a question about heterogeneity across sites, and Bayesian hierarchical models with pooling factors and predictive distributions, as in the microcredit analysis, answer it more directly than the pooled mean.
 
 ## Further reading {#sec-causal-reading}
 
-@stanley2012metaregression is the standard text on meta-regression analysis in economics and business, and @irsova2023metaanalysis is an up-to-date practitioner's guide; the MAER-Net guidelines are @havranek2020reporting. On publication selection in economics, read @brodeur2016star, @brodeur2020methods, @ioannidis2017power and @andrews2019identification, and for the estimators @stanley2007metaregression, @stanley2013metaregression and @stanley2017finding. For partial correlations, see @vanaert2023critical and @stanley2024metaanalyses. @turner2008bias is the key reference for bias modeling. On generalizability, @meager2019understanding and @meager2022aggregating show what Bayesian hierarchical models can do with a small number of RCTs, and @vivalt2020much and @allcott2015site document heterogeneity and site selection in program evaluation. For the designs themselves, @imbens1994identification, @imbens2008regression, @roth2023whats and @abadie2010synthetic are good starting points.
+@stanley2012metaregression is the standard text on meta-regression analysis in economics and business, and @irsova2023metaanalysis is an up-to-date practitioner's guide; the MAER-Net guidelines are @havranek2020reporting. On publication selection in economics, read @brodeur2016star, @brodeur2020methods, @ioannidis2017power and @andrews2019identification, and for the estimators @stanley2007metaregression, @stanley2013metaregression and @stanley2017finding. For partial correlations, see @vanaert2023critical and @stanley2024metaanalyses. @turner2008bias is the key reference for bias modeling. On spurious precision and MAIVE, read @irsova2025spurious; on selection models with dependent estimates, @pustejovsky2026estimation; on unmeasured confounding in meta-analyses, @vanderweele2017sensitivity, @mathur2019sensitivity and @mathur2020robust; on transporting trial results to a target population, @dahabreh2020toward. On generalizability, @meager2019understanding and @meager2022aggregating show what Bayesian hierarchical models can do with a small number of RCTs, and @vivalt2020much and @allcott2015site document heterogeneity and site selection in program evaluation. For the designs themselves, @imbens1994identification, @imbens2008regression, @roth2023whats and @abadie2010synthetic are good starting points.

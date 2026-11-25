@@ -14,7 +14,7 @@ main <- function(chapter) {
   }
   clean()
   on.exit(clean(), add = TRUE)
-  bibs <- c("references.bib", "packages.bib", character(0))
+  bibs <- c("references.bib", "packages.bib", list.files("bib", "[.]bib$", full.names = TRUE))
   bibs <- bibs[file.exists(bibs)]
   yaml <- c(
     "---",

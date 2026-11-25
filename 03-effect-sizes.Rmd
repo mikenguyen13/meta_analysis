@@ -2,7 +2,7 @@
 
 A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, $t$ and $F$ statistics, $2 \times 2$ tables, correlation matrices, regression coefficients, medians with interquartile ranges, hazard ratios read from survival curves. Before any pooling model can be fitted, each result has to be expressed on a common scale, together with an estimate of its sampling variance. That common scale is the *effect size*, and the decisions made at this stage (which metric, which sign convention, which formula for the variance, how to handle a study that reports only a $p$-value) shape every downstream result. Errors made here cannot be repaired by a sophisticated model later: a random-effects model fitted to effect sizes with the wrong sign or the wrong variance is precisely wrong.
 
-This chapter covers the effect size families that account for the bulk of applied meta-analyses in psychology, medicine, economics, management and marketing: mean differences for continuous outcomes, including pre-post designs; odds ratios, risk ratios and risk differences for binary outcomes; correlation coefficients, including partial and semi-partial correlations from regression models; single proportions and incidence rates. It then turns to the practical problem of extracting effect sizes from whatever a paper happens to report, to conversions between metrics, to cluster-randomized trials, and to the psychometric corrections for measurement error and range restriction associated with Hunter and Schmidt. Throughout, effect sizes are computed with `metafor::escalc()` [@viechtbauer2010conducting] on public datasets from the `metadat` package. How these effect sizes are then pooled is the subject of Chapter \@ref(sec-models).
+This chapter covers the effect size families that account for the bulk of applied meta-analyses in psychology, medicine, economics, management and marketing: mean differences for continuous outcomes, including pre-post designs, and ratios of standard deviations for questions about variability; odds ratios, risk ratios and risk differences for binary outcomes; correlation coefficients, including partial and semi-partial correlations from regression models; single proportions, incidence rates and hazard ratios. It then turns to the practical problem of extracting effect sizes from whatever a paper happens to report, to conversions between metrics, to cluster-randomized and crossover trials, and to the psychometric corrections for measurement error and range restriction associated with Hunter and Schmidt. Throughout, effect sizes are computed with `metafor::escalc()` [@viechtbauer2010conducting] on public datasets from the `metadat` package. How these effect sizes are then pooled is the subject of Chapter \@ref(sec-models).
 
 ```{r es-setup}
 library(metafor)   # loaded by _common.R as well; repeated for clarity
@@ -131,6 +131,57 @@ with(dat[1, ], {
 ```
 
 With 309 degrees of freedom the correction is negligible ($J = 0.9976$ by both formulas) and $g = -0.3552$ reproduces the `escalc()` output. For the Montreal-Home study ($n_1 = 8$, $n_2 = 13$) the correction shrinks $d$ by about 4%, which is why reporting $g$ rather than $d$ is the default for meta-analysis.
+
+### Effect sizes for variability {#sec-effect-sizes-variability}
+
+Every metric so far compares means. An intervention can also change how much outcomes vary between individuals: a treatment that helps some patients and harms others may leave the mean unchanged while inflating the spread, and a standardized protocol may make outcomes more uniform without shifting their average. @nakagawa2014meta proposed two effect sizes for comparing the variability of two groups. The log variability ratio compares the standard deviations directly,
+
+$$
+\text{lnVR} = \ln\!\left(\frac{S_1}{S_2}\right) + \frac{1}{2(n_1 - 1)} - \frac{1}{2(n_2 - 1)}, \qquad
+\widehat{\operatorname{Var}}(\text{lnVR}) = \frac{1}{2(n_1 - 1)} + \frac{1}{2(n_2 - 1)},
+$$
+
+where the two correction terms remove the small-sample bias of $\ln S$. Because the variance of $\ln S$ depends only on the sample size, lnVR behaves much like Fisher's $z$: its sampling variance does not depend on the effect itself. For many biological and clinical outcomes, however, the SD grows with the mean (longer hospital stays are also more variable), so a treatment that lowers the mean will lower the SD as a side effect. The log coefficient of variation ratio adjusts for this by comparing $\text{CV} = S/\bar X$ rather than $S$,
+
+$$
+\text{lnCVR} = \ln\!\left(\frac{S_1/\bar X_1}{S_2/\bar X_2}\right) + \frac{1}{2(n_1 - 1)} - \frac{1}{2(n_2 - 1)} + \frac{S_2^2}{2 n_2 \bar X_2^2} - \frac{S_1^2}{2 n_1 \bar X_1^2},
+$$
+
+$$
+\widehat{\operatorname{Var}}(\text{lnCVR}) = \frac{S_1^2}{n_1 \bar X_1^2} + \frac{1}{2(n_1 - 1)} + \frac{S_2^2}{n_2 \bar X_2^2} + \frac{1}{2(n_2 - 1)},
+$$
+
+which is the variance of lnVR plus the variance of the log ratio of means (Section \@ref(sec-effect-sizes-rom)). Like lnROM, lnCVR is only meaningful for ratio-scale outcomes. In `escalc()` the two measures are `"VR"` and `"CVR"`. @nakagawa2014meta also describe a more flexible alternative to lnCVR, in which the log SDs of all groups are modelled in a mixed model with the log means as a covariate; the location-scale models of Section \@ref(sec-heterogeneity-location-scale) address a related question, whether *between-study* heterogeneity depends on moderators.
+
+Does specialist stroke care make the length of stay more predictable as well as shorter? The Normand data give both ingredients:
+
+```{r es-variability}
+nd  <- dat.normand1999
+vr  <- escalc(measure = "VR",  sd1i = sd1i, n1i = n1i, sd2i = sd2i, n2i = n2i,
+              data = nd, slab = source)
+cvr <- escalc(measure = "CVR", m1i = m1i, sd1i = sd1i, n1i = n1i,
+              m2i = m2i, sd2i = sd2i, n2i = n2i, data = nd, slab = source)
+data.frame(source = nd$source, lnROM = round(rom$yi, 3),
+           lnVR = round(vr$yi, 3), lnCVR = round(cvr$yi, 3))
+# the first study by hand
+with(nd[1, ], c(
+  lnVR  = log(sd1i / sd2i) + 1 / (2 * (n1i - 1)) - 1 / (2 * (n2i - 1)),
+  lnCVR = log((sd1i / m1i) / (sd2i / m2i)) + 1 / (2 * (n1i - 1)) -
+          1 / (2 * (n2i - 1)) + sd2i^2 / (2 * n2i * m2i^2) - sd1i^2 / (2 * n1i * m1i^2)))
+fits_var <- list(ROM = rma(yi, vi, data = rom), VR = rma(yi, vi, data = vr),
+                 CVR = rma(yi, vi, data = cvr))
+var_tab <- t(sapply(fits_var, function(f) {
+  p <- predict(f, transf = exp)
+  c(ratio = p$pred, ci.lb = p$ci.lb, ci.ub = p$ci.ub, tau2 = f$tau2)
+}))
+round(var_tab, 3)
+```
+
+In the Edinburgh trial the specialist-care SD (47 days) is smaller than the routine-care SD (64 days), giving $\text{lnVR} = -0.309$, but the mean is smaller in about the same proportion, so the coefficients of variation are almost identical and $\text{lnCVR} = 0.001$. Pooled with random-effects models, the ratio of SDs is `r sprintf("%.2f", var_tab["VR", "ratio"])` (95% CI `r sprintf("%.2f", var_tab["VR", "ci.lb"])` to `r sprintf("%.2f", var_tab["VR", "ci.ub"])`) and the ratio of CVs is `r sprintf("%.2f", var_tab["CVR", "ratio"])` (`r sprintf("%.2f", var_tab["CVR", "ci.lb"])` to `r sprintf("%.2f", var_tab["CVR", "ci.ub"])`), so there is no clear evidence that specialist care changes the variability of stays, in absolute or in relative terms. The heterogeneity estimates are more revealing. The SD ratios vary a great deal between trials ($\hat\tau^2 =$ `r sprintf("%.3f", var_tab["VR", "tau2"])`), the CV ratios much less (`r sprintf("%.3f", var_tab["CVR", "tau2"])`): trials in which specialist care shortened stays most also show the largest reductions in the SD, so most of the between-trial variation in lnVR simply tracks the variation in lnROM. Across the 18 study arms the correlation between the log SDs and the log means is `r sprintf("%.2f", cor(log(c(nd$m1i, nd$m2i)), log(c(nd$sd1i, nd$sd2i))))`. This mean-variance relationship is what makes lnCVR the more relevant of the two measures here; when it is present, an apparent effect on lnVR may be nothing more than an effect on the mean.
+
+::: {.rmdwarning}
+Variability ratios are sensitive to features of the data that do not affect mean differences: floor and ceiling effects compress SDs, outliers inflate them, and SDs imputed from ranges or medians (Section \@ref(sec-effect-sizes-fivenum)) carry extra error. Treat a variability meta-analysis as exploratory unless the SDs are reported directly and the outcome scale is free of bounds near the observed values.
+:::
 
 ## Pre-post and change-score designs {#sec-effect-sizes-prepost}
 
@@ -390,6 +441,68 @@ predict(fit_irr, transf = exp)
 
 The pooled rate ratio of `r round(exp(coef(fit_irr)), 2)` means that the stroke rate under warfarin is about a third of the control rate. Using person-time instead of the number randomized matters when follow-up differs between arms or trials; when events are rare, the Poisson GLMM in `rma.glmm(measure = "IRR")` again avoids continuity corrections.
 
+## Time-to-event outcomes {#sec-effect-sizes-tte}
+
+For outcomes such as death, relapse or failure of a device, the timing of events matters as well as their occurrence, and participants are censored at different follow-up times. Neither the proportion with an event nor an incidence rate handles this properly unless hazards are constant. The appropriate effect size is the log hazard ratio, $\ln \text{HR}$, which under proportional hazards summarizes the treatment effect over the whole follow-up period [@parmar1998extracting]. Two quantities link most of the ways a trial reports its survival analysis. For the logrank test, $O - E$ is the observed minus the expected number of events in the research arm, and $V$ is the hypergeometric variance of $O - E$. The one-step (Peto) estimate of the log hazard ratio and its variance are then
+
+$$
+\ln \widehat{\text{HR}} = \frac{O - E}{V}, \qquad \widehat{\operatorname{Var}}(\ln \widehat{\text{HR}}) = \frac{1}{V},
+$$
+
+the time-to-event analogue of the Peto odds ratio (Section \@ref(sec-models-mh-peto)). When a trial reports $O - E$ and $V$, or the logrank statistic and one of them, the log hazard ratio follows directly; individual participant data meta-analyses of survival outcomes are typically carried out on exactly these quantities. Published reports more often give something else, and @parmar1998extracting and @tierney2007practical describe how to recover $\ln \text{HR}$ and $V$ from it. A hazard ratio with a 95% CI (usually from a Cox model) is handled as in Section \@ref(sec-effect-sizes-ci): $\ln \text{HR}$ is the log of the point estimate, $\widehat{SE} = [\ln(\text{UL}) - \ln(\text{LL})]/(2 \times 1.96)$, and $V = 1/\widehat{SE}^2$. An exact two-sided logrank $p$-value can be combined with the total number of events $D$: with allocation ratio $R = n_1/n_2$, the variance is approximately $V = D R/(1 + R)^2$ ($D/4$ under equal allocation), $O - E = \pm \sqrt{V}\, \Phi^{-1}(1 - p/2)$ with the sign taken from the direction of effect reported in the text, and so $\ln \text{HR} = \pm \Phi^{-1}(1 - p/2)/\sqrt{V}$. The numbers of events alone still supply the variance through $V \approx D/4$, but a point estimate then needs further information.
+
+When only Kaplan-Meier curves are published, @parmar1998extracting proposed estimating $O - E$ and $V$ interval by interval from the curves and the numbers at risk; a widely used alternative digitizes the curves and reconstructs approximate individual participant data with the algorithm of @guyot2012enhanced, from which a Cox model can be fitted. Its accuracy for hazard ratios depends heavily on whether the numbers at risk or the total number of events are reported. @tierney2025practical update the original guidance with further scenarios and a calculation spreadsheet.
+
+The three routes can be checked against each other on a simulated trial in which the full data are available. The `survival` package, which ships with R, provides the Cox model and the logrank test:
+
+```{r es-tte-check}
+library(survival)
+set.seed(17)
+n_arm <- 150
+arm <- rep(0:1, each = n_arm)                      # 1 = research arm
+t_event <- rexp(2 * n_arm, rate = 0.10 * ifelse(arm == 1, 0.7, 1))
+t_cens  <- runif(2 * n_arm, 2, 15)
+time   <- pmin(t_event, t_cens)
+status <- as.integer(t_event <= t_cens)
+cox <- coxph(Surv(time, status) ~ arm)
+lr  <- survdiff(Surv(time, status) ~ arm)
+hr_ci <- exp(confint(cox))
+O_E   <- lr$obs[2] - lr$exp[2]
+V_lr  <- lr$var[2, 2]
+p_lr  <- pchisq(lr$chisq, df = 1, lower.tail = FALSE)
+D     <- sum(status)
+V_p   <- D / 4                                     # equal allocation
+rbind(cox_hr_ci    = c(lnHR = coef(cox)[[1]],
+                       se = (log(hr_ci[2]) - log(hr_ci[1])) / (2 * qnorm(0.975))),
+      logrank_OE_V = c(O_E / V_lr, 1 / sqrt(V_lr)),
+      p_and_events = c(-qnorm(1 - p_lr / 2) / sqrt(V_p), 1 / sqrt(V_p)))
+```
+
+The simulated trial has `r D` events and a true hazard ratio of 0.7; the observed hazard ratio is `r sprintf("%.2f", exp(coef(cox)))` (logrank $p$ = `r sprintf("%.2f", p_lr)`). All three routes give a log hazard ratio of about $-0.17$ with a standard error of about 0.16. The agreement is close because the trial is balanced, the effect is modest and censoring is similar in the two arms, which are the conditions under which $V \approx D/4$ and the one-step estimate are accurate. With large effects or unbalanced allocation the $O - E$ approximation becomes biased, as the Peto odds ratio does [@bradburn2006much], and a reported Cox estimate should be preferred.
+
+In a review, different trials typically report different statistics, and each has to be converted by the route its report allows. The five hypothetical trials below report, respectively, a hazard ratio with its CI, $O - E$ and $V$, a logrank $p$-value with the number of events (1:1 allocation), another hazard ratio with CI, and a $p$-value from a trial with 2:1 allocation; in the two trials reporting only $p$-values the text says that the research arm did better.
+
+```{r es-tte-pool}
+tte <- data.frame(trial = c("A", "B", "C", "D", "E"),
+                  hr = c(0.78, NA, NA, 0.91, NA),
+                  lb = c(0.62, NA, NA, 0.70, NA), ub = c(0.98, NA, NA, 1.18, NA),
+                  O_E = c(NA, -9.4, NA, NA, NA), V = c(NA, 31.2, NA, NA, NA),
+                  p = c(NA, NA, 0.04, NA, 0.31), events = c(NA, NA, 120, NA, 85),
+                  ratio = c(NA, NA, 1, NA, 2), sign = c(NA, NA, -1, NA, -1))
+tte <- within(tte, {
+  V_hat <- ifelse(!is.na(hr), ((log(ub) - log(lb)) / (2 * qnorm(0.975)))^-2,
+           ifelse(!is.na(V), V, events * ratio / (1 + ratio)^2))
+  yi <- ifelse(!is.na(hr), log(hr),
+        ifelse(!is.na(O_E), O_E / V_hat, sign * qnorm(1 - p / 2) / sqrt(V_hat)))
+  vi <- 1 / V_hat
+})
+tte[, c("trial", "yi", "vi")]
+fit_tte <- rma(yi, vi, data = tte, slab = trial)
+predict(fit_tte, transf = exp)
+```
+
+For trial C, $V = 120/4 = 30$ and $\Phi^{-1}(0.98) = 2.054$, so $\ln \text{HR} = -2.054/\sqrt{30} = -0.375$; for trial E the 2:1 allocation reduces $V$ to $85 \times 2/9 = 18.9$. The pooled hazard ratio is `r sprintf("%.2f", exp(coef(fit_tte)))` (95% CI `r sprintf("%.2f", exp(fit_tte$ci.lb))` to `r sprintf("%.2f", exp(fit_tte$ci.ub))`). Two cautions apply. A $p$-value reported as "$p < 0.05$" or "not significant" cannot be converted this way. And all of these quantities assume proportional hazards; if the survival curves cross or the effect clearly changes over time, a single hazard ratio is a poor summary, and alternatives such as the difference in restricted mean survival time, or a meta-analysis of survival probabilities at fixed time points, may be more meaningful.
+
 ## Computing effect sizes from reported statistics {#sec-effect-sizes-reported}
 
 Papers do not always report the summary statistics that the formulas above need. A substantial part of data extraction consists of recovering an effect size and its variance from whatever *is* reported. Each recovery step should be documented in the extraction sheet, along with the exact numbers and page used.
@@ -563,6 +676,36 @@ c(DE = de, n_eff = 400 / de, g = g_naive$yi,
 
 When the ICC is not reported, it can be borrowed from other trials in the review or from published compilations for the outcome and cluster type, with a sensitivity analysis over a plausible range. For cluster-randomized designs there is also a question of *which* standard deviation should standardize an SMD (the within-cluster SD, or the total SD including between-cluster variation). @hedges2007effect gives estimators and variances for each choice; the total-variance version is comparable with SMDs from individually randomized trials.
 
+## Crossover trials {#sec-effect-sizes-crossover}
+
+In a two-period, two-treatment crossover trial each participant receives both treatments in random order, separated by a washout period. The design is the mirror image of the cluster-randomized trial: the comparison is *within* participants, so the positive correlation between a person's two measurements makes the trial more precise than a parallel-group trial of the same size, not less. Crossover trials are common in chronic, stable conditions (asthma, pain, sleep, many psychological and nutritional experiments), and @elbourne2002metaanalyses found that about 8% of the trials in the Cochrane Library used the design but that reviews had no consistent approach to including them.
+
+For a continuous outcome, the appropriate effect size is the mean of the within-participant differences, with variance $S_D^2/n$, where $n$ is the number of participants and $S_D$ the SD of the differences. This is exactly the paired structure of Section \@ref(sec-effect-sizes-prepost), and the same identity links $S_D$ to the per-period SDs: $S_D^2 = S_E^2 + S_C^2 - 2 r S_E S_C$, with $r$ the correlation between a participant's outcomes under the two treatments. If a report gives a paired $t$ statistic, $S_D = |\bar X_E - \bar X_C| \sqrt{n}/|t|$. The two common mistakes are opposite. Treating the trial as if it were a parallel-group trial with $n$ participants per arm ignores the correlation and overstates the variance (when $r > 0$), so the trial gets too little weight; it is conservative but wasteful. Entering it with $2n$ participants alongside parallel trials while also computing a paired variance double-counts the participants. When only per-period means and SDs are reported, $r$ has to be imputed, from other trials that report paired results or from external data, with a sensitivity analysis, exactly as for pre-post designs [@elbourne2002metaanalyses; @higgins2019cochrane].
+
+```{r es-crossover}
+set.seed(11)
+n_co <- 24; rho_co <- 0.7                    # participants, true within-person correlation
+person <- rnorm(n_co, 0, sqrt(rho_co) * 10)  # stable between-person differences
+y_E <- 95  + person + rnorm(n_co, 0, sqrt(1 - rho_co) * 10)
+y_C <- 100 + person + rnorm(n_co, 0, sqrt(1 - rho_co) * 10)
+co <- data.frame(m_E = mean(y_E), m_C = mean(y_C), sd_E = sd(y_E), sd_C = sd(y_C),
+                 n = n_co, r_obs = cor(y_E, y_C))
+paired <- escalc(measure = "MC", m1i = m_E, m2i = m_C, sd1i = sd_E, sd2i = sd_C,
+                 ni = n, ri = r_obs, data = co)
+naive  <- escalc(measure = "MD", m1i = m_E, m2i = m_C, sd1i = sd_E, sd2i = sd_C,
+                 n1i = n, n2i = n, data = co)
+round(rbind(paired = c(MD = paired$yi, se = sqrt(paired$vi)),
+            parallel_naive = c(naive$yi, sqrt(naive$vi))), 3)
+t_paired <- t.test(y_E, y_C, paired = TRUE)$statistic[[1]]
+c(t = t_paired, se_from_paired_t = abs(co$m_E - co$m_C) / abs(t_paired))
+# sensitivity of the paired SE to an imputed correlation
+r_imp <- c(0, 0.3, 0.5, 0.7, 0.9)
+round(setNames(sqrt((co$sd_E^2 + co$sd_C^2 -
+                     2 * r_imp * co$sd_E * co$sd_C) / co$n), r_imp), 3)
+```
+
+The paired analysis gives a mean difference of `r sprintf("%.2f", paired$yi)` with a standard error of `r sprintf("%.2f", sqrt(paired$vi))`, which is what the paired $t$ statistic of `r sprintf("%.2f", t_paired)` implies; the parallel-group analysis of the same numbers gives a standard error of `r sprintf("%.2f", sqrt(naive$vi))`, so in a common-effect analysis the trial would receive only `r round(100 * paired$vi / naive$vi)`% of the weight it deserves. With an imputed correlation of 0 the paired formula reduces exactly to the parallel-group one, and the standard error falls steadily as the assumed $r$ grows. For a standardized mean difference, the comparable metric across crossover and parallel trials divides the mean difference by the between-person SD of the outcome within a period, not by $S_D$, for the same reason that the SMCR rather than the SMCC is comparable with independent-groups SMDs (Section \@ref(sec-effect-sizes-prepost)). Binary outcomes from crossover trials need the paired $2 \times 2$ table (the numbers of participants with an event on both, one or neither treatment), from which a paired analysis can be carried out; marginal event counts alone ignore the pairing [@elbourne2002metaanalyses]. Finally, the design is appropriate only when the condition is stable and carry-over from the first period has been eliminated by the washout. When carry-over is a concern, the usual fallback is to use only the first-period data, analyzed as a parallel-group trial, at the cost of most of the design's precision [@higgins2019cochrane].
+
 ## Psychometric artifact corrections {#sec-effect-sizes-artifacts}
 
 The Hunter-Schmidt approach to meta-analysis, developed in personnel and organizational psychology, starts from the observation that observed correlations are attenuated by study *artifacts*: sampling error, measurement error in the independent and dependent variables, dichotomization of continuous variables, range restriction, imperfect construct validity, and transcription errors [@schmidt2015a]. Most of these artifacts reduce observed correlations below the construct-level correlation of substantive interest. The goal of a psychometric meta-analysis is to estimate the mean and the standard deviation of the *construct-level* (true-score) correlations $\rho$, correcting each artifact for which information is available. This differs from the approaches in the rest of this chapter, which take the observed effect sizes as the estimand.
@@ -674,9 +817,11 @@ The most damaging errors in effect size computation are mundane. Standard errors
 - Ratio measures (OR, RR, IRR, ROM) are analyzed on the log scale. Correlations are pooled on Fisher's $z$ scale with variance $1/(n - 3)$, or with Hunter-Schmidt sample-size weighting when artifact corrections are the goal.
 - Continuity corrections and the Freeman-Tukey back-transformation can distort results for sparse data and proportions near 0 or 1; GLMMs model the counts directly and avoid both.
 - Recovering effect sizes from $t$, $F$, $\chi^2$, $p$-values, confidence intervals and five-number summaries is routine with `escalc()`, `conv.wald()`, `conv.fivenum()` and the `esc` package, but each conversion carries assumptions that should be documented and probed in sensitivity analyses.
-- Cluster-randomized trials analyzed at the individual level need their variances inflated by the design effect $1 + (m - 1)\rho_{\text{ICC}}$.
+- Time-to-event outcomes are pooled as log hazard ratios; $\ln \text{HR}$ and its variance can be recovered from a reported HR and CI, from the logrank $O - E$ and $V$, or from an exact $p$-value and the number of events.
+- Effects on variability are measured by lnVR or, when SDs scale with means, by lnCVR (`escalc()` measures `"VR"` and `"CVR"`).
+- Cluster-randomized trials analyzed at the individual level need their variances inflated by the design effect $1 + (m - 1)\rho_{\text{ICC}}$; crossover trials should enter with the variance of the within-participant difference, not as if they were parallel-group trials.
 - Psychometric corrections for unreliability and range restriction change the estimand from observed to construct-level correlations; report both, and use dedicated software such as `psychmeta` for the corrected analysis.
 
 ## Further reading {#sec-effect-sizes-reading}
 
-@borenstein2021introduction give an accessible treatment of effect size computation for the main designs, with worked formulas, and the Cochrane Handbook [@higgins2019cochrane] covers effect measures for binary, continuous and time-to-event outcomes and the handling of cluster-randomized and crossover trials from a clinical perspective. @morris2002combining remains the reference for combining repeated-measures and independent-groups designs, and @morris2007estimating for pretest-posttest-control designs. For correlations and the psychometric approach, @schmidt2015a is the comprehensive source, @hunter2006implications describes the indirect range restriction correction, and @dahlke2018psychmeta document its implementation in R. The help page of `escalc()` in `metafor` [@viechtbauer2010conducting] is itself a compact reference for dozens of effect size measures, with formulas and original citations.
+@borenstein2021introduction give an accessible treatment of effect size computation for the main designs, with worked formulas, and the Cochrane Handbook [@higgins2019cochrane] covers effect measures for binary, continuous and time-to-event outcomes and the handling of cluster-randomized and crossover trials from a clinical perspective. @morris2002combining remains the reference for combining repeated-measures and independent-groups designs, and @morris2007estimating for pretest-posttest-control designs. @tierney2007practical and its update [@tierney2025practical] are the practical guides to extracting hazard ratios from published survival analyses, @elbourne2002metaanalyses cover crossover trials, and @nakagawa2014meta introduce meta-analysis of variability. For correlations and the psychometric approach, @schmidt2015a is the comprehensive source, @hunter2006implications describes the indirect range restriction correction, and @dahlke2018psychmeta document its implementation in R. The help page of `escalc()` in `metafor` [@viechtbauer2010conducting] is itself a compact reference for dozens of effect size measures, with formulas and original citations.
