@@ -297,7 +297,7 @@ original reports, and they should not be read as a clinical appraisal of diureti
 <p>The four outcomes are binary, so each is analyzed as a log risk ratio with a random-effects model.
 The mortality outcomes share the same follow-up denominators; stillbirth and neonatal death are
 missing for one trial.</p>
-<div class="sourceCode" id="cb287"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb336"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dat.collins1985b</span></span>
 <span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
 <span>  outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Pre-eclampsia"</span>, <span class="st">"Perinatal death"</span>, <span class="st">"Stillbirth"</span>, <span class="st">"Neonatal death"</span><span class="op">)</span>,</span>
@@ -347,7 +347,7 @@ default, we treat a relative risk reduction or increase of 25% (risk ratios of 0
 appreciable, with the null (a risk ratio of 1) as the primary threshold. Figure
 <a href="sec-reporting.html#fig:rep-thresholds">15.1</a> places each outcome’s confidence and prediction intervals against these
 lines.</p>
-<div class="sourceCode" id="cb288"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb337"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summ</span><span class="op">$</span><span class="va">label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">outcome</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">outcome</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">summ</span>, <span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">label</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -369,7 +369,7 @@ two levels if it includes both an appreciable benefit and an appreciable harm, a
 the interval excludes the null but the total sample size falls short of the optimal information
 size. The OIS is computed as the total sample size of a two-arm trial with 80% power to detect a
 25% relative risk reduction at the assumed control risk.</p>
-<div class="sourceCode" id="cb289"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb338"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ois</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">control_risk</span>, <span class="va">rrr</span> <span class="op">=</span> <span class="fl">0.25</span>, <span class="va">power</span> <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/power.prop.test.html">power.prop.test</a></span><span class="op">(</span>p1 <span class="op">=</span> <span class="va">control_risk</span>, p2 <span class="op">=</span> <span class="va">control_risk</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">rrr</span><span class="op">)</span>,</span>
 <span>                              power <span class="op">=</span> <span class="va">power</span><span class="op">)</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
@@ -403,7 +403,7 @@ Several of the trials used oedema as one of the diagnostic criteria for pre-ecla
 (the <code>oedema</code> variable), and diuretics reduce oedema directly, so the measured outcome is biased
 in favor of diuretics: a serious risk-of-bias concern in the measurement of the outcome. The
 sensitivity analysis below supports the concern.</p>
-<div class="sourceCode" id="cb290"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb339"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_pre_no_oedema</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">pre.xti</span>, n1i <span class="op">=</span> <span class="va">pre.nti</span>, ci <span class="op">=</span> <span class="va">pre.xci</span>,</span>
 <span>                         n2i <span class="op">=</span> <span class="va">pre.nci</span>, data <span class="op">=</span> <span class="va">dat</span>, subset <span class="op">=</span> <span class="va">oedema</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_pre_no_oedema</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
@@ -434,7 +434,7 @@ corresponding risk with the intervention, and their difference, usually per 1,00
 <p>The assumed control risk should reflect the population to which the results will be applied.
 Here it is the median control-group risk across the trials; a guideline would often use risks
 from a representative cohort and might present several baseline risks.</p>
-<div class="sourceCode" id="cb291"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb340"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">judgments</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
 <span>  outcome       <span class="op">=</span> <span class="va">spec</span><span class="op">$</span><span class="va">outcome</span>,</span>
 <span>  risk_of_bias  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -564,7 +564,7 @@ in footnotes. The <strong>evidence profile</strong> is its companion for reviewe
 per outcome and one column per GRADE domain, so that every judgment is visible
 <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade1"><span class="nocase">G. Guyatt et al.</span> 2011</a>)</span>. Because the judgments are already stored in <code>sof</code>, the profile is a
 different view of the same object.</p>
-<div class="sourceCode" id="cb292"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb341"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level_text</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"-2"</span> <span class="op">=</span> <span class="st">"Very serious"</span>, <span class="st">"-1"</span> <span class="op">=</span> <span class="st">"Serious"</span>, <span class="st">"0"</span> <span class="op">=</span> <span class="st">"Not serious"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="va">profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
 <span>  Outcome            <span class="op">=</span> <span class="va">sof</span><span class="op">$</span><span class="va">outcome</span>,</span>
@@ -657,7 +657,7 @@ bad data.</p>
 an appreciable effect. That choice is a value judgment, and with rare but serious outcomes such as
 perinatal death, many decision makers would regard a much smaller relative change as important.
 Recomputing the ratings for a range of thresholds shows how much the conclusions depend on it.</p>
-<div class="sourceCode" id="cb293"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb342"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.25</span>, <span class="fl">0.40</span><span class="op">)</span></span>
 <span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">lb</span>, <span class="va">ub</span>, <span class="va">N</span>, <span class="va">acr</span><span class="op">)</span> <span class="op">{</span></span>
@@ -830,7 +830,7 @@ drift out of date when the analysis changes. Writing the paragraph with inline R
 every number is computed when the document is rendered, removes this source of error. The
 following paragraph is generated this way from the pre-eclampsia model; the R Markdown source
 shows the inline code.</p>
-<div class="sourceCode" id="cb294"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb343"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_pre</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="st">"Pre-eclampsia"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">fit</span></span>
 <span><span class="va">ci_tau</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">res_pre</span><span class="op">)</span><span class="op">$</span><span class="va">random</span></span>
 <span><span class="va">p_pre</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_pre</span>, transf <span class="op">=</span> <span class="va">exp</span><span class="op">)</span></span></code></pre></div>
@@ -865,7 +865,7 @@ with citations, a forest plot, and a funnel plot, as an HTML, PDF, or Word docum
 as a checklist of what to report and as a starting draft. The call below writes the report for
 the pre-eclampsia model into a temporary directory without opening it, and prints the text of its
 results section.</p>
-<div class="sourceCode" id="cb295"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb344"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">report_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"metafor-report"</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span>,</span>
 <span>                            mustWork <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span><span class="va">report_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>

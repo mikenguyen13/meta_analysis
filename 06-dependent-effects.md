@@ -468,6 +468,36 @@ Covert delinquency appears in a single study and overt delinquency in three. The
 
 The practical rules that follow are simple. Always use the small-sample-corrected tests (CR2 with Satterthwaite $t$, HTZ for multiple contrasts) rather than the original large-sample RVE tests. Report the degrees of freedom. When they fall below 4, do not interpret the robust $p$-value; report the result as inconclusive, rely on the model-based results with explicit caveats about the working model, or refrain from testing the moderator.
 
+### Cluster wild bootstrap tests {#sec-dependent-cwb}
+
+The CR2 corrections fix the bias of the sandwich estimator, but the HTZ test still relies on an approximate reference distribution, and it can be overly conservative, particularly for hypotheses with several contrasts [@joshi2022cluster]. @joshi2022cluster brought the *cluster wild bootstrap* (CWB) from econometrics into meta-analysis as an alternative that does not need degrees of freedom at all. For a null hypothesis $H_0: \mathbf C\boldsymbol\beta = \mathbf 0$ the algorithm is:
+
+1. Fit the *null* model, which imposes $H_0$, and keep its fitted values $\tilde{\mathbf y}_j$ and residuals $\tilde{\mathbf e}_j$ for each cluster $j$.
+2. Draw one auxiliary weight $\eta_j$ per cluster, $+1$ or $-1$ with equal probability (Rademacher weights), and form new outcomes $\mathbf y_j^* = \tilde{\mathbf y}_j + \eta_j \tilde{\mathbf e}_j$. Every residual in a cluster gets the same sign, so the within-cluster dependence is carried into the bootstrap data whatever its form.
+3. Refit the *full* model to $\mathbf y^*$ and compute the robust Wald statistic $F^*$ for $H_0$.
+4. Repeat steps 2 and 3 $R$ times. The $p$-value is the proportion of bootstrap statistics $F^*$ at least as large as the statistic $F$ from the original data.
+
+Because the bootstrap data are generated under $H_0$, the comparison of $F$ with the $F^*$ calibrates the test directly. Optionally the null residuals can first be multiplied by the CR2 adjustment matrices (`adjust = "CR2"`, the "CWB adjusted" variant). In two simulation studies, @joshi2022cluster found that CWB kept the Type I error rate adequate with a small number of studies and had more power than the small-sample-corrected HTZ test, especially for multiple-contrast hypotheses, and recommended it for meta-analyses with few studies.
+
+`Wald_test_cwb()` in the `wildmeta` package implements the test for `robumeta` and `metafor` models. Each bootstrap replicate refits the model, which is fast for `robu()` fits and slow for large `rma.mv()` fits, so we use the correlated-effects weights of `robumeta` (Section \@ref(sec-dependent-robumeta)) as the working model. As an example, we test jointly whether publication year and the indicator for general delinquency (versus overt or covert delinquency) moderate the effects in the delinquency data:
+
+
+``` r
+da$general <- as.numeric(da$deltype == "general")
+rb_mods <- robu(yi ~ year + general, data = da, studynum = study, var.eff.size = vi,
+                modelweights = "CORR", rho = 0.6, small = TRUE)
+htz_mods <- Wald_test(rb_mods, constraints = constrain_zero(2:3), vcov = "CR2", test = "HTZ")
+htz_mods
+#>  test Fstat df_num df_denom p_val sig
+#>   HTZ 0.729      2     3.26 0.547
+cwb_mods <- Wald_test_cwb(rb_mods, constraints = constrain_zero(2:3), R = 999, seed = 2026)
+cwb_mods
+#>   Test Adjustment CR_type Statistic   R  p_val
+#> 1  CWB        CR0     CR0   Naive-F 999 0.4935
+```
+
+The HTZ test gives $F =$ 0.73 with only 3.26 denominator degrees of freedom, below the threshold of 4 at which the approximation is no longer trusted, and $p$ = .547. The cluster wild bootstrap, which does not depend on that approximation, gives $p$ = .493 from 999 replicates. The two tests agree that there is no evidence for either moderator, but only the bootstrap $p$-value comes without a warning attached. With 17 studies, and only 3 of them reporting any outcome other than general delinquency, the bootstrap is still limited by the same scarcity of information as every other method: it calibrates the test, it does not create replication. Use a few thousand replicates in a final analysis (the Monte Carlo error of a bootstrap $p$-value near .05 with $R = 999$ is about .007), and report the test variant and the number of replicates.
+
 ### Within-study and between-study moderator effects {#sec-dependent-within-between}
 
 An effect-level moderator such as delinquency type carries two kinds of information. *Between* studies, it compares studies that measured mostly general delinquency with studies that measured other types; *within* studies, it compares outcomes of different types measured on the same participants. The within-study contrast is protected from study-level confounding, because everything about the study (population, design, country, decade) is held constant; the between-study contrast is not. A single coefficient for the moderator mixes the two, and if they differ the mixture is hard to interpret. The remedy, familiar from multilevel modelling, is to split the moderator into its study mean $\bar x_j$ and the deviation $x_{ij} - \bar x_j$ and enter both:
@@ -490,6 +520,70 @@ coef_test(che_wb, vcov = "CR2")
 
 
 The within-study contrast between general and other delinquency is 0.428 and the between-study contrast 0.134, but both are estimated with Satterthwaite degrees of freedom below 2 (1.48 and 1.76). Only 3 studies contain any variation in the indicator, so the within-study contrast rests on those studies alone, and the between-study contrast rests on the few studies whose share of general-delinquency outcomes differs from 1. The decomposition does not create information; it shows where the information is, and here it confirms that the data cannot say much about delinquency type.
+
+### A family of working models: CE, CHE, and SCE {#sec-dependent-working-models}
+
+CHE is one member of a larger family of working models that @pustejovsky2021meta describe, all of which are fitted with `rma.mv()` and combined with robust inference in the same way. Writing $u_j$ for a study-level random effect, $v_{ij}$ for an effect-level random effect, and $e_{ij}$ for the sampling error, the main members are as follows. The *correlated effects* (CE) model, $y_{ij} = \mathbf x_{ij}^\top\boldsymbol\beta + u_j + e_{ij}$ with $\mathrm{Cov}(e_{hj}, e_{ij}) = \rho\sqrt{v_{hj}v_{ij}}$, has correlated sampling errors but no within-study heterogeneity. The *hierarchical effects* (HE) model, $y_{ij} = \mathbf x_{ij}^\top\boldsymbol\beta + u_j + v_{ij} + e_{ij}$ with independent sampling errors, is the three-level model of Section \@ref(sec-dependent-three-level). CHE combines the two. The *subgroup correlated effects* (SCE) model is designed for effect sizes that fall into $C$ categories, such as outcome domains. With indicators $d_{ij}^c$ for category $c$,
+$$
+y_{ij} = \sum_{c=1}^C d_{ij}^c\left(\mathbf x_{ij}^\top\boldsymbol\beta_c + u_{cj}\right) + e_{ij}, \qquad \mathrm{Var}(u_{cj}) = \tau_c^2, \qquad \mathrm{Cov}(u_{cj}, u_{c'j}) = 0,
+$$
+and the sampling errors of two effects in the same study are correlated (with $\rho$) only if they belong to the same category. Each category thus gets its own coefficients and its own between-study variance, and the estimates are identical to those of separate meta-analyses within each category. The advantage over separate analyses is that everything is one model, so robust tests and confidence intervals for *differences* between categories are available, even though the categories share studies.
+
+First, CE and CHE for the delinquency data. The two models have the same fixed effects and differ only in the within-study variance component, so their fit can be compared by a likelihood-ratio test:
+
+
+``` r
+ce <- rma.mv(yi, V6, random = ~ 1 | study, data = da, sparse = TRUE)
+ce_rve <- robust(ce, cluster = study, clubSandwich = TRUE)
+rbind(CE  = c(estimate = coef(ce)[[1]],  se_robust = ce_rve$se),
+      CHE = c(estimate = coef(che)[[1]], se_robust = che_rve$se))
+#>     estimate se_robust
+#> CE    0.2845   0.07967
+#> CHE   0.3678   0.09697
+anova(che, ce)
+#> 
+#>         df      AIC      BIC     AICc    logLik      LRT   pval       QE 
+#> Full     3 151.5334 159.3188 151.7861  -72.7667                 745.4385 
+#> Reduced  2 528.5630 533.7532 528.6880 -262.2815 379.0295 <.0001 745.4385
+```
+
+
+
+The CE working model gives 0.284 and CHE 0.368. Both robust standard errors are valid, but the models weight the studies differently: without within-study heterogeneity, CE treats the many outcomes of a study as nearly redundant once the sampling correlation is accounted for, so a study's weight grows little with its number of effects. The likelihood-ratio statistic of 379.0 shows that the within-study variance component is far from zero, so CE describes these data poorly. @pustejovsky2021meta stress that the working model should be chosen from the structure of the data (do samples contribute several effects, is there reason to expect heterogeneity within studies, are effects classified into distinct categories?) and ideally pre-registered, *not* by trying several working models and keeping the one with the preferred result.
+
+For SCE we need data whose effects fall into categories that occur in many studies. The 68 studies in `dat.crede2010` report correlations between class attendance and either the grade in the class or the overall grade point average (GPA) of college students; some studies include several samples and some samples report both criteria. Following @pustejovsky2021meta, we build a sampling covariance matrix that correlates effects within a sample only when they have the same criterion (the `subgroup` argument of `vcalc()`), and give each criterion its own between-study variance with `struct = "DIAG"`:
+
+
+``` r
+dc <- escalc(measure = "ZCOR", ri = ri, ni = ni, data = dat.crede2010)
+dc$sample <- paste(dc$studyid, dc$sampleid, sep = ".")
+dc$esid <- seq_len(nrow(dc))
+V_sce <- vcalc(vi, cluster = sample, subgroup = criterion, obs = esid,
+               data = dc, rho = 0.6)
+sce <- rma.mv(yi, V_sce, mods = ~ 0 + criterion, random = ~ criterion | studyid,
+              struct = "DIAG", data = dc, sparse = TRUE)
+sce_sep <- sapply(c(gpa = "gpa", grade = "grade"), function(cr) {
+  fit <- rma.mv(yi, V_sce, random = ~ 1 | studyid, data = dc, subset = criterion == cr)
+  c(estimate = coef(fit)[[1]], tau2 = fit$sigma2)
+})
+rbind(SCE = c(coef(sce), sce$tau2), separate = c(sce_sep[1, ], sce_sep[2, ]))
+#>          criteriongpa criteriongrade               
+#> SCE            0.3597         0.4865 0.06414 0.0528
+#> separate       0.3597         0.4865 0.06414 0.0528
+conf_int(sce, vcov = "CR2", cluster = dc$studyid)
+#>           Coef. Estimate     SE d.f. Lower 95% CI Upper 95% CI
+#>    criteriongpa    0.360 0.0543 22.9        0.247        0.472
+#>  criteriongrade    0.487 0.0332 52.4        0.420        0.553
+sce_diff <- Wald_test(sce, constraints = constrain_equal(1:2), vcov = "CR2",
+                      cluster = dc$studyid, test = "HTZ")
+sce_diff
+#>  test Fstat df_num df_denom  p_val sig
+#>   HTZ  4.05      1     35.9 0.0517   .
+```
+
+No sample in these data reports two correlations with the same criterion, so `V_sce` is diagonal: the dependence between the grade and GPA correlations of the same sample is not modelled at all and is left to the robust variance estimator, which is exactly the division of labour that RVE is designed for. The first table confirms that the SCE estimates of the average Fisher-$z$ correlation and of $\tau^2_c$ for each criterion are those of two separate analyses. The average correlation with the class grade is 0.45 and with GPA 0.34, with similar heterogeneity in both ($\hat\tau^2 =$ 0.053 and 0.064 on the $z$ scale). The robust HTZ test of equality, which accounts for the studies that contribute to both criteria, gives $F =$ 4.05 on 1 and 35.9 degrees of freedom, $p$ = .052. The point estimates suggest that attendance is more strongly related to performance in the class itself than to overall GPA, but the evidence for a difference is modest. A CHE model with a criterion moderator would instead assume one common between-study variance and correlated errors across criteria; with RVE either working model gives valid inference, and SCE is the natural choice when the analysis plan calls for separate results per category.
+
+The same framework accommodates further refinements [@pustejovsky2021meta]: an additional level of random effects for samples or labs nested in studies (marked with a "+", as in CHE+), an autoregressive sampling correlation for outcomes measured repeatedly over time (`vcalc()` with `time1` and `phi`), and partially known correlations that use reported values where available and an assumed value elsewhere.
 
 ## RVE with `robumeta` {#sec-dependent-robumeta}
 
@@ -631,7 +725,7 @@ Table: (\#tab:dep-choose)Matching the treatment of dependence to the data struct
 
 ## Practical recommendations {#sec-dependent-recommendations}
 
-Map the dependence structure before choosing a model: which effects share participants, which share a higher-level unit, and how many independent clusters there are. Use the design-specific fixes (splitting or combining arms, exact covariances for shared controls, `rcalc()` for correlation matrices) when the dependence is known and limited. For the common case of several outcomes and samples per study, fit a CHE working model with an imputed sampling correlation (0.6 to 0.8 is a typical range for related outcome measures, but use any information the literature provides), base inference on CR2 robust standard errors with Satterthwaite degrees of freedom, test multiple contrasts with HTZ, and report a sensitivity analysis over $\rho$ [@pustejovsky2021meta]. Report variance components and their distribution across levels [@cheung2014modeling], because they show where heterogeneity lives. Check the degrees of freedom of every robust test and treat values below 4 as a warning [@tipton2015small]. When a moderator varies only within a handful of studies, say so explicitly.
+Map the dependence structure before choosing a model: which effects share participants, which share a higher-level unit, and how many independent clusters there are. Use the design-specific fixes (splitting or combining arms, exact covariances for shared controls, `rcalc()` for correlation matrices) when the dependence is known and limited. For the common case of several outcomes and samples per study, fit a CHE working model with an imputed sampling correlation (0.6 to 0.8 is a typical range for related outcome measures, but use any information the literature provides), base inference on CR2 robust standard errors with Satterthwaite degrees of freedom, test multiple contrasts with HTZ, and report a sensitivity analysis over $\rho$ [@pustejovsky2021meta]. Report variance components and their distribution across levels [@cheung2014modeling], because they show where heterogeneity lives. Check the degrees of freedom of every robust test and treat values below 4 as a warning [@tipton2015small]; with few studies, and for multiple-contrast hypotheses in particular, confirm the result with a cluster wild bootstrap test [@joshi2022cluster]. Choose the working model (CE, CHE, SCE, or a refinement) from the structure of the data before seeing the results [@pustejovsky2021meta]. When a moderator varies only within a handful of studies, say so explicitly. Funnel-plot regressions and selection models also have to respect the dependence, for example by fitting Egger-type regressions within the multilevel or CHE working model with cluster-robust inference or by aggregating to one effect per study; Chapter \@ref(sec-publication-bias) treats small-study effects and publication bias.
 
 ## Common pitfalls {#sec-dependent-pitfalls}
 
@@ -643,8 +737,9 @@ The most common error is still to ignore dependence and analyse all effect sizes
 - Unit-of-analysis problems in multi-arm trials and multi-outcome studies have simple fixes: split or combine groups, aggregate within studies, or compute exact covariances (`rcalc()` for correlations).
 - Three-level models represent hierarchical dependence; variance decomposition, likelihood-ratio tests, and profile likelihoods describe and check the variance components.
 - The CHE working model with an imputed sampling correlation, combined with CR2 cluster-robust inference and Satterthwaite or HTZ degrees of freedom, is the recommended default for most dependent-effects meta-analyses; a sensitivity analysis over the assumed correlation is part of it.
-- The effective sample size for RVE is the number of independent clusters; robust tests with fewer than about 4 degrees of freedom are not trustworthy.
+- The effective sample size for RVE is the number of independent clusters; robust tests with fewer than about 4 degrees of freedom are not trustworthy, and the cluster wild bootstrap offers a better-calibrated test when studies are few.
+- CE, CHE, and SCE are working models for different data structures; SCE reproduces separate subgroup analyses while allowing robust comparisons between categories.
 
 ## Further reading {#sec-dependent-reading}
 
-@lopezlopez2018dealing survey strategies for effect-size multiplicity. @vandennoortgate2012three, @konstantopoulos2011fixed, and @cheung2014modeling develop the three-level model, and @assink2016fitting give a step-by-step tutorial in `metafor`. @hedges2010robust introduced robust variance estimation for meta-regression; @tipton2015small and @tipton2015smallsample developed the small-sample corrections for single coefficients and multiple-contrast tests, and @pustejovsky2017small the CR2 methods underlying `clubSandwich`. @pustejovsky2021meta expand the range of working models and make the case for CHE. @olkin1990testing derive the covariances of correlated correlations, and the Cochrane Handbook [@higgins2019cochrane] covers unit-of-analysis issues in multi-arm and other non-standard trial designs.
+@lopezlopez2018dealing survey strategies for effect-size multiplicity. @vandennoortgate2012three, @konstantopoulos2011fixed, and @cheung2014modeling develop the three-level model, and @assink2016fitting give a step-by-step tutorial in `metafor`. @hedges2010robust introduced robust variance estimation for meta-regression; @tipton2015small and @tipton2015smallsample developed the small-sample corrections for single coefficients and multiple-contrast tests, and @pustejovsky2017small the CR2 methods underlying `clubSandwich`. @pustejovsky2021meta expand the range of working models (CE, CHE, SCE, and their refinements) and make the case for CHE, and @joshi2022cluster introduce cluster wild bootstrap tests for meta-analysis with few studies. @olkin1990testing derive the covariances of correlated correlations, and the Cochrane Handbook [@higgins2019cochrane] covers unit-of-analysis issues in multi-arm and other non-standard trial designs.

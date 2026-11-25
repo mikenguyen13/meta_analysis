@@ -423,6 +423,181 @@ empirically based prior is particularly attractive. The `bayesmeta` documentatio
 the non-randomized studies could inform the heterogeneity prior for an analysis of the randomized
 ones, by using the posterior of $\tau$ from the former as the prior for the latter.
 
+## Meta-analytic-predictive priors for a new trial {#sec-bayesian-map}
+
+Meta-analysis usually looks back: it summarizes completed studies. The same model can also look
+forward. When a new trial is planned in a disease where many trials have already been run, the
+control arms of those historical trials say a good deal about the outcome to expect in the new
+control arm. Using that information as a prior can justify a smaller control group, for instance
+an unequal randomization ratio, which matters in rare diseases and in early-phase trials. The
+*meta-analytic-predictive* (MAP) approach of @neuenschwander2010summarizing formalizes this. It
+assumes that the control parameters of the $k$ historical trials and of the new trial are
+exchangeable, fits the hierarchical model of Section \@ref(sec-bayesian-model) to the historical
+data, and uses the posterior predictive distribution of the new trial's parameter as its prior,
+$$
+p_{\text{MAP}}(\theta_{\text{new}}) = \int N(\theta_{\text{new}} \mid \mu, \tau^2)\,
+p(\mu, \tau \mid y_1, \ldots, y_k)\, d\mu\, d\tau .
+$$
+The MAP prior is therefore the predictive distribution already met in the forest plots above,
+put to a different use. The between-trial heterogeneity $\tau$ is the quantity that decides how
+much information it carries. If historical control rates vary a lot, the predictive distribution
+is wide no matter how many patients the historical trials enrolled, and
+@neuenschwander2010summarizing show that the prior effective sample size is bounded by the ratio
+of the within-trial to the between-trial variance, however much historical data there is.
+
+Exchangeability can fail. The new trial may recruit a different population or use a different
+standard of care, so that its control rate is not like the historical ones. @schmidli2014robust
+proposed to *robustify* the MAP prior by mixing it with a vague component,
+$$
+p_{\text{R}}(\theta_{\text{new}}) = w\, p_{\text{MAP}}(\theta_{\text{new}}) + (1 - w)\, p_{\text{V}}(\theta_{\text{new}}),
+$$
+with a prior weight $w$ such as 0.8. After the new control data $x$ are observed, the posterior
+is again a mixture, with the weight on the informative component updated to
+$$
+w' = \frac{w\, m_{\text{MAP}}(x)}{w\, m_{\text{MAP}}(x) + (1 - w)\, m_{\text{V}}(x)},
+$$
+where $m_{\text{MAP}}(x)$ and $m_{\text{V}}(x)$ are the marginal likelihoods of the new data under
+the two components. When the new data agree with the historical ones, $w'$ stays close to or
+above $w$ and the historical information is used. When they conflict, $w'$ falls and the
+analysis reverts toward one based on the new trial alone.
+
+`bayesmeta` ships the data used for this purpose in a proof-of-concept trial of secukinumab in
+ankylosing spondylitis: the numbers of responders in the placebo arms of eight earlier trials.
+That trial randomized patients 4:1 to secukinumab or placebo, so that only six received placebo,
+and its primary endpoint was analysed with Bayesian methods [@baeten2013antiinterleukin17a]. We
+fit the normal-normal model to the logit response rates, with a $N(0, 2^2)$ prior for $\mu$ and a
+half-normal prior with scale 1 for $\tau$, a common weakly informative choice on the logit scale.
+
+
+``` r
+data("BaetenEtAl2013", package = "bayesmeta")
+hist_ctl <- escalc(measure = "PLO", xi = events, ni = total,
+                   slab = study, data = BaetenEtAl2013)
+bm_map <- bayesmeta(hist_ctl, mu.prior.mean = 0, mu.prior.sd = 2,
+                    tau.prior = function(t) dhalfnormal(t, scale = 1))
+round(bm_map$summary[c("median", "95% lower", "95% upper"), ], 3)
+#>             tau     mu  theta
+#> median    0.311 -1.075 -1.073
+#> 95% lower 0.000 -1.437 -1.993
+#> 95% upper 0.721 -0.717 -0.162
+
+# MAP prior (predictive distribution) and mean response rate on the probability scale
+map_q <- plogis(rbind(
+  mean_rate = bm_map$qposterior(mu.p = c(0.025, 0.5, 0.975)),
+  MAP_prior = bm_map$qposterior(theta.p = c(0.025, 0.5, 0.975), predict = TRUE)))
+colnames(map_q) <- c("2.5%", "50%", "97.5%")
+round(map_q, 3)
+#>            2.5%   50% 97.5%
+#> mean_rate 0.192 0.255 0.328
+#> MAP_prior 0.120 0.255 0.460
+
+# effective sample size of the MAP prior; the unit information SD of a log odds is 2 cosh(mu/2)
+map_ess <- c(ELIR = ess(bm_map, uisd = function(mu) 2 * cosh(mu / 2)),
+             VR   = ess(bm_map, uisd = function(mu) 2 * cosh(mu / 2), method = "vr"))
+round(map_ess, 1)
+#> ELIR   VR 
+#> 47.7 29.5
+sum(BaetenEtAl2013$total)
+#> [1] 513
+```
+
+The eight placebo arms suggest a median response rate of about
+0.25, and the posterior median of $\tau$ is
+0.31 on the logit scale. The MAP prior for the
+response rate in the new placebo arm is much wider than the credible interval for the mean rate:
+its 95% interval runs from 0.12 to
+0.46, because a new trial's rate can deviate from the
+mean by as much as the historical trials deviate from one another. The effective sample size
+expresses the same point in patients. The historical trials enrolled
+513 placebo patients, but the MAP prior is worth only about
+48 patients by the expected local-information-ratio (ELIR) method of
+@neuenschwander2020predictively, or about 29 by the simpler variance-ratio
+method. ESS definitions disagree for priors that are not conjugate, so the method should be
+stated. Either way, heterogeneity discounts the historical data by an order of magnitude, which is
+what a fair borrowing scheme should do.
+
+To see the effect of the prior on the analysis of a new trial, we update three priors for the new
+placebo response rate, a uniform Beta(1, 1), the MAP prior and the robust MAP prior with
+$w = 0.8$, in two hypothetical scenarios with 20 placebo patients: 5 responders, in line with the
+historical data, and 12 responders, in conflict with them. With a binomial likelihood, these
+one-dimensional posteriors are easy to compute on a grid of response rates.
+
+
+``` r
+p_grid <- seq(0.0005, 0.9995, by = 0.001)
+dp <- 0.001
+# MAP prior density on the probability scale (change of variables from the logit)
+map_dens <- bm_map$dposterior(theta = qlogis(p_grid), predict = TRUE) /
+  (p_grid * (1 - p_grid))
+map_dens <- map_dens / sum(map_dens * dp)
+vague_dens <- dbeta(p_grid, 1, 1)
+w_prior <- 0.8
+robust_dens <- w_prior * map_dens + (1 - w_prior) * vague_dens
+
+post_summary <- function(prior, r, n) {
+  post <- prior * dbinom(r, n, p_grid)
+  post <- post / sum(post * dp)
+  cdf <- cumsum(post * dp)
+  c(mean = sum(p_grid * post * dp),
+    lower = p_grid[which(cdf >= 0.025)[1]], upper = p_grid[which(cdf >= 0.975)[1]])
+}
+map_scenarios <- do.call(rbind, lapply(c(5, 12), function(r) {
+  m_map <- sum(map_dens * dbinom(r, 20, p_grid) * dp)     # marginal likelihoods
+  m_vague <- sum(vague_dens * dbinom(r, 20, p_grid) * dp)
+  data.frame(responders = r, prior = c("Uniform", "MAP", "Robust MAP"),
+             rbind(post_summary(vague_dens, r, 20), post_summary(map_dens, r, 20),
+                   post_summary(robust_dens, r, 20)),
+             w_post = c(NA, NA, w_prior * m_map / (w_prior * m_map + (1 - w_prior) * m_vague)))
+}))
+knitr::kable(map_scenarios, digits = 3, row.names = FALSE,
+             caption = "Posterior response rate in a new placebo arm of 20 patients under three priors, and the posterior weight of the informative component of the robust MAP prior.")
+```
+
+
+
+Table: (\#tab:bayes-map-update)Posterior response rate in a new placebo arm of 20 patients under three priors, and the posterior weight of the informative component of the robust MAP prior.
+
+| responders|prior      |  mean| lower| upper| w_post|
+|----------:|:----------|-----:|-----:|-----:|------:|
+|          5|Uniform    | 0.273| 0.112| 0.472|     NA|
+|          5|MAP        | 0.255| 0.154| 0.372|     NA|
+|          5|Robust MAP | 0.256| 0.150| 0.384|  0.932|
+|         12|Uniform    | 0.591| 0.384| 0.781|     NA|
+|         12|MAP        | 0.444| 0.262| 0.664|     NA|
+|         12|Robust MAP | 0.534| 0.288| 0.764|  0.387|
+
+
+
+
+``` r
+plot(p_grid, map_dens, type = "l", lwd = 2, xlim = c(0, 0.8),
+     xlab = "Placebo response rate", ylab = "Prior density")
+lines(p_grid, robust_dens, lty = 2, lwd = 2)
+lines(p_grid, vague_dens, lty = 3)
+```
+
+<div class="figure" style="text-align: center">
+<img src="09-bayesian_files/figure-html/bayes-map-prior-1.png" alt="Priors for the placebo response rate in the new trial: the MAP prior derived from eight historical placebo arms (solid), the robust MAP prior with weight 0.8 on the MAP component (dashed), and the uniform prior (dotted)." width="85%" />
+<p class="caption">(\#fig:bayes-map-prior)Priors for the placebo response rate in the new trial: the MAP prior derived from eight historical placebo arms (solid), the robust MAP prior with weight 0.8 on the MAP component (dashed), and the uniform prior (dotted).</p>
+</div>
+
+When the new data agree with the history (5 of 20), the MAP and robust MAP priors give almost the
+same posterior, with an interval much narrower than the uniform prior gives, and the posterior
+weight on the informative component rises to
+0.93. When the data conflict (12 of 20), the plain MAP
+prior drags the posterior mean down to 0.44, far from the
+observed 0.60. The robust prior reacts to the conflict: the weight on the historical component
+drops to 0.39, and the posterior mean of
+0.53 moves most of the way back toward the uniform-prior
+analysis, although the wider interval shows that the historical data have not been discarded. The
+heavy tail contributed by the vague component, visible in Figure \@ref(fig:bayes-map-prior), is
+what makes this possible. In practice, the mixture weight, the vague component and the operating
+characteristics of the design (type I error and power under a range of true control rates) are
+fixed at the design stage and reported [@schmidli2014robust]. The `RBesT` package automates these
+steps, including the approximation of the MAP prior by a mixture of conjugate distributions; the
+grid computation above shows that nothing beyond the predictive distribution of a meta-analysis is
+needed to understand them.
+
 ## Bayesian meta-analysis with brms {#sec-bayesian-brms}
 
 `bayesmeta` is fast and exact for the NNHM, but it does not handle moderators flexibly,

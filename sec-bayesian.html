@@ -268,7 +268,7 @@ distributed with <code>bayesmeta</code>. The studies compared immunosuppression 
 receptor antagonist (IL-2RA) with control regimens without it; the outcome is acute rejection.
 Only two of the six studies were randomized. Small meta-analyses of this kind are common in
 rare diseases and are exactly where the choice of method matters.</p>
-<div class="sourceCode" id="cb162"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb184"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gitlab.gwdg.de/croever/bayesmeta">bayesmeta</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"CrinsEtAl2014"</span>, package <span class="op">=</span> <span class="st">"bayesmeta"</span><span class="op">)</span></span>
 <span><span class="va">crins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>,</span>
@@ -300,7 +300,7 @@ prior of <span class="citation">Turner et al. (<a href="sec-references.html#ref-
 we treat acute graft rejection as a major morbidity event and the comparison as pharmacological
 versus control. The unit information standard deviation of these data puts the prior scales in
 perspective.</p>
-<div class="sourceCode" id="cb163"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb185"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/TurnerEtAlPrior.html">TurnerEtAlPrior</a></span><span class="op">(</span></span>
 <span>  outcome <span class="op">=</span> <span class="st">"cause-specific mortality / major morbidity event / composite (mortality or morbidity)"</span>,</span>
 <span>  comparator1 <span class="op">=</span> <span class="st">"pharmacological"</span>, comparator2 <span class="op">=</span> <span class="st">"placebo / control"</span><span class="op">)</span></span>
@@ -334,7 +334,7 @@ three priors describe heterogeneity that is small relative to within-study varia
 <p>We use a <span class="math inline">\(N(0, 4^2)\)</span> prior for the log odds ratio and the half-normal prior with scale 0.5 for
 <span class="math inline">\(\tau\)</span>, one of the weakly informative choices discussed by <span class="citation">Röver et al. (<a href="sec-references.html#ref-rover2021weakly">2021</a>)</span>, as our primary
 analysis.</p>
-<div class="sourceCode" id="cb164"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb186"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bm_hn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/bayesmeta.html">bayesmeta</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">crins</span><span class="op">$</span><span class="va">yi</span>, sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">crins</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span>, labels <span class="op">=</span> <span class="va">crins</span><span class="op">$</span><span class="va">publication</span>,</span>
 <span>                   mu.prior.mean <span class="op">=</span> <span class="fl">0</span>, mu.prior.sd <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                   tau.prior <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/dhalfnormal.html">dhalfnormal</a></span><span class="op">(</span><span class="va">t</span>, scale <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
@@ -352,7 +352,7 @@ shortest credible interval runs from 0 to 0.86, so the data are compatible with 
 heterogeneity to substantial heterogeneity. The posterior median of <span class="math inline">\(\mu\)</span> is <span class="math inline">\(-1.57\)</span> (95% CrI
 <span class="math inline">\(-2.23\)</span> to <span class="math inline">\(-0.93\)</span>), an odds ratio of about 0.21. The predictive interval for <span class="math inline">\(\theta_{\text{new}}\)</span>,
 <span class="math inline">\(-2.77\)</span> to <span class="math inline">\(-0.41\)</span>, is considerably wider. On the odds ratio scale:</p>
-<div class="sourceCode" id="cb165"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb187"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">bm_hn</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"median"</span>, <span class="st">"95% lower"</span>, <span class="st">"95% upper"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mu"</span>, <span class="st">"theta"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              mu theta</span></span>
 <span><span class="co">#&gt; median    0.207 0.208</span></span>
@@ -364,7 +364,7 @@ heterogeneity to substantial heterogeneity. The posterior median of <span class=
 <p>The posterior probability that the pooled odds ratio is below 0.5, a halving of the odds of acute
 rejection, is 0.995. Statements of this kind, which address the question a clinician
 actually asks, are the main interpretive advantage of the Bayesian approach.</p>
-<div class="sourceCode" id="cb166"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb188"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">bm_hn</span>, which <span class="op">=</span> <span class="fl">4</span>, prior <span class="op">=</span> <span class="cn">TRUE</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:bayes-crins-tau"></span>
@@ -378,7 +378,7 @@ about heterogeneity, so the prior is doing real work. That is not a flaw to be h
 to be reported, together with a sensitivity analysis.</p>
 <p>Because <span class="math inline">\(I^2\)</span> is a monotone function of <span class="math inline">\(\tau\)</span> for given standard errors, its posterior quantiles
 follow directly from those of <span class="math inline">\(\tau\)</span>. <code>bayesmeta</code> provides the transformation:</p>
-<div class="sourceCode" id="cb167"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb189"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tau_q</span> <span class="op">&lt;-</span> <span class="va">bm_hn</span><span class="op">$</span><span class="fu">qposterior</span><span class="op">(</span>tau.p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>tau <span class="op">=</span> <span class="va">tau_q</span>, I2 <span class="op">=</span> <span class="va">bm_hn</span><span class="op">$</span><span class="fu">I2</span><span class="op">(</span>tau <span class="op">=</span> <span class="va">tau_q</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      [,1]  [,2]  [,3]</span></span>
@@ -392,7 +392,7 @@ a single <span class="math inline">\(I^2\)</span> value conveys a precision that
 <h3>
 <span class="header-section-number">9.3.1</span> Shrinkage estimates and the forest plot<a class="anchor" aria-label="anchor" href="#sec-bayesian-bayesmeta-shrinkage"><i class="fas fa-link"></i></a>
 </h3>
-<div class="sourceCode" id="cb168"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb190"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">bm_hn</span><span class="op">$</span><span class="va">theta</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"y"</span>, <span class="st">"sigma"</span>, <span class="st">"median"</span>, <span class="st">"95% lower"</span>, <span class="st">"95% upper"</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Heffron (2003) Gibelli (2004) Schuller (2005) Ganschow (2005)</span></span>
 <span><span class="co">#&gt; y                  -2.31          -0.46           -2.30           -1.76</span></span>
@@ -412,7 +412,7 @@ median of <span class="math inline">\(-1.28\)</span>, and the imprecise Gras stu
 <span class="math inline">\(-1.61\)</span>. The forest plot in Figure <a href="sec-bayesian.html#fig:bayes-crins-forest">9.2</a> shows both the original
 estimates and the shrinkage intervals, together with the pooled estimate and the predictive
 interval.</p>
-<div class="sourceCode" id="cb169"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb191"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/forestplot/man/forestplot.html">forestplot</a></span><span class="op">(</span><span class="va">bm_hn</span>, expo <span class="op">=</span> <span class="cn">TRUE</span>, xlab <span class="op">=</span> <span class="st">"Odds ratio"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:bayes-crins-forest"></span>
@@ -428,7 +428,7 @@ Figure 9.2: Bayesian forest plot for the transplantation data. For each study, t
 <p>We repeat the analysis with the two other priors for <span class="math inline">\(\tau\)</span>: the heavier-tailed half-Cauchy prior
 with scale 1 (the choice in the <code>bayesmeta</code> documentation for these data) and the empirically
 based log-normal prior of <span class="citation">Turner et al. (<a href="sec-references.html#ref-turner2015predictive">2015</a>)</span>.</p>
-<div class="sourceCode" id="cb170"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb192"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bm_hc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/bayesmeta.html">bayesmeta</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">crins</span><span class="op">$</span><span class="va">yi</span>, sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">crins</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span>, labels <span class="op">=</span> <span class="va">crins</span><span class="op">$</span><span class="va">publication</span>,</span>
 <span>                   mu.prior.mean <span class="op">=</span> <span class="fl">0</span>, mu.prior.sd <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>                   tau.prior <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/dhalfnormal.html">dhalfcauchy</a></span><span class="op">(</span><span class="va">t</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -529,7 +529,7 @@ intervals. <span class="citation">Seide et al. (<a href="sec-references.html#ref
 and Bayesian approaches.</p>
 <p>The transplantation data illustrate the issue. With all six studies the REML/HKSJ and Bayesian
 intervals are similar; with only the two randomized studies they diverge sharply.</p>
-<div class="sourceCode" id="cb171"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb193"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rand</span> <span class="op">&lt;-</span> <span class="va">crins</span><span class="op">[</span><span class="va">crins</span><span class="op">$</span><span class="va">randomized</span> <span class="op">==</span> <span class="st">"yes"</span>, <span class="op">]</span></span>
 <span><span class="va">fe_two</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">rand</span>, method <span class="op">=</span> <span class="st">"FE"</span><span class="op">)</span></span>
 <span><span class="va">re_two</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">rand</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
@@ -600,9 +600,220 @@ empirically based prior is particularly attractive. The <code>bayesmeta</code> d
 the non-randomized studies could inform the heterogeneity prior for an analysis of the randomized
 ones, by using the posterior of <span class="math inline">\(\tau\)</span> from the former as the prior for the latter.</p>
 </div>
-<div id="sec-bayesian-brms" class="section level2" number="9.5">
+<div id="sec-bayesian-map" class="section level2" number="9.5">
 <h2>
-<span class="header-section-number">9.5</span> Bayesian meta-analysis with brms<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.5</span> Meta-analytic-predictive priors for a new trial<a class="anchor" aria-label="anchor" href="#sec-bayesian-map"><i class="fas fa-link"></i></a>
+</h2>
+<p>Meta-analysis usually looks back: it summarizes completed studies. The same model can also look
+forward. When a new trial is planned in a disease where many trials have already been run, the
+control arms of those historical trials say a good deal about the outcome to expect in the new
+control arm. Using that information as a prior can justify a smaller control group, for instance
+an unequal randomization ratio, which matters in rare diseases and in early-phase trials. The
+<em>meta-analytic-predictive</em> (MAP) approach of <span class="citation">Neuenschwander et al. (<a href="sec-references.html#ref-neuenschwander2010summarizing">2010</a>)</span> formalizes this. It
+assumes that the control parameters of the <span class="math inline">\(k\)</span> historical trials and of the new trial are
+exchangeable, fits the hierarchical model of Section <a href="sec-bayesian.html#sec-bayesian-model">9.1</a> to the historical
+data, and uses the posterior predictive distribution of the new trial’s parameter as its prior,
+<span class="math display">\[
+p_{\text{MAP}}(\theta_{\text{new}}) = \int N(\theta_{\text{new}} \mid \mu, \tau^2)\,
+p(\mu, \tau \mid y_1, \ldots, y_k)\, d\mu\, d\tau .
+\]</span>
+The MAP prior is therefore the predictive distribution already met in the forest plots above,
+put to a different use. The between-trial heterogeneity <span class="math inline">\(\tau\)</span> is the quantity that decides how
+much information it carries. If historical control rates vary a lot, the predictive distribution
+is wide no matter how many patients the historical trials enrolled, and
+<span class="citation">Neuenschwander et al. (<a href="sec-references.html#ref-neuenschwander2010summarizing">2010</a>)</span> show that the prior effective sample size is bounded by the ratio
+of the within-trial to the between-trial variance, however much historical data there is.</p>
+<p>Exchangeability can fail. The new trial may recruit a different population or use a different
+standard of care, so that its control rate is not like the historical ones. <span class="citation">Schmidli et al. (<a href="sec-references.html#ref-schmidli2014robust">2014</a>)</span>
+proposed to <em>robustify</em> the MAP prior by mixing it with a vague component,
+<span class="math display">\[
+p_{\text{R}}(\theta_{\text{new}}) = w\, p_{\text{MAP}}(\theta_{\text{new}}) + (1 - w)\, p_{\text{V}}(\theta_{\text{new}}),
+\]</span>
+with a prior weight <span class="math inline">\(w\)</span> such as 0.8. After the new control data <span class="math inline">\(x\)</span> are observed, the posterior
+is again a mixture, with the weight on the informative component updated to
+<span class="math display">\[
+w' = \frac{w\, m_{\text{MAP}}(x)}{w\, m_{\text{MAP}}(x) + (1 - w)\, m_{\text{V}}(x)},
+\]</span>
+where <span class="math inline">\(m_{\text{MAP}}(x)\)</span> and <span class="math inline">\(m_{\text{V}}(x)\)</span> are the marginal likelihoods of the new data under
+the two components. When the new data agree with the historical ones, <span class="math inline">\(w'\)</span> stays close to or
+above <span class="math inline">\(w\)</span> and the historical information is used. When they conflict, <span class="math inline">\(w'\)</span> falls and the
+analysis reverts toward one based on the new trial alone.</p>
+<p><code>bayesmeta</code> ships the data used for this purpose in a proof-of-concept trial of secukinumab in
+ankylosing spondylitis: the numbers of responders in the placebo arms of eight earlier trials.
+That trial randomized patients 4:1 to secukinumab or placebo, so that only six received placebo,
+and its primary endpoint was analysed with Bayesian methods <span class="citation">(<a href="sec-references.html#ref-baeten2013antiinterleukin17a">Baeten et al. 2013</a>)</span>. We
+fit the normal-normal model to the logit response rates, with a <span class="math inline">\(N(0, 2^2)\)</span> prior for <span class="math inline">\(\mu\)</span> and a
+half-normal prior with scale 1 for <span class="math inline">\(\tau\)</span>, a common weakly informative choice on the logit scale.</p>
+<div class="sourceCode" id="cb194"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"BaetenEtAl2013"</span>, package <span class="op">=</span> <span class="st">"bayesmeta"</span><span class="op">)</span></span>
+<span><span class="va">hist_ctl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PLO"</span>, xi <span class="op">=</span> <span class="va">events</span>, ni <span class="op">=</span> <span class="va">total</span>,</span>
+<span>                   slab <span class="op">=</span> <span class="va">study</span>, data <span class="op">=</span> <span class="va">BaetenEtAl2013</span><span class="op">)</span></span>
+<span><span class="va">bm_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/bayesmeta.html">bayesmeta</a></span><span class="op">(</span><span class="va">hist_ctl</span>, mu.prior.mean <span class="op">=</span> <span class="fl">0</span>, mu.prior.sd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                    tau.prior <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/dhalfnormal.html">dhalfnormal</a></span><span class="op">(</span><span class="va">t</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">bm_map</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"median"</span>, <span class="st">"95% lower"</span>, <span class="st">"95% upper"</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             tau     mu  theta</span></span>
+<span><span class="co">#&gt; median    0.311 -1.075 -1.073</span></span>
+<span><span class="co">#&gt; 95% lower 0.000 -1.437 -1.993</span></span>
+<span><span class="co">#&gt; 95% upper 0.721 -0.717 -0.162</span></span>
+<span></span>
+<span><span class="co"># MAP prior (predictive distribution) and mean response rate on the probability scale</span></span>
+<span><span class="va">map_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  mean_rate <span class="op">=</span> <span class="va">bm_map</span><span class="op">$</span><span class="fu">qposterior</span><span class="op">(</span>mu.p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  MAP_prior <span class="op">=</span> <span class="va">bm_map</span><span class="op">$</span><span class="fu">qposterior</span><span class="op">(</span>theta.p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>, predict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">map_q</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"2.5%"</span>, <span class="st">"50%"</span>, <span class="st">"97.5%"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">map_q</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            2.5%   50% 97.5%</span></span>
+<span><span class="co">#&gt; mean_rate 0.192 0.255 0.328</span></span>
+<span><span class="co">#&gt; MAP_prior 0.120 0.255 0.460</span></span>
+<span></span>
+<span><span class="co"># effective sample size of the MAP prior; the unit information SD of a log odds is 2 cosh(mu/2)</span></span>
+<span><span class="va">map_ess</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>ELIR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/ess.html">ess</a></span><span class="op">(</span><span class="va">bm_map</span>, uisd <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">mu</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html">cosh</a></span><span class="op">(</span><span class="va">mu</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             VR   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/ess.html">ess</a></span><span class="op">(</span><span class="va">bm_map</span>, uisd <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">mu</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html">cosh</a></span><span class="op">(</span><span class="va">mu</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"vr"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">map_ess</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ELIR   VR </span></span>
+<span><span class="co">#&gt; 47.7 29.5</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">BaetenEtAl2013</span><span class="op">$</span><span class="va">total</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 513</span></span></code></pre></div>
+<p>The eight placebo arms suggest a median response rate of about
+0.25, and the posterior median of <span class="math inline">\(\tau\)</span> is
+0.31 on the logit scale. The MAP prior for the
+response rate in the new placebo arm is much wider than the credible interval for the mean rate:
+its 95% interval runs from 0.12 to
+0.46, because a new trial’s rate can deviate from the
+mean by as much as the historical trials deviate from one another. The effective sample size
+expresses the same point in patients. The historical trials enrolled
+513 placebo patients, but the MAP prior is worth only about
+48 patients by the expected local-information-ratio (ELIR) method of
+<span class="citation">Neuenschwander et al. (<a href="sec-references.html#ref-neuenschwander2020predictively">2020</a>)</span>, or about 29 by the simpler variance-ratio
+method. ESS definitions disagree for priors that are not conjugate, so the method should be
+stated. Either way, heterogeneity discounts the historical data by an order of magnitude, which is
+what a fair borrowing scheme should do.</p>
+<p>To see the effect of the prior on the analysis of a new trial, we update three priors for the new
+placebo response rate, a uniform Beta(1, 1), the MAP prior and the robust MAP prior with
+<span class="math inline">\(w = 0.8\)</span>, in two hypothetical scenarios with 20 placebo patients: 5 responders, in line with the
+historical data, and 12 responders, in conflict with them. With a binomial likelihood, these
+one-dimensional posteriors are easy to compute on a grid of response rates.</p>
+<div class="sourceCode" id="cb195"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">p_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0.0005</span>, <span class="fl">0.9995</span>, by <span class="op">=</span> <span class="fl">0.001</span><span class="op">)</span></span>
+<span><span class="va">dp</span> <span class="op">&lt;-</span> <span class="fl">0.001</span></span>
+<span><span class="co"># MAP prior density on the probability scale (change of variables from the logit)</span></span>
+<span><span class="va">map_dens</span> <span class="op">&lt;-</span> <span class="va">bm_map</span><span class="op">$</span><span class="fu">dposterior</span><span class="op">(</span>theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">p_grid</span><span class="op">)</span>, predict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">/</span></span>
+<span>  <span class="op">(</span><span class="va">p_grid</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p_grid</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">map_dens</span> <span class="op">&lt;-</span> <span class="va">map_dens</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">map_dens</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span></span>
+<span><span class="va">vague_dens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Beta.html">dbeta</a></span><span class="op">(</span><span class="va">p_grid</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">w_prior</span> <span class="op">&lt;-</span> <span class="fl">0.8</span></span>
+<span><span class="va">robust_dens</span> <span class="op">&lt;-</span> <span class="va">w_prior</span> <span class="op">*</span> <span class="va">map_dens</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">w_prior</span><span class="op">)</span> <span class="op">*</span> <span class="va">vague_dens</span></span>
+<span></span>
+<span><span class="va">post_summary</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">prior</span>, <span class="va">r</span>, <span class="va">n</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">post</span> <span class="op">&lt;-</span> <span class="va">prior</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html">dbinom</a></span><span class="op">(</span><span class="va">r</span>, <span class="va">n</span>, <span class="va">p_grid</span><span class="op">)</span></span>
+<span>  <span class="va">post</span> <span class="op">&lt;-</span> <span class="va">post</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">post</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span></span>
+<span>  <span class="va">cdf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html">cumsum</a></span><span class="op">(</span><span class="va">post</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">p_grid</span> <span class="op">*</span> <span class="va">post</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span>,</span>
+<span>    lower <span class="op">=</span> <span class="va">p_grid</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">cdf</span> <span class="op">&gt;=</span> <span class="fl">0.025</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, upper <span class="op">=</span> <span class="va">p_grid</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">cdf</span> <span class="op">&gt;=</span> <span class="fl">0.975</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">map_scenarios</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">12</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m_map</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">map_dens</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html">dbinom</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">20</span>, <span class="va">p_grid</span><span class="op">)</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span>     <span class="co"># marginal likelihoods</span></span>
+<span>  <span class="va">m_vague</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">vague_dens</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html">dbinom</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">20</span>, <span class="va">p_grid</span><span class="op">)</span> <span class="op">*</span> <span class="va">dp</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>responders <span class="op">=</span> <span class="va">r</span>, prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Uniform"</span>, <span class="st">"MAP"</span>, <span class="st">"Robust MAP"</span><span class="op">)</span>,</span>
+<span>             <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="fu">post_summary</span><span class="op">(</span><span class="va">vague_dens</span>, <span class="va">r</span>, <span class="fl">20</span><span class="op">)</span>, <span class="fu">post_summary</span><span class="op">(</span><span class="va">map_dens</span>, <span class="va">r</span>, <span class="fl">20</span><span class="op">)</span>,</span>
+<span>                   <span class="fu">post_summary</span><span class="op">(</span><span class="va">robust_dens</span>, <span class="va">r</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             w_post <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="va">w_prior</span> <span class="op">*</span> <span class="va">m_map</span> <span class="op">/</span> <span class="op">(</span><span class="va">w_prior</span> <span class="op">*</span> <span class="va">m_map</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">w_prior</span><span class="op">)</span> <span class="op">*</span> <span class="va">m_vague</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">map_scenarios</span>, digits <span class="op">=</span> <span class="fl">3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>             caption <span class="op">=</span> <span class="st">"Posterior response rate in a new placebo arm of 20 patients under three priors, and the posterior weight of the informative component of the robust MAP prior."</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:bayes-map-update">Table 9.3: </span>Posterior response rate in a new placebo arm of 20 patients under three priors, and the posterior weight of the informative component of the robust MAP prior.</caption>
+<thead><tr class="header">
+<th align="right">responders</th>
+<th align="left">prior</th>
+<th align="right">mean</th>
+<th align="right">lower</th>
+<th align="right">upper</th>
+<th align="right">w_post</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">Uniform</td>
+<td align="right">0.273</td>
+<td align="right">0.112</td>
+<td align="right">0.472</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">5</td>
+<td align="left">MAP</td>
+<td align="right">0.255</td>
+<td align="right">0.154</td>
+<td align="right">0.372</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">5</td>
+<td align="left">Robust MAP</td>
+<td align="right">0.256</td>
+<td align="right">0.150</td>
+<td align="right">0.384</td>
+<td align="right">0.932</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">Uniform</td>
+<td align="right">0.591</td>
+<td align="right">0.384</td>
+<td align="right">0.781</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="right">12</td>
+<td align="left">MAP</td>
+<td align="right">0.444</td>
+<td align="right">0.262</td>
+<td align="right">0.664</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="right">12</td>
+<td align="left">Robust MAP</td>
+<td align="right">0.534</td>
+<td align="right">0.288</td>
+<td align="right">0.764</td>
+<td align="right">0.387</td>
+</tr>
+</tbody>
+</table></div>
+<div class="sourceCode" id="cb196"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">p_grid</span>, <span class="va">map_dens</span>, type <span class="op">=</span> <span class="st">"l"</span>, lwd <span class="op">=</span> <span class="fl">2</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Placebo response rate"</span>, ylab <span class="op">=</span> <span class="st">"Prior density"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">p_grid</span>, <span class="va">robust_dens</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/lines.html">lines</a></span><span class="op">(</span><span class="va">p_grid</span>, <span class="va">vague_dens</span>, lty <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:bayes-map-prior"></span>
+<img src="09-bayesian_files/figure-html/bayes-map-prior-1.png" alt="Priors for the placebo response rate in the new trial: the MAP prior derived from eight historical placebo arms (solid), the robust MAP prior with weight 0.8 on the MAP component (dashed), and the uniform prior (dotted)." width="85%"><p class="caption">
+Figure 9.3: Priors for the placebo response rate in the new trial: the MAP prior derived from eight historical placebo arms (solid), the robust MAP prior with weight 0.8 on the MAP component (dashed), and the uniform prior (dotted).
+</p>
+</div>
+<p>When the new data agree with the history (5 of 20), the MAP and robust MAP priors give almost the
+same posterior, with an interval much narrower than the uniform prior gives, and the posterior
+weight on the informative component rises to
+0.93. When the data conflict (12 of 20), the plain MAP
+prior drags the posterior mean down to 0.44, far from the
+observed 0.60. The robust prior reacts to the conflict: the weight on the historical component
+drops to 0.39, and the posterior mean of
+0.53 moves most of the way back toward the uniform-prior
+analysis, although the wider interval shows that the historical data have not been discarded. The
+heavy tail contributed by the vague component, visible in Figure <a href="sec-bayesian.html#fig:bayes-map-prior">9.3</a>, is
+what makes this possible. In practice, the mixture weight, the vague component and the operating
+characteristics of the design (type I error and power under a range of true control rates) are
+fixed at the design stage and reported <span class="citation">(<a href="sec-references.html#ref-schmidli2014robust">Schmidli et al. 2014</a>)</span>. The <code>RBesT</code> package automates these
+steps, including the approximation of the MAP prior by a mixture of conjugate distributions; the
+grid computation above shows that nothing beyond the predictive distribution of a meta-analysis is
+needed to understand them.</p>
+</div>
+<div id="sec-bayesian-brms" class="section level2" number="9.6">
+<h2>
+<span class="header-section-number">9.6</span> Bayesian meta-analysis with brms<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms"><i class="fas fa-link"></i></a>
 </h2>
 <p><code>bayesmeta</code> is fast and exact for the NNHM, but it does not handle moderators flexibly,
 multilevel structures, or non-normal likelihoods. The <code>brms</code> package <span class="citation">(<a href="sec-references.html#ref-burkner2017brms">Bürkner 2017</a>)</span> fits a
@@ -614,13 +825,13 @@ the residual standard deviation of each observation is fixed at the known standa
 <p>The intercept is <span class="math inline">\(\mu\)</span> and the standard deviation of the <code>study</code> random intercepts is <span class="math inline">\(\tau\)</span>.
 Each <code>brms</code> model is compiled to C++ before sampling, which takes about a minute; we keep the
 number of compiled models in this chapter to two.</p>
-<div id="sec-bayesian-brms-fit" class="section level3" number="9.5.1">
+<div id="sec-bayesian-brms-fit" class="section level3" number="9.6.1">
 <h3>
-<span class="header-section-number">9.5.1</span> Model specification and priors<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-fit"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.1</span> Model specification and priors<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-fit"><i class="fas fa-link"></i></a>
 </h3>
 <p>We use the classic BCG vaccine data: 13 trials of the BCG vaccine against tuberculosis, with log
 risk ratios as the effect measure and absolute latitude as a candidate moderator.</p>
-<div class="sourceCode" id="cb173"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb198"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/paul-buerkner/brms">brms</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mjskay.github.io/tidybayes/">tidybayes</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mjskay.github.io/ggdist/">ggdist</a></span><span class="op">)</span></span>
@@ -653,7 +864,7 @@ risk ratios as the effect measure and absolute latitude as a candidate moderator
 is substantial. We use a <span class="math inline">\(N(0, 1)\)</span> prior for <span class="math inline">\(\mu\)</span> (risk ratios between about 0.14 and 7 a priori)
 and a half-normal prior with scale 0.5 for <span class="math inline">\(\tau\)</span>; <code>brms</code> truncates priors on standard deviations
 at zero automatically.</p>
-<div class="sourceCode" id="cb174"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb199"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">priors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://paulbuerkner.com/brms/reference/set_prior.html">prior</a></span><span class="op">(</span><span class="fu">normal</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, class <span class="op">=</span> <span class="va">Intercept</span><span class="op">)</span>,</span>
 <span>            <span class="fu"><a href="https://paulbuerkner.com/brms/reference/set_prior.html">prior</a></span><span class="op">(</span><span class="fu">normal</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.5</span><span class="op">)</span>, class <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fit_re</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://paulbuerkner.com/brms/reference/brm.html">brm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">|</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/se.html">se</a></span><span class="op">(</span><span class="va">sei</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">bcg</span>, prior <span class="op">=</span> <span class="va">priors</span>,</span>
@@ -690,9 +901,9 @@ conflict with the data. The <code>sigma</code> row, fixed at zero, is the residu
 beyond the known standard errors and can be ignored. <code>prior_summary(fit_re)</code> lists all priors
 actually used, including defaults, and should always be inspected.</p>
 </div>
-<div id="sec-bayesian-brms-convergence" class="section level3" number="9.5.2">
+<div id="sec-bayesian-brms-convergence" class="section level3" number="9.6.2">
 <h3>
-<span class="header-section-number">9.5.2</span> Convergence diagnostics<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-convergence"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.2</span> Convergence diagnostics<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-convergence"><i class="fas fa-link"></i></a>
 </h3>
 <p>MCMC output is only useful if the chains have converged to the posterior and the effective
 sample size is large enough for the summaries reported. The rank-normalized <span class="math inline">\(\hat{R}\)</span> compares
@@ -701,7 +912,7 @@ sample sizes (ESS) measure the precision of central and tail summaries and shoul
 few hundred <span class="citation">(<a href="sec-references.html#ref-vehtari2021rank">Vehtari et al. 2021</a>)</span>. Divergent transitions signal that the sampler could not explore
 part of the posterior, which in hierarchical models typically happens near <span class="math inline">\(\tau = 0\)</span>; they
 should be zero, and if they are not, increasing <code>adapt_delta</code> is the first remedy.</p>
-<div class="sourceCode" id="cb175"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb200"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://mc-stan.org/posterior/">posterior</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_summary.html">summarise_draws</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_df.html">as_draws_df</a></span><span class="op">(</span><span class="va">fit_re</span>, variable <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"b_Intercept"</span>, <span class="st">"sd_study__Intercept"</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>                <span class="st">"mean"</span>, <span class="st">"sd"</span>, <span class="op">~</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html">quantile</a></span><span class="op">(</span><span class="va">.x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span>, <span class="st">"rhat"</span>, <span class="st">"ess_bulk"</span>, <span class="st">"ess_tail"</span><span class="op">)</span></span>
@@ -713,20 +924,20 @@ should be zero, and if they are not, increasing <code>adapt_delta</code> is the 
 <span><span class="va">n_div</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/bayesplot-extractors.html">nuts_params</a></span><span class="op">(</span><span class="va">fit_re</span><span class="op">)</span><span class="op">$</span><span class="va">Value</span><span class="op">[</span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/bayesplot-extractors.html">nuts_params</a></span><span class="op">(</span><span class="va">fit_re</span><span class="op">)</span><span class="op">$</span><span class="va">Parameter</span> <span class="op">==</span> <span class="st">"divergent__"</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">n_div</span></span>
 <span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
-<div class="sourceCode" id="cb176"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb201"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">bayesplot</span><span class="fu">::</span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/MCMC-traces.html">mcmc_trace</a></span><span class="op">(</span><span class="fu"><a href="https://mc-stan.org/posterior/reference/draws_df.html">as_draws_df</a></span><span class="op">(</span><span class="va">fit_re</span><span class="op">)</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"b_Intercept"</span>, <span class="st">"sd_study__Intercept"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:bayes-brms-trace"></span>
 <img src="09-bayesian_files/figure-html/bayes-brms-trace-1.png" alt="Trace plots of the four chains for mu (b_Intercept) and tau (sd_study__Intercept)." width="85%"><p class="caption">
-Figure 9.3: Trace plots of the four chains for mu (b_Intercept) and tau (sd_study__Intercept).
+Figure 9.4: Trace plots of the four chains for mu (b_Intercept) and tau (sd_study__Intercept).
 </p>
 </div>
 <p><span class="math inline">\(\hat{R}\)</span> is 1.00 for both parameters, bulk ESS is above 800, there are 0 divergent
-transitions, and the trace plots in Figure <a href="sec-bayesian.html#fig:bayes-brms-trace">9.3</a> show well-mixed chains.</p>
+transitions, and the trace plots in Figure <a href="sec-bayesian.html#fig:bayes-brms-trace">9.4</a> show well-mixed chains.</p>
 </div>
-<div id="sec-bayesian-brms-ppc" class="section level3" number="9.5.3">
+<div id="sec-bayesian-brms-ppc" class="section level3" number="9.6.3">
 <h3>
-<span class="header-section-number">9.5.3</span> Posterior predictive checks<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-ppc"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.3</span> Posterior predictive checks<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-ppc"><i class="fas fa-link"></i></a>
 </h3>
 <p>A posterior predictive check simulates replicated data <span class="math inline">\(y^{\text{rep}}\)</span> from the fitted model and
 compares them with the observed data <span class="citation">(<a href="sec-references.html#ref-gabry2019visualization">Gabry et al. 2019</a>)</span>. For a meta-analysis, a useful
@@ -734,24 +945,24 @@ display shows, for each study, the posterior predictive interval of <span class=
 with the observed <span class="math inline">\(y_i\)</span>. Because the replicated data condition on each study’s own <span class="math inline">\(\theta_i\)</span>,
 which was estimated from <span class="math inline">\(y_i\)</span>, this check is lenient: it reveals gross misfit, such as an outlier
 that the shrinkage cannot accommodate, rather than subtle problems.</p>
-<div class="sourceCode" id="cb177"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb202"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://mc-stan.org/bayesplot/reference/pp_check.html">pp_check</a></span><span class="op">(</span><span class="va">fit_re</span>, type <span class="op">=</span> <span class="st">"intervals"</span>, ndraws <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Study (data order)"</span>, y <span class="op">=</span> <span class="st">"Log risk ratio"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:bayes-brms-ppc"></span>
 <img src="09-bayesian_files/figure-html/bayes-brms-ppc-1.png" alt="Posterior predictive check: 50% and 90% predictive intervals for each study (blue) and the observed log risk ratios (dark points)." width="85%"><p class="caption">
-Figure 9.4: Posterior predictive check: 50% and 90% predictive intervals for each study (blue) and the observed log risk ratios (dark points).
+Figure 9.5: Posterior predictive check: 50% and 90% predictive intervals for each study (blue) and the observed log risk ratios (dark points).
 </p>
 </div>
-<p>All observed values lie within the 90% predictive intervals in Figure <a href="sec-bayesian.html#fig:bayes-brms-ppc">9.4</a>.</p>
+<p>All observed values lie within the 90% predictive intervals in Figure <a href="sec-bayesian.html#fig:bayes-brms-ppc">9.5</a>.</p>
 </div>
-<div id="sec-bayesian-brms-forest" class="section level3" number="9.5.4">
+<div id="sec-bayesian-brms-forest" class="section level3" number="9.6.4">
 <h3>
-<span class="header-section-number">9.5.4</span> Study-specific estimates and a forest plot<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-forest"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.4</span> Study-specific estimates and a forest plot<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-forest"><i class="fas fa-link"></i></a>
 </h3>
 <p>The <code>tidybayes</code> package extracts posterior draws in tidy form, which makes the shrinkage
 estimates <span class="math inline">\(\theta_i = \mu + u_i\)</span> easy to compute and plot with <code>ggdist</code>.</p>
-<div class="sourceCode" id="cb178"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb203"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">study_draws</span> <span class="op">&lt;-</span> <span class="va">fit_re</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://mjskay.github.io/tidybayes/reference/spread_draws.html">spread_draws</a></span><span class="op">(</span><span class="va">b_Intercept</span>, <span class="va">r_study</span><span class="op">[</span><span class="va">study</span>, <span class="va">term</span><span class="op">]</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>theta <span class="op">=</span> <span class="va">b_Intercept</span> <span class="op">+</span> <span class="va">r_study</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -781,10 +992,10 @@ estimates <span class="math inline">\(\theta_i = \mu + u_i\)</span> easy to comp
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:bayes-brms-forest"></span>
 <img src="09-bayesian_files/figure-html/bayes-brms-forest-1.png" alt="Bayesian forest plot for the BCG trials. Points with thin lines are the observed log risk ratios with 95% confidence intervals; the densities are the posterior distributions of the study-specific effects and, at the bottom, of the pooled effect and of the effect in a new trial." width="85%"><p class="caption">
-Figure 9.5: Bayesian forest plot for the BCG trials. Points with thin lines are the observed log risk ratios with 95% confidence intervals; the densities are the posterior distributions of the study-specific effects and, at the bottom, of the pooled effect and of the effect in a new trial.
+Figure 9.6: Bayesian forest plot for the BCG trials. Points with thin lines are the observed log risk ratios with 95% confidence intervals; the densities are the posterior distributions of the study-specific effects and, at the bottom, of the pooled effect and of the effect in a new trial.
 </p>
 </div>
-<div class="sourceCode" id="cb179"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb204"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">study_draws</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">study</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://mjskay.github.io/ggdist/reference/point_interval.html">median_qi</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -794,7 +1005,7 @@ Figure 9.5: Bayesian forest plot for the BCG trials. Points with thin lines are 
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">2</span>, caption <span class="op">=</span> <span class="st">"Observed and shrinkage estimates (posterior medians and 95% intervals) of the log risk ratio."</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-table"><table class="table table-sm">
 <caption>
-<span id="tab:bayes-brms-shrinkage">Table 9.3: </span>Observed and shrinkage estimates (posterior medians and 95% intervals) of the log risk ratio.</caption>
+<span id="tab:bayes-brms-shrinkage">Table 9.4: </span>Observed and shrinkage estimates (posterior medians and 95% intervals) of the log risk ratio.</caption>
 <thead><tr class="header">
 <th align="left">study</th>
 <th align="right">yi</th>
@@ -910,7 +1121,7 @@ Figure 9.5: Bayesian forest plot for the BCG trials. Points with thin lines are 
 </tr>
 </tbody>
 </table></div>
-<div class="sourceCode" id="cb180"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb205"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">pooled_sum</span> <span class="op">&lt;-</span> <span class="va">pooled_draws</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">study</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -934,16 +1145,16 @@ that the average effect is beneficial (1.000). With heterogeneity this large, th
 is a misleading summary, a point that is easy to communicate with the posterior predictive
 distribution.</p>
 </div>
-<div id="sec-bayesian-brms-metareg" class="section level3" number="9.5.5">
+<div id="sec-bayesian-brms-metareg" class="section level3" number="9.6.5">
 <h3>
-<span class="header-section-number">9.5.5</span> Bayesian meta-regression<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-metareg"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.5</span> Bayesian meta-regression<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-metareg"><i class="fas fa-link"></i></a>
 </h3>
 <p>Moderators enter the formula as in any regression. Absolute latitude is the classic moderator
 for the BCG data: the vaccine appears more effective farther from the equator. We center it at
 33 degrees (close to its mean) so that the intercept is the effect at an average latitude, and give
 the slope a <span class="math inline">\(N(0, 0.1^2)\)</span> prior, which allows changes of up to about <span class="math inline">\(\pm 0.2\)</span> in the log risk
 ratio per degree with high prior probability, a very wide range for this context.</p>
-<div class="sourceCode" id="cb181"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb206"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_mr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://paulbuerkner.com/brms/reference/brm.html">brm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">|</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/se.html">se</a></span><span class="op">(</span><span class="va">sei</span><span class="op">)</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">ablat_c</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">bcg</span>,</span>
 <span>              prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">priors</span>, <span class="fu"><a href="https://paulbuerkner.com/brms/reference/set_prior.html">prior</a></span><span class="op">(</span><span class="fu">normal</span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.1</span><span class="op">)</span>, class <span class="op">=</span> <span class="va">b</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>              chains <span class="op">=</span> <span class="fl">4</span>, iter <span class="op">=</span> <span class="fl">2000</span>, warmup <span class="op">=</span> <span class="fl">1000</span>, seed <span class="op">=</span> <span class="fl">2026</span>,</span>
@@ -1007,9 +1218,9 @@ for much of the between-trial variability. As in the frequentist setting (Chapte
 <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>), this is an observational association across trials, and latitude is
 confounded with other trial characteristics.</p>
 </div>
-<div id="sec-bayesian-brms-extensions" class="section level3" number="9.5.6">
+<div id="sec-bayesian-brms-extensions" class="section level3" number="9.6.6">
 <h3>
-<span class="header-section-number">9.5.6</span> Extensions<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-extensions"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.6.6</span> Extensions<a class="anchor" aria-label="anchor" href="#sec-bayesian-brms-extensions"><i class="fas fa-link"></i></a>
 </h3>
 <p>The value of <code>brms</code> lies in how easily the basic model can be extended, always with the same
 workflow of priors, diagnostics, and posterior checks. Three extensions are common in practice.
@@ -1027,9 +1238,9 @@ study-specific intercepts represent baseline risks. Network meta-analysis (Chapt
 of the parameters, so priors must be reconsidered rather than copied.</p>
 </div>
 </div>
-<div id="sec-bayesian-bma" class="section level2" number="9.6">
+<div id="sec-bayesian-bma" class="section level2" number="9.7">
 <h2>
-<span class="header-section-number">9.6</span> Bayes factors and Bayesian model averaging<a class="anchor" aria-label="anchor" href="#sec-bayesian-bma"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.7</span> Bayes factors and Bayesian model averaging<a class="anchor" aria-label="anchor" href="#sec-bayesian-bma"><i class="fas fa-link"></i></a>
 </h2>
 <p>Posterior distributions describe uncertainty about parameters within a model. Bayes factors
 compare models. The Bayes factor for model <span class="math inline">\(M_1\)</span> against <span class="math inline">\(M_0\)</span> is the ratio of their marginal
@@ -1048,7 +1259,7 @@ factors must therefore be chosen with care and their influence reported.</p>
 <p><code>bayesmeta</code> reports Bayes factors for <span class="math inline">\(\mu = 0\)</span> and <span class="math inline">\(\tau = 0\)</span>, computed from the marginal
 likelihoods. Because the priors for <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\tau\)</span> are independent, they equal the Savage-Dickey
 density ratio (the ratio of posterior to prior density at the null value):</p>
-<div class="sourceCode" id="cb182"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb207"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bm_hn</span><span class="op">$</span><span class="va">bayesfactor</span></span>
 <span><span class="co">#&gt;          tau=0      mu=0</span></span>
 <span><span class="co">#&gt; actual  0.8832 0.0037708</span></span>
@@ -1060,9 +1271,9 @@ the data are about 265 times more likely under an effect than under none. For <s
 0.88, close to 1: six small studies simply cannot distinguish small heterogeneity from none.
 Note that the Bayes factor for <span class="math inline">\(\mu\)</span> depends on the <span class="math inline">\(N(0, 4^2)\)</span> prior. A wide prior spreads mass
 over implausibly large odds ratios, and a narrower one would give a different value.</p>
-<div id="sec-bayesian-metabma" class="section level3" number="9.6.1">
+<div id="sec-bayesian-metabma" class="section level3" number="9.7.1">
 <h3>
-<span class="header-section-number">9.6.1</span> Bayesian model averaging with metaBMA<a class="anchor" aria-label="anchor" href="#sec-bayesian-metabma"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.7.1</span> Bayesian model averaging with metaBMA<a class="anchor" aria-label="anchor" href="#sec-bayesian-metabma"><i class="fas fa-link"></i></a>
 </h3>
 <p>Rather than choosing between a common-effect and a random-effects model, and between effect and
 no effect, Bayesian model averaging (BMA) weights all four combinations by their posterior
@@ -1072,7 +1283,7 @@ the model-averaged estimate of <span class="math inline">\(\mu\)</span> combines
 <code>metaBMA</code> package implements this with precompiled Stan models. Our example is the set of six
 preregistered studies on the effect of “power posing” on felt power analyzed by
 <span class="citation">Gronau et al. (<a href="sec-references.html#ref-gronau2017bayesian">2017</a>)</span>, which is distributed with <code>metaBMA</code>.</p>
-<div class="sourceCode" id="cb183"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb208"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/danheck/metaBMA">metaBMA</a></span><span class="op">)</span></span>
 <span><span class="va">power_pose</span> <span class="op">&lt;-</span> <span class="fu">metaBMA</span><span class="fu">::</span><span class="va"><a href="https://danheck.github.io/metaBMA/reference/power_pose.html">power_pose</a></span></span>
 <span><span class="va">power_pose</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"study"</span>, <span class="st">"effectSize"</span>, <span class="st">"SE"</span><span class="op">)</span><span class="op">]</span></span>
@@ -1131,7 +1342,7 @@ likely under the models with an effect than under those without, and the posteri
 probability is 0.94. The common-effect model with an effect receives posterior probability 0.75,
 and the model-averaged estimate is <span class="math inline">\(d = 0.22\)</span> (95% CrI 0.09 to 0.35). As a sensitivity analysis we use a one-sided normal prior that encodes
 the directional hypothesis of the original studies and smaller plausible effects.</p>
-<div class="sourceCode" id="cb184"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb209"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="va">bma_informed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://danheck.github.io/metaBMA/reference/meta_bma.html">meta_bma</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">effectSize</span>, SE <span class="op">=</span> <span class="va">SE</span>, labels <span class="op">=</span> <span class="va">study</span>, data <span class="op">=</span> <span class="va">power_pose</span>,</span>
 <span>                         d   <span class="op">=</span> <span class="fu"><a href="https://danheck.github.io/metaBMA/reference/prior.html">prior</a></span><span class="op">(</span><span class="st">"norm"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>,</span>
@@ -1153,9 +1364,9 @@ be accompanied by the priors that produced them and by a sensitivity analysis. I
 common-effect model with an effect receives most of the posterior probability, consistent with
 the small differences among these six studies.</p>
 </div>
-<div id="sec-bayesian-robma" class="section level3" number="9.6.2">
+<div id="sec-bayesian-robma" class="section level3" number="9.7.2">
 <h3>
-<span class="header-section-number">9.6.2</span> Model averaging over publication bias with RoBMA<a class="anchor" aria-label="anchor" href="#sec-bayesian-robma"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.7.2</span> Model averaging over publication bias with RoBMA<a class="anchor" aria-label="anchor" href="#sec-bayesian-robma"><i class="fas fa-link"></i></a>
 </h3>
 <p>Robust Bayesian meta-analysis extends the model space with models for publication bias, so that
 the effect, heterogeneity, and bias components are each tested and averaged over
@@ -1163,7 +1374,7 @@ the effect, heterogeneity, and bias components are each tested and averaged over
 bias-adjustment method. Here we apply it to the power-pose studies to show how the bias component
 behaves with few studies. The chunk requires JAGS, is run in the book’s continuous-integration
 build with a small number of samples, and no later code depends on it.</p>
-<div class="sourceCode" id="cb185"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb210"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fbartos.github.io/RoBMA/">RoBMA</a></span><span class="op">)</span></span>
 <span><span class="va">fit_robma_pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://fbartos.github.io/RoBMA/reference/RoBMA.html">RoBMA</a></span><span class="op">(</span>d <span class="op">=</span> <span class="va">power_pose</span><span class="op">$</span><span class="va">effectSize</span>, se <span class="op">=</span> <span class="va">power_pose</span><span class="op">$</span><span class="va">SE</span>,</span>
 <span>                      study_names <span class="op">=</span> <span class="va">power_pose</span><span class="op">$</span><span class="va">study</span>,</span>
@@ -1339,9 +1550,9 @@ the Cohen’s <span class="math inline">\(d\)</span> scale; for medical outcomes
 <span class="citation">Bartoš et al. (<a href="sec-references.html#ref-bartos2021bayesian">2021</a>)</span> are an alternative.</p>
 </div>
 </div>
-<div id="sec-bayesian-reporting" class="section level2" number="9.7">
+<div id="sec-bayesian-reporting" class="section level2" number="9.8">
 <h2>
-<span class="header-section-number">9.7</span> Reporting Bayesian meta-analyses<a class="anchor" aria-label="anchor" href="#sec-bayesian-reporting"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.8</span> Reporting Bayesian meta-analyses<a class="anchor" aria-label="anchor" href="#sec-bayesian-reporting"><i class="fas fa-link"></i></a>
 </h2>
 <p>The Bayesian Analysis Reporting Guidelines (BARG) of <span class="citation">Kruschke (<a href="sec-references.html#ref-kruschke2021bayesian">2021</a>)</span> list what a
 transparent Bayesian analysis should report. Adapted to meta-analysis, the essentials are:</p>
@@ -1375,9 +1586,9 @@ a table like the one in Section <a href="sec-bayesian.html#sec-bayesian-bayesmet
 <p>The certainty-of-evidence framework of Chapter <a href="sec-reporting.html#sec-reporting">15</a> applies to Bayesian analyses
 as to frequentist ones: the posterior is only as credible as the studies it summarizes.</p>
 </div>
-<div id="sec-bayesian-pitfalls" class="section level2" number="9.8">
+<div id="sec-bayesian-pitfalls" class="section level2" number="9.9">
 <h2>
-<span class="header-section-number">9.8</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-bayesian-pitfalls"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.9</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-bayesian-pitfalls"><i class="fas fa-link"></i></a>
 </h2>
 <p><em>Calling a prior non-informative.</em> No prior for <span class="math inline">\(\tau\)</span> is non-informative when <span class="math inline">\(k\)</span> is small;
 “vague” priors such as a uniform on <span class="math inline">\((0, 10)\)</span> for a log odds ratio make large heterogeneity a
@@ -1398,9 +1609,9 @@ posterior distribution and should not replace it.</p>
 mean difference may be strongly informative for a log odds ratio or for raw mean differences.
 Priors must be specified on the scale of the effect measure.</p>
 </div>
-<div id="sec-bayesian-takeaways" class="section level2" number="9.9">
+<div id="sec-bayesian-takeaways" class="section level2" number="9.10">
 <h2>
-<span class="header-section-number">9.9</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-bayesian-takeaways"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.10</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-bayesian-takeaways"><i class="fas fa-link"></i></a>
 </h2>
 <ul>
 <li>Bayesian meta-analysis fits the random-effects model with priors on <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\tau\)</span> and
@@ -1421,9 +1632,9 @@ heterogeneity, and publication bias, but depend on priors under the alternative.
 computation and diagnostics, posterior summaries, sensitivity analyses, and code.</li>
 </ul>
 </div>
-<div id="sec-bayesian-reading" class="section level2" number="9.10">
+<div id="sec-bayesian-reading" class="section level2" number="9.11">
 <h2>
-<span class="header-section-number">9.10</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-bayesian-reading"><i class="fas fa-link"></i></a>
+<span class="header-section-number">9.11</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-bayesian-reading"><i class="fas fa-link"></i></a>
 </h2>
 <p><span class="citation">Sutton and Abrams (<a href="sec-references.html#ref-sutton2001bayesian">2001</a>)</span> is a broad review of Bayesian methods in evidence synthesis, and
 <span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2009reevaluation">2009</a>)</span> a thoughtful treatment of random-effects meta-analysis from a Bayesian
@@ -1459,26 +1670,27 @@ tutorial of <span class="citation">Gronau et al. (<a href="sec-references.html#r
 </ul>
 </li>
 <li><a class="nav-link" href="#sec-bayesian-few-studies"><span class="header-section-number">9.4</span> Few studies</a></li>
+<li><a class="nav-link" href="#sec-bayesian-map"><span class="header-section-number">9.5</span> Meta-analytic-predictive priors for a new trial</a></li>
 <li>
-<a class="nav-link" href="#sec-bayesian-brms"><span class="header-section-number">9.5</span> Bayesian meta-analysis with brms</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#sec-bayesian-brms-fit"><span class="header-section-number">9.5.1</span> Model specification and priors</a></li>
-<li><a class="nav-link" href="#sec-bayesian-brms-convergence"><span class="header-section-number">9.5.2</span> Convergence diagnostics</a></li>
-<li><a class="nav-link" href="#sec-bayesian-brms-ppc"><span class="header-section-number">9.5.3</span> Posterior predictive checks</a></li>
-<li><a class="nav-link" href="#sec-bayesian-brms-forest"><span class="header-section-number">9.5.4</span> Study-specific estimates and a forest plot</a></li>
-<li><a class="nav-link" href="#sec-bayesian-brms-metareg"><span class="header-section-number">9.5.5</span> Bayesian meta-regression</a></li>
-<li><a class="nav-link" href="#sec-bayesian-brms-extensions"><span class="header-section-number">9.5.6</span> Extensions</a></li>
+<a class="nav-link" href="#sec-bayesian-brms"><span class="header-section-number">9.6</span> Bayesian meta-analysis with brms</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-bayesian-brms-fit"><span class="header-section-number">9.6.1</span> Model specification and priors</a></li>
+<li><a class="nav-link" href="#sec-bayesian-brms-convergence"><span class="header-section-number">9.6.2</span> Convergence diagnostics</a></li>
+<li><a class="nav-link" href="#sec-bayesian-brms-ppc"><span class="header-section-number">9.6.3</span> Posterior predictive checks</a></li>
+<li><a class="nav-link" href="#sec-bayesian-brms-forest"><span class="header-section-number">9.6.4</span> Study-specific estimates and a forest plot</a></li>
+<li><a class="nav-link" href="#sec-bayesian-brms-metareg"><span class="header-section-number">9.6.5</span> Bayesian meta-regression</a></li>
+<li><a class="nav-link" href="#sec-bayesian-brms-extensions"><span class="header-section-number">9.6.6</span> Extensions</a></li>
 </ul>
 </li>
 <li>
-<a class="nav-link" href="#sec-bayesian-bma"><span class="header-section-number">9.6</span> Bayes factors and Bayesian model averaging</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#sec-bayesian-metabma"><span class="header-section-number">9.6.1</span> Bayesian model averaging with metaBMA</a></li>
-<li><a class="nav-link" href="#sec-bayesian-robma"><span class="header-section-number">9.6.2</span> Model averaging over publication bias with RoBMA</a></li>
+<a class="nav-link" href="#sec-bayesian-bma"><span class="header-section-number">9.7</span> Bayes factors and Bayesian model averaging</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-bayesian-metabma"><span class="header-section-number">9.7.1</span> Bayesian model averaging with metaBMA</a></li>
+<li><a class="nav-link" href="#sec-bayesian-robma"><span class="header-section-number">9.7.2</span> Model averaging over publication bias with RoBMA</a></li>
 </ul>
 </li>
-<li><a class="nav-link" href="#sec-bayesian-reporting"><span class="header-section-number">9.7</span> Reporting Bayesian meta-analyses</a></li>
-<li><a class="nav-link" href="#sec-bayesian-pitfalls"><span class="header-section-number">9.8</span> Common pitfalls</a></li>
-<li><a class="nav-link" href="#sec-bayesian-takeaways"><span class="header-section-number">9.9</span> Key takeaways</a></li>
-<li><a class="nav-link" href="#sec-bayesian-reading"><span class="header-section-number">9.10</span> Further reading</a></li>
+<li><a class="nav-link" href="#sec-bayesian-reporting"><span class="header-section-number">9.8</span> Reporting Bayesian meta-analyses</a></li>
+<li><a class="nav-link" href="#sec-bayesian-pitfalls"><span class="header-section-number">9.9</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-bayesian-takeaways"><span class="header-section-number">9.10</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-bayesian-reading"><span class="header-section-number">9.11</span> Further reading</a></li>
 </ul>
 
       <div class="book-extra">

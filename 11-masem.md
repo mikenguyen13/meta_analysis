@@ -2,7 +2,7 @@
 
 Most meta-analyses in this book summarize one effect at a time: a standardized mean difference, a log odds ratio, a single correlation. Theories in psychology, management, marketing and education are rarely that simple. The technology acceptance model says that perceived ease of use shapes perceived usefulness, both shape attitudes, and attitudes and usefulness drive intentions to use a technology. The theory of planned behavior, the job demands-resources model, and most models of consumer satisfaction and loyalty are networks of paths among several constructs, often with mediators and latent variables. Testing such a theory against a body of primary studies requires pooling many correlations at once and then fitting a structural model to the pooled matrix. That combination is meta-analytic structural equation modeling (MASEM).
 
-This chapter develops MASEM from its statistical foundations. We begin with why the combination is attractive and where it is fragile, then formalize the correlation-structure problem and compare the three classical approaches: univariate pooling of each correlation, the generalized least squares (GLS) approach of @becker1992, and the two-stage structural equation modeling (TSSEM) approach of @cheung2005meta. A worked example on 50 samples of teachers' technology acceptance carries us through stage 1 (fixed- and random-effects pooling of correlation matrices), stage 2 (path models specified in `lavaan` syntax), likelihood-based confidence intervals, indirect effects and model comparison. We then fit a confirmatory factor model to Digman's Big Five data, treat missing correlations, and move to one-stage MASEM [@jak2020meta], which lets moderators act directly on structural parameters. A short section shows how the same software fits univariate, multivariate and three-level meta-analyses as structural equation models. We close with reporting guidance and common pitfalls.
+This chapter develops MASEM from its statistical foundations. We begin with why the combination is attractive and where it is fragile, then formalize the correlation-structure problem and compare the three classical approaches: univariate pooling of each correlation, the generalized least squares (GLS) approach of @becker1992, and the two-stage structural equation modeling (TSSEM) approach of @cheung2005meta. A worked example on 50 samples of teachers' technology acceptance carries us through stage 1 (fixed- and random-effects pooling of correlation matrices), stage 2 (path models specified in `lavaan` syntax), likelihood-based confidence intervals, indirect effects and model comparison. The same example is used to show what heterogeneity does to the structural parameters, including the full-information MASEM (FIMASEM) proposal of @yu2016problem and the debate that followed, and to contrast correlation-based with parameter-based MASEM. We then fit a confirmatory factor model to Digman's Big Five data, test whether a cross-lagged panel model differs between subgroups of studies, treat missing correlations, and move to one-stage MASEM [@jak2020meta], which lets moderators act directly on structural parameters. Later sections deal with dependent correlation matrices, power, and a side-by-side comparison of every MASEM estimator discussed in the chapter. A short section shows how the same software fits univariate, multivariate and three-level meta-analyses as structural equation models. We close with reporting guidance and common pitfalls.
 
 All analyses use the `metaSEM` package [@cheung2015metasem], which is built on `OpenMx` [@neale2016openmx], together with `metafor` [@viechtbauer2010conducting], `lavaan` [@rosseel2012lavaan] and `semPlot` [@epskamp2015semplot]. Book-length treatments are @cheung2015metaanalysis and @jak2015metaanalytic.
 
@@ -81,13 +81,21 @@ $$
 F_{\text{WLS}}(\boldsymbol{\theta}) = \bigl(\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta})\bigr)^\top \hat{\mathbf{V}}_{\rho}^{-1} \bigl(\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta})\bigr).
 $$
 
-Because each pooled correlation is weighted by its actual precision, no single "sample size" has to be chosen, standard errors reflect the amount of data and (under random effects) the heterogeneity behind each correlation, and the minimum of $F_{\text{WLS}}$ is asymptotically chi-square distributed with degrees of freedom equal to $p^*$ minus the number of free parameters. This provides a proper test of the structural model. @oort2016maximum discuss maximum likelihood alternatives with similar properties.
+Because each pooled correlation is weighted by its actual precision, no single "sample size" has to be chosen, standard errors reflect the amount of data and (under random effects) the heterogeneity behind each correlation, and the minimum of $F_{\text{WLS}}$ is asymptotically chi-square distributed with degrees of freedom equal to $p^*$ minus the number of free parameters. This provides a proper test of the structural model. In simulations of fixed-effects pooling with missing correlations, TSSEM recovered parameters and standard errors better than univariate pooling and the GLS approach [@furlow2005metaanalytic], which is one reason it became the reference method.
+
+### Maximum likelihood instead of WLS at stage 2 {#sec-masem-ml-stage2}
+
+Stage 2 of TSSEM is a WLS fit with an estimated weight matrix. @oort2016maximum proposed ML MASEM, which uses maximum likelihood estimation throughout instead of switching to WLS for the structural model. In their simulations both methods gave essentially unbiased parameter estimates and nominal false and true positive rates; ML MASEM was slightly less biased, but the differences were very small, so the choice can rest on practical grounds. Two practical points about stage 2 matter more than the choice of discrepancy function. First, $F_{\text{WLS}}$ is only as good as $\hat{\mathbf{V}}_{\rho}$: a weight matrix that is itself poorly estimated (for example a cluster-robust matrix from few clusters) can move the point estimates, as Section \@ref(sec-masem-dependent) shows. Second, the residual variances of endogenous variables are not free in a correlation structure; `tssem2()` and `wls()` handle this automatically, either by treating them as functions of the other parameters or through the `diag.constraints` argument.
 
 ### Parameter-based and one-stage MASEM {#sec-masem-other-approaches}
 
-Two further families deserve mention. In parameter-based MASEM, the structural model is fitted within each study and the resulting parameter estimates (for example, standardized regression slopes) are meta-analyzed [@becker2007synthesis; @gnambs2016parameter]. This requires that each study observe the full model, and slopes from differently specified models are not comparable, a problem we revisit for regression coefficients in Chapter \@ref(sec-causal-estimates). Bayesian variants relax some of these requirements [@ke2019bayesian].
+Two further families deserve mention. In parameter-based MASEM, the structural model is fitted within each study and the resulting parameter estimates (for example, standardized regression slopes) are meta-analyzed [@becker2007synthesis; @gnambs2016parameter]. This requires that each study observe the full model, and slopes from differently specified models are not comparable, a problem we revisit for regression coefficients in Chapter \@ref(sec-causal-estimates). Its attraction is that heterogeneity is modeled directly in the structural parameters, which is what many substantive questions are about. Section \@ref(sec-masem-parameter-based) works through an example and compares it with correlation-based MASEM [@cheung2016].
 
 One-stage MASEM (OSMASEM) fits the structural model directly to the study-level correlation vectors, $\mathbf{r}_i = \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta}_i) + \mathbf{u}_i + \mathbf{e}_i$, which makes it possible to let study-level moderators change individual path coefficients [@jak2020meta]. We return to it in Section \@ref(sec-masem-osmasem).
+
+### Bayesian MASEM {#sec-masem-bayesian}
+
+@ke2019bayesian developed a Bayesian one-stage MASEM in which the structural parameters themselves, rather than the correlations, carry study-specific random effects. Each study's correlation matrix is generated by its own parameter vector $\boldsymbol{\theta}_i \sim N(\boldsymbol{\theta}, \boldsymbol{\Omega})$, and $\boldsymbol{\Omega}$ is estimated jointly with the average parameters by Markov chain Monte Carlo. The approach answers directly the question that FIMASEM (Section \@ref(sec-masem-fimasem)) addresses by simulation, namely how much the paths vary across populations, and it propagates the uncertainty in the heterogeneity estimates into the intervals. Priors also stabilize estimation when the number of studies is small relative to the number of correlations, which is where the frequentist random-effects stage 1 most often fails to converge. The cost is that the model is not available as a ready-made function in `metaSEM`; it has to be programmed in general-purpose Bayesian software, and the results depend on the priors for $\boldsymbol{\Omega}$ in the same way that Chapter \@ref(sec-bayesian) describes for $\tau$. Bayesian estimation is also being studied for moderator effects in parameter-based MASEM [@lohmann2026evaluating]. For most applied work, random-effects TSSEM or OSMASEM with a sensitivity analysis remains the practical default; a Bayesian MASEM is worth the extra effort when the heterogeneity of particular paths is the main research question.
 
 ## Worked example: teachers' technology acceptance {#sec-masem-tam}
 
@@ -612,6 +620,135 @@ round(apply(paths, 2, quantile, probs = c(0.10, 0.50, 0.90), na.rm = TRUE), 3)
 
 About 95% of the simulated matrices are positive definite. Among them, the coefficient of attitudes on intention has a median of 0.32, close to the average-model value of 0.35, but its 10th and 90th percentiles are -0.10 and 0.74; the coefficient of usefulness behaves almost identically. In some plausible populations, attitudes dominate intention; in others, usefulness does. This spread is not sampling error and will not shrink as more studies are added. It is a feature of the literature that the average path model hides, and it is the main reason to look for moderators of structural paths (Section \@ref(sec-masem-osmasem)). The simulation assumes independent normal random effects (`RE.type = "Diag"`), so it should be read as a rough indication of heterogeneity rather than a formal prediction interval.
 
+### Full-information MASEM (FIMASEM) {#sec-masem-fimasem}
+
+@yu2016problem turned this idea into a named procedure, full-information MASEM. FIMASEM starts from a psychometric (Hunter-Schmidt) meta-analysis of each correlation separately, which yields a mean $\bar r_{jl}$ and a standard deviation of true correlations $SD_{\rho,jl}$ for every cell. It then (1) draws a large number of correlation matrices whose elements are independent normal variates with those means and standard deviations, keeping only positive definite draws, (2) fits the structural model to each drawn matrix with a sample size equal to the harmonic mean of the cell-wise $N$, and (3) reports the distribution of every path coefficient and fit index across the draws. The 10th and 90th percentiles of a path are read as an 80% credibility interval, and the percentage of draws in which a fit index meets a conventional cutoff is read as the share of populations in which the model fits.
+
+`metaSEM` implements the procedure for research purposes in `uniR1()` (univariate pooling with Hunter-Schmidt estimates of $SD_\rho$), `bootuniR1()` (the parametric bootstrap of correlation matrices) and `bootuniR2()` (fitting the model to each draw in `lavaan`).
+
+
+``` r
+tam_uni <- uniR1(tam_cor, tam_n)
+round(tam_uni$r.mean, 3)
+#>        PU   PEU   ATT    BI
+#> PU  1.000 0.504 0.625 0.538
+#> PEU 0.504 1.000 0.547 0.419
+#> ATT 0.625 0.547 1.000 0.545
+#> BI  0.538 0.419 0.545 1.000
+round(tam_uni$r.SD, 3)
+#>        PU   PEU   ATT    BI
+#> PU     NA 0.146 0.110 0.173
+#> PEU 0.146    NA 0.134 0.157
+#> ATT 0.110 0.134    NA 0.183
+#> BI  0.173 0.157 0.183    NA
+
+set.seed(2026)
+tam_boot_R <- bootuniR1(tam_uni, Rep = 200)
+tam_fima <- bootuniR2(model = "BI ~ b1*ATT + c1*PU
+                               ATT ~ a2*PEU + a1*PU
+                               PU ~ p1*PEU",
+                      data = tam_boot_R, n = tam_uni$n.harmonic)
+fima_sum <- summary(tam_fima)
+round(fima_sum$coefficients[c("b1", "c1", "a1", "a2", "p1"),
+                            c("Mean", "SD", "Quantile: 10%", "Quantile: 90%")], 3)
+#>     Mean    SD Quantile: 10% Quantile: 90%
+#> b1 0.334 0.358        -0.144         0.768
+#> c1 0.318 0.350        -0.115         0.721
+#> a1 0.500 0.200         0.289         0.714
+#> a2 0.299 0.240         0.020         0.573
+#> p1 0.500 0.134         0.339         0.673
+
+fima_fit <- t(sapply(tam_fima, lavaan::fitMeasures, fit.measures = c("cfi", "srmr", "rmsea")))
+round(c(CFI_above_.90 = mean(fima_fit[, "cfi"] > 0.90),
+        SRMR_below_.08 = mean(fima_fit[, "srmr"] < 0.08),
+        RMSEA_below_.05 = mean(fima_fit[, "rmsea"] < 0.05)), 2)
+#>   CFI_above_.90  SRMR_below_.08 RMSEA_below_.05 
+#>            0.74            0.80            0.12
+```
+
+The FIMASEM intervals tell the same story as the simulation in the previous section. The 80% credibility interval of the attitudes-to-intention path runs from -0.14 to 0.77, and that of the direct usefulness path from -0.11 to 0.72, while the ease-of-use-to-usefulness path is comparatively stable. The fit indices vary just as much: CFI exceeds 0.90 in 74% of the draws, but RMSEA is below 0.05 in only 12%. Yu et al. would conclude that the average TAM model does not describe many of the populations represented in the literature.
+
+### The FIMASEM debate {#sec-masem-fimasem-debate}
+
+@cheung2018issues responded with a commentary and simulation study. He identified several conceptual issues and technical errors in the procedure. The properties at stake are visible in the code above. The means and standard deviations from the univariate stage are treated as known, so their own sampling error does not enter the draws. The correlations are drawn independently (`bootuniR1()` uses a diagonal covariance matrix), although true correlations among the same variables are themselves correlated across populations. The Hunter-Schmidt estimates of $SD_\rho$ come from separate univariate analyses rather than from one multivariate random-effects model. And each drawn matrix is a *population* matrix, yet the model is fitted to it as if it were a sample of size $N$ (here almost 15,000), so the chi-square-based indices, and the share of draws meeting a cutoff, depend on an arbitrary choice of $N$. After correcting the errors and rerunning parts of the original simulation, Cheung judged several of the issues to be fairly mild, recommended TSSEM for estimation and testing, and suggested that bootstrapped credibility intervals of the parameters can still be used to *inspect* their heterogeneity. @yu2018heterogeneity replied, clarified that FIMASEM is meant as a descriptive tool for the heterogeneity of structural relations rather than a replacement for tests of the average model, and gave recommendations on reporting and interpreting FIMASEM results.
+
+The position that has emerged is that the two questions should be kept apart. Inference about the average structure (estimates, standard errors, model tests) comes from random-effects TSSEM or OSMASEM. The heterogeneity of the structure is described separately, preferably from the multivariate random-effects estimates rather than from univariate $SD_\rho$ values, and explained where possible with moderators of the paths (Section \@ref(sec-masem-osmasem)). `tssemParaVar()` implements a TSSEM-based version, building on that exchange: it draws correlation vectors from the random-effects stage 1 estimates (`method = "bootstrap"`) or uses the delta method (`method = "delta"`) to estimate the standard deviation of each structural parameter across populations, together with an interval that is intended to contain a given share of the population values.
+
+
+``` r
+set.seed(2026)
+(pv_boot <- tssemParaVar(tam_rem, tam_ts1, method = "bootstrap", Rep = 200, interval = 0.8))
+#>    Parameter     SD     lbound ubound
+#> a1    0.4367 0.2224  0.1516451 0.7217
+#> c1    0.3225 0.4953 -0.3121767 0.9572
+#> p1    0.4997 0.1362  0.3251844 0.6743
+#> a2    0.3267 0.2542  0.0009455 0.6524
+#> b1    0.3545 0.4858 -0.2680902 0.9772
+(pv_delta <- tssemParaVar(tam_rem, tam_ts1, method = "delta", interval = 0.8))
+#>    Parameter     SD   lbound ubound
+#> a1    0.4367 0.1752  0.21210 0.6613
+#> c1    0.3225 0.3303 -0.10077 0.7458
+#> p1    0.4997 0.1432  0.31627 0.6832
+#> a2    0.3267 0.2068  0.06168 0.5917
+#> b1    0.3545 0.3253 -0.06233 0.7714
+```
+
+The bootstrap puts the across-population standard deviation of the attitudes-to-intention path at 0.49 and the delta method at 0.33; for the direct usefulness path the figures are 0.5 and 0.33. These are several times the standard errors of the average paths, and the 80% intervals of both paths into intention include zero. The two methods agree less closely for the more heterogeneous paths, because the delta method linearizes a strongly nonlinear function of the correlations. These intervals are descriptions of the spread of the structure, analogous to the prediction interval of a univariate meta-analysis (Chapter \@ref(sec-models)); they are not confidence intervals and should not be used to test the average paths.
+
+## Parameter-based MASEM {#sec-masem-parameter-based}
+
+Correlation-based MASEM pools correlations and derives parameters from the pooled matrix. Parameter-based MASEM reverses the order: fit the model in each study, then meta-analyze the estimates [@becker2007synthesis; @cheung2016]. Its random effects therefore live on the parameters. When each study reports the full correlation matrix, the two routes can be compared directly. For the regression of intention on attitudes and usefulness, we fit the model in each of the 50 TAM samples with `lavaan`, take the standardized slopes and their sampling covariance matrix (from the delta method in `lavInspect(..., "vcov.std.all")`), and pool the two slopes with a bivariate random-effects model.
+
+
+``` r
+pb_dat <- do.call(rbind, lapply(seq_along(tam_cor), function(i) {
+  fit <- sem("BI ~ ATT + PU", sample.cov = tam_cor[[i]], sample.nobs = tam_n[i])
+  est <- standardizedSolution(fit)[1:2, "est.std"]
+  V <- lavInspect(fit, "vcov.std.all")[1:2, 1:2]
+  data.frame(study = i, path = c("BI_on_ATT", "BI_on_PU"), yi = est,
+             v11 = V[1, 1], v12 = V[1, 2], v22 = V[2, 2])
+}))
+pb_V <- lapply(split(pb_dat, pb_dat$study), function(d)
+  matrix(c(d$v11[1], d$v12[1], d$v12[1], d$v22[1]), 2, 2))
+pb_fit <- rma.mv(yi, bldiag(pb_V), mods = ~ path - 1, random = ~ path | study,
+                 struct = "UN", data = pb_dat)
+pb_fit
+#> 
+#> Multivariate Meta-Analysis Model (k = 100; method: REML)
+#> 
+#> Variance Components:
+#> 
+#> outer factor: study (nlvls = 50)
+#> inner factor: path  (nlvls = 2)
+#> 
+#>             estim    sqrt  k.lvl  fixed      level 
+#> tau^2.1    0.0384  0.1959     50     no  BI_on_ATT 
+#> tau^2.2    0.0442  0.2101     50     no   BI_on_PU 
+#> 
+#>            rho.BI__A  rho.BI__P    BI__A  BI__P 
+#> BI_on_ATT          1                   -     50 
+#> BI_on_PU     -0.5309          1       no      - 
+#> 
+#> Test for Residual Heterogeneity:
+#> QE(df = 98) = 3102.7489, p-val < .0001
+#> 
+#> Test of Moderators (coefficients 1:2):
+#> QM(df = 2) = 515.3167, p-val < .0001
+#> 
+#> Model Results:
+#> 
+#>                estimate      se     zval    pval   ci.lb   ci.ub      
+#> pathBI_on_ATT    0.3418  0.0292  11.6924  <.0001  0.2845  0.3991  *** 
+#> pathBI_on_PU     0.3061  0.0312   9.8229  <.0001  0.2451  0.3672  *** 
+#> 
+#> ---
+#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+The pooled slopes, 0.342 for attitudes and 0.306 for usefulness, are close to the TSSEM estimates of 0.355 and 0.323. What parameter-based MASEM adds is a direct estimate of how much the slopes vary across samples ($\hat\tau$ = 0.2 and 0.21) and of how their true values covary across samples ($\hat\rho$ = -0.53). The negative correlation formalizes what the simulations above suggested: samples in which attitudes carry more of the effect on intention are samples in which usefulness carries less. The estimated spread of the slopes is smaller than the spread implied by FIMASEM and `tssemParaVar()` (standard deviations of 0.3 to 0.5). Part of the gap comes from the diagonal heterogeneity structure used to generate the draws: true correlations among the same variables tend to rise and fall together across samples, and a slope depends on contrasts among them, so independent draws exaggerate how much the slopes vary. With an unstructured $\mathbf{T}^2$ (`RE.type = "Symm"`) in stage 1, the bootstrapped spread of the two paths shrinks noticeably. The parameter-based estimates, in contrast, come with standard errors, use the observed covariation of the slopes, and could be explained by study-level moderators with ordinary multivariate meta-regression.
+
+@cheung2016 compare the two families and give guidance for choosing between them. Parameter-based MASEM is natural when the studies report the same model, for example when every study fits the same regression or factor model, or when only parameter estimates are reported. It breaks down when studies observe different subsets of variables (a study without attitudes cannot estimate the slope of attitudes), when the parameter of interest depends on what else is in the model (a slope adjusted for two predictors is not the same quantity as a slope adjusted for three), and when the within-study sampling covariances of the estimates are not available. Correlation-based MASEM handles incomplete studies naturally and provides a test of the model, but its random effects are on the correlations, so the heterogeneity of the paths has to be derived. For factor structures, @gnambs2016parameter compared pooling each factor loading directly with pooling the correlation matrices reproduced from each study's loadings; the choice of method mattered little, and the indirect route was somewhat less biased when primary samples were small. Recent work evaluates Bayesian estimation of moderator effects in parameter-based MASEM [@lohmann2026evaluating].
+
 ## Assessing fit in MASEM {#sec-masem-fit}
 
 Fit indices in TSSEM are computed from the stage 2 WLS statistic, and the "sample size" used in RMSEA and related indices is the total $N$ across studies. Two features of MASEM make the chi-square test strict. Total sample sizes are large, so trivial misfit is detected, and in random-effects stage 1 the pooled correlations may be very precise even when heterogeneity is large. @aguinis2009cautionary argue against dismissing a significant chi-square too quickly, and the residual correlations ($\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\hat{\boldsymbol{\theta}})$) should always be inspected to locate misfit. The residuals are easy to obtain from the fitted `OpenMx` model inside the `tssem2` object, which stores the pooled matrix (`sampleS`) and the model-implied matrix (`impliedS`).
@@ -726,7 +863,54 @@ anova(big5_fit2, big5_fit1)
 
 The two-factor model fits well: $\chi^2(4) = 7.82$, $p = .098$, RMSEA = 0.015, SRMR = 0.044, CFI = 0.992. The standardized loadings range from 0.57 (agreeableness on Alpha) to 0.76 (emotional stability on Alpha), and the two higher-order factors correlate 0.38 (95% CI 0.28 to 0.47). Collapsing them into a single general factor is decisively rejected, with a chi-square difference of 93.9 on one degree of freedom. These results agree with Digman's conclusion while giving it a formal test and confidence intervals that account for between-sample heterogeneity.
 
-The `Digman97` data also record whether each sample consisted of children, adolescents, young adults or mature adults. Subgroup MASEM fits stage 1 and stage 2 separately in each subgroup and compares the structures [@jak2018testing]. With only five samples of children or adolescents here, the random-effects variances in that subgroup would be poorly determined, which illustrates a general limitation: subgroup MASEM needs many studies per group and only handles categorical moderators. One-stage MASEM (Section \@ref(sec-masem-osmasem)) is the more flexible alternative.
+The `Digman97` data also record whether each sample consisted of children, adolescents, young adults or mature adults. Subgroup MASEM fits stage 1 and stage 2 separately in each subgroup and compares the structures [@jak2018testing]. With only five samples of children or adolescents here, the random-effects variances in that subgroup would be poorly determined, which illustrates a general limitation: subgroup MASEM needs many studies per group and only handles categorical moderators. The next section works through a subgroup comparison on a larger data set, and one-stage MASEM (Section \@ref(sec-masem-osmasem)) is the more flexible alternative.
+
+## Subgroup analysis with TSSEM {#sec-masem-subgroup}
+
+@nohe2015chicken meta-analyzed panel studies of work-family conflict and strain to ask which comes first. `Nohe15A1` contains the correlations among work-family conflict and strain measured at two waves (W1, S1, W2, S2) in 32 samples, with the time lag between waves in months. A cross-lagged panel model regresses each wave-2 variable on both wave-1 variables. The cross-lagged paths ($ws$: conflict to later strain; $sw$: strain to later conflict) carry the causal question, and the stability paths ($w$, $s$) should be weaker when the lag is longer. A natural moderator question is therefore whether the four lagged paths differ between short lags (up to 12 months) and longer lags.
+
+@jak2018testing describe the subgroup procedure. Fit random-effects stage 1 separately within each subgroup, fit the structural model to each subgroup's pooled matrix, and then fit a constrained model in which the parameters of interest are equal across subgroups. The difference in chi-square between the constrained and unconstrained models tests the moderator. Because the stage 2 models are WLS fits, the multiple-group model is simply the sum of the subgroup discrepancy functions, which `OpenMx` fits with `mxFitFunctionMultigroup()`. The correlations between W1 and S1 and between the wave-2 residuals are labelled separately in each subgroup so that only the four lagged paths are constrained.
+
+
+``` r
+nohe_lag <- ifelse(Nohe15A1$Lag <= 12, "short", "long")
+table(nohe_lag)
+#> nohe_lag
+#>  long short 
+#>     7    25
+nohe_model <- "
+  W2 ~ w*W1 + sw*S1
+  S2 ~ s*S1 + ws*W1
+  W1 ~~ 1*W1
+  S1 ~~ 1*S1
+  W1 ~~ rW1S1_G*S1
+  W2 ~~ rW2S2_G*S2
+"
+nohe_vars <- c("W1", "S1", "W2", "S2")
+nohe_fits <- list()
+for (g in c("short", "long")) {
+  ram_g <- lavaan2RAM(gsub("_G", paste0("_", g), nohe_model), obs.variables = nohe_vars)
+  st1_g <- tssem1(Nohe15A1$data[nohe_lag == g], Nohe15A1$n[nohe_lag == g],
+                  method = "REM", RE.type = "Diag")
+  nohe_fits[[g]] <- tssem2(st1_g, RAM = ram_g, model.name = g)
+}
+round(sapply(nohe_fits, function(f) coef(f)[c("w", "s", "ws", "sw")]), 3)
+#>    short  long
+#> w  0.592 0.505
+#> s  0.597 0.550
+#> ws 0.082 0.078
+#> sw 0.088 0.079
+
+nohe_equal <- mxModel("equal_paths", nohe_fits$short$mx.fit, nohe_fits$long$mx.fit,
+                      mxFitFunctionMultigroup(c("short", "long")))
+nohe_equal <- mxRun(omxAssignFirstParameters(nohe_equal), silent = TRUE)
+chisq_equal <- nohe_equal$output$fit
+c(chisq = chisq_equal, df = 4, p = pchisq(chisq_equal, df = 4, lower.tail = FALSE))
+#>  chisq     df      p 
+#> 4.9170 4.0000 0.2959
+```
+
+The cross-lagged model is saturated within each subgroup (six correlations, six parameters), so the unconstrained model has $\chi^2 = 0$ and the constrained model's chi-square of 4.92 on 4 degrees of freedom ($p$ = 0.3) is itself the test of equal lagged paths. The stability paths are somewhat lower for long lags, as expected, and both cross-lagged paths are small and positive in both subgroups, consistent with the reciprocal relation reported by @nohe2015chicken. Two caveats are typical of subgroup MASEM. Only 7 samples have lags longer than 12 months, so the long-lag subgroup's heterogeneity variances and paths are imprecise and the test has little power. And dichotomizing a continuous moderator discards information; with OSMASEM, the lag could enter as a continuous moderator of each path, as in Section \@ref(sec-masem-osmasem). Subgroup TSSEM remains useful when the moderator is genuinely categorical and every subgroup contains enough studies to support its own random-effects stage 1.
 
 ## Missing correlations and positive definiteness {#sec-masem-missing}
 
@@ -836,8 +1020,8 @@ summary(os_fit0, fitIndices = TRUE)
 #> TLI: 0.8239   (also known as NNFI) 
 #> RMSEA:  0.01139  [95% CI (0.003446, 0.02035)]
 #> Prob(RMSEA <= 0.05): 1
-#> timestamp: 2026-11-25 05:13:40 
-#> Wall clock time: 0.0794 secs 
+#> timestamp: 2026-11-25 18:45:48 
+#> Wall clock time: 0.1344 secs 
 #> optimizer:  SLSQP 
 #> OpenMx version number: 2.22.11 
 #> Need help?  See help(mxSummary)
@@ -887,6 +1071,35 @@ The rows `e1_1`, `e2_1` and `a1_1` are the moderating effects in $\mathbf{A}_1$,
 OSMASEM is a model for continuous and categorical moderators of structural parameters, but it inherits the limitations of meta-regression (Chapter \@ref(sec-heterogeneity)): moderators are study-level and observational, the number of studies limits how many moderated paths can be estimated, and ecological inferences about individuals are not justified. @jak2020meta recommend standardizing continuous moderators and testing moderators jointly with likelihood-ratio tests.
 :::
 
+### Fit, SRMR and the `osmasem2()` interface {#sec-masem-osmasem-fit}
+
+The chi-square test reported by `summary(os_fit0, fitIndices = TRUE)` compares the structural model with a saturated one-stage model in which every correlation has its own mean. Because the total sample size is large, approximate fit is usually judged as well. `osmasemSRMR()` computes the SRMR between the model-implied correlation matrix and the saturated model's pooled matrix, ignoring the heterogeneity variances, which makes it comparable to the SRMR of a stage 2 TSSEM fit.
+
+
+``` r
+osmasemSRMR(os_fit0)
+#> [1] 0.04403
+```
+
+An SRMR of 0.044 is small. Combined with the significant chi-square, it suggests a real but modest misfit, which the residuals would locate in the omitted direct paths from relationships to achievement.
+
+`metaSEM` also provides `osmasem2()`, a rewrite that builds the mean and heterogeneity structures directly from a RAM object, reports the heterogeneity variances themselves rather than their log standard deviations, can analyze covariance matrices and means as well as correlations, and accepts parameter constraints and functions of parameters written in the model syntax. For the no-moderator model it reproduces `osmasem()`.
+
+
+``` r
+os2_fit0 <- osmasem2(model.name = "No moderator (osmasem2)", RAM = roorda_RAM,
+                     data = roorda_df, RE.type.Sigma = "Diag")
+round(coef(os2_fit0), 4)
+#>               e1               e2               a1               pn 
+#>           0.2650          -0.2964           0.3501          -0.2387 
+#>     engaWITHenga achievWITHachiev 
+#>           0.8044           0.8775
+```
+
+The path estimates (`e1`, `e2`, `a1`) and the correlation between positive and negative relationships (`pn`) match `os_fit0`; `osmasem2()` also lists the residual variances of the endogenous variables, and `summary(os2_fit0)` reports the six heterogeneity variances (`tau2Cov`) on the variance scale. For readers who prefer not to write code, @jak2021metaanalytic provide webMASEM, a point-and-click web application that fits OSMASEM path and factor models with moderated parameters. Their tutorial pays particular attention to how the data must be structured before upload, because errors at that step can produce wrong results without any error message, and its data files and R scripts are available online.
+
+A categorical moderator is entered in OSMASEM as a dummy variable in `Ax`, exactly like `SES` above. With a dummy on each path, OSMASEM tests the same hypothesis as the subgroup analysis in Section \@ref(sec-masem-subgroup), but it estimates one residual heterogeneity matrix for all studies. That uses the data more efficiently when groups are small, at the price of assuming the same $\mathbf{T}^2$ in each group.
+
 ## Univariate, multivariate and three-level meta-analysis in `metaSEM` {#sec-masem-metasem-meta}
 
 Because a meta-analysis is a special case of an SEM [@cheung2008model], `metaSEM` also fits ordinary meta-analytic models. The advantages over the dedicated packages are likelihood-based confidence intervals, FIML treatment of missing covariates, and the possibility of embedding the meta-analysis in a larger structural model. `meta()` fits univariate and multivariate random-effects models, with moderators entered through `x`.
@@ -934,7 +1147,121 @@ The 56 effect sizes on modified school calendars come from 11 districts. The poo
 
 Observed correlations are attenuated by unreliability. In the psychometric tradition [@schmidt2015a], each correlation is disattenuated before pooling, $r^{c}_{ijl} = r_{ijl}/\sqrt{a_{ij} a_{il}}$, where $a_{ij}$ is the reliability of variable $j$ in study $i$, and its sampling variance is divided by the same product. For a full matrix this amounts to $\mathbf{R}^{c}_i = \mathbf{D}_i^{-1/2}(\mathbf{R}_i - \mathbf{I})\mathbf{D}_i^{-1/2} + \mathbf{I}$ with $\mathbf{D}_i = \operatorname{diag}(a_{i1}, \dots, a_{ip})$. Corrected matrices can then be passed to TSSEM. Two cautions apply. Corrected matrices are more often non-positive definite, especially when reliabilities are low or poorly estimated, and the corrected sampling covariances are larger, so the effective weight of studies with unreliable measures falls. The sampling error in the reliability estimates themselves is usually ignored, and dependent correlations require additional care in the correction [@cheung2018a]. An alternative that stays within SEM is to model each construct as a latent variable with a single indicator whose error variance is fixed at $1 - \bar a_j$, using an average reliability. This corrects the structural paths for unreliability without altering the stage 1 data. Whichever route is chosen, the uncorrected analysis should be reported as well, because the size of the correction is itself informative.
 
+### Dependent correlation matrices {#sec-masem-dependent}
+
 A second practical problem is that one study may contribute several matrices, for example from different subsamples that share participants, or several measures of the same construct. Stage 1 assumes that matrices are independent. The common solutions are to select one matrix per independent sample using a pre-specified rule, to average the correlations for multiple measures of the same construct into a composite correlation, or to model the dependence explicitly with a multilevel extension of the random-effects stage 1 model. @geyskens2006make illustrate such selection and compositing rules in a large management meta-analysis.
+
+@wilson2016fitting proposed the best-known explicit model, often called the WPL approach. Stage 1 becomes a three-level random-effects model in which correlations are nested in samples and samples in studies, fitted to the long-format correlations with indicator variables for the $p^*$ correlation types and no intercept; covariates can be added to obtain covariate-adjusted pooled correlations. The pooled correlations and their covariance matrix then enter stage 2 as in TSSEM. The TAM data contain such a structure on a small scale: five articles report two samples each, which may share procedures, measures and settings. We fit a multivariate model with separate heterogeneity variances for each correlation at the article and at the sample level, then pass the pooled vector and its model-based covariance matrix to `wls()`, the function that `tssem2()` calls internally.
+
+
+``` r
+tam_article <- sub("-[0-9]+$", "", names(tam_cor))
+table(table(tam_article))
+#> 
+#>  1  2 
+#> 40  5
+gls_dat$article <- tam_article[match(gls_dat$id, names(tam_cor))]
+dep_fit <- rma.mv(yi, rc$V, mods = ~ pair - 1,
+                  random = list(~ pair | article, ~ pair | id),
+                  struct = c("DIAG", "DIAG"), data = gls_dat, sparse = TRUE)
+# metaSEM orders the correlations column-wise below the diagonal of (PU, PEU, ATT, BI)
+ord <- paste0("pair", c("PEU.PU", "ATT.PU", "BI.PU", "ATT.PEU", "BI.PEU", "ATT.BI"))
+R_dep <- vec2symMat(coef(dep_fit)[ord], diag = FALSE)
+dimnames(R_dep) <- list(tam_vars, tam_vars)
+V_dep <- vcov(dep_fit)[ord, ord]
+dep_wls <- wls(Cov = R_dep, aCov = V_dep, n = sum(tam_n), RAM = RAM1)
+summary(dep_wls)$coefficients[, c("Estimate", "Std.Error")]
+#>    Estimate Std.Error
+#> a2   0.3370   0.03094
+#> a1   0.4345   0.02658
+#> b1   0.3632   0.04759
+#> c1   0.3402   0.04847
+#> p1   0.5232   0.02105
+summary(dep_wls)$stat["Chi-square of target model", ]
+#> [1] 10.07
+```
+
+With so little nesting, the three-level stage 1 changes almost nothing: the paths and the chi-square are close to the random-effects TSSEM results. It is tempting to go one step further and use a cluster-robust covariance matrix of the pooled correlations (Chapter \@ref(sec-dependent-effects)) as the stage 2 weight matrix, but that can backfire, as a quick check shows.
+
+
+``` r
+V_rob <- as.matrix(clubSandwich::vcovCR(dep_fit, cluster = gls_dat$article, type = "CR2"))[ord, ord]
+dep_wls_rob <- wls(Cov = R_dep, aCov = V_rob, n = sum(tam_n), RAM = RAM1)
+round(cbind(model_based = coef(dep_wls), robust_weight = coef(dep_wls_rob)), 3)
+#>    model_based robust_weight
+#> a1       0.435         0.487
+#> c1       0.340         0.194
+#> p1       0.523         0.477
+#> a2       0.337         0.377
+#> b1       0.363         0.479
+```
+
+The pooled correlations are identical in the two fits; only the weight matrix differs. Yet with the robust weight matrix the direct effect of usefulness falls from 0.34 to 0.19 and the attitudes path rises correspondingly. The model is over-identified, so the WLS estimates depend on the weights, and a $6 \times 6$ sandwich estimate from 45 clusters is too noisy to serve as a weight matrix. Robust variance estimation is better reserved for checking standard errors than for weighting.
+
+The performance of these strategies has only recently been studied. @bilici2025six compared six ways of handling dependent correlations in MASEM (simple and weighted averaging within studies, keeping one effect size per study at random or by rule, ignoring the dependence, and the WPL model) in a simulation of a mediation model. No method performed well on every criterion. Ignoring the dependence and the WPL model kept the path estimates close to unbiased but produced standard errors that were too small and inflated false positive rates in some conditions, and keeping the largest correlation per study produced by far the largest bias. In practice, a pre-specified averaging or selection rule combined with a sensitivity analysis using the WPL model is a defensible strategy until better methods are available.
+
+## Power and the number of studies {#sec-masem-power}
+
+How many studies does a MASEM need? There are no closed-form answers comparable to those for a univariate random-effects meta-analysis, because power depends on the whole population structure, the heterogeneity of every correlation, the pattern of missing correlations, and the sample sizes. Monte Carlo simulation is the practical tool, and `metaSEM` provides the pieces. `impliedR()` turns a hypothesized model with population values into a population correlation matrix, and `rCor()` draws study-level population matrices around it with a chosen heterogeneity matrix and then sample matrices of a given size. Each simulated meta-analysis is analyzed exactly as planned, and power is the share of replications in which the target test is significant.
+
+The sketch below asks how often random-effects TSSEM detects a direct path of 0.15 from usefulness to intention in a TAM-like population, with heterogeneity SD 0.10 on every correlation and samples of 150, for 10 and 25 studies. The number of replications is kept small so that the chunk runs quickly; a real power analysis would use at least 1,000 and would vary the heterogeneity and the share of missing correlations.
+
+
+``` r
+pop_model <- "
+  BI  ~ 0.35*ATT + 0.15*PU
+  ATT ~ 0.30*PEU + 0.45*PU
+  PU  ~ 0.50*PEU
+  PEU ~~ 1*PEU
+"
+pop_R <- impliedR(RAM = lavaan2RAM(pop_model, obs.variables = tam_vars))$SigmaObs
+round(pop_R, 3)
+#>       PU   PEU   ATT    BI
+#> PU  1.00 0.500 0.600 0.360
+#> PEU 0.50 1.000 0.525 0.259
+#> ATT 0.60 0.525 1.000 0.440
+#> BI  0.36 0.259 0.440 1.000
+
+sim_power <- function(k, n = 150, tau = 0.10) {
+  R <- rCor(pop_R, V = diag(tau^2, 6), n = rep(n, k))$R
+  st1 <- tssem1(R, rep(n, k), method = "REM", RE.type = "Diag")
+  st2 <- tssem2(st1, RAM = RAM1)
+  summary(st2)$coefficients["c1", "Pr(>|z|)"] < 0.05
+}
+set.seed(2026)
+n_rep <- 30
+power_k <- sapply(c(k10 = 10, k25 = 25), function(k) mean(replicate(n_rep, sim_power(k))))
+round(rbind(power = power_k, mc_se = sqrt(power_k * (1 - power_k) / n_rep)), 2)
+#>        k10  k25
+#> power 0.73 0.87
+#> mc_se 0.08 0.06
+```
+
+With these settings, power is about 0.73 with 10 studies and 0.87 with 25, with Monte Carlo standard errors of several percentage points. Two lessons generalize. Power for a structural path in random-effects MASEM is driven mainly by the number of studies and the heterogeneity, not by the total $N$: adding participants to each study does little once sampling error is small relative to $\tau^2$. And the same machinery answers other planning questions, such as the power of the chi-square test against a specific misspecification (simulate from a model with the extra path, fit the model without it), the power of a moderator test in OSMASEM, or the expected precision of an indirect effect.
+
+## Choosing among MASEM estimators {#sec-masem-estimators}
+
+Table \@ref(tab:masem-estimator-table) summarizes the estimators discussed in this chapter.
+
+
+
+Table: (\#tab:masem-estimator-table)MASEM estimators: assumptions, typical use, and R software.
+
+|Approach                                         |Key assumptions                                                               |Use when                                                           |Software                                                                            |
+|:------------------------------------------------|:-----------------------------------------------------------------------------|:------------------------------------------------------------------|:-----------------------------------------------------------------------------------|
+|Univariate r (Hunter-Schmidt / Viswesvaran-Ones) |One N for all cells; correlations pooled separately; ignores their dependence |Rough exploration only                                             |metaSEM::uniR1(); psychmeta; any SEM program                                        |
+|GLS (Becker)                                     |Multivariate normal r; known sampling covariances; FE or RE on correlations   |Recursive observed-variable path models; no fit test needed        |metafor::rcalc(), rma.mv(), matreg()                                                |
+|Fixed-effects TSSEM                              |One common population correlation matrix (homogeneity)                        |Homogeneity is plausible and tested                                |metaSEM::tssem1(method = 'FEM'), tssem2()                                           |
+|Random-effects TSSEM                             |Random effects on correlations; average model fitted to average matrix        |Default for testing an average structural model                    |metaSEM::tssem1(method = 'REM'), tssem2()                                           |
+|Subgroup (multigroup) TSSEM                      |As RE-TSSEM within each subgroup; enough studies per subgroup                 |Categorical moderator with many studies per level                  |metaSEM::tssem1(method = 'FEM', cluster = ); per-group REM fits + OpenMx multigroup |
+|One-stage MASEM (OSMASEM)                        |Random effects on correlations; moderators act linearly on parameters         |Continuous or categorical moderators of specific paths             |metaSEM::osmasem(), osmasem2(); webMASEM                                            |
+|FIMASEM / bootstrapped parameter spread          |Draws from estimated distribution of correlations treated as known            |Describing (not testing) how paths vary across populations         |metaSEM::bootuniR1(), bootuniR2(), tssemParaVar()                                   |
+|Parameter-based MASEM                            |Same model estimable in every study; comparable parameters                    |Studies report the same model; heterogeneity of paths is the focus |lavaan per study + metafor::rma.mv() or metaSEM::meta()                             |
+|Three-level (WPL) stage 1                        |Correlations nested in samples nested in studies                              |Several matrices per study or sample                               |metafor::rma.mv() + metaSEM::wls()                                                  |
+|ML MASEM                                         |As TSSEM, ML throughout                                                       |Alternative to WLS stage 2 with similar performance                |OpenMx (custom)                                                                     |
+|Bayesian MASEM                                   |Random effects on structural parameters; priors on heterogeneity              |Heterogeneity of paths is the main question; few studies           |Stan / JAGS (custom)                                                                |
+
+
 
 ## Practical recommendations and reporting {#sec-masem-reporting}
 
@@ -960,8 +1287,8 @@ There is no MASEM-specific reporting guideline comparable to PRISMA (Chapter \@r
 
 ## Key takeaways {#sec-masem-takeaways}
 
-MASEM tests multivariate theories, including mediation and latent-variable structures, against a body of primary studies by fitting an SEM to pooled correlation matrices. Pooling each correlation separately and then treating the pooled matrix as a single sample gives incorrect standard errors and tests, especially under heterogeneity. Two-stage SEM pools the correlation matrices in stage 1 (fixed or random effects, with FIML for missing correlations) and fits the structural model by WLS in stage 2, weighting each pooled correlation by its precision, which yields valid standard errors, likelihood-based intervals for indirect effects, and chi-square tests of fit and of nested models. Random-effects stage 1 should be the default, because correlation matrices in applied literatures are typically heterogeneous. One-stage MASEM lets study-level moderators act on individual structural paths. Fit indices should be interpreted with care given the large total samples, and good fit never establishes causal direction. Transparent reporting includes the pooled matrix with $k$, $N$ and heterogeneity for each cell, the fit of all competing models, and the data and code.
+MASEM tests multivariate theories, including mediation and latent-variable structures, against a body of primary studies by fitting an SEM to pooled correlation matrices. Pooling each correlation separately and then treating the pooled matrix as a single sample gives incorrect standard errors and tests, especially under heterogeneity. Two-stage SEM pools the correlation matrices in stage 1 (fixed or random effects, with FIML for missing correlations) and fits the structural model by WLS in stage 2, weighting each pooled correlation by its precision, which yields valid standard errors, likelihood-based intervals for indirect effects, and chi-square tests of fit and of nested models. Random-effects stage 1 should be the default, because correlation matrices in applied literatures are typically heterogeneous. One-stage MASEM lets study-level moderators act on individual structural paths; subgroup TSSEM is the special case for categorical moderators with many studies per group. Under heterogeneity the average model can hide large variation in the paths; FIMASEM, `tssemParaVar()` and parameter-based MASEM describe that variation, but inference about the average structure should still come from random-effects TSSEM or OSMASEM. Dependent matrices call for a pre-specified averaging or selection rule or a three-level stage 1, with sensitivity analysis, and power for structural paths depends mostly on the number of studies and the heterogeneity, which simulation can quantify. Fit indices should be interpreted with care given the large total samples, and good fit never establishes causal direction. Transparent reporting includes the pooled matrix with $k$, $N$ and heterogeneity for each cell, the fit of all competing models, and the data and code.
 
 ## Further reading {#sec-masem-reading}
 
-@cheung2015metaanalysis is the standard book-length treatment of meta-analysis as SEM, including TSSEM and the `metaSEM` package; @jak2015metaanalytic is a concise introduction. The foundational articles are @cheung2005meta on TSSEM, @cheung2013 and @cheung2016 on fixed and random-effects MASEM, and @jak2020meta on one-stage MASEM with moderators, with a practical tutorial in @jak2021metaanalytic. For management and strategy researchers, @bergh2016using give step-by-step guidance and an empirical illustration, and @steinmetz2022meta review recent developments and the causal-inference issues. @cheung2017 discuss applications in health psychology. The debate between @yu2016problem and @cheung2018issues is essential reading on what MASEM estimates under heterogeneity.
+@cheung2015metaanalysis is the standard book-length treatment of meta-analysis as SEM, including TSSEM and the `metaSEM` package; @jak2015metaanalytic is a concise introduction. The foundational articles are @cheung2005meta on TSSEM, @cheung2013 and @cheung2016 on fixed and random-effects MASEM, and @jak2020meta on one-stage MASEM with moderators, with a practical tutorial in @jak2021metaanalytic. For management and strategy researchers, @bergh2016using give step-by-step guidance and an empirical illustration, and @steinmetz2022meta review recent developments and the causal-inference issues. @cheung2017 discuss applications in health psychology. The exchange between @yu2016problem, @cheung2018issues and @yu2018heterogeneity is essential reading on what MASEM estimates under heterogeneity. @cheung2016 compare correlation-based and parameter-based MASEM, @oort2016maximum propose ML MASEM, @ke2019bayesian develop a Bayesian MASEM with random structural parameters, @wilson2016fitting describe the three-level stage 1 for dependent correlations, and @bilici2025six evaluate the main strategies for dependence by simulation.

@@ -4,7 +4,7 @@
 
 A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do with studies that look unusual. Each decision is defensible, but several are not uniquely determined by the data or the protocol. Sensitivity analysis asks whether the conclusions survive reasonable changes to those decisions; diagnostics ask whether the fitted model describes the data adequately and whether a few studies drive the result. Both are required by reporting guidelines and by common sense: a pooled estimate that flips sign when one study is removed, or that depends on an arbitrary choice of heterogeneity estimator, is not a finding but a fragile coincidence.
 
-This chapter covers three layers. The first is *study-level diagnostics*: outlier and influence statistics, leave-one-out analysis, and graphical tools such as Baujat, GOSH, radial, and normal quantile plots. The second is *analysis-level sensitivity*: cumulative meta-analysis, bootstrap intervals, and sensitivity to the estimator of $\tau^2$, to risk-of-bias exclusions, and to the effect-size metric. The third is the *multiverse* or *specification-curve* approach, which runs all reasonable combinations of choices at once and displays the distribution of results [@voracek2019which]. Publication bias, a special and important kind of sensitivity analysis, has its own chapter (Chapter \@ref(sec-publication-bias)).
+This chapter covers three layers. The first is *study-level diagnostics*: outlier and influence statistics, leave-one-out analysis, and graphical tools such as Baujat, GOSH, radial, and normal quantile plots. The second is *analysis-level sensitivity*: cumulative meta-analysis and its sequential extensions, bootstrap intervals, and sensitivity to the estimator of $\tau^2$, to risk-of-bias exclusions, and to the effect-size metric. The third is the *multiverse* or *specification-curve* approach, which runs all reasonable combinations of choices at once and displays the distribution of results [@voracek2019which]. Publication bias, a special and important kind of sensitivity analysis, has its own chapter (Chapter \@ref(sec-publication-bias)).
 
 ## Outliers, leverage, and influence {#sec-sensitivity-concepts}
 
@@ -311,7 +311,113 @@ forest(cum, xlim = c(-5, 2.5), atransf = exp, at = log(c(0.1, 0.25, 0.5, 1, 2)),
 <p class="caption">(\#fig:sens-cumul-forest)Cumulative meta-analysis of the BCG trials ordered by publication year. Each row shows the random-effects estimate (risk ratio) based on all trials up to and including the one named.</p>
 </div>
 
-By the third trial (1953), the cumulative risk ratio was 0.38 and already clearly below 1. It drifted towards the null as later trials were added, reaching 0.49 after the large 1980 Madras trial, while $\hat\tau^2$ grew from 0.087 to 0.313 and $I^2$ from 41% to 92%. The early trials were not wrong about the existence of a protective effect, but they overstated its size and hid how variable it would prove to be. Ordering by a moderator rather than time (for the BCG trials, absolute latitude) turns the cumulative plot into an informal moderator analysis. Note that cumulative meta-analysis involves repeated looks at accumulating data; if it is used to decide when to stop doing trials, the multiplicity of tests must be handled formally.
+By the third trial (1953), the cumulative risk ratio was 0.38 and already clearly below 1. It drifted towards the null as later trials were added, reaching 0.49 after the large 1980 Madras trial, while $\hat\tau^2$ grew from 0.087 to 0.313 and $I^2$ from 41% to 92%. The early trials were not wrong about the existence of a protective effect, but they overstated its size and hid how variable it would prove to be. Ordering by a moderator rather than time (for the BCG trials, absolute latitude) turns the cumulative plot into an informal moderator analysis. Note that cumulative meta-analysis involves repeated looks at accumulating data; if it is used to decide when to stop doing trials, the multiplicity of tests must be handled formally. That is the subject of the next section.
+
+## Sequential methods and the required information size {#sec-sensitivity-sequential}
+
+A meta-analysis that is updated every time a new trial appears performs a significance test at every update. Even if the intervention has no effect, the chance that the cumulative $z$-statistic crosses $\pm 1.96$ at *some* update is much larger than 5%, for the same reason that repeated interim analyses of a single trial inflate its Type I error. @pogue1997cumulating proposed borrowing the group-sequential monitoring boundaries used in trials, and the Copenhagen Trial Unit developed the idea into *trial sequential analysis* (TSA) [@wetterslev2008trial]. TSA has two ingredients: a *required information size*, the number of participants a meta-analysis needs before its result can be regarded as conclusive, and *alpha-spending boundaries* that the cumulative $z$-curve must cross before that information size is reached.
+
+### Required information size {#sec-sensitivity-ris}
+
+The starting point is the sample size of a single adequately powered trial, since a meta-analysis should contain at least as much information as one [@wetterslev2008trial]. For a binary outcome with anticipated control-group risk $p_C$, a relative risk reduction $\mathrm{RRR}$ that one wants to detect, $p_I = p_C(1 - \mathrm{RRR})$, and $\bar p = (p_C + p_I)/2$, the required total number of participants for a two-sided test at level $\alpha$ with power $1 - \beta$ is
+$$
+\mathrm{RIS} = 4\,(z_{1-\alpha/2} + z_{1-\beta})^2\,\frac{\bar p(1 - \bar p)}{(p_C - p_I)^2}.
+$$
+This is the fixed-effect information size. Heterogeneity reduces the information each participant contributes, so @wetterslev2009estimating inflate it with the *diversity*
+$$
+D^2 = \frac{V_R - V_F}{V_R}, \qquad \mathrm{HARIS} = \frac{\mathrm{RIS}}{1 - D^2},
+$$
+where $V_F$ and $V_R$ are the variances of the pooled estimate under the common-effect and random-effects models. $D^2$ is the relative reduction in variance when the random-effects model is replaced by the common-effect model, and they show that $D^2 \ge I^2$ always, so adjusting by $I^2$ understates the information needed.
+
+We use the `perioOxy` data from the `RTSA` package: 15 trials comparing 80% with 30--35% perioperative oxygen, with surgical site infection as the outcome. We order the trials by year, take the pooled control-group risk as $p_C$, and ask for 80% power to detect a 20% relative risk reduction:
+
+
+``` r
+data(perioOxy, package = "RTSA")
+po <- perioOxy
+po$year <- as.numeric(sub(".* ", "", po$study))
+po <- po[order(po$year), ]
+pC <- with(po, sum(eC) / sum(nC))
+pI <- pC * (1 - 0.2)
+pbar <- (pC + pI) / 2
+ris <- 4 * (qnorm(0.975) + qnorm(0.80))^2 * pbar * (1 - pbar) / (pC - pI)^2
+po_mh <- rma.mh(measure = "RR", ai = eI, n1i = nI, ci = eC, n2i = nC, data = po)
+po_re <- rma(measure = "RR", ai = eI, n1i = nI, ci = eC, n2i = nC, data = po,
+             method = "DL")
+D2 <- 1 - po_mh$se^2 / po_re$se^2
+round(c(pC = pC, I2 = po_re$I2 / 100, D2 = D2), 3)
+#>    pC    I2    D2 
+#> 0.129 0.484 0.641
+round(c(RIS = ris, HARIS = ris / (1 - D2), accrued = sum(po$nI + po$nC)))
+#>     RIS   HARIS accrued 
+#>    4845   13506    7219
+```
+
+
+
+With a control risk of 12.9%, a single trial would need about 4,845 participants. The trials are moderately heterogeneous ($I^2 =$ 48.4%), but the diversity is larger, $D^2 =$ 64.1%, and the heterogeneity-adjusted information size is 13,506. Here $V_F$ is the Mantel–Haenszel variance and $V_R$ the DerSimonian–Laird random-effects variance. The 15 trials have randomised 7,219 participants, 53% of the required information.
+
+### Trial sequential analysis {#sec-sensitivity-tsa}
+
+The monitoring boundaries come from an alpha-spending function [@lan1983discrete]. If $t \in (0, 1]$ is the information fraction (accrued over required information), the O'Brien–Fleming-type spending function
+$$
+\alpha^*(t) = 2 - 2\,\Phi\!\left(\frac{z_{1-\alpha/2}}{\sqrt t}\right)
+$$
+releases almost none of the Type I error early and the full $\alpha$ at $t = 1$. At each update the boundary is chosen so that the probability under the null of having crossed it at any update so far equals $\alpha^*(t)$. Early boundaries are therefore very wide and shrink towards $\pm z_{1-\alpha/2}$ as the information size is approached. `RTSA()` computes the information size, the boundaries, and the cumulative $z$-statistics in one call:
+
+
+``` r
+tsa <- RTSA(type = "analysis", data = po, outcome = "RR", mc = 0.8, side = 2,
+            alpha = 0.05, beta = 0.2, es_alpha = "esOF", random_adj = "D2")
+tsa_df <- tsa$results$results_df
+round(tsa_df[, c("sma_timing", "upper", "z_fixed", "z_random")], 3)
+#>    sma_timing  upper z_fixed z_random
+#> 1       0.032 20.000  -2.372   -2.372
+#> 2       0.042 20.000  -0.505    0.007
+#> 3       0.061 20.000  -1.586   -0.354
+#> 4       0.063     NA  -1.718   -0.617
+#> 5       0.192  4.995  -2.722   -0.992
+#> 6       0.201     NA  -2.171   -0.456
+#> 7       0.289  4.014  -1.959   -0.585
+#> 8       0.302  3.967  -2.284   -0.894
+#> 9       0.306     NA  -2.323   -0.996
+#> 10      0.344  3.687  -1.810   -0.682
+#> 11      0.371  3.557  -1.819   -0.739
+#> 12      0.381  3.538  -1.838   -0.806
+#> 13      0.434  3.257  -1.758   -0.808
+#> 14      0.445  3.261  -1.967   -1.025
+#> 15      0.460  3.210  -2.137   -1.218
+#> 16      1.003  1.966      NA       NA
+unlist(tsa$results[c("RIS", "HARIS", "SMA_HARIS", "AIS")])
+#>       RIS     HARIS SMA_HARIS       AIS 
+#>      4845     15688     15729      7219
+```
+
+
+
+`RTSA` reproduces the fixed-effect information size computed by hand (4,845). Its heterogeneity-adjusted value, 15,688, is larger than ours because its default random-effects variance includes the Hartung–Knapp–Sidik–Jonkman adjustment, which raises $D^2$ to 69.1%: $D^2$ depends on the model as much as on the data. A small further inflation (to 15,729) preserves power under sequential monitoring. Figure \@ref(fig:sens-tsa-plot) shows the result. The common-effect cumulative $z$-statistic falls below $-1.96$ at 7 of the 15 updates, starting with the very first trial, so a conventional cumulative meta-analysis would have declared a significant benefit of high oxygen several times. After the first trial the random-effects $z$-statistic never reaches $\pm 1.96$ (its largest absolute value is 1.22), and neither curve crosses the monitoring boundaries, which are still at $\pm$ 3.21 when the last trial is added. The random-effects risk ratio is 0.87 with a TSA-adjusted 95% confidence interval from 0.60 to 1.26. The conclusion is that the evidence is insufficient: neither a 20% reduction nor its absence has been established.
+
+
+``` r
+plot(tsa)
+```
+
+<div class="figure" style="text-align: center">
+<img src="08-sensitivity_files/figure-html/sens-tsa-plot-1.png" alt="Trial sequential analysis of the perioperative oxygen trials. The black line is the cumulative random-effects $z$-statistic, the red dashed curves are the O'Brien–Fleming-type monitoring boundaries, and the green dashed lines the conventional $\pm 1.96$. The horizontal axis is the accrued number of participants as a percentage of the diversity-adjusted required information size." width="100%" />
+<p class="caption">(\#fig:sens-tsa-plot)Trial sequential analysis of the perioperative oxygen trials. The black line is the cumulative random-effects $z$-statistic, the red dashed curves are the O'Brien–Fleming-type monitoring boundaries, and the green dashed lines the conventional $\pm 1.96$. The horizontal axis is the accrued number of participants as a percentage of the diversity-adjusted required information size.</p>
+</div>
+
+### Critiques and limits of trial sequential analysis {#sec-sensitivity-tsa-critique}
+
+
+
+TSA is widely used in clinical meta-analyses, and it does what it was designed to do: in an empirical study of 100 Cochrane meta-analyses with a binary outcome, a non-significant result, and enough participants to be adequately powered, @imberger2016false found that conventional cumulative updating would have produced 14 false-positive results and that TSA prevented 13 of them. It is nevertheless contested, for reasons that matter in applications.
+
+First, the required information size depends on inputs that are chosen, not estimated: the anticipated effect, the control risk, $\alpha$ and $\beta$, and a heterogeneity adjustment that is itself estimated with great uncertainty from the trials already available. Changing the anticipated relative risk reduction from 20% to 15% multiplies the information size by 1.82, and the Q-profile 95% confidence interval for $\tau^2$ in these 15 trials runs from 0.0032 to 0.467, a factor of more than 140. Second, the random-effects case is conceptually awkward. @kulinskaya2013trial point out that when there is heterogeneity, adding participants to a meta-analysis does not by itself make its variance small, because the between-trial variance does not shrink with sample size: what matters is the number of new trials. They derive the minimum number of further trials, and their sizes, that a random-effects meta-analysis would need; `RTSA` provides a calculation of this kind through `random_adj = "tau2"` (its default), which bases the information size on $\hat\tau^2$ and a number of future trials, and for these data asks for at least 6 additional trials. Third, a meta-analysis is not a trial: its sequence of updates is not planned, studies are not added in a pre-specified order, and the review question may change over time. @higgins2010sequential proposed sequential methods for random-effects meta-analysis that update the evidence on the between-study variance with an informative prior, and found Type I and II error rates close to nominal in simulations.
+
+In practice, TSA is most defensible for a living or prospectively planned meta-analysis whose information size and boundaries are specified in the protocol. Used retrospectively, as here, it is best read as a sensitivity analysis that asks how much the evidence would have to grow before a conventional $p < .05$ could be trusted, and the TSA-adjusted interval should be reported alongside, not instead of, the conventional one.
+
+A related descriptive measure is the *fragility index* of a meta-analysis, defined by @atal2019statistical as the minimum number of participants in one or more trials whose event status would have to change (from event to non-event or the reverse) to change the statistical significance of the pooled effect. In a cross-sectional study of 906 Cochrane meta-analyses with binary outcomes, they found that the significance of a third of them depended on five or fewer participants. Like TSA, the fragility index inherits the arbitrariness of the 5% threshold, but it is a vivid way to show that a "significant" pooled result can rest on very few events.
 
 ## L'Abbé plot {#sec-sensitivity-labbe}
 
@@ -467,7 +573,7 @@ Once an outlying or influential study has been identified, there are three broad
 
 *Deletion* is simple and transparent: report the analysis with and without the study. It is justified when the study is demonstrably different in a way that puts it outside the review question or makes it untrustworthy (a data error, a different population, evidence of misconduct). It is not justified merely because the study is inconvenient; deleting every study with $|t_i| > 2$ will make any meta-analysis look homogeneous.
 
-*Downweighting* keeps the study but limits its influence, for example by using weights from a heavy-tailed random-effects distribution or by robust estimation. It acknowledges that the study carries information while guarding against undue influence. The cost is that the weights become another analytic choice that must be justified.
+*Downweighting* keeps the study but limits its influence, for example by using weights from a heavy-tailed random-effects distribution or by robust estimation. It acknowledges that the study carries information while guarding against undue influence. The cost is that the weights become another analytic choice that must be justified. Random-effects models with heavy-tailed or mixture distributions for the true effects, which downweight outlying studies automatically, are discussed with the other random-effects models in Chapter \@ref(sec-models).
 
 *Modelling* treats the outlier as a signal. Either a mean-shift indicator for the study (which reproduces deletion for the estimate of $\mu$ but keeps the study visible in the model) or, more usefully, a substantive moderator that explains why the study differs. In the teacher-expectancy data, the expectancy manipulation should matter only when teachers do not already know their pupils. Maxwell (1970) had one week of prior contact:
 
@@ -659,10 +765,11 @@ Treating influence thresholds as significance tests and deleting every flagged s
 - Outliers are studies the model fits poorly; influential studies are those whose removal changes the results. Studentized deleted residuals, DFFITS, Cook's distances, covariance ratios, and leave-one-out $\tau^2$ and $Q_E$ quantify both.
 - Leave-one-out, Baujat, GOSH, radial, and QQ plots show whether one or a few studies drive the estimate or the heterogeneity.
 - Cumulative meta-analysis shows how the evidence accumulated over time; bootstrap and profile intervals show how weakly $\tau^2$ is determined.
+- Repeated updating inflates the Type I error. Trial sequential analysis compares the accrued information with a heterogeneity-adjusted required information size and uses alpha-spending boundaries; its inputs are assumptions, and it is most defensible when planned prospectively.
 - The pooled mean is often robust to the $\tau^2$ estimator, but conclusions can depend strongly on the set of studies and the effect-size metric.
 - Outliers can be deleted, downweighted, or modelled; each is a choice to justify, and reporting several side by side is usually best.
 - Specification curves display the results of all defensible combinations of analytic choices and reveal which choices matter.
 
 ## Further reading {#sec-sensitivity-reading}
 
-@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.
+@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @wetterslev2008trial and @wetterslev2009estimating introduced trial sequential analysis and the diversity-adjusted information size, building on @pogue1997cumulating and the spending functions of @lan1983discrete; @kulinskaya2013trial and @higgins2010sequential discuss the difficulties of sequential random-effects meta-analysis, and @atal2019statistical define the fragility index of a meta-analysis. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.

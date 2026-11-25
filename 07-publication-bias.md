@@ -18,7 +18,7 @@ main families of methods: graphical diagnostics (funnel plots), tests for funnel
 PET-PEESE, limit meta-analysis), explicit selection models (step and smooth weight functions,
 the Copas model, the Andrews-Kasy framework), sensitivity analyses that ask how strong selection
 would have to be to overturn a conclusion, methods that use only significant $p$-values
-($p$-curve, $p$-uniform), the test of excess significance, and robust Bayesian model averaging.
+($p$-curve, $p$-uniform, $z$-curve), the test of excess significance, and robust Bayesian model averaging.
 The chapter closes with what simulation studies say about these methods and a triangulation
 workflow. No single method answers the question "is there publication bias, and how large is
 the true effect?" The practical aim is to report a set of analyses whose assumptions differ, so
@@ -666,6 +666,15 @@ intercept is an extrapolation far outside the observed range of standard errors.
 precise study has $\sigma_i \approx 0.08$, so the intercept is extrapolated well beyond the
 observed range. PET-PEESE is most useful as one member of a set of sensitivity analyses rather
 than as the preferred estimate.
+
+PET-PEESE also takes the reported standard errors at face value. In observational research the
+standard error is itself a product of analytic choices (clustering, robust variance estimators,
+specification), and if those choices are made until a result is significant, the reported
+precision is spuriously high and the regressor is correlated with the error term. The
+meta-analysis instrumental-variable estimator (MAIVE), which replaces the reported standard
+error by its projection on the inverse sample size, is described with the other economics
+methods in Section \@ref(sec-causal-maive). Cluster-robust versions of PET-PEESE for several
+estimates per study appear in Section \@ref(sec-causal-example-selection).
 
 ## Selection models {#sec-publication-bias-selection}
 
@@ -1405,6 +1414,142 @@ $p$-uniform* gives $\hat\mu = 0.179$ (95% CI 0.066 to 0.334) and $\hat\tau^2 = 0
 the 3PSM and the unadjusted estimate. Its heterogeneity estimate is very close to that of the
 3PSM, as one would expect from the close relationship between the methods.
 
+### $z$-curve {#sec-publication-bias-zcurve}
+
+$p$-curve and $p$-uniform ask about the effect behind a set of significant results. *$z$-curve*
+asks about the studies' *power* [@brunner2020estimating; @bartos2022zcurve]. Each two-sided
+$p$-value is converted to an absolute $z$-statistic, $z_i = \Phi^{-1}(1 - p_i/2)$, so results
+from $t$, $F$, $\chi^2$ or any other test can be combined, and no effect sizes or standard
+errors are needed. This makes the method suited to bodies of research that test many different
+hypotheses, such as the output of a journal or a field, as well as to a conventional
+meta-analysis. Two quantities are estimated. The *expected replication rate* (ERR) is the mean
+power of the statistically significant results, that is, the expected share of exact
+replications that would again be significant in the same direction. The *expected discovery
+rate* (EDR) is the mean power of all tests that were conducted, before selection, that is, the
+share of significant results one would expect if every test were reported. Comparing the EDR
+with the *observed discovery rate* (ODR), the share of significant results among those
+reported, quantifies selection: under no selection the two agree, and an ODR far above the EDR
+means that non-significant results are missing [@bartos2022zcurve].
+
+The model treats the significant $z$-statistics between 1.96 and 6 as draws from a mixture of
+$K = 7$ normal densities with unit variance and fixed means $\mu_k = 0, 1, \ldots, 6$, folded at
+zero and truncated to the significance region. Let $P_k$ be the power of component $k$, the
+probability that $|Z| > 1.96$ when $Z \sim N(\mu_k, 1)$, and let $\pi_k$ be the mixing weights
+of the *significant* results, estimated by the EM algorithm. Selection on significance
+multiplies the weight of each component by its power, so dividing by $P_k$ undoes it:
+$$
+\text{ERR} \approx \sum_{k} \pi_k P_k, \qquad
+\text{EDR} = \frac{1}{\sum_{k} \pi_k / P_k} .
+$$
+(The ERR uses the power in the observed direction, which differs from $P_k$ only for components
+near zero.) Very large statistics, above 6, are set aside and assigned a power of essentially
+one. Because the components can have any weights, power may vary across studies, and this is the
+main difference from $p$-curve and $p$-uniform, which assume one common effect. In the
+simulations of @brunner2020estimating, those two methods overestimated mean power when effect
+sizes as well as sample sizes varied, while $z$-curve remained accurate. The EDR is an
+extrapolation from the significant results to the unseen non-significant ones, so its
+confidence intervals are much wider than those of the ERR; @bartos2022zcurve calibrated
+bootstrap intervals to have good coverage across many scenarios. The EDR also yields an upper
+bound on the false discovery rate among the significant results [@bartos2022zcurve], Sorić's
+bound $\text{FDR}_{\max} = (1/\text{EDR} - 1)\,\alpha/(1 - \alpha)$.
+
+As for $p$-curve, we first check the method on simulated data where the truth is known. Of
+2,000 conducted tests, 40% have no effect and the rest have non-centrality parameters drawn from
+a gamma distribution, so power varies widely. All significant results are published and only
+10% of the others.
+
+
+``` r
+library(zcurve)
+set.seed(2026)
+k_all <- 2000
+ncp <- ifelse(runif(k_all) < 0.4, 0, rgamma(k_all, shape = 2, scale = 1))
+z_all <- rnorm(k_all, mean = ncp)
+crit <- qnorm(0.975)
+sig_all <- abs(z_all) > crit
+power_all <- pnorm(ncp - crit) + pnorm(-ncp - crit)             # two-sided power
+power_dir <- ifelse(z_all > 0, pnorm(ncp - crit), pnorm(-ncp - crit))
+reported <- sig_all | runif(k_all) < 0.10
+z_rep <- abs(z_all[reported])
+zc_sim <- zcurve(z_rep, bootstrap = FALSE)
+zc_sim_tab <- rbind(
+  truth  = c(ODR = mean(abs(z_rep) > crit), EDR = mean(power_all),
+             ERR = mean(power_dir[sig_all])),
+  zcurve = c(ODR = mean(abs(z_rep) > crit), EDR = EDR(zc_sim)$Estimate,
+             ERR = ERR(zc_sim)$Estimate))
+round(zc_sim_tab, 3)
+#>          ODR   EDR   ERR
+#> truth  0.817 0.306 0.646
+#> zcurve 0.817 0.280 0.701
+```
+
+The reported results are 82% significant, but the tests
+that were run had a mean power of only 0.31. $z$-curve, fitted to the
+627 significant results only, recovers both the EDR
+(0.28) and the ERR (0.7 against a
+true 0.65) reasonably well. The method needs many significant
+results: the writing-to-learn data have only 14, far too few to pin down seven mixture weights.
+A better-suited example comes with the `zcurve` package, which contains the $z$-statistics of 90
+original studies from the Reproducibility Project: Psychology
+[@opensciencecollaboration2015estimating], in which each study was replicated.
+
+
+``` r
+set.seed(2026)
+zc_osc <- zcurve(OSC.z, bootstrap = 200)
+summary(zc_osc, all = TRUE)
+#> Call:
+#> zcurve(z = OSC.z, bootstrap = 200)
+#> 
+#> model: EM via EM
+#> 
+#>               Estimate  l.CI   u.CI
+#> ERR              0.618 0.439  0.736
+#> EDR              0.391 0.077  0.695
+#> Soric FDR        0.082 0.023  0.634
+#> File Drawer R    1.555 0.439 12.055
+#> Expected N         217   122   1110
+#> Missing N          127    32   1020
+#> 
+#> Model converged in 37 + 142 iterations
+#> Fitted using 73 z-values. 90 supplied, 85 significant (ODR = 0.94, 95% CI [0.87, 0.98]).
+#> Q = -60.61, 95% CI[-70.52, -44.91]
+```
+
+
+``` r
+plot(zc_osc, CI = TRUE, annotation = TRUE, main = "")
+```
+
+<div class="figure" style="text-align: center">
+<img src="07-publication-bias_files/figure-html/pubbias-zcurve-plot-1.png" alt="z-curve of the 90 original studies of the Reproducibility Project: Psychology. The histogram shows the observed z-statistics. The solid curve is the fitted density, estimated from the significant results to the right of the vertical line at 1.96 and extended to the left to show the distribution of all conducted tests that the model implies; the dotted curves are bootstrap confidence bands. The annotations give the observed and expected discovery rates and the expected replication rate." width="85%" />
+<p class="caption">(\#fig:pubbias-zcurve-plot)z-curve of the 90 original studies of the Reproducibility Project: Psychology. The histogram shows the observed z-statistics. The solid curve is the fitted density, estimated from the significant results to the right of the vertical line at 1.96 and extended to the left to show the distribution of all conducted tests that the model implies; the dotted curves are bootstrap confidence bands. The annotations give the observed and expected discovery rates and the expected replication rate.</p>
+</div>
+
+
+
+Of the 90 original results, 94% are significant (ODR, 95% CI
+0.87 to 0.98), but the estimated EDR is only
+0.39 (95% CI 0.08 to
+0.7). The two intervals do not overlap, which is strong evidence
+that the original literature was selected for significance (Figure
+\@ref(fig:pubbias-zcurve-plot)). The estimated ERR is 0.62
+(95% CI 0.44 to 0.74). The actual
+replications succeeded for 35 of these 90 studies, according to the package documentation, a rate
+of 0.39. This is far below the ERR and close to the EDR. The ERR assumes exact
+replications of the same population effect, and real replications differ in samples, settings and
+procedures, so the ERR is best read as an optimistic benchmark. Sorić's bound puts the maximum
+false discovery rate at 0.08, but its confidence interval
+reaches 0.63, which shows how weakly 73 fitted values
+constrain the EDR. A final analysis would use the default 1,000 bootstrap samples.
+
+$z$-curve and the methods of the previous sections answer different questions. $p$-uniform and
+$p$-uniform* estimate an average effect size, which is what a meta-analysis of one effect
+usually needs. $z$-curve estimates power and the extent of selection, it works for collections of
+tests of unrelated hypotheses on different scales, and it allows power to vary. It shares their
+assumption that all significant results are equally likely to be reported, so $p$-hacking that
+pushes results just past 1.96 distorts it as well.
+
 ## Test of excess significance {#sec-publication-bias-tes}
 
 @ioannidis2007exploratory proposed comparing the observed number $O$ of significant results
@@ -1637,7 +1782,9 @@ that has empty $p$-value intervals has not been estimated; report the failure.
 
 *Ignoring dependence.* Most methods here assume independent estimates. With several estimates
 per study (Chapter \@ref(sec-dependent-effects)), use cluster-robust versions, such as the
-`cluster` argument of `pubbias_meta()`, or aggregate within studies first.
+`cluster` argument of `pubbias_meta()`, PET-PEESE with cluster-robust standard errors, or a
+step-function selection model with cluster-robust or cluster-bootstrap inference (Section
+\@ref(sec-causal-example-selmodel)), or aggregate within studies first.
 
 *Over-interpreting the adjusted estimate.* All corrections rest on untestable assumptions about
 the missing studies; the honest output is a range of estimates under explicit assumptions.
@@ -1659,7 +1806,9 @@ the missing studies; the honest output is a range of estimates under explicit as
   conclusion and is valid under weak assumptions.
 - $p$-curve tests whether significant results contain evidential value; $p$-uniform and
   $p$-uniform* estimate effects from the conditional distribution of $p$-values. $p$-curve and
-  $p$-uniform assume homogeneity; $p$-uniform* allows for heterogeneity.
+  $p$-uniform assume homogeneity; $p$-uniform* allows for heterogeneity. $z$-curve estimates the
+  mean power of significant results (ERR) and of all conducted tests (EDR), allows power to vary,
+  and quantifies selection by comparing the EDR with the observed discovery rate.
 - No method dominates in simulations. Report several methods with different assumptions and draw
   conclusions about the robustness of the finding, not about a single "true" adjusted estimate.
 
@@ -1674,3 +1823,5 @@ perspective on identification. @mathur2020sensitivity develop the sensitivity an
 and are worth reading for its interpretation. @carter2019correcting is the most comprehensive
 comparison of methods for psychology, and @kvarven2020comparing an instructive empirical check.
 For robust Bayesian meta-analysis, start with @maier2023robust and then @bartos2023robust.
+@brunner2020estimating and @bartos2022zcurve introduce $z$-curve and its replication and
+discovery rates.

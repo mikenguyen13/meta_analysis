@@ -4,7 +4,7 @@
 
 With effect sizes $y_i$ and sampling variances $v_i$ in hand (Chapter \@ref(sec-effect-sizes)), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect model and the random-effects model, together with a third model, the fixed-effects model, that gives the same numbers as the common-effect model but answers a different question. Most of the methodological disagreement in applied meta-analysis is not about how to compute a weighted average but about what that average estimates, how uncertain it is, and how much the true effects vary around it. Those three questions organize the chapter: estimands, heterogeneity, and inference.
 
-The chapter then turns to the practical tools: estimators of the between-study variance $\tau^2$ and how they compare, confidence intervals for $\tau^2$, the Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment for inference on the mean, prediction intervals, forest plots, the same analysis in the `meta` package, and the special methods for binary outcomes with rare events (Mantel-Haenszel, Peto, and generalized linear mixed models). Moderator analyses and subgroup comparisons, which try to *explain* heterogeneity rather than merely quantify it, are the subject of Chapter \@ref(sec-heterogeneity).
+The chapter then turns to the practical tools: estimators of the between-study variance $\tau^2$ and how they compare, confidence intervals for $\tau^2$, the Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment for inference on the mean, prediction intervals, forest plots, the same analysis in the `meta` package, the special methods for binary outcomes with rare events (Mantel-Haenszel, Peto, and generalized linear mixed models), the power of a meta-analysis, and random-effects models with non-normal distributions of true effects. Moderator analyses and subgroup comparisons, which try to *explain* heterogeneity rather than merely quantify it, are the subject of Chapter \@ref(sec-heterogeneity).
 
 
 ``` r
@@ -278,6 +278,30 @@ round(tab, 3)
 
 Across the nine estimators that use inverse-variance-type weights, $\hat\tau^2$ ranges from 0.228 (HS) to 0.346 (SJ), with REML at 0.313, DL at 0.309 and PM/EB at 0.318. As expected, HS and ML are at the low end. Yet the pooled log risk ratio barely moves, from $-0.705$ to $-0.717$, and its standard error from 0.159 to 0.187: with 13 studies and this much heterogeneity, the choice of estimator matters more for the description of heterogeneity than for the mean. The GENQ row is a warning about a different issue. With sample-size weights, `rma()` uses the same weights to estimate $\mu$, so the TPT Madras trial (about 177,000 participants and a null result) dominates and the pooled risk ratio becomes $\exp(-0.236) = 0.79$. User-supplied weights change the estimand, not just the variance estimate.
 
+The generalized $Q$ family also yields the *two-step* estimators of @dersimonian2007randomeffects. The DerSimonian-Laird estimate uses common-effect weights $1/v_i$, which are optimal only when $\tau^2 = 0$. A second step recomputes the moment estimator with the weights $a_i = 1/(v_i + \hat\tau^2_{\text{DL}})$ implied by the first step (the two-step DL estimator, sometimes written DL2); the same idea applied to HE gives a two-step HE estimator. Iterating the step to convergence gives the Paule-Mandel estimator, which is why DerSimonian and Kacker describe PM as the optimal member of the family and the two-step estimators as approximations to it. In `rma()` a two-step estimate is obtained with `method = "GENQ"` and the second-step weights; because those weights would also be used for $\hat\mu$, the mean is then re-estimated with the usual random-effects weights by fixing `tau2`.
+
+
+``` r
+dl  <- rma(yi, vi, data = dat, method = "DL")
+dl2 <- rma(yi, vi, data = dat, method = "GENQ", weights = 1 / (vi + dl$tau2))
+he  <- rma(yi, vi, data = dat, method = "HE")
+he2 <- rma(yi, vi, data = dat, method = "GENQ", weights = 1 / (vi + he$tau2))
+t2_iter <- dl$tau2
+for (step in 1:25) {                       # iterate the two-step update
+  t2_iter <- rma(yi, vi, data = dat, method = "GENQ",
+                 weights = 1 / (vi + t2_iter))$tau2
+}
+c(DL = dl$tau2, DL2 = dl2$tau2, HE = he$tau2, HE2 = he2$tau2,
+  iterated = t2_iter, PM = rma(yi, vi, data = dat, method = "PM")$tau2)
+#>       DL      DL2       HE      HE2 iterated       PM 
+#>   0.3088   0.3180   0.3286   0.3182   0.3181   0.3181
+coef(rma(yi, vi, data = dat, tau2 = dl2$tau2))   # mean with DL2 plugged in
+#> intrcpt 
+#>  -0.715
+```
+
+A single extra step moves the DL estimate from 0.309 to 0.318, essentially the Paule-Mandel value of 0.318 reached by iteration. Starting from the HE estimate of 0.329, which errs in the other direction, one step lands in the same place (0.318). The two-step estimators matter mainly as a cheap improvement on DL in software that offers nothing better; where PM or REML is available they have little to add.
+
 ### Recommendations {#sec-models-tau2-recommend}
 
 @veroniki2015methods reviewed the estimators and recommended the Paule-Mandel estimator for both dichotomous and continuous outcomes, with REML as an alternative for continuous outcomes. In a large simulation study, @langan2018comparison recommended REML over the other estimators, noted that with the small numbers of studies typical in health research no estimator gives a reliable gauge of heterogeneity, and found that HKSJ confidence intervals for the mean were much less sensitive to the choice of $\tau^2$ estimator than Wald intervals. The DerSimonian-Laird estimator, long the default in many programs, is negatively biased when heterogeneity is substantial and is no longer recommended as a default. REML (the default in `metafor` and `meta`) or PM are sensible defaults; reporting a sensitivity analysis with a second estimator is good practice when the conclusions hinge on $\tau^2$.
@@ -304,6 +328,48 @@ confint(re)
 ```
 
 The 95% CI for $\tau^2$ runs from 0.120 to 1.112, so $\tau$ is somewhere between 0.35 and 1.05: the heterogeneity is certainly substantial, but its size is uncertain by a factor of three. The interval for $I^2$ (82% to 98%) is correspondingly wide. Note that the Q-profile interval does not depend on which point estimator was used; `confint()` on a DL fit returns the same limits.
+
+### Other intervals for tau-squared {#sec-models-tau2-ci-other}
+
+The Q-profile interval is one member of a larger family. Cochran's $Q$ itself, computed with the common-effect weights $1/v_i$, does not follow a $\chi^2_{k-1}$ distribution when $\tau^2 > 0$, but its exact distribution under the random-effects model is a weighted sum of $\chi^2_1$ variables whose weights depend on $\tau^2$ [@biggerstaff2008exact]. Inverting that distribution gives an exact confidence interval for $\tau^2$ centred, in effect, on the DerSimonian-Laird estimate, the Biggerstaff-Jackson interval. @jackson2013confidence generalized the construction to a $Q$ statistic with arbitrary fixed weights $a_i$; the Q-profile method corresponds instead to weights that change with $\tau^2$. All these intervals are exact under the normal random-effects model with known $v_i$, so they differ in efficiency, not in validity. Jackson's pragmatic recommendation, when some but an unknown amount of heterogeneity is expected, is to use weights equal to the reciprocals of the within-study standard errors, $a_i = 1/\sqrt{v_i}$, a compromise between the common-effect weights ($1/v_i$, efficient when $\tau^2$ is small) and equal weights (efficient when $\tau^2$ is large).
+
+A different route is the profile likelihood [@hardy1996likelihood]: the interval contains all values of $\tau^2$ whose (restricted) log-likelihood, maximized over $\mu$, lies within $\chi^2_{1,0.95}/2 = 1.92$ units of the maximum. It is not exact in small samples, because it relies on asymptotic likelihood theory, but it uses the same likelihood as the ML and REML point estimates and extends naturally to meta-regression and multilevel models (Section \@ref(sec-dependent-profile) uses profile likelihoods to check the variance components of multilevel models).
+
+In `metafor`, `confint(type = "PL")` gives the profile likelihood interval for an ML or REML fit, and `type = "GENQ"` gives the generalized $Q$ interval for a model fitted with `method = "GENQ"` and the chosen weights (computing the exact distribution needs the `CompQuadForm` package). The function below collects five intervals for the BCG trials and for the six homogeneous-looking warfarin trials analyzed in Section \@ref(sec-models-adhoc).
+
+
+``` r
+tau2_intervals <- function(d) {
+  f_reml <- rma(yi, vi, data = d, method = "REML")
+  f_ml   <- rma(yi, vi, data = d, method = "ML")
+  f_bj   <- rma(yi, vi, data = d, method = "GENQ", weights = 1 / vi)
+  f_j    <- rma(yi, vi, data = d, method = "GENQ", weights = 1 / sqrt(vi))
+  rbind("Q-profile (REML estimate)"       = confint(f_reml)$random["tau^2", ],
+        "Generalized Q, a = 1/v (BJ)"     = confint(f_bj, type = "GENQ")$random["tau^2", ],
+        "Generalized Q, a = 1/sqrt(v)"    = confint(f_j,  type = "GENQ")$random["tau^2", ],
+        "Profile likelihood (REML)"       = confint(f_reml, type = "PL")$random["tau^2", ],
+        "Profile likelihood (ML)"         = confint(f_ml,   type = "PL")$random["tau^2", ])
+}
+ci_bcg <- tau2_intervals(dat)
+round(ci_bcg, 3)
+#>                              estimate ci.lb ci.ub
+#> Q-profile (REML estimate)       0.313 0.120 1.111
+#> Generalized Q, a = 1/v (BJ)     0.309 0.101 1.636
+#> Generalized Q, a = 1/sqrt(v)    0.315 0.122 1.140
+#> Profile likelihood (REML)       0.313 0.115 0.965
+#> Profile likelihood (ML)         0.280 0.105 0.834
+ci_hart <- tau2_intervals(escalc(measure = "IRR", x1i = x1i, t1i = t1i, x2i = x2i,
+                                 t2i = t2i, data = dat.hart1999))
+round(ci_hart, 3)
+#>                              estimate ci.lb ci.ub
+#> Q-profile (REML estimate)           0     0 0.680
+#> Generalized Q, a = 1/v (BJ)         0     0 0.476
+#> Generalized Q, a = 1/sqrt(v)        0     0 0.592
+#> Profile likelihood (REML)           0     0 0.387
+#> Profile likelihood (ML)             0     0 0.252
+```
+
+For the BCG trials all five intervals agree that heterogeneity is substantial; they disagree about how large it might be. The lower limits are close (0.10 to 0.12), but the upper limits range from 0.83 for the ML profile likelihood to 1.64 for the Biggerstaff-Jackson interval, which inherits the inefficiency of common-effect weights when heterogeneity is large. The interval with $a_i = 1/\sqrt{v_i}$ is close to the Q-profile interval. For the warfarin trials every interval starts at zero, and the upper limits, from 0.25 to 0.68, show that six trials cannot rule out heterogeneity on the log rate ratio scale that would matter clinically. The profile likelihood intervals are the narrowest in both examples, which is a reason for caution rather than a virtue: their coverage rests on large-sample theory, and in the simulations of @viechtbauer2006confidence the Q-profile method gave the most accurate coverage. The Q-profile interval therefore remains a good default; reporting a second interval is a cheap check when conclusions depend on how large $\tau^2$ could be.
 
 ## Inference on the mean effect {#sec-models-inference}
 
@@ -775,6 +841,148 @@ sapply(c(Wald = "z", HKSJ = "knha", adhoc = "adhoc"), function(tt) {
 
 With four heterogeneous trials, the Wald interval for the risk ratio is already wide, and the HKSJ interval based on $t_3$ is considerably wider. Neither is wrong in its own terms: the Wald interval ignores the uncertainty in $\hat\tau^2$, and the HKSJ interval reports it honestly. Options when $k$ is very small include reporting the studies individually with a descriptive synthesis, presenting a common-effect (or fixed-effects) analysis explicitly interpreted as conditional on the included studies, using the HKSJ interval with the ad hoc correction, and using a Bayesian random-effects model with a weakly informative or empirically based prior for $\tau$, which stabilizes inference by bringing in external information about plausible heterogeneity (Chapter \@ref(sec-bayesian)). Whatever is chosen, the reasons should be stated in the protocol before the results are known.
 
+## Power of a meta-analysis {#sec-models-power}
+
+Power calculations are routine when planning a primary study and rare when planning a meta-analysis, although the same logic applies [@hedges2001power]. They answer two practical questions: how many studies of a given size are needed to detect an effect of substantive interest, and how informative a non-significant pooled result is. Suppose $k$ studies each have (approximately) the same within-study variance $v$, and the true effects have mean $\mu$ and variance $\tau^2$. The random-effects estimate then has variance $(v + \tau^2)/k$, and a two-sided $z$ test of $H_0\colon \mu = 0$ at level $\alpha$ has power
+
+$$
+1 - \beta = 1 - \Phi\!\left(z_{1-\alpha/2} - \lambda\right) + \Phi\!\left(-z_{1-\alpha/2} - \lambda\right), \qquad
+\lambda = \frac{\mu}{\sqrt{(v + \tau^2)/k}}.
+$$
+
+With unequal study sizes, $v$ can be replaced by the typical within-study variance $\tilde v$ of Section \@ref(sec-models-tau-i2), or $k/(v + \tau^2)$ by $\sum_i 1/(v_i + \tau^2)$. Setting $\tau^2 = 0$ gives the power of the common-effect test. Solving for $k$ (and ignoring the negligible second term) gives the number of studies needed for power $1 - \beta$:
+
+$$
+k \ge \frac{\left(z_{1-\alpha/2} + z_{1-\beta}\right)^2 (v + \tau^2)}{\mu^2}.
+$$
+
+The formulas make one property of the random-effects model plain. Under the common-effect model, information grows without limit as studies become larger, so even a single very large study can have high power. Under the random-effects model, as $v \to 0$ the non-centrality parameter approaches $\lambda = \mu \sqrt{k}/\tau$: no matter how large the studies are, power is capped by the number of studies and the amount of heterogeneity. @jackson2017power developed these results and applied them to 1991 meta-analyses from the Cochrane Database of Systematic Reviews, finding that five or more studies were needed to reasonably consistently achieve power greater than that of the studies being combined. A meta-analysis is not automatically more powerful than its components.
+
+The chunk below computes the power to detect a standardized mean difference of $\mu = 0.3$ when every study has 40 participants per arm, so that $v = 2/40 + 0.3^2/160 \approx 0.051$ (Section \@ref(sec-effect-sizes-smd)).
+
+
+``` r
+power_ma <- function(mu, v, k, tau2 = 0, alpha = 0.05) {
+  lambda <- mu / sqrt((v + tau2) / k)
+  zc <- qnorm(1 - alpha / 2)
+  1 - pnorm(zc - lambda) + pnorm(-zc - lambda)
+}
+k_needed <- function(mu, v, tau2 = 0, power = 0.8, alpha = 0.05) {
+  ceiling((qnorm(1 - alpha / 2) + qnorm(power))^2 * (v + tau2) / mu^2)
+}
+mu_p <- 0.3; n_arm <- 40
+v_p  <- 1 / n_arm + 1 / n_arm + mu_p^2 / (2 * 2 * n_arm)
+tau2_grid <- c(0, 0.02, 0.05, 0.1)
+pow_tab <- sapply(tau2_grid, function(t2) power_ma(mu_p, v_p, k = c(1, 2, 3, 5, 10, 20), tau2 = t2))
+dimnames(pow_tab) <- list(k = c(1, 2, 3, 5, 10, 20), tau2 = tau2_grid)
+round(pow_tab, 3)
+#>     tau2
+#> k        0  0.02  0.05   0.1
+#>   1  0.266 0.204 0.157 0.121
+#>   2  0.471 0.359 0.267 0.194
+#>   3  0.637 0.499 0.374 0.268
+#>   5  0.847 0.714 0.562 0.409
+#>   10 0.988 0.946 0.849 0.686
+#>   20 1.000 0.999 0.988 0.933
+sapply(tau2_grid, function(t2) k_needed(mu_p, v_p, tau2 = t2))
+#> [1]  5  7  9 14
+# the cap on power with infinitely large studies, tau2 = 0.05
+round(sapply(c(3, 5, 10), function(k) power_ma(mu_p, v = 0, k = k, tau2 = 0.05)), 3)
+#> [1] 0.642 0.851 0.989
+```
+
+
+``` r
+pow_long <- expand.grid(k = 1:20, tau2 = tau2_grid)
+pow_long$power <- power_ma(mu_p, v_p, pow_long$k, pow_long$tau2)
+ggplot(pow_long, aes(k, power, colour = factor(tau2))) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = power_ma(mu_p, v_p, k = 1), linetype = "dashed") +
+  geom_hline(yintercept = 0.8, linetype = "dotted") +
+  labs(x = "Number of studies k", y = "Power", colour = expression(tau^2)) +
+  theme(legend.position = "top")
+```
+
+<div class="figure" style="text-align: center">
+<img src="04-models_files/figure-html/models-power-fig-1.png" alt="Power of a two-sided 5% test of the random-effects mean as a function of the number of studies, for a true standardized mean difference of 0.3, 40 participants per arm in every study, and four values of tau-squared. The dashed line is the power of one such study whose true effect equals the mean." width="85%" />
+<p class="caption">(\#fig:models-power-fig)Power of a two-sided 5% test of the random-effects mean as a function of the number of studies, for a true standardized mean difference of 0.3, 40 participants per arm in every study, and four values of tau-squared. The dashed line is the power of one such study whose true effect equals the mean.</p>
+</div>
+
+A single study of this size has power 0.27. With no heterogeneity, 5 such studies are enough for 80% power; with $\tau^2 = 0.05$ (a $\tau$ of 0.22, three-quarters of the effect being sought) 9 are needed, and with $\tau^2 = 0.1$, 14. Figure \@ref(fig:models-power-fig) also shows that with $\tau^2 = 0.1$ a meta-analysis of two studies has *less* power (0.19) than one study whose true effect is the mean, because the random-effects model adds $\tau^2$ to the uncertainty about where the mean lies. Even with infinitely large studies and $\tau^2 = 0.05$, three studies would give a power of only 0.64.
+
+These closed-form results treat $\tau^2$ as known and use a $z$ test. The HKSJ method recommended in Section \@ref(sec-models-hksj) acknowledges that $\tau^2$ is estimated, and with few studies it pays for its accurate coverage with lower power. A short simulation, reusing the `ci_dl()` function of Section \@ref(sec-models-simulation), shows how much:
+
+
+``` r
+set.seed(8)
+sim_power <- function(k, tau2, nrep = 2000) {
+  rej <- replicate(nrep, {
+    yi <- rnorm(k, mu_p, sqrt(v_p + tau2))
+    ci <- ci_dl(yi, rep(v_p, k))
+    c(Wald = ci[["wald_lb"]] > 0 | ci[["wald_ub"]] < 0,
+      HKSJ = ci[["hksj_lb"]] > 0 | ci[["hksj_ub"]] < 0)
+  })
+  c(closed_form = power_ma(mu_p, v_p, k, tau2), rowMeans(rej))
+}
+pgrid <- expand.grid(k = c(3, 5, 10), tau2 = c(0.02, 0.05))
+pow_sim <- cbind(pgrid, t(mapply(sim_power, pgrid$k, pgrid$tau2)))
+pow_sim
+#>    k tau2 closed_form   Wald   HKSJ
+#> 1  3 0.02      0.4985 0.4705 0.1990
+#> 2  5 0.02      0.7141 0.6920 0.5030
+#> 3 10 0.02      0.9465 0.9300 0.8785
+#> 4  3 0.05      0.3741 0.4220 0.1530
+#> 5  5 0.05      0.5618 0.5815 0.3635
+#> 6 10 0.05      0.8489 0.8355 0.7540
+```
+
+The closed form tracks the simulated power of the Wald test (which uses the estimated $\hat\tau^2$ in its weights) reasonably well; where the Wald test does better than the formula, it is partly because it undercovers (Section \@ref(sec-models-simulation)), so its extra power is not to be trusted. The HKSJ test is far less powerful when $k$ is small: with three studies and $\tau^2 = 0.02$ its power is 0.20 against 0.50 from the formula, a consequence of the $t_2$ quantile. By ten studies the gap has narrowed. A planning calculation for a review that will use HKSJ inference should therefore treat the closed-form value as an upper bound when $k$ is below about ten, or simulate directly. Two further cautions apply. The inputs ($\mu$, $\tau^2$, typical $v$) should be values of substantive interest or plausible values from related reviews; empirical distributions of $\tau^2$ in Cochrane reviews, of the kind used for the informative priors of Chapter \@ref(sec-bayesian), are a good source. And "observed power", computed by plugging the meta-analysis's own estimates into the formula after the fact, is a transformation of the $p$-value and adds nothing to it.
+
+## Non-normal random effects {#sec-models-nonnormal}
+
+The random-effects model assumes that the true effects are normally distributed. The assumption has little influence on $\hat\mu$ when $k$ is moderate and the effects are roughly symmetric, but it is decisive for the prediction interval, and it makes the model sensitive to outlying studies: under a normal distribution a single extreme study can only be accommodated by inflating $\tau^2$ for every study, which changes all the weights. Two kinds of alternative have been proposed. @lee2007flexible replaced the normal distribution by the $t$ distribution and by skewed versions of the normal and $t$, fitted by MCMC, and found that inferences about the random effects, especially predictive distributions, could depend strongly on the choice. @beath2014finite proposed a two-component mixture in which each study comes either from the main normal distribution of effects or, with some probability, from an outlier distribution with the same mean and a larger variance. The posterior probability that each study is an outlier is a by-product, and outlying studies are down-weighted rather than deleted. This is the *downweighting* option of Section \@ref(sec-sensitivity-outliers), made model-based.
+
+The `metaplus` package fits the normal, $t$ and mixture random-effects models by maximum likelihood. The teacher-expectancy data of Chapter \@ref(sec-sensitivity), in which the Maxwell (1970) study was flagged as an outlier, are a natural test case. The argument `justfit = TRUE` skips the profile likelihood confidence intervals, which take about a minute for the $t$ model on these data; the mixture model uses random starting values, hence the seed.
+
+
+``` r
+library(metaplus)
+te <- dat.raudenbush1985
+set.seed(1985)
+mp_norm <- metaplus(yi = yi, sei = sqrt(vi), slab = author, data = te, justfit = TRUE)
+mp_t    <- metaplus(yi = yi, sei = sqrt(vi), slab = author, data = te,
+                    random = "t-dist", justfit = TRUE)
+mp_mix  <- metaplus(yi = yi, sei = sqrt(vi), slab = author, data = te,
+                    random = "mixture", justfit = TRUE, cores = 1)
+np_tab <- rbind(normal  = c(mu = mp_norm$results[["muhat"]], tau2 = mp_norm$results[["tau2"]],
+                            logLik = -mp_norm$fittedmodel@min, AIC = AIC(mp_norm)),
+                t       = c(mp_t$results[["muhat"]], mp_t$results[["tau2"]],
+                            -mp_t$fittedmodel@min, AIC(mp_t)),
+                mixture = c(mp_mix$results[["muhat"]], mp_mix$results[["tau2"]],
+                            -mp_mix$fittedmodel@min, AIC(mp_mix)))
+round(np_tab, 4)
+#>             mu   tau2 logLik   AIC
+#> normal  0.0777 0.0126 -3.123 10.25
+#> t       0.0579 0.0025 -2.870 11.74
+#> mixture 0.0427 0.0000 -2.399 12.80
+round(c(t_df = 1 / mp_t$results[["vinv"]],
+        mix_tau2_outlier = mp_mix$results[["tau2out"]],
+        mix_prior_outlier_prob = plogis(mp_mix$results[["lpoutlier"]])), 3)
+#>                   t_df       mix_tau2_outlier mix_prior_outlier_prob 
+#>                  1.427                  0.346                  0.163
+op <- outlierProbsMeta(mp_mix)
+head(sort(setNames(round(op$outlier.prob, 3), paste(te$author, te$year)),
+          decreasing = TRUE), 4)
+#>              Maxwell 1970   Pellegrini & Hicks 1972               Carter 1970 
+#>                     0.782                     0.742                     0.206 
+#> Rosenthal & Jacobson 1968 
+#>                     0.185
+```
+
+The normal model reproduces the ML fit of `rma(method = "ML")`, with $\hat\mu =$ 0.078. The $t$ model estimates very heavy tails (about 1.4 degrees of freedom), and with tails that heavy needs only a small scale parameter for the bulk of the studies, 0.0025 and lowers the mean to 0.058. The mixture model puts all the heterogeneity into the outlier component: the main component has $\hat\tau^2 = 0$, the outlier component a variance of 0.35, and the posterior outlier probabilities single out two studies, Maxwell (1970) and Pellegrini & Hicks (1972), with probabilities near 0.75; the down-weighted mean is 0.043. The log-likelihoods improve only modestly, and AIC, which charges for the extra parameters, slightly favours the normal model, so the data do not demand a non-normal distribution. Used as a sensitivity analysis, however, the robust models tell the same story as the influence diagnostics of Chapter \@ref(sec-sensitivity): the small positive average effect depends partly on a few studies, and once they are down-weighted it falls by about a quarter under the $t$ model and by almost half under the mixture.
+
+Beath's parametric bootstrap test of whether any outliers are present is available as `testOutliersMeta()`, and refitting without `justfit = TRUE` gives profile likelihood intervals for $\mu$; both are slow enough to be left out here. A Bayesian random-effects model with $t$-distributed effects is a flexible alternative (Section \@ref(sec-bayesian-brms-extensions)).
+
 ## Practical recommendations {#sec-models-recommendations}
 
 Decide on the model and its estimand at the protocol stage. In most reviews the random-effects model is the appropriate default, with REML (or Paule-Mandel) for $\tau^2$ and the HKSJ method for the confidence interval of $\mu$, preferably with the ad hoc correction when the number of studies is small. Report $\hat\mu$ with its confidence interval, $\hat\tau$ with its Q-profile confidence interval, the prediction interval, and $I^2$ as a secondary relative measure; state the software, version and options used, because defaults differ between packages and versions. For binary outcomes with rare events, avoid continuity corrections by using Mantel-Haenszel or GLMM methods, and state how double-zero studies are handled. When the common-effect and random-effects estimates differ substantially, investigate why (small-study effects, a dominant large study, moderators) rather than simply choosing one. Present a forest plot on the natural scale of the effect size with the prediction interval.
@@ -792,7 +1000,9 @@ Several errors recur in published meta-analyses. Choosing between common-effect 
 - Wald intervals for $\mu$ undercover when $k$ is small and heterogeneity is present; HKSJ intervals (`test = "knha"`, `method.random.ci = "HK"`) keep close to nominal coverage, and the ad hoc correction (`test = "adhoc"`) prevents them from being narrower than the Wald interval.
 - For rare events, Mantel-Haenszel, Peto and binomial GLMMs (`rma.mh()`, `rma.peto()`, `rma.glmm()`) avoid the bias of continuity corrections.
 - With very few studies, random-effects inference is fragile; state a strategy in advance (ad hoc HKSJ, a conditional fixed-effects interpretation, or a Bayesian model with an informative prior for $\tau$).
+- Under the random-effects model power is capped by the number of studies and by $\tau^2$, however large the studies; a meta-analysis of a few heterogeneous studies can be less powerful than a single one of them.
+- Heavy-tailed ($t$) and mixture random-effects models (`metaplus`) down-weight outlying studies instead of inflating $\tau^2$ for all of them, and are useful sensitivity analyses for the normality assumption.
 
 ## Further reading {#sec-models-reading}
 
-@borenstein2021introduction give a conceptual introduction to the common-effect and random-effects models and to heterogeneity statistics, and @borenstein2017basics explain concisely why $I^2$ should not be used to describe the dispersion of effects. @higgins2009reevaluation and @rice2017reevaluation are complementary re-evaluations of the random-effects and fixed-effects models from the perspective of what is being estimated. @veroniki2015methods review estimators of $\tau^2$ and their confidence intervals, and @langan2018comparison report the most extensive simulation comparison. @inthout2014hartung and @jackson2017hartung cover the HKSJ method and its limitations, @riley2011interpretation and @inthout2016plea make the case for prediction intervals, and @bender2018methods discuss the case of very few studies. For rare events, @stijnen2010random introduce the GLMMs implemented in `rma.glmm()` and @efthimiou2018practical give a practical guide. @viechtbauer2010conducting and @balduzzi2019how document the `metafor` and `meta` packages used in this chapter.
+@borenstein2021introduction give a conceptual introduction to the common-effect and random-effects models and to heterogeneity statistics, and @borenstein2017basics explain concisely why $I^2$ should not be used to describe the dispersion of effects. @higgins2009reevaluation and @rice2017reevaluation are complementary re-evaluations of the random-effects and fixed-effects models from the perspective of what is being estimated. @veroniki2015methods review estimators of $\tau^2$ and their confidence intervals, and @langan2018comparison report the most extensive simulation comparison. @inthout2014hartung and @jackson2017hartung cover the HKSJ method and its limitations, @riley2011interpretation and @inthout2016plea make the case for prediction intervals, and @bender2018methods discuss the case of very few studies. @jackson2013confidence explains the family of generalized $Q$ intervals for $\tau^2$. @hedges2001power and @jackson2017power cover power analysis for meta-analysis, and @beath2014finite and @lee2007flexible relax the normality of the random effects. For rare events, @stijnen2010random introduce the GLMMs implemented in `rma.glmm()` and @efthimiou2018practical give a practical guide. @viechtbauer2010conducting and @balduzzi2019how document the `metafor` and `meta` packages used in this chapter.

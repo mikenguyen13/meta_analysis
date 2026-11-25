@@ -482,6 +482,49 @@ round(cmp, 2)
 
 The contrast is striking for CBT plus an SSRI. That combination appears in a single trial with 17 participants per arm, in which 12 responded on the combination and only 2 on the SSRI alone. The standard NMA must estimate the combination from that trial alone and returns an odds ratio versus placebo of 30.9 with a 95% confidence interval from 4.9 to 193. The additive model estimates it as the product of the CBT and SSRI component effects, 3.91 (2.32 to 6.59), using every trial in the network that included either component. Under the additive model, the odds ratio for each combination is exactly the product of the component odds ratios (the `additive` and `product` columns agree). The additive model is attractive when combinations are numerous and sparsely studied, but additivity is a substantive assumption. Two treatments that act on the same mechanism may be sub-additive, and a model check like the $Q$ difference above has little power. Interaction CNMA models, specified through `C.matrix` in `netcomb()`, relax additivity where the data permit.
 
+### Disconnected networks {#sec-network-cnma-disconnected}
+
+A standard NMA cannot compare treatments that lie in different components of a disconnected network, because no chain of randomized comparisons links them. If the treatments share components, the additive model can still link them: a component estimated in one subnetwork carries its effect into the other [@rucker2019network]. `netmeta::discomb()` fits the additive model directly to contrast data, without first fitting a standard NMA, which `netcomb()` requires and which is impossible for a disconnected network. To show how this works we build a deliberately disconnected subset of the depression data: the placebo-controlled SSRI trials, the trials of interpersonal psychotherapy or problem-solving therapy against usual care, and the single trial that compared an SSRI with interpersonal psychotherapy plus an SSRI.
+
+
+``` r
+disc_dat <- subset(Linde2016,
+  (treat1 == "SSRI" & treat2 %in% c("Placebo", "Face-to-face interpsy + SSRI")) |
+  (treat1 %in% c("Face-to-face interpsy", "Face-to-face PST") & treat2 == "UC"))
+netconnection(treat1, treat2, id, data = disc_dat)
+#> Number of studies: k = 11
+#> Number of pairwise comparisons: m = 11
+#> Number of treatments: n = 6
+#> Number of designs: d = 4
+#> Number of networks: 2
+#> 
+#> Details on subnetworks: 
+#>  subnetwork k m n
+#>           1 3 3 3
+#>           2 8 8 3
+dc <- discomb(lnOR, selnOR, treat1, treat2, id, data = disc_dat, sm = "OR",
+              inactive = "Placebo", reference.group = "Placebo", common = FALSE)
+names(dc$Comp.random) <- dc$comps
+round(exp(cbind(OR = dc$Comp.random, lower = dc$lower.Comp.random,
+                upper = dc$upper.Comp.random)), 2)
+#>                         OR lower upper
+#> Face-to-face interpsy 0.93  0.65  1.34
+#> Face-to-face PST      0.76  0.31  1.85
+#> SSRI                  1.62  1.35  1.95
+#> UC                    0.73  0.40  1.32
+round(exp(cbind(OR = dc$TE.random[, "Placebo"], lower = dc$lower.random[, "Placebo"],
+                upper = dc$upper.random[, "Placebo"])), 2)
+#>                                OR lower upper
+#> Face-to-face interpsy        0.93  0.65  1.34
+#> Face-to-face interpsy + SSRI 1.51  1.01  2.27
+#> Face-to-face PST             0.76  0.31  1.85
+#> Placebo                      1.00  1.00  1.00
+#> SSRI                         1.62  1.35  1.95
+#> UC                           0.73  0.40  1.32
+```
+
+`netconnection()` confirms two subnetworks: placebo, SSRI and the combination in one, usual care and the two psychotherapies in the other. In the additive model, usual care is treated as one more component, so the combination trial identifies the interpersonal psychotherapy component (combination versus SSRI), the psychotherapy-versus-usual-care trials then identify the usual-care component, and every treatment receives an odds ratio versus placebo. The chain is only as strong as its weakest link, and here the bridge between the two subnetworks is one trial. The resulting comparisons of the psychotherapies with placebo have wide intervals and rest entirely on additivity: interpersonal psychotherapy is assumed to add the same effect on top of an SSRI as it has in the usual-care trials, and usual care relative to placebo is assumed to act as a single additive component. Disconnected CNMA is best seen as a way to make explicit what assumptions an indirect comparison across subnetworks would require, not as a substitute for a connecting trial.
+
 ## Bayesian network meta-analysis {#sec-network-bayesian}
 
 Bayesian NMA fits the contrast-based model of Section \@ref(sec-network-contrast) with an exact likelihood for arm-level data, propagates uncertainty in $\tau$ into all estimates, and delivers rank probabilities as posterior summaries [@lu2004combination; @dias2018network]. Priors matter in the usual places (see Chapter \@ref(sec-bayesian)): the heterogeneity standard deviation in sparse networks, and treatment effects when some comparisons rest on very few events. Vague normal priors on the $d_{1k}$ and the study baselines $\mu_i$ are standard; for $\tau$ a half-normal or uniform prior on a plausible range is common, and empirically based informative priors are available for many outcome types.
@@ -554,7 +597,7 @@ print(fit_re, pars = c("d", "tau"))
 #> d[Self-help]                 1
 #> tau                          1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Wed Nov 25 05:13:17 2026.
+#> Samples were drawn using NUTS(diag_e) at Wed Nov 25 18:44:51 2026.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).
@@ -774,11 +817,91 @@ sucra(gem_ranks)
 Which software to choose? `netmeta` is fast, handles contrast-level data, has excellent tools for inconsistency and component models, and is the natural choice for frequentist work. `multinma` is the most actively developed Bayesian option, needs no external sampler, and adds population adjustment and network meta-regression with individual data. `gemtc` is mature and convenient for automated node-splitting but depends on JAGS. For a published analysis, fitting the main model in two frameworks is a cheap and informative sensitivity analysis.
 :::
 
+## Population-adjusted indirect comparisons {#sec-network-population-adjustment}
+
+The models so far assume transitivity: effect modifiers are balanced across comparisons. When they are not, and individual participant data (IPD) are available for some trials but only published summaries for others, *population-adjusted* indirect comparisons try to remove the imbalance. This situation is routine in health technology appraisal, where a manufacturer holds the IPD of its own trials of treatment B versus A but sees only the publications of a competitor's trials of C versus A. @phillippo2017methods review the methods and the assumptions they need. Two are in common use. *Matching-adjusted indirect comparison* (MAIC) reweights the IPD so that the weighted means of the chosen covariates equal those reported for the aggregate-data trial, using weights of the form $w_i = \exp(\mathbf{x}_i^\top \boldsymbol\alpha)$ estimated by the method of moments, which is a propensity-score model for trial membership [@signorovitch2010comparative]. The weighted B versus A effect is then contrasted with the published C versus A effect. *Simulated treatment comparison* (STC) instead fits an outcome regression with treatment-by-covariate interactions to the IPD and predicts the B versus A effect at the covariate values of the aggregate-data trial.
+
+@phillippo2017methods stress three points that are easy to miss. First, a comparison is *anchored* when the two trials share a common comparator, so that only effect modifiers need to be balanced; an *unanchored* comparison of single arms, common when one of the trials is uncontrolled, also requires that all prognostic factors be balanced, an assumption they describe as widely regarded as infeasible. Second, MAIC and STC deliver an estimate for the population of the aggregate-data trial, which need not be the population for which the decision is made, and analyses submitted for the same indication can rest on different or even incompatible assumptions. Third, reweighting costs precision: the effective sample size $(\sum_i w_i)^2 / \sum_i w_i^2$ of a MAIC is often a small fraction of the original IPD and should always be reported. Neither method extends naturally beyond two trials. *Multilevel network meta-regression* (ML-NMR) generalizes population adjustment to networks of any size: it integrates an individual-level regression model over the covariate distribution of each aggregate-data study, so that IPD and aggregate data enter one coherent network meta-regression, and it can produce estimates for any target population with known covariate distribution [@phillippo2020multilevel]. ML-NMR is implemented in `multinma` through `set_ipd()`, `set_agd_arm()`, `combine_network()` and the `regression` argument of `nma()`. Because population adjustment rests on the choice of effect modifiers, that choice should be specified in advance from clinical knowledge and supported by evidence, not selected from the data at hand.
+
 ## Certainty of evidence and reporting {#sec-network-certainty}
 
 An NMA produces many estimates whose credibility varies: a comparison supported by large, low-risk-of-bias, head-to-head trials deserves more confidence than one inferred through a long chain of small trials. Two frameworks extend GRADE (Chapter \@ref(sec-reporting)) to networks. The GRADE Working Group approach rates direct and indirect evidence separately and then rates the network estimate [@puhan2014grade]. *CINeMA* (Confidence in Network Meta-Analysis) evaluates each network estimate on six domains: within-study bias, reporting bias, indirectness, imprecision, heterogeneity, and incoherence [@nikolakopoulou2020cinema]. Its distinguishing feature is the use of the *contribution matrix*, which quantifies how much each direct comparison contributes to each network estimate, so that risk-of-bias judgements about individual trials propagate to the network estimates in proportion to their influence. A free web application implements the framework [@papakonstantinou2020cinema]. Imprecision and heterogeneity are judged against a pre-specified range of clinical equivalence, so the analyst must state what size of effect matters before looking at the results.
 
 Reporting follows the PRISMA extension for network meta-analyses [@hutton2015prisma], which adds items on the network geometry (a network graph), the assessment of transitivity and inconsistency, the methods used to handle multi-arm trials, and the presentation of rankings. Practical points that reviewers often find missing are: the table of effect modifiers by comparison; the full league table rather than only effects versus placebo; the heterogeneity variance and its prior (in a Bayesian analysis); the results of both global and local inconsistency checks; and sensitivity analyses excluding trials at high risk of bias.
+
+## Threshold analysis: how robust is the decision? {#sec-network-threshold}
+
+CINeMA and GRADE rate the certainty of each network estimate, but a guideline panel usually needs an answer to a different question: could plausible problems with the evidence change the *recommendation*? A comparison can be at high risk of bias and still be irrelevant to the decision, while a modest bias in another comparison can overturn it. *Threshold analysis* answers this directly [@phillippo2017sensitivity; @phillippo2019threshold]. It asks how much each data point, a single study estimate or the combined evidence on one contrast, would have to change before the treatment recommended by the NMA changes, and which treatment would then be recommended. If the change needed is larger than any plausible bias, the recommendation is robust to that piece of evidence; if it lies within the confidence interval of the estimate, the recommendation is sensitive even to sampling error.
+
+The calculation is linear algebra. In a model with a normal likelihood, the posterior means of the basic parameters are a linear function of the data, $\hat{\mathbf d} = \mathbf{H}\mathbf{y}$, with influence matrix $\mathbf{H} = \boldsymbol\Sigma_{d}\mathbf{X}^\top\mathbf{V}^{-1}$, where $\mathbf{X}$ is the design matrix of the data points, $\mathbf{V}$ their likelihood covariance matrix and $\boldsymbol\Sigma_{d}$ the posterior covariance of $\hat{\mathbf d}$. Adding an adjustment $\delta$ to data point $m$ shifts the estimates by $\delta\,\mathbf{h}_m$, the $m$th column of $\mathbf{H}$. For each competitor $a$ of the currently best treatment $k^*$ one can solve for the $\delta$ at which $\hat d_{a} - \hat d_{k^*}$ crosses zero (or a minimal clinically important difference); the smallest positive and negative solutions give the *decision-invariant bias-adjustment interval* for that data point. The `nmathresh` package implements the method. A *contrast-level* analysis, which needs only the network estimates and their covariance matrix, reconstructs a likelihood with one independent data point for each contrast with direct evidence such that it reproduces the network posterior. We apply it to the random-effects `netmeta` fit of the smoking network, in which group counselling ranked first.
+
+
+``` r
+library(nmathresh)
+trt_th <- c("No contact", "Self-help", "Individual", "Group")   # treatment codes 1 to 4
+# basic parameters (log odds ratios versus no contact) and their covariance matrix
+d_th <- nm$TE.random[trt_th[-1], "No contact"]
+cov_names <- c("No contact:Self-help", "Individual:No contact", "Group:No contact")
+sgn <- c(-1, 1, 1)                     # "No contact:Self-help" is no contact versus self-help
+V_d <- nm$Cov.random[cov_names, cov_names] * outer(sgn, sgn)
+dimnames(V_d) <- list(trt_th[-1], trt_th[-1])
+# design matrix for the six contrasts with direct evidence, treatment b versus a
+ab <- t(combn(4, 2))
+X_th <- t(apply(ab, 1, function(r) {
+  x <- numeric(3)
+  if (r[1] > 1) x[r[1] - 1] <- -1
+  x[r[2] - 1] <- 1
+  x
+}))
+lik_th <- recon_vcov(V_d, prior.prec = 1e-4, X = X_th)   # near-flat prior: frequentist fit
+th <- nma_thresh(mean.dk = d_th, lhood = lik_th, post = V_d,
+                 nmatype = "fixed", X = X_th, opt.max = TRUE)
+
+new_best <- function(code) trt_th[match(code, as.character(1:4))]
+th_tab <- data.frame(
+  contrast = paste(trt_th[ab[, 2]], "vs", trt_th[ab[, 1]]),
+  direct   = sapply(seq_len(nrow(ab)), function(i)
+    nm$TE.direct.random[trt_th[ab[i, 2]], trt_th[ab[i, 1]]]),
+  se       = sqrt(diag(as.matrix(lik_th))),
+  lower    = th$thresholds$lo, best_if_lower = new_best(th$thresholds$lo.newkstar),
+  upper    = th$thresholds$hi, best_if_upper = new_best(th$thresholds$hi.newkstar))
+knitr::kable(th_tab, digits = 2, row.names = FALSE,
+             caption = "Contrast-level thresholds for the recommendation of group counselling (log odds ratio scale). Lower and upper are the smallest negative and positive adjustments to the combined evidence on each contrast that change the best treatment; the best_if columns give the new best treatment.")
+```
+
+
+
+Table: (\#tab:nma-threshold)Contrast-level thresholds for the recommendation of group counselling (log odds ratio scale). Lower and upper are the smallest negative and positive adjustments to the combined evidence on each contrast that change the best treatment; the best_if columns give the new best treatment.
+
+|contrast                 | direct|   se| lower|best_if_lower | upper|best_if_upper |
+|:------------------------|------:|----:|-----:|:-------------|-----:|:-------------|
+|Self-help vs No contact  |   0.32| 0.43| -1.15|Individual    |  1.30|Self-help     |
+|Individual vs No contact |   0.72| 0.21| -1.45|No contact    |  0.56|Individual    |
+|Group vs No contact      |   0.81| 0.88| -1.10|Individual    |   Inf|NA            |
+|Individual vs Self-help  |  -0.08| 0.63| -2.42|Self-help     |  1.68|Individual    |
+|Group vs Self-help       |   0.62| 0.61| -0.68|Individual    |   Inf|NA            |
+|Group vs Individual      |  -0.08| 0.45| -0.26|Individual    |   Inf|NA            |
+
+
+
+`recon_vcov()` reports a Kullback-Leibler divergence of essentially zero, so the reconstructed likelihood reproduces the network estimates exactly, and its standard errors are close to those of the direct random-effects estimates on each contrast (they differ slightly where three-arm trials contribute). The thresholds are adjustments to the combined evidence on each contrast; an infinite threshold means that no change in that direction alters the decision. Figure \@ref(fig:nma-threshold-forest) displays the invariant intervals around the direct estimates.
+
+
+``` r
+th_tab$ci_lo <- th_tab$direct - qnorm(0.975) * th_tab$se
+th_tab$ci_hi <- th_tab$direct + qnorm(0.975) * th_tab$se
+thresh_forest(th, direct, ci_lo, ci_hi, label = contrast, data = th_tab,
+              label.title = "Contrast", y.title = "log OR", CI.title = "95% CI",
+              xlab = "Log odds ratio", xlim = c(-3, 3), refline = 0, digits = 2,
+              calcdim = FALSE)
+```
+
+<div class="figure" style="text-align: center">
+<img src="10-network_files/figure-html/nma-threshold-forest-1.png" alt="Threshold analysis of the recommendation of group counselling (treatment 4). For each contrast, the direct random-effects estimate with its 95% confidence interval and the decision-invariant interval (shaded). The numbers beside the invariant interval are the treatments that become best at each limit (1 no contact, 2 self-help, 3 individual, 4 group); intervals shaded red at an end, with bold labels, have a threshold inside the confidence interval. NT: no threshold." width="100%" />
+<p class="caption">(\#fig:nma-threshold-forest)Threshold analysis of the recommendation of group counselling (treatment 4). For each contrast, the direct random-effects estimate with its 95% confidence interval and the decision-invariant interval (shaded). The numbers beside the invariant interval are the treatments that become best at each limit (1 no contact, 2 self-help, 3 individual, 4 group); intervals shaded red at an end, with bold labels, have a threshold inside the confidence interval. NT: no threshold.</p>
+</div>
+
+The recommendation of group counselling is most sensitive to the evidence comparing group with individual counselling. Lowering that combined estimate by only 0.26 on the log odds ratio scale, much less than its standard error of 0.45, would make individual counselling the best option. Adjustments of 0.68 to group versus self-help and 1.10 to group versus no contact would do the same, and both also lie inside the confidence intervals of those estimates. The recommendation is therefore not robust even to sampling variation, the same conclusion that the P-scores and the league table suggested less directly. By contrast, the thresholds for self-help versus no contact and individual counselling versus self-help lie well outside their confidence intervals, so the decision tolerates sizeable errors in that evidence. In a guideline, the next step would be to ask whether bias of the size of the smallest thresholds is plausible for the trials behind those contrasts, using their risk-of-bias assessments, and to concentrate the qualitative appraisal on them [@phillippo2019threshold]. Study-level threshold analysis works the same way with the trial-level contrasts and their covariance matrix as data, and for a random-effects model it also needs the joint posterior of the trial-specific random effects; the `nmathresh` vignette works through both cases.
 
 ## Practical recommendations and common pitfalls {#sec-network-pitfalls}
 
@@ -804,7 +927,7 @@ Reporting follows the PRISMA extension for network meta-analyses [@hutton2015pri
 - `netmeta` implements the frequentist graph-theoretical estimator with tools for league tables, P-scores, design-by-treatment decomposition, node-splitting, net heat plots and component NMA. `multinma` (Stan) and `gemtc` (JAGS) provide Bayesian models with exact likelihoods, rank probabilities and SUCRA.
 - In the smoking cessation network, all counselling interventions outperform no contact, heterogeneity is large ($\tau \approx 0.7$ to $0.85$ on the log odds ratio scale), and the ordering of the active interventions is uncertain. Inconsistency suggested by a common-effect test disappears once heterogeneity is accounted for.
 - Rankings summarize uncertainty and effect size in one number and are easily over-interpreted. Report relative effects first.
-- The credibility of each network estimate should be rated (CINeMA or GRADE for NMA) and the analysis reported following PRISMA-NMA.
+- The credibility of each network estimate should be rated (CINeMA or GRADE for NMA) and the analysis reported following PRISMA-NMA. Threshold analysis complements these ratings by showing how much the evidence would have to change before the recommended treatment changes; in the smoking network, an adjustment smaller than one standard error would overturn the recommendation of group counselling.
 
 ## Further reading {#sec-network-reading}
 

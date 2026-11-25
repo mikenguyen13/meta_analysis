@@ -426,6 +426,75 @@ ggplot(curve_df, aes(dose)) +
 <p class="caption">(\#fig:mvipd-dr-plot)Pooled dose-response curves for alcohol intake and cardiovascular disease risk (six studies). Solid line and band: restricted cubic spline with 95% confidence interval; dashed line: linear trend. Points are the study-specific relative risks, sized by inverse standard error (one point above 65 g/day lies outside the plotted range).</p>
 </div>
 
+### One-stage dose-response models {#sec-mvipd-dr-one-stage}
+
+The two-stage approach has a hidden eligibility rule. A study can estimate its own curve only if it reports at least as many non-referent categories as the curve has coefficients, so a three-knot spline needs three exposure groups per study, and studies that report only "exposed versus unexposed" or two exposure levels must be dropped. In large reviews this can exclude a substantial share of the evidence, and the excluded studies need not resemble the included ones. @crippa2018onestage reformulated the analysis as a single linear mixed model for all the reported log relative risks,
+$$
+\mathbf{y}_i = \mathbf{X}_i\boldsymbol\beta + \mathbf{Z}_i\mathbf{b}_i + \boldsymbol\varepsilon_i, \qquad
+\mathbf{b}_i \sim N(\mathbf{0}, \boldsymbol\Psi), \qquad \boldsymbol\varepsilon_i \sim N(\mathbf{0}, \mathbf{S}_i),
+$$
+where $\mathbf{X}_i$ holds the dose transformations of study $i$ relative to its reference, $\mathbf{Z}_i$ is usually equal to $\mathbf{X}_i$, and $\mathbf{S}_i$ is the Greenland-Longnecker covariance matrix. A study with a single non-referent category contributes one row and constrains one linear combination of the coefficients; the random effects $\mathbf{b}_i$ need not be estimable within each study because they are integrated out of the marginal likelihood. The pooled curve and the between-study covariance $\boldsymbol\Psi$ are therefore estimated from all studies, and because the model has a proper likelihood, alternative curves can be compared by AIC. In `dosresmeta`, `proc = "1stage"` requests this model.
+
+
+``` r
+dr_spl1 <- dosresmeta(formula = logrr ~ rcs(dose, knots_alc), id = id, se = se,
+                      type = type, cases = cases, n = n, data = alcohol_cvd,
+                      proc = "1stage")
+round(rbind(two_stage = coef(dr_spl), one_stage = coef(dr_spl1)), 4)
+#>           rcs(dose, knots_alc)dose rcs(dose, knots_alc)dose'
+#> two_stage                  -0.0307                    0.0942
+#> one_stage                  -0.0308                    0.0943
+```
+
+When every study can be analysed on its own, as here, the two approaches give practically the same coefficients. The difference appears when some studies report fewer categories. To mimic this, we keep only the reference and one other category for three of the six studies. A two-stage spline analysis would now have to drop those three studies (`dosresmeta()` stops with an error if asked to fit it), whereas the one-stage model uses all of them.
+
+
+``` r
+alcohol_sparse <- do.call(rbind, lapply(split(alcohol_cvd, alcohol_cvd$id), function(d) {
+  if (d$id[1] %in% c(1, 3, 5)) d[c(1, 3), ] else d   # reference + one exposed category
+}))
+table(non_referent = tapply(!is.na(alcohol_sparse$se), alcohol_sparse$id, sum))
+#> non_referent
+#> 1 3 
+#> 3 3
+dr_sparse1 <- dosresmeta(formula = logrr ~ rcs(dose, knots_alc), id = id, se = se,
+                         type = type, cases = cases, n = n, data = alcohol_sparse,
+                         proc = "1stage")
+dr_three <- dosresmeta(formula = logrr ~ rcs(dose, knots_alc), id = id, se = se,
+                       type = type, cases = cases, n = n,
+                       data = subset(alcohol_cvd, !id %in% c(1, 3, 5)))
+dose_pts <- data.frame(dose = c(0, 12, 24, 48))   # predict() needs the reference dose
+pred_rr <- function(fit, analysis) {
+  p <- predict(fit, dose_pts, xref = 0, expo = TRUE)[-1, ]
+  data.frame(analysis = analysis, dose = p[, 1], RR = p$pred, lower = p$ci.lb, upper = p$ci.ub)
+}
+dr_sparse_pred <- rbind(pred_rr(dr_spl1, "full data, one-stage"),
+                        pred_rr(dr_sparse1, "sparse data, one-stage (6 studies)"),
+                        pred_rr(dr_three, "sparse data, two-stage (3 studies)"))
+knitr::kable(dr_sparse_pred, digits = 2, row.names = FALSE,
+             caption = "Predicted relative risks of cardiovascular disease versus non-drinkers from the full data and from the artificially sparse data.")
+```
+
+
+
+Table: (\#tab:mvipd-dr-onestage-sparse)Predicted relative risks of cardiovascular disease versus non-drinkers from the full data and from the artificially sparse data.
+
+|analysis                           | dose|   RR| lower| upper|
+|:----------------------------------|----:|----:|-----:|-----:|
+|full data, one-stage               |   12| 0.75|  0.62|  0.90|
+|full data, one-stage               |   24| 0.74|  0.58|  0.94|
+|full data, one-stage               |   48| 1.20|  0.45|  3.17|
+|sparse data, one-stage (6 studies) |   12| 0.77|  0.63|  0.94|
+|sparse data, one-stage (6 studies) |   24| 0.69|  0.49|  0.96|
+|sparse data, one-stage (6 studies) |   48| 0.74|  0.33|  1.67|
+|sparse data, two-stage (3 studies) |   12| 0.81|  0.60|  1.08|
+|sparse data, two-stage (3 studies) |   24| 0.69|  0.46|  1.05|
+|sparse data, two-stage (3 studies) |   48| 0.58|  0.36|  0.92|
+
+
+
+With the sparse data, the one-stage model uses all six studies and the two-stage model only the three that kept every category. The one-stage intervals at 12 and 24 g per day are correspondingly narrower, and they exclude 1 where the two-stage intervals do not. Neither analysis reproduces the full-data curve at 48 g per day, where the full data suggest a rise in risk, because the categories we deleted carried most of the information about heavy drinking: the one-stage model uses everything a study reports, but it cannot recover what the study did not report. In a real review, the gain from the one-stage model is largest when many studies report only two or three categories, which is common in nutritional and occupational epidemiology. The one-stage model makes the same exchangeability and normality assumptions as the two-stage model, and with sparse studies the between-study covariance $\boldsymbol\Psi$ of a spline is often weakly identified (here it is estimated as nearly singular), so its estimates should not be over-interpreted.
+
 ### Practical issues in dose-response synthesis {#sec-mvipd-dr-practical}
 
 Most of the work in a dose-response meta-analysis lies in data extraction. Each exposure category needs an assigned dose. The usual convention is the reported median or mean within the category, or the midpoint of closed intervals; for open-ended upper categories the width of the adjacent interval is often borrowed. These choices should be prespecified and varied in sensitivity analyses. When a study's reference category is not the lowest one, the relative risks must be re-expressed relative to a common reference before analysis. The Greenland-Longnecker covariance requires the number of cases and of non-cases or person-years per category; when these are not reported, they can sometimes be reconstructed, or the within-study correlations can be set to zero as a last resort, which usually overstates the precision of the trend. Finally, spline curves are sensitive to knot placement and to sparse data at the extremes. The curve should be reported only over the dose range where most studies contribute, and alternative knot positions and fractional polynomials are useful sensitivity checks [@orsini2011metaanalysis]. For continuous outcomes such as blood pressure, the same machinery applies to mean differences [@crippa2016multivariate].
