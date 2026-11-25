@@ -1,0 +1,16 @@
+{
+  "title": "Meta-Analysis: A Practical and Modern Guide with R",
+  "upload_type": "publication",
+  "publication_type": "book",
+  "description": "An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE. Online edition: https://mikenguyen13.github.io/meta_analysis/",
+  "creators": [
+    { "name": "Nguyen, Mike", "orcid": "0000-0002-3432-8595" }
+  ],
+  "license": "cc-by-nc-sa-4.0",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": ["meta-analysis", "systematic review", "research synthesis", "R", "metafor", "evidence synthesis"],
+  "related_identifiers": [
+    { "identifier": "https://mikenguyen13.github.io/meta_analysis/", "relation": "isAlternateIdentifier", "scheme": "url" }
+  ]
+}

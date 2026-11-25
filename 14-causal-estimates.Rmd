@@ -6,7 +6,7 @@ This chapter is written for researchers who synthesize such evidence. We first a
 
 ```{r causal-packages, cache = FALSE}
 library(clubSandwich)
-library(baggr)
+library(bayesmeta)
 ```
 
 ## What is being pooled? {#sec-causal-estimands}
@@ -321,57 +321,72 @@ A single well-identified study answers a question about one population, place an
 
 ### Bayesian hierarchical aggregation of the microcredit trials {#sec-causal-microcredit}
 
-@meager2019understanding jointly analyzed seven randomized evaluations of expanded access to microcredit, six of which were published together in one journal issue [@banerjee2015six], using Bayesian hierarchical models. She concluded that the impact on household business and consumption variables is unlikely to be transformative and may be negligible, that true heterogeneity across sites is moderate, with approximately 60% of the observed variation attributable to sampling error, and that external validity is therefore reasonable. The `baggr` package implements this kind of analysis and ships a simplified version of the data, `microcredit_simplified`, which contains household consumption (in USD PPP per two weeks) and treatment status for the sites with complete consumption data. The sites are identified only by number in this version.
+@meager2019understanding jointly analyzed seven randomized evaluations of expanded access to microcredit, six of which were published together in one journal issue [@banerjee2015six], using Bayesian hierarchical models. She concluded that the impact on household business and consumption variables is unlikely to be transformative and may be negligible, that true heterogeneity across sites is moderate, with approximately 60% of the observed variation attributable to sampling error, and that external validity is therefore reasonable. We work with site-level summaries of household consumption (in USD PPP per two weeks) for the five sites with complete consumption data in the simplified version of these trials distributed with the `baggr` R package (`microcredit_simplified`). The estimates below were computed from that individual-level file as the difference in mean consumption between treated and control households and its standard error. The sites are identified only by number in that file, and we keep that labeling.
 
-The Rubin model [@rubin1981estimation] is the normal-normal hierarchical model of Chapter \@ref(sec-bayesian): site effects $\theta_k \sim N(\mu, \tau^2)$, observed effects $\hat\theta_k \sim N(\theta_k, \text{SE}_k^2)$. We first reduce the individual data to site-level treatment effects on mean consumption.
+The Rubin model [@rubin1981estimation] is the normal-normal hierarchical model of Chapter \@ref(sec-bayesian): site effects $\theta_k \sim N(\mu, \tau^2)$, observed effects $\hat\theta_k \sim N(\theta_k, \text{SE}_k^2)$.
 
 ```{r causal-microcredit-data}
-mc <- microcredit_simplified
-mc$site <- paste("Site", mc$group)
-mc_sites <- prepare_ma(mc[, c("site", "consumption", "treatment")], group = "site",
-                       outcome = "consumption", effect = "mean")
+mc_sites <- data.frame(
+  site      = paste("Site", 1:5),
+  tau       = c(5.51, 50.45, -5.17, 4.64, -2.94),  # treatment - control mean
+  se.tau    = c(4.10, 22.16, 19.27, 5.45, 6.02),
+  n.control = c(8298, 260, 444, 3248, 2771),
+  n.treated = c(8262, 701, 551, 3579, 2716)
+)
 mc_sites
 ```
 
-The `tau` column is the difference in mean consumption between treatment and control households, and `se.tau` its standard error. Site 2 has a large point estimate (50) but also a large standard error, while the largest site (Site 1, more than 16,000 households) estimates an effect of 5.5 with standard error 4.1. We fit the partial-pooling model with weakly informative priors: a normal prior with SD 100 on $\mu$ and a half-normal prior with SD 50 on $\tau$, both wide relative to the scale of the site estimates. With only five sites, the posterior for $\tau$ is sensitive to its prior, and the defaults chosen automatically by `baggr` (printed when no prior is given) are much more diffuse.
+The `tau` column is the difference in mean consumption between treatment and control households, and `se.tau` its standard error. Site 2 has a large point estimate (50) but also a large standard error, while the largest site (Site 1, more than 16,000 households) estimates an effect of 5.5 with standard error 4.1. We fit the partial-pooling model with `bayesmeta` [@rover2020bayesian], which computes the posterior by direct numerical integration rather than MCMC, so there are no convergence diagnostics to check. The priors are weakly informative: a normal prior with SD 100 on $\mu$ and a half-normal prior with scale 50 on $\tau$, both wide relative to the scale of the site estimates. With only five sites, the posterior for $\tau$ is sensitive to its prior.
 
 ```{r causal-microcredit-fit}
-mc_fit <- baggr(mc_sites, model = "rubin", pooling = "partial",
-                prior_hypermean = normal(0, 100), prior_hypersd = normal(0, 50),
-                iter = 4000, chains = 4, seed = 2026, refresh = 0,
-                control = list(adapt_delta = 0.995))
-mc_fit
+mc_fit <- bayesmeta(y = mc_sites$tau, sigma = mc_sites$se.tau,
+                    labels = mc_sites$site,
+                    mu.prior.mean = 0, mu.prior.sd = 100,
+                    tau.prior = function(t) dhalfnormal(t, scale = 50))
+round(mc_fit$summary, 2)
 ```
 
-```{r causal-microcredit-diagnostics}
-stan_sum <- rstan::summary(mc_fit$fit)$summary
-round(stan_sum[c("mu[1]", "tau[1]"), c("mean", "sd", "n_eff", "Rhat")], 3)
-rstan::get_num_divergent(mc_fit$fit)
+The hypermean $\mu$ has posterior mean `r round(mc_fit$summary["mean", "mu"], 1)` dollars per two weeks (95% interval `r round(mc_fit$summary["95% lower", "mu"], 1)` to `r round(mc_fit$summary["95% upper", "mu"], 1)`), a small effect relative to control-group consumption of roughly 200 to 330, and consistent with no effect. The heterogeneity SD $\tau$ has posterior mean `r round(mc_fit$summary["mean", "tau"], 1)`, but its interval (`r round(mc_fit$summary["95% lower", "tau"], 1)` to `r round(mc_fit$summary["95% upper", "tau"], 1)`) shows that the data barely constrain it.
+
+The **pooling factor** for site $k$ is $\omega_k = \text{SE}_k^2 / (\text{SE}_k^2 + \tau^2)$, the share of the site's estimate that is replaced by the hypermean. Its posterior mean integrates this ratio over the posterior of $\tau$:
+
+```{r causal-microcredit-pooling}
+pooling <- sapply(mc_sites$se.tau, function(s)
+  integrate(function(t) s^2 / (s^2 + t^2) * mc_fit$dposterior(tau = t),
+            lower = 0, upper = Inf)$value)
+data.frame(site = mc_sites$site, pooling = round(pooling, 2),
+           shrunken = round(mc_fit$theta["mean", ], 1))
 ```
 
-The sampler shows no divergent transitions, $\hat R$ is close to 1 and the effective sample sizes are above 1,000 for both hyperparameters, so the posterior summaries are reliable. The hypermean $\mu$ is 4.9 dollars per two weeks (95% interval $-10.0$ to 22.7), a small effect relative to control-group consumption of roughly 200 to 330, and consistent with no effect. The hyper-SD $\tau$ has posterior mean 11.0, but its interval (0.3 to 41.0) shows that the data barely constrain it.
-
-The **pooling factor** for site $k$ is $\omega_k = \text{SE}_k^2 / (\text{SE}_k^2 + \tau^2)$, the share of the site's estimate that is replaced by the hypermean. `baggr` reports its posterior mean for each site in the last column of the output, and the overall pooling (1 minus a Bayesian $I^2$) in the header. Imprecise sites (2 and 3) are pooled heavily toward the mean (about 0.8), while the precise Site 1 keeps more of its own estimate (pooling about 0.36). Overall pooling is 0.50, so about half of the observed variation is attributed to sampling error, broadly in line with Meager's conclusion of moderate heterogeneity for the full data.
+Imprecise sites (2 and 3) are pooled heavily toward the mean (about 0.8), while the precise Site 1 keeps more of its own estimate (pooling of about 0.37). Site 2's estimate of 50 shrinks to a posterior mean of about 13. Averaged over sites, about half of each estimate is replaced by the hypermean, broadly in line with Meager's conclusion of moderate heterogeneity in the full data.
 
 The predictive distribution for a new site integrates over the uncertainty in $\mu$ and $\tau$:
 
 ```{r causal-microcredit-predict}
-new_site <- effect_draw(mc_fit)
-round(quantile(new_site, c(0.025, 0.10, 0.50, 0.90, 0.975)), 1)
-mean(new_site > 0)
+round(mc_fit$qposterior(theta.p = c(0.025, 0.10, 0.50, 0.90, 0.975), predict = TRUE), 1)
+1 - mc_fit$pposterior(theta = 0, predict = TRUE)
 ```
 
-The 95% predictive interval for the effect in a new site runs from about $-29$ to $+43$, far wider than the interval for $\mu$, and the posterior probability that the effect in a new site is positive is about 0.72. For a policymaker deciding whether to expand microcredit to a new region, that predictive distribution, not the mean, is the relevant summary. Figure \@ref(fig:causal-microcredit-plot) compares no pooling, partial pooling and full pooling.
+The 95% predictive interval for the effect in a new site runs from about $-28$ to $+43$, far wider than the interval for $\mu$, and the posterior probability that the effect in a new site is positive is about 0.72. For a policymaker deciding whether to expand microcredit to a new region, that predictive distribution, not the mean, is the relevant summary. Figure \@ref(fig:causal-microcredit-plot) compares no pooling, partial pooling and full pooling.
 
-```{r causal-microcredit-plot, fig.cap = "Treatment effects of microcredit on household consumption (USD PPP per two weeks) by site under no pooling (separate estimates), partial pooling (Bayesian hierarchical model) and full pooling (common effect). Data: baggr's simplified version of the microcredit trials analyzed by Meager (2019).", fig.height = 4.2}
-mc_none <- baggr(mc_sites, model = "rubin", pooling = "none",
-                 prior_hypermean = normal(0, 100),
-                 iter = 2000, chains = 4, seed = 2026, refresh = 0)
-mc_full <- baggr(mc_sites, model = "rubin", pooling = "full",
-                 prior_hypermean = normal(0, 100),
-                 iter = 2000, chains = 4, seed = 2026, refresh = 0)
-plot(baggr_compare("No pooling" = mc_none, "Partial pooling" = mc_fit,
-                   "Full pooling" = mc_full))
+```{r causal-microcredit-plot, fig.cap = "Treatment effects of microcredit on household consumption (USD PPP per two weeks) by site under no pooling (separate estimates), partial pooling (Bayesian hierarchical model) and full pooling (common effect), with 95% intervals. Site-level data derived from the simplified microcredit trial data analyzed by Meager (2019).", fig.height = 4.2}
+mc_common <- rma(tau, sei = se.tau, data = mc_sites, method = "EE")
+plot_df <- rbind(
+  data.frame(site = mc_sites$site, type = "No pooling", est = mc_sites$tau,
+             lo = mc_sites$tau - 1.96 * mc_sites$se.tau,
+             hi = mc_sites$tau + 1.96 * mc_sites$se.tau),
+  data.frame(site = mc_sites$site, type = "Partial pooling",
+             est = mc_fit$theta["mean", ], lo = mc_fit$theta["95% lower", ],
+             hi = mc_fit$theta["95% upper", ]),
+  data.frame(site = mc_sites$site, type = "Full pooling", est = mc_common$b[1],
+             lo = mc_common$ci.lb, hi = mc_common$ci.ub)
+)
+plot_df$type <- factor(plot_df$type, c("No pooling", "Partial pooling", "Full pooling"))
+ggplot(plot_df, aes(x = est, y = site, colour = type)) +
+  geom_vline(xintercept = 0, linetype = 2, colour = "grey50") +
+  geom_pointrange(aes(xmin = lo, xmax = hi), position = position_dodge(width = 0.6)) +
+  labs(x = "Effect on consumption (USD PPP per two weeks)", y = NULL, colour = NULL) +
+  theme(legend.position = "bottom")
 ```
 
 It is instructive to compare the Bayesian analysis with a frequentist random-effects model of the same five estimates.

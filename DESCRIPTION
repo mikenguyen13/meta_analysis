@@ -11,7 +11,6 @@ URL: https://mikenguyen13.github.io/meta_analysis/
 Encoding: UTF-8
 Depends: R (>= 4.3)
 Imports:
-    baggr,
     bayesmeta,
     bayesplot,
     BiasedUrn,

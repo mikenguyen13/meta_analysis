@@ -1,0 +1,26 @@
+# Meta-Analysis: A Practical and Modern Guide with R
+
+> Open textbook (CC BY-NC-SA 4.0) by Mike Nguyen on systematic reviews and meta-analysis with runnable R code (metafor, meta, clubSandwich, netmeta, metaSEM, bayesmeta, brms, RoBMA). Every section has a stable anchor of the form sec-<slug>.
+
+## Chapters
+
+- [Introduction to Research Synthesis](https://mikenguyen13.github.io/meta_analysis/sec-introduction.html)
+- [The Systematic Review Workflow](https://mikenguyen13.github.io/meta_analysis/sec-systematic-review.html)
+- [Effect Sizes](https://mikenguyen13.github.io/meta_analysis/sec-effect-sizes.html)
+- [Common-Effect and Random-Effects Models](https://mikenguyen13.github.io/meta_analysis/sec-models.html)
+- [Heterogeneity, Subgroups, and Meta-Regression](https://mikenguyen13.github.io/meta_analysis/sec-heterogeneity.html)
+- [Dependent Effect Sizes](https://mikenguyen13.github.io/meta_analysis/sec-dependent-effects.html)
+- [Publication Bias and Small-Study Effects](https://mikenguyen13.github.io/meta_analysis/sec-publication-bias.html)
+- [Sensitivity Analysis and Diagnostics](https://mikenguyen13.github.io/meta_analysis/sec-sensitivity.html)
+- [Bayesian Meta-Analysis](https://mikenguyen13.github.io/meta_analysis/sec-bayesian.html)
+- [Network Meta-Analysis](https://mikenguyen13.github.io/meta_analysis/sec-network.html)
+- [Meta-Analytic Structural Equation Modeling](https://mikenguyen13.github.io/meta_analysis/sec-masem.html)
+- [Multivariate, Dose-Response, and IPD Meta-Analysis](https://mikenguyen13.github.io/meta_analysis/sec-multivariate-ipd.html)
+- [Diagnostic Test Accuracy](https://mikenguyen13.github.io/meta_analysis/sec-dta.html)
+- [Meta-Analysis of Causal Estimates](https://mikenguyen13.github.io/meta_analysis/sec-causal-estimates.html)
+- [Certainty of Evidence (GRADE) and Reporting](https://mikenguyen13.github.io/meta_analysis/sec-reporting.html)
+- [A Workflow Checklist](https://mikenguyen13.github.io/meta_analysis/sec-conclusion.html)
+
+## Source
+
+- [GitHub repository](https://github.com/mikenguyen13/meta_analysis)

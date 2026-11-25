@@ -8,7 +8,7 @@ biblio-style: apalike
 link-citations: yes
 description: "An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE."
 github-repo: mikenguyen13/meta_analysis
-url: https\://mikenguyen13.github.io/meta_analysis/
+url: https\://mikenguyen13.github.io/meta_analysis
 favicon: "favicon.ico"
 cover-image: "images/cover.jpg"
 apple-touch-icon: "logo.png"
@@ -24,7 +24,7 @@ always_allow_html: yes
 knitr::write_bib(c(
   "bookdown", "knitr", "rmarkdown", "metafor", "metadat", "meta", "netmeta",
   "clubSandwich", "robumeta", "metaSEM", "bayesmeta", "brms", "RoBMA",
-  "multinma", "gemtc", "mada", "weightr", "puniform", "esc", "baggr"
+  "multinma", "gemtc", "mada", "weightr", "puniform", "esc"
 ), "packages.bib")
 ```
 
@@ -115,8 +115,20 @@ This book is licensed under the
 (CC BY-NC-SA 4.0). You may share and adapt the material for non-commercial purposes with
 attribution, provided derivatives are released under the same license. To cite the book:
 
-> Nguyen, M. (`r format(Sys.Date(), "%Y")`). *Meta-Analysis: A Practical and Modern Guide with R*.
+> Nguyen, M. (2026). *Meta-Analysis: A Practical and Modern Guide with R*.
 > https://mikenguyen13.github.io/meta_analysis/
+
+```bibtex
+@book{nguyen2026metaanalysis,
+  title  = {Meta-Analysis: A Practical and Modern Guide with R},
+  author = {Nguyen, Mike},
+  year   = {2026},
+  url    = {https://mikenguyen13.github.io/meta_analysis/}
+}
+```
+
+To cite a specific section, link to its anchor; every section has a stable address, for example
+`https://mikenguyen13.github.io/meta_analysis/sec-models.html`.
 
 Corrections and suggestions are welcome as
 [issues or pull requests](https://github.com/mikenguyen13/meta_analysis/issues).

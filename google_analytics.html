@@ -1,5 +1,5 @@
 <!-- ============================================================
-     Google Analytics (gtag.js) + SEO structured data.
+     Google Analytics (gtag.js), citation metadata, and structured data.
      Injected into <head> of every page via _output.yml in_header.
      ============================================================ -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script>
@@ -10,8 +10,16 @@
   gtag('config', 'G-9S5ZG1XCWF');
 </script>
 
-<!-- schema.org structured data: helps Google treat the book as an
-     authoritative, citable work and can enable rich results. -->
+<!-- Highwire Press tags read by Google Scholar and reference managers
+     (Zotero, Mendeley) to build a citation for the page. -->
+<meta name="citation_title" content="Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+
+<!-- schema.org structured data for search engines. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -19,17 +27,17 @@
   "name": "Meta-Analysis: A Practical and Modern Guide with R",
   "url": "https://mikenguyen13.github.io/meta_analysis/",
   "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
-
+  "isAccessibleForFree": true,
   "inLanguage": "en",
   "bookFormat": "https://schema.org/EBook",
-  "description": "Open textbook on systematic reviews and meta-analysis with R",
-  "author": { "@type": "Person", "name": "Mike Nguyen" },
+  "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+  "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+  "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+  "author": {
+    "@type": "Person",
+    "name": "Mike Nguyen",
+    "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+  },
   "publisher": { "@type": "Person", "name": "Mike Nguyen" }
 }
 </script>
-
-<!-- Search Console / Bing ownership verification.
-     Google: https://search.google.com/search-console -> add URL-prefix property
-     -> "HTML tag" -> paste the content value below and uncomment the line. -->
-<!-- <meta name="google-site-verification" content="PASTE_GOOGLE_CODE"> -->
-<!-- <meta name="msvalidate.01" content="PASTE_BING_CODE"> -->

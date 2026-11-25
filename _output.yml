@@ -10,6 +10,7 @@ bookdown::bs4_book:
     primary: "#1f4e79"
   resource_files:
     - robots.txt
+    - llms.txt
 bookdown::pdf_book:
   includes:
     in_header: preamble.tex
