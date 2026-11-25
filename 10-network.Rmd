@@ -365,7 +365,7 @@ names(sucra) <- as.character(crp$summary$.trt)
 round(sort(sucra, decreasing = TRUE), 3)
 ```
 
-Group counselling has the highest probability of being best (about 0.70) and the largest SUCRA (about 0.88), followed by individual counselling (SUCRA about 0.69), self-help (about 0.39) and no intervention (about 0.04). These values sit very close to the frequentist P-scores, as theory predicts. The probability that group counselling is the single best option is far from certain, which is the honest message of the analysis.
+Group counselling has the highest probability of being best (about 0.70) and the largest SUCRA (about 0.88), followed by individual counselling (SUCRA about 0.69), self-help (about 0.39) and no intervention (about 0.04). These values sit very close to the frequentist random-effects P-scores, which is expected because P-scores are the frequentist analogue of SUCRA [@rucker2015ranking]. The probability that group counselling is the single best option is far from certain, which is the honest message of the analysis.
 
 ### Checking consistency in multinma {#sec-network-ume}
 
@@ -394,11 +394,12 @@ data("smoking", package = "gemtc", envir = gem_env)
 gem_net <- gem_env$smoking
 gem_net$treatments
 
+# mtc.model() draws random initial values, so seed before it
+set.seed(2026)
 gem_mod <- mtc.model(gem_net, type = "consistency",
                      likelihood = "binom", link = "logit",
                      linearModel = "random", n.chain = 2)
 # reproducible JAGS chains: one RNG and seed per chain
-set.seed(2026)
 gem_seeds <- sample.int(.Machine$integer.max, 2)
 gem_mod$inits <- mapply(c, gem_mod$inits, list(
   list(.RNG.name = "base::Mersenne-Twister", .RNG.seed = gem_seeds[1]),

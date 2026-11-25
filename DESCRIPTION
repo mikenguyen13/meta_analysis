@@ -69,4 +69,4 @@ Imports:
     xml2,
     yaml
 Remotes:
-    url::https://cran.r-project.org/src/contrib/Archive/rjags/rjags_4-18.tar.gz
+    rjags=url::https://cran.r-project.org/src/contrib/Archive/rjags/rjags_4-18.tar.gz

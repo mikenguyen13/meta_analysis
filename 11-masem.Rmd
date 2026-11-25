@@ -319,7 +319,7 @@ round(R_rem, 3)
 The random-effects correlations are somewhat smaller than the fixed-effects ones (for instance PU-ATT is 0.607 rather than 0.640), because random-effects weights are more nearly equal across samples, and smaller samples in this literature tend to report weaker correlations. They also differ slightly from the GLS estimates above, because `tssem1()` computes the within-study sampling covariances from the weighted average correlation rather than from each sample's own correlations.
 
 ::: {.rmdnote}
-With `RE.type = "Symm"` the full $6 \times 6$ between-study covariance matrix is estimated (21 parameters instead of 6). With 50 samples that is feasible, but with fewer studies or more variables the unstructured model often fails to converge or produces boundary estimates. The diagonal structure is the default recommendation of @cheung2015metaanalysis; the choice affects the standard errors of the pooled correlations more than the point estimates.
+With `RE.type = "Symm"` the full $6 \times 6$ between-study covariance matrix is estimated (21 parameters instead of 6). With 50 samples that is feasible, but with fewer studies or more variables the unstructured model often fails to converge or produces boundary estimates. The diagonal structure is the default in `tssem1()`; the choice affects the standard errors of the pooled correlations more than the point estimates.
 :::
 
 ### Stage 2: fitting the path model {#sec-masem-stage2}
@@ -350,7 +350,7 @@ summary(tam_ts1)
 
 Standard errors are reported as `NA` when likelihood-based intervals are requested; inference rests on the intervals. All five paths are clearly positive. Perceived usefulness affects intention both directly ($\hat c_1 = 0.323$, 95% CI 0.230 to 0.414) and through attitudes ($\hat a_1 \hat b_1 = 0.155$, 95% CI 0.114 to 0.201), so roughly a third of the total effect of usefulness on intention is mediated by attitudes. Ease of use has no direct path to intention in the TAM, but its total indirect effect is substantial, 0.354 (95% CI 0.327 to 0.382). The chi-square test of the over-identified model is significant, $\chi^2(1) = 10.09$, $p = .0015$. The one missing path is PEU $\to$ BI, so this test says that ease of use has some association with intention beyond what the mediated paths reproduce. With a total sample of almost 15,000, even small discrepancies are detectable; the approximate fit indices (RMSEA = 0.025, SRMR = 0.029, CFI = 0.997) indicate that the discrepancy is small. Section \@ref(sec-masem-fit) discusses how to weigh these indices.
 
-For comparison, fitting the same model to the fixed-effects stage 1 gives similar point estimates but standard errors of about 0.006 to 0.008, a fifth or less of the random-effects uncertainty, and a chi-square of 147.7 instead of 10.1.
+For comparison, fitting the same model to the fixed-effects stage 1 gives similar point estimates but standard errors of about 0.006 to 0.009, between a fifth and a third of the random-effects standard errors (about 0.02 to 0.05), and a chi-square of 147.7 instead of 10.1.
 
 ```{r masem-stage2-fem}
 tam_ts1_fe <- tssem2(tam_fem, RAM = RAM1)
@@ -455,7 +455,7 @@ anova(big5_fit2, big5_fit1)
 
 The two-factor model fits well: $\chi^2(4) = 7.82$, $p = .098$, RMSEA = 0.015, SRMR = 0.044, CFI = 0.992. The standardized loadings range from 0.57 (agreeableness on Alpha) to 0.76 (emotional stability on Alpha), and the two higher-order factors correlate 0.38 (95% CI 0.28 to 0.47). Collapsing them into a single general factor is decisively rejected, with a chi-square difference of 93.9 on one degree of freedom. These results agree with Digman's conclusion while giving it a formal test and confidence intervals that account for between-sample heterogeneity.
 
-The `Digman97` data also record whether each sample consisted of children, adolescents, young adults or mature adults. Subgroup MASEM fits stage 1 and stage 2 separately in each subgroup and compares the structures [@jak2018testing]. With only five younger samples here, the random-effects variances in that subgroup would be poorly determined, which illustrates a general limitation: subgroup MASEM needs many studies per group and only handles categorical moderators. One-stage MASEM (Section \@ref(sec-masem-osmasem)) is the more flexible alternative.
+The `Digman97` data also record whether each sample consisted of children, adolescents, young adults or mature adults. Subgroup MASEM fits stage 1 and stage 2 separately in each subgroup and compares the structures [@jak2018testing]. With only five samples of children or adolescents here, the random-effects variances in that subgroup would be poorly determined, which illustrates a general limitation: subgroup MASEM needs many studies per group and only handles categorical moderators. One-stage MASEM (Section \@ref(sec-masem-osmasem)) is the more flexible alternative.
 
 ## Missing correlations and positive definiteness {#sec-masem-missing}
 
@@ -579,7 +579,7 @@ There is no MASEM-specific reporting guideline comparable to PRISMA (Chapter \@r
 
 ## Common pitfalls {#sec-masem-pitfalls}
 
-**Ignoring heterogeneity.** Fixed-effects TSSEM or univariate pooling with a single $N$ produces standard errors that are far too small when correlations vary between studies, as the TAM example showed (standard errors of about 0.007 for the univariate approach versus roughly 0.03 to 0.05 once heterogeneity is acknowledged). Use random-effects stage 1 by default, and report the heterogeneity.
+**Ignoring heterogeneity.** Fixed-effects TSSEM or univariate pooling with a single $N$ produces standard errors that are far too small when correlations vary between studies, as the TAM example showed (standard errors of about 0.007 for the univariate approach versus roughly 0.02 to 0.05 once heterogeneity is acknowledged). Use random-effects stage 1 by default, and report the heterogeneity.
 
 **Treating good fit as causal evidence.** Equivalent models with reversed arrows fit identically. MASEM on observational correlations cannot establish causal direction [@steinmetz2022meta]; the theory, temporal ordering in the primary designs, and the presence of experimental studies do that work.
 

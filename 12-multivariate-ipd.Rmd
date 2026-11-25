@@ -36,7 +36,7 @@ The price is that within-study correlations are rarely reported in aggregate dat
 
 ### Example: two periodontal outcomes {#sec-mvipd-berkey}
 
-The classic example [@berkey1998metaanalysis] comprises five randomized trials comparing surgical and non-surgical treatment of periodontal disease. Each trial reports the mean difference (surgical minus non-surgical) in probing depth (PD; positive values favor surgery) and in attachment level (AL; negative values favor surgery), together with the full $2 \times 2$ within-trial covariance matrix.
+The classic example [@berkey1998metaanalysis] comprises five randomized trials comparing surgical and non-surgical treatment of periodontal disease. Each trial reports the mean difference between surgical and non-surgical treatment in the one-year improvement of probing depth (PD) and of attachment level (AL), coded so that positive values favor surgery for both outcomes (a larger reduction in probing depth, a larger gain in attachment level), together with the full $2 \times 2$ within-trial covariance matrix.
 
 ```{r mvipd-berkey-data}
 dat_pd <- dat.berkey1998
@@ -52,7 +52,7 @@ mv_pd <- rma.mv(yi, S_pd, mods = ~ outcome - 1, random = ~ outcome | trial,
 mv_pd
 ```
 
-The pooled effect is 0.353 mm (95% CI 0.238 to 0.469) for probing depth and $-0.339$ mm ($-0.512$ to $-0.167$) for attachment level, both favoring surgery. The between-trial standard deviations are 0.108 (PD) and 0.181 (AL), and the estimated between-trial correlation is 0.61. With five trials, $\boldsymbol\Sigma$ is poorly determined; a profile likelihood plot (`profile(mv_pd)`) would show a very flat likelihood for the correlation.
+The pooled effect is 0.353 mm (95% CI 0.238 to 0.469) for probing depth and $-0.339$ mm ($-0.512$ to $-0.167$) for attachment level: surgery is better at reducing probing depth, non-surgical treatment at improving attachment level. The between-trial standard deviations are 0.108 (PD) and 0.181 (AL), and the estimated between-trial correlation is 0.61. With five trials, $\boldsymbol\Sigma$ is poorly determined; a profile likelihood plot (`profile(mv_pd)`) would show a very flat likelihood for the correlation.
 
 Separate univariate random-effects analyses give
 
@@ -226,7 +226,7 @@ ggplot(curve_df, aes(dose)) +
 
 ### Practical issues in dose-response synthesis {#sec-mvipd-dr-practical}
 
-Most of the work in a dose-response meta-analysis lies in data extraction. Each exposure category needs an assigned dose. The usual convention is the reported median or mean within the category, or the midpoint of closed intervals; for open-ended upper categories the width of the adjacent interval is often borrowed. These choices should be prespecified and varied in sensitivity analyses. When a study's reference category is not the lowest one, the relative risks must be re-expressed relative to a common reference before analysis. The Greenland-Longnecker covariance requires the number of cases and of non-cases or person-years per category; when these are not reported, they can sometimes be reconstructed, or the within-study correlations can be set to zero as a last resort, which usually understates the precision of the trend. Finally, spline curves are sensitive to knot placement and to sparse data at the extremes. The curve should be reported only over the dose range where most studies contribute, and alternative knot positions and fractional polynomials are useful sensitivity checks [@orsini2011metaanalysis]. For continuous outcomes such as blood pressure, the same machinery applies to mean differences [@crippa2016multivariate].
+Most of the work in a dose-response meta-analysis lies in data extraction. Each exposure category needs an assigned dose. The usual convention is the reported median or mean within the category, or the midpoint of closed intervals; for open-ended upper categories the width of the adjacent interval is often borrowed. These choices should be prespecified and varied in sensitivity analyses. When a study's reference category is not the lowest one, the relative risks must be re-expressed relative to a common reference before analysis. The Greenland-Longnecker covariance requires the number of cases and of non-cases or person-years per category; when these are not reported, they can sometimes be reconstructed, or the within-study correlations can be set to zero as a last resort, which usually overstates the precision of the trend. Finally, spline curves are sensitive to knot placement and to sparse data at the extremes. The curve should be reported only over the dose range where most studies contribute, and alternative knot positions and fractional polynomials are useful sensitivity checks [@orsini2011metaanalysis]. For continuous outcomes such as blood pressure, the same machinery applies to mean differences [@crippa2016multivariate].
 
 ## Individual participant data meta-analysis {#sec-mvipd-ipd}
 
