@@ -789,6 +789,7 @@ dataset `data_rob2` contains RoB 2 assessments of nine hypothetical trials.
 
 ``` r
 library(robvis)
+data_rob2 <- robvis::data_rob2
 head(data_rob2)
 #>     Study            D1   D2            D3  D4            D5       Overall
 #> 1 Study 1           Low  Low           Low Low           Low           Low
