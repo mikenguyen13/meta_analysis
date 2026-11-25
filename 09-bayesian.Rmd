@@ -576,6 +576,7 @@ preregistered studies on the effect of "power posing" on felt power analyzed by
 
 ```{r bayes-metabma}
 library(metaBMA)
+power_pose <- metaBMA::power_pose
 power_pose[, c("study", "effectSize", "SE")]
 
 set.seed(2026)
