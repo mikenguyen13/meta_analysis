@@ -77,6 +77,7 @@ jobs:
       - name: Sitemap and source stamp
         run: |
           Rscript generate_sitemap.R
+          cp robots.txt llms.txt _book/
           touch _book/.nojekyll
           echo "${GITHUB_SHA}" > _book/SOURCE_COMMIT
 
