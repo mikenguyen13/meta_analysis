@@ -55,7 +55,6 @@ Imports:
     psychmeta,
     PublicationBias,
     puniform,
-    rjags,
     rmarkdown,
     rms,
     RoBMA,
@@ -68,5 +67,3 @@ Imports:
     weightr,
     xml2,
     yaml
-Remotes:
-    rjags=url::https://cran.r-project.org/src/contrib/Archive/rjags/rjags_4-18.tar.gz

@@ -34,9 +34,32 @@ jobs:
           r-version: release
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - name: Cache R library
+        uses: actions/cache@v4
         with:
-          cache-version: 1
+          path: ${{ env.R_LIBS_USER }}
+          key: rlib-${{ runner.os }}-${{ hashFiles('DESCRIPTION') }}
+          restore-keys: rlib-${{ runner.os }}-
+
+      # RoBMA and BayesTools require JAGS < 5 (Ubuntu ships 4.3.2), but CRAN's
+      # current rjags (5-x) requires JAGS >= 5. Install the last 4.x rjags first,
+      # then the book's dependencies with upgrade = FALSE so it is kept. Doing
+      # both in one pak plan is a source conflict.
+      - name: Install R packages
+        shell: Rscript {0}
+        run: |
+          install.packages("pak", repos = sprintf(
+            "https://r-lib.github.io/p/pak/stable/%s/%s/%s",
+            .Platform$pkgType, R.Version()$os, R.Version()$arch))
+          if (!requireNamespace("rjags", quietly = TRUE) ||
+              packageVersion("rjags") >= "5") {
+            pak::pkg_install(
+              "rjags=url::https://cran.r-project.org/src/contrib/Archive/rjags/rjags_4-18.tar.gz",
+              upgrade = TRUE)
+          }
+          pak::local_install_deps(upgrade = FALSE, dependencies = TRUE)
+          stopifnot(packageVersion("rjags") < "5")
+          library(rjags)
 
       - name: Cache knitr chunks
         uses: actions/cache@v4
