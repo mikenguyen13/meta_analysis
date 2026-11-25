@@ -607,11 +607,11 @@ anova(res_int_z, X = c(0, 1, 0, jn_z$bounds[1]))
 #> Test of Hypothesis:
 #> QM(df = 1) = 3.8415, p-val = 0.0500
 jn_slopes(res_int_z, "ablat_c", "year_c", at = c(-15, 0, jn_z$bounds[1], 10))
-#>        at estimate      se    ci.lb      ci.ub    pval
-#> 1 -15.000 -0.02078 0.03450 -0.08841  4.685e-02 0.54704
-#> 2   0.000 -0.02506 0.01623 -0.05688  6.755e-03 0.12263
-#> 3   3.375 -0.02602 0.01328 -0.05205  3.469e-18 0.05000
-#> 4  10.000 -0.02792 0.01161 -0.05067 -5.163e-03 0.01619
+#>        at estimate      se    ci.lb     ci.ub    pval
+#> 1 -15.000 -0.02078 0.03450 -0.08841  0.046849 0.54704
+#> 2   0.000 -0.02506 0.01623 -0.05688  0.006755 0.12263
+#> 3   3.375 -0.02602 0.01328 -0.05205  0.000000 0.05000
+#> 4  10.000 -0.02792 0.01161 -0.05067 -0.005163 0.01619
 ```
 
 Figure \@ref(fig:het-jn-plot) plots the conditional latitude slope across the observed range of years for the Knapp–Hartung model, with the rug showing where the trials lie.

@@ -824,6 +824,7 @@ preregistered studies on the effect of "power posing" on felt power analyzed by
 
 ``` r
 library(metaBMA)
+power_pose <- metaBMA::power_pose
 power_pose[, c("study", "effectSize", "SE")]
 #>                study effectSize     SE
 #> 1      Bailey et al.     0.2508 0.2071
