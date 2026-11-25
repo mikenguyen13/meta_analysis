@@ -84,7 +84,7 @@ round(fix_rows, 3)
 fr <- as.data.frame(fix_rows)
 ```
 
-All approaches give a mean difference of roughly `r f2(fr["gls", "estimate"], 1)` points (lower scores under treatment), but their standard errors differ. Treating the comparisons as independent gives `r f2(fr["naive", "se"])`, which is too small because the control group's information is used twice. The generalised least-squares average with the correct covariance has standard error `r f2(fr["gls", "se"])`, close to the combined-arm analysis (`r f2(fr["combined", "se"])`); splitting the control group is slightly conservative (`r f2(fr["split", "se"])`). Splitting and combining are easy and transparent; modelling the covariance keeps the dose-specific comparisons, which matters if dose is itself a moderator. For standardised mean differences or log odds ratios the covariance is only approximately known, and `vcalc()` in `metafor` can compute it for multi-treatment studies via its `grp1` and `grp2` arguments.
+All approaches give a mean difference between `r f2(min(fr$estimate), 1)` and `r f2(max(fr$estimate), 1)` points (lower scores under treatment), but their standard errors differ. Treating the comparisons as independent gives `r f2(fr["naive", "se"])`, which is too small because the control group's information is used twice. The generalised least-squares average with the correct covariance has standard error `r f2(fr["gls", "se"])`, close to the combined-arm analysis (`r f2(fr["combined", "se"])`); splitting the control group is slightly conservative (`r f2(fr["split", "se"])`). Splitting and combining are easy and transparent; modelling the covariance keeps the dose-specific comparisons, which matters if dose is itself a moderator. For standardised mean differences or log odds ratios the covariance is only approximately known, and `vcalc()` in `metafor` can compute it for multi-treatment studies via its `grp1` and `grp2` arguments.
 
 ### Multiple outcomes in the same sample: aggregation {#sec-dependent-aggregate}
 
@@ -92,9 +92,9 @@ When a study reports several outcomes for the same participants and the meta-ana
 $$
 \bar y_j = (\mathbf{1}^\top \mathbf{V}_j^{-1}\mathbf{1})^{-1} \mathbf{1}^\top \mathbf{V}_j^{-1} \mathbf{y}_j, \qquad \mathrm{Var}(\bar y_j) = (\mathbf{1}^\top \mathbf{V}_j^{-1}\mathbf{1})^{-1}.
 $$
-Because $\mathbf V_j$ is unknown, a common choice is a constant correlation $\rho$ between sampling errors, $[\mathbf V_j]_{ii'} = \rho\sqrt{v_{ij}v_{i'j}}$. With $\rho = 1$ the composite has the same variance as a single outcome; with $\rho = 0$ it is treated as if it pooled independent samples, which overstates precision.
+Because $\mathbf V_j$ is unknown, a common choice is a constant correlation $\rho$ between sampling errors, $[\mathbf V_j]_{ii'} = \rho\sqrt{v_{ij}v_{i'j}}$. With $\rho = 1$ (and equal sampling variances) the composite has the same variance as a single outcome; with $\rho = 0$ it is treated as if it pooled independent samples, which overstates precision.
 
-We use the data of @assink2016fitting in `dat.assink2016`: 100 standardised mean differences on the association between (a history of) delinquency and some outcome, from 17 studies, with up to 22 effects per study.
+We use the data of @assink2016fitting in `dat.assink2016`: 100 standardised mean differences on the association between recidivism and mental health in delinquent juveniles, from 17 studies, with up to 22 effects per study.
 
 ```{r dep-assink-agg}
 da <- dat.assink2016
@@ -160,7 +160,7 @@ i2_levels <- function(fit) {
   vtyp <- (k - 1) * sum(w) / (sum(w)^2 - sum(w^2))
   s2 <- fit$sigma2
   out <- 100 * c(s2, vtyp) / (sum(s2) + vtyp)
-  names(out) <- c(paste0("level", length(s2) + 1 - seq_along(s2)), "sampling")
+  names(out) <- c(paste0("level", length(s2) + 2 - seq_along(s2)), "level1 (sampling)")
   round(out, 1)
 }
 i2_levels(m3)
@@ -277,7 +277,7 @@ As $\rho$ increases from 0 to 0.9, the estimate decreases from `r f2(sens$estima
 
 ### Meta-regression with robust variance estimation {#sec-dependent-rve-metareg}
 
-Moderators are added to the working model as usual, and tested with CR2 $t$ tests for single coefficients and HTZ Wald tests for several. The publication year (centred in these data) is a study-level moderator:
+Moderators are added to the working model as usual, and tested with CR2 $t$ tests for single coefficients and HTZ Wald tests for several. The publication year (approximately mean-centred in these data) is a study-level moderator (except in study 3, which combines two publications of the same data):
 
 ```{r dep-rve-year}
 che_year <- rma.mv(yi, V6, mods = ~ year, random = ~ 1 | study/esid,
@@ -308,7 +308,7 @@ wt <- Wald_test(che_type, constraints = constrain_zero(2:3), vcov = "CR2", test 
 ct_type <- coef_test(che_type, vcov = "CR2")
 ```
 
-Covert delinquency appears in a single study and overt delinquency in three. The model-based Wald test from the CHE working model, which trusts the assumed covariance structure, finds a clear difference among the three types ($Q_M(2) =$ `r f2(che_type$QM)`, $p$ `r fp(che_type$QMp)`). The robust analysis tells a different story about the information in the data. The CR2 $t$ tests for the two contrasts look even more significant, but their Satterthwaite degrees of freedom are only `r f2(ct_type$df_Satt[2], 1)` and `r f2(ct_type$df_Satt[3], 1)`, and the HTZ test of both contrasts together has `r f2(wt$df_denom, 2)` denominator degrees of freedom, so that an $F$ statistic of `r f2(wt$Fstat, 1)` yields $p$ `r fp(wt$p_val)`. @tipton2015small found that RVE tests with degrees of freedom below about 4 do not control the Type I error rate even after the small-sample correction, and recommended not trusting them. None of these tests is trustworthy, and that is the substantive finding: the covert-versus-general contrast is estimated from within a single study, so there is essentially no between-study replication of it, however many effect sizes there are. The tiny degrees of freedom are the diagnostic that reveals this; the model-based test hides it.
+Covert delinquency appears in a single study and overt delinquency in three. The model-based Wald test from the CHE working model, which trusts the assumed covariance structure, finds a clear difference among the three types ($Q_M(2) =$ `r f2(che_type$QM)`, $p$ `r fp(che_type$QMp)`). The robust analysis tells a different story about the information in the data. The CR2 $t$ statistics for the two contrasts are large (`r f2(ct_type$tstat[2], 1)` and `r f2(ct_type$tstat[3], 1)`), but their Satterthwaite degrees of freedom are only `r f2(ct_type$df_Satt[2], 1)` and `r f2(ct_type$df_Satt[3], 1)`, and the HTZ test of both contrasts together has `r f2(wt$df_denom, 2)` denominator degrees of freedom, so that an $F$ statistic of `r f2(wt$Fstat, 1)` yields $p$ `r fp(wt$p_val)`. @tipton2015small found that RVE tests with degrees of freedom below about 4 do not control the Type I error rate even after the small-sample correction, and recommended not trusting them. None of these tests is trustworthy, and that is the substantive finding: the covert-versus-general contrast is estimated from within a single study, so there is essentially no between-study replication of it, however many effect sizes there are. The tiny degrees of freedom are the diagnostic that reveals this; the model-based test hides it.
 
 The practical rules that follow are simple. Always use the small-sample-corrected tests (CR2 with Satterthwaite $t$, HTZ for multiple contrasts) rather than the original large-sample RVE tests. Report the degrees of freedom. When they fall below 4, do not interpret the robust $p$-value; report the result as inconclusive, rely on the model-based results with explicit caveats about the working model, or refrain from testing the moderator.
 

@@ -122,7 +122,8 @@ res <- rma(yi, vi, data = dat, method = "REML", test = "knha")
 res
 
 # 3. Average effect, confidence interval, and prediction interval on the RR scale
-predict(res, transf = exp, digits = 2)
+pred <- predict(res, transf = exp, digits = 2)
+pred
 
 # 4. Confidence interval for tau^2 and tau
 confint(res)
@@ -140,11 +141,12 @@ regtest(res)
 trimfill(rma(yi, vi, data = dat))
 ```
 
-The pooled risk ratio printed in step 3 is about 0.49, a substantial average protective effect
-of BCG, but the 95% prediction interval runs from about 0.14 to 1.76: in a new setting comparable
+The pooled risk ratio printed in step 3 is about `r sprintf("%.2f", pred$pred)`, a substantial
+average protective effect of BCG, but the 95% prediction interval runs from about
+`r sprintf("%.2f", pred$pi.lb)` to `r sprintf("%.2f", pred$pi.ub)`: in a new setting comparable
 to these trials, the vaccine could be highly protective or have no benefit at all. Step 5 shows
-that absolute latitude accounts for roughly three quarters of the between-trial variance (the
-pseudo-R² printed by the model): trials farther from the equator report stronger protection. This is the typical shape of a careful
+that absolute latitude accounts for about `r round(res_mod$R2)`% of the between-trial variance
+(the pseudo-R² printed by the model): trials farther from the equator report stronger protection. This is the typical shape of a careful
 answer. The average effect matters less than the question of where and for whom the effect holds,
 and the diagnostics in steps 6 and 7 show how much the conclusion depends on individual studies
 and on assumptions about missing ones.

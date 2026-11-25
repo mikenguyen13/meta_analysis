@@ -361,7 +361,7 @@ pkgs <- data.frame(
   Purpose = c(
     "General framework: effect sizes, common/random-effects and multilevel models, meta-regression, diagnostics, plots",
     "Convenient interfaces for standard pairwise analyses and publication-ready forest plots",
-    "Several hundred published meta-analytic datasets used as examples throughout",
+    "About a hundred published meta-analytic datasets used as examples throughout",
     "Cluster-robust variance estimation with small-sample corrections for dependent effects",
     "Frequentist network meta-analysis",
     "Meta-analytic structural equation modeling",

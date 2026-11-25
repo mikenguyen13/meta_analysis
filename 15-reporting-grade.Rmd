@@ -104,7 +104,7 @@ selectively, for example a literature dominated by small industry-funded trials,
 funnel plot, or registered trials that were never reported [@guyatt2011grade5]. Funnel-plot
 methods need at least about ten studies (Chapter \@ref(sec-publication-bias)); with fewer, the
 judgment rests on the search and the registry evidence. Because publication bias can rarely be
-proven, GRADE describes it as "suspected" or "undetected" rather than present or absent.
+proven, GRADE describes it as "strongly suspected" or "undetected" rather than present or absent.
 
 The domains should not double-count. A single problem, such as an outcome measured in a way that
 favors the intervention, should lower certainty once, in the domain where it fits best, with the
@@ -243,7 +243,9 @@ summ[, c("outcome", "N", "acr", "ois", "ci.lb", "ci.ub", "imprecision")]
 For pre-eclampsia, the confidence interval excludes the null and the trials include more
 participants than the OIS of `r format(summ$ois[1], big.mark = ",")`, so imprecision is not a
 serious concern. For each mortality outcome the interval includes both a 25% reduction and a 25%
-increase in risk, and the total sample size is several times smaller than the OIS, which is large
+increase in risk, and the total sample size is between
+`r sprintf("%.0f", min(summ$ois[-1] / summ$N[-1]))` and
+`r sprintf("%.0f", max(summ$ois[-1] / summ$N[-1]))` times smaller than the OIS, which is large
 because the outcomes are rare. These outcomes are rated down two levels for imprecision.
 
 The remaining judgments require reading the trials, and they are recorded with their reasons.
@@ -365,7 +367,7 @@ profile <- data.frame(
   Inconsistency      = level_text(sof$inconsistency),
   Indirectness       = level_text(sof$indirectness),
   Imprecision        = level_text(sof$imprecision),
-  `Publication bias` = ifelse(sof$publication == 0, "Undetected", "Suspected"),
+  `Publication bias` = ifelse(sof$publication == 0, "Undetected", "Strongly suspected"),
   Certainty          = sub("^\\S+ ", "", sapply(sof$score, grade_label)),
   check.names = FALSE, row.names = NULL
 )
@@ -601,9 +603,9 @@ published studies, and anyone can redo the search and the analysis. In practice,
 published meta-analysis is often hard. Data extraction errors are common [@gotzsche2007data], and
 surveys of published reviews have found that sharing of extracted data and analysis code is the
 exception rather than the rule [@page2018reproducible; @polanin2020transparency].
-@lakens2016reproducibility give six practical recommendations, including disclosing all extracted
-data, specifying how each effect size was computed, preregistering, following reporting
-guidelines, and sharing code.
+@lakens2016reproducibility give six practical recommendations, among them disclosing all extracted
+data, specifying how each effect size was computed, preregistering, and following reporting
+guidelines.
 
 A reproducible meta-analysis shares, at minimum:
 
@@ -653,7 +655,8 @@ both more likely and harder to detect.
 - GRADE rates certainty for each outcome on four levels. Randomized evidence starts high and
   observational evidence low (or high when assessed with ROBINS-I); certainty is rated down for
   risk of bias, inconsistency, indirectness, imprecision, and publication bias, and observational
-  evidence can be rated up for large effects, dose-response gradients, and plausible confounding.
+  evidence can be rated up for large effects, dose-response gradients, and plausible residual
+  confounding that would have worked against the observed effect.
 - Certainty is about a target: the true effect being on one side of a threshold. Judge
   imprecision from the confidence interval against that threshold and the optimal information
   size, and inconsistency from the prediction interval against it, not from $I^2$ alone.

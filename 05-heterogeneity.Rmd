@@ -163,7 +163,7 @@ res_lat <- rma(yi, vi, mods = ~ ablat, data = dat)
 res_lat
 ```
 
-Each additional degree of absolute latitude lowers the log risk ratio by `r f2(abs(coef(res_lat)[2]), 4)` (95% CI `r f2(res_lat$ci.lb[2], 4)` to `r f2(res_lat$ci.ub[2], 4)`; $z =$ `r f2(res_lat$zval[2])`). On the risk ratio scale, ten degrees farther from the equator multiplies the risk ratio by $\exp(10 \times$ `r f2(coef(res_lat)[2], 4)`$) =$ `r f2(exp(10 * coef(res_lat)[2]))`. Residual heterogeneity falls from `r f2(res$tau2, 3)` to `r f2(res_lat$tau2, 3)`, but it is still significant ($Q_E(11) =$ `r f2(res_lat$QE)`, $p$ `r fp(res_lat$QEp)`): latitude explains much but not all of the variation.
+Each additional degree of absolute latitude changes the log risk ratio by `r f2(coef(res_lat)[2], 4)` (95% CI `r f2(res_lat$ci.lb[2], 4)` to `r f2(res_lat$ci.ub[2], 4)`; $z =$ `r f2(res_lat$zval[2])`). On the risk ratio scale, ten degrees farther from the equator multiplies the risk ratio by $\exp(10 \times$ `r f2(coef(res_lat)[2], 4)`$) =$ `r f2(exp(10 * coef(res_lat)[2]))`. Residual heterogeneity falls from `r f2(res$tau2, 3)` to `r f2(res_lat$tau2, 3)`, but it is still significant ($Q_E(11) =$ `r f2(res_lat$QE)`, $p$ `r fp(res_lat$QEp)`): latitude explains much but not all of the variation.
 
 Predicted effects at chosen latitudes come from `predict()`. The confidence interval describes uncertainty about the average risk ratio at that latitude, and the prediction interval adds the residual heterogeneity:
 
@@ -217,7 +217,7 @@ res_lat_kh <- rma(yi, vi, mods = ~ ablat, data = dat, test = "knha")
 res_lat_kh
 ```
 
-For latitude the conclusion is unchanged, $F(1, 11) =$ `r f2(res_lat_kh$QM)`, $p$ `r fp(res_lat_kh$QMp)`, but the confidence interval for the slope widens to `r f2(res_lat_kh$ci.lb[2], 4)` to `r f2(res_lat_kh$ci.ub[2], 4)`. For allocation method the Knapp–Hartung test gives $F(2, 10) =$ `r f2(rma(yi, vi, mods = ~ alloc, data = dat, test = "knha")$QM)`. In what follows we use Knapp–Hartung tests by default. One caveat: whenever $s^2 < 1$, which is not rare when the residuals are small, the adjusted intervals are narrower than the unadjusted ones. Some authors truncate $s^2$ at 1 for that reason (`test = "adhoc"` in `metafor`).
+For latitude the conclusion is unchanged, $F(1, 11) =$ `r f2(res_lat_kh$QM)`, $p$ `r fp(res_lat_kh$QMp)`, but the confidence interval for the slope widens to `r f2(res_lat_kh$ci.lb[2], 4)` to `r f2(res_lat_kh$ci.ub[2], 4)`. For allocation method the Knapp–Hartung test gives $F(2, 10) =$ `r f2(rma(yi, vi, mods = ~ alloc, data = dat, test = "knha")$QM)`. In what follows we use Knapp–Hartung tests by default. One caveat: whenever $s^2 < 1$, which is not rare when the residuals are small, the adjusted standard errors are smaller than the unadjusted ones, and the adjusted intervals can be narrower despite the larger $t$ quantile. Some authors truncate $s^2$ at 1 for that reason (`test = "adhoc"` in `metafor`).
 
 ### Multiple moderators and collinearity {#sec-heterogeneity-multiple}
 
@@ -252,7 +252,7 @@ typeI <- rowMeans(replicate(1000, sim_once()))
 typeI
 ```
 
-The nominal rate is 5%. The fixed-effect meta-regression rejects in `r f2(100 * typeI["fixed"], 1)`% of replications, the mixed-effects Wald test in `r f2(100 * typeI["re_z"], 1)`%, and the Knapp–Hartung test in `r f2(100 * typeI["re_kh"], 1)`%. And this is for a *single* pre-specified test; analysts who screen moderators one at a time and report the significant ones face a multiple-testing problem on top. A frequently quoted rule of thumb asks for about ten studies per moderator, but no rule substitutes for pre-registration of a small set of moderators with a scientific rationale [@thompson2002how].
+The nominal rate is 5%. The fixed-effect meta-regression rejects in `r f2(100 * typeI["fixed"], 1)`% of replications, the mixed-effects Wald test in `r f2(100 * typeI["re_z"], 1)`%, and the Knapp–Hartung test in `r f2(100 * typeI["re_kh"], 1)`%. And this is for a *single* pre-specified test; analysts who screen moderators one at a time and report the significant ones face a multiple-testing problem on top. A frequently quoted rule of thumb asks for about ten studies per moderator [@higgins2019cochrane], but no rule substitutes for pre-registration of a small set of moderators with a scientific rationale [@thompson2002how].
 
 ### Aggregation bias and the ecological fallacy {#sec-heterogeneity-ecological}
 

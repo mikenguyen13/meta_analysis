@@ -252,11 +252,11 @@ head(data.frame(trial = paste(bcg$author, bcg$year),
                 lnOR = lor$yi, lnRR = lrr$yi, RD = rd$yi), 5)
 ```
 
-Because tuberculosis was rare in these cohorts (the control risks are well below 10%), the log odds ratios and log risk ratios are nearly identical: in the Hart & Sutherland trial, $\ln\text{OR} = -1.456$ and $\ln\text{RR} = -1.442$. The risk differences, by contrast, are tiny in absolute terms ($-0.015$ for the same trial) and vary mainly with the baseline risk. This illustrates the general pattern: relative measures tend to be more stable across populations with different baseline risks, absolute measures are what matter for a decision in a specific population. A common reporting strategy pools on a relative scale and then converts the pooled ratio to an absolute effect at one or more assumed baseline risks [@higgins2019cochrane].
+Because tuberculosis was rare in these cohorts (the control risks are all below 10%), the log odds ratios and log risk ratios are nearly identical: in the Hart & Sutherland trial, $\ln\text{OR} = -1.456$ and $\ln\text{RR} = -1.442$. The risk differences, by contrast, are tiny in absolute terms ($-0.015$ for the same trial) and vary mainly with the baseline risk. This illustrates the general pattern: relative measures tend to be more stable across populations with different baseline risks, absolute measures are what matter for a decision in a specific population. A common reporting strategy pools on a relative scale and then converts the pooled ratio to an absolute effect at one or more assumed baseline risks [@higgins2019cochrane].
 
 ### Zero cells and continuity corrections {#sec-effect-sizes-zero}
 
-If any cell of the table is zero, $\ln \text{OR}$ and its variance are undefined. The traditional remedy adds a constant, usually 0.5, to every cell of tables with a zero; this is what `escalc()` does by default (`add = 1/2, to = "only0"`). Tables in which *both* arms have zero events (double-zero studies) are kept with the correction unless `drop00 = TRUE`. The correction is a pragmatic fix, not a principled one. @sweeting2004what showed that the constant 0.5 biases pooled odds ratios toward the null, particularly when group sizes are unbalanced, and proposed alternatives such as treatment-arm continuity corrections. For sparse data the better solution is to avoid the correction altogether by using methods that work with the $2 \times 2$ counts directly: the Mantel-Haenszel and Peto methods, or generalized linear mixed models (GLMMs) that model the event counts as binomial [@stijnen2010random; @bradburn2006much]. These are covered in Chapter \@ref(sec-models), which also compares them on a rare-event dataset.
+If any cell of the table is zero, $\ln \text{OR}$ and its variance are undefined. The traditional remedy adds a constant, usually 0.5, to every cell of tables with a zero; this is what `escalc()` does by default (`add = 1/2, to = "only0"`). Tables in which *both* arms have zero events (double-zero studies) are kept with the correction unless `drop00 = TRUE`. The correction is a pragmatic fix, not a principled one. @sweeting2004what showed that the constant 0.5 can bias pooled odds ratios considerably, particularly when group sizes are unbalanced, and proposed alternatives such as treatment-arm continuity corrections. For sparse data the better solution is to avoid the correction altogether by using methods that work with the $2 \times 2$ counts directly: the Mantel-Haenszel and Peto methods, or generalized linear mixed models (GLMMs) that model the event counts as binomial [@stijnen2010random; @bradburn2006much]. These are covered in Chapter \@ref(sec-models), which also compares them on a rare-event dataset.
 
 ## Correlations {#sec-effect-sizes-correlations}
 
@@ -367,7 +367,7 @@ props <- t(sapply(preds, function(p)
 round(props, 3)
 ```
 
-The four analyses of the same 14 studies give pooled success rates between 0.76 and 0.81. The normal-normal logit model is the lowest, partly because one study (Tanabe et al., 10 of 10 improved) needs a continuity correction on the logit scale; the binomial GLMM uses that study's count as is and estimates 0.80 (95% CI 0.69 to 0.87). The Freeman-Tukey and arcsine prediction intervals extend to 0.999, an artifact of back-transforming a symmetric interval through a bounded function. For new analyses of proportions, the binomial GLMM is the recommended default.
+The four analyses of the same 14 studies give pooled success rates between 0.76 and 0.81. The normal-normal logit model is the lowest, partly because two studies (Tanabe et al., 10 of 10 improved, and Hadeishi et al., 12 of 12) need a continuity correction on the logit scale; the binomial GLMM uses their counts as is and estimates `r sprintf("%.2f", props["binomial GLMM (logit)", "pred"])` (95% CI `r sprintf("%.2f", props["binomial GLMM (logit)", "ci.lb"])` to `r sprintf("%.2f", props["binomial GLMM (logit)", "ci.ub"])`). The Freeman-Tukey and arcsine prediction intervals extend to 0.999, an artifact of back-transforming a symmetric interval through a bounded function. For new analyses of proportions, the binomial GLMM is the recommended default.
 
 ### Incidence rates and rate ratios {#sec-effect-sizes-irr}
 
@@ -518,10 +518,11 @@ since the standard logistic distribution has SD $\pi/\sqrt{3} \approx 1.81$ [@ha
 or2d <- escalc(measure = "OR2DL", ai = tpos, bi = tneg, ci = cpos, di = cneg,
                data = dat.bcg)
 head(cbind(lnOR = lor$yi, d_OR2DL = or2d$yi, d_by_hand = lor$yi * sqrt(3) / pi), 3)
-head(conv.delta(yi, vi, data = lor, transf = function(x) x * sqrt(3) / pi), 3)
+head(conv.delta(yi, vi, data = lor, transf = function(x) x * sqrt(3) / pi,
+                replace = TRUE), 3)
 ```
 
-For the Aronson trial, $\ln\text{OR} = -0.939$ converts to $d = -0.518$, and the three routes agree.
+For the Aronson trial, $\ln\text{OR} = -0.939$ converts to $d = -0.518$, and the three routes agree. Because `lor` already contains `yi` and `vi`, `conv.delta()` needs `replace = TRUE`; with the default `replace = "ifna"` it only fills in missing values and would silently return the log odds ratios unchanged.
 
 **Correlation and SMD.** A point-biserial correlation $r$ between a continuous outcome and a two-group indicator, and the SMD $d$ between the groups, are related by
 
@@ -600,7 +601,7 @@ r_c = \frac{r_{XY}}{\sqrt{r_{XX}}\sqrt{r_{YY}}}, \qquad
 SE(r_c) = \frac{SE(r_{XY})}{\sqrt{r_{XX}}\sqrt{r_{YY}}}.
 $$
 
-The corrected correlation is always larger in absolute value than the observed one, and its standard error is larger by the same factor, which reflects the extra uncertainty from imperfect measurement. The same attenuation factor applies to standardized mean differences when the outcome is measured with error.
+The corrected correlation is always larger in absolute value than the observed one, and its standard error is larger by the same factor, which reflects the extra uncertainty from imperfect measurement. For a standardized mean difference between groups that are classified without error, only the outcome is unreliable, so the observed $d$ is attenuated by $\sqrt{r_{YY}}$ and the correction divides by $\sqrt{r_{YY}}$ alone.
 
 ```{r es-reliability}
 r_xy <- 0.50; n <- 200
@@ -611,7 +612,7 @@ c(attenuation = a, r_corrected = r_xy / a,
   se_observed = se_r, se_corrected = se_r / a)
 ```
 
-With reliabilities of 0.90 and 0.80 the attenuation factor is 0.849, so an observed correlation of 0.50 corresponds to a true-score correlation of 0.589. The correction should use reliabilities estimated in the same sample where possible, and the type of reliability matters: internal consistency (coefficient alpha) corrects for item-specific error only, whereas test-retest coefficients also capture transient error [@schmidt2015a]. When reliabilities are reported for only some studies, Hunter-Schmidt methods use *artifact distributions*, correcting the mean and variance of the observed correlations using the distribution of reliabilities across the studies that report them.
+With reliabilities of 0.90 and 0.80 the attenuation factor is 0.849, so an observed correlation of 0.50 corresponds to a true-score correlation of 0.589. The correction should use reliabilities estimated in the same sample where possible, and the type of reliability matters: internal consistency (coefficient alpha) captures random response and item-specific error but not transient error, test-retest coefficients capture transient but not item-specific error, and only a coefficient of equivalence and stability (parallel forms administered on different occasions) captures all three [@schmidt2015a]. When reliabilities are reported for only some studies, Hunter-Schmidt methods use *artifact distributions*, correcting the mean and variance of the observed correlations using the distribution of reliabilities across the studies that report them.
 
 ### Range restriction {#sec-effect-sizes-range}
 
