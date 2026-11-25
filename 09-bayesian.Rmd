@@ -48,8 +48,9 @@ Three derived quantities are of particular interest.
 
 *The marginal posterior of $\tau$.* With a normal prior $\mu \sim N(m_\mu, s_\mu^2)$ (or a flat
 prior), $\mu$ can be integrated out analytically, leaving a one-dimensional posterior for $\tau$.
-Conditional on $\tau$, the posterior of $\mu$ is normal with a precision-weighted mean, exactly the
-random-effects estimate with $\tau$ fixed. The marginal posterior of $\mu$ is therefore a mixture of
+Conditional on $\tau$, the posterior of $\mu$ is normal with a precision-weighted mean; under a
+flat prior this is exactly the random-effects estimate with $\tau$ fixed, and a normal prior adds
+its mean as one more term in the weighted average. The marginal posterior of $\mu$ is therefore a mixture of
 normals over the posterior of $\tau$. The `bayesmeta` package exploits this structure to compute
 all posterior quantities by numerical integration, with no simulation error
 [@rover2020bayesian].
@@ -104,9 +105,7 @@ and suggest relating the prior scale to the *unit information standard deviation
 within-study standard deviation corresponding to a single observation, so that the prior
 expresses heterogeneity as a fraction of the variability between individual patients or
 participants. For log odds ratios, half-normal priors with scale 0.5 or 1.0 are common choices
-that correspond to "moderate" and "substantial" heterogeneity. Their recommendations for
-choosing between such priors depend on the outcome scale and the context, and they emphasize
-that the tails of the prior matter more than its exact shape.
+[@friede2017meta]. Which prior is appropriate depends on the outcome scale and the context.
 
 ### Empirically based priors {#sec-bayesian-prior-empirical}
 
@@ -272,7 +271,7 @@ knitr::kable(sens, digits = 2, row.names = FALSE,
              caption = "Sensitivity of the posterior to the heterogeneity prior (log odds ratio scale).")
 ```
 
-The point estimate of $\mu$ hardly changes ($-1.57$ to $-1.58$), but its credible interval and,
+The point estimate of $\mu$ hardly changes (`r sprintf("%.2f", max(sens$mu_median))` to `r sprintf("%.2f", min(sens$mu_median))`), but its credible interval and,
 especially, the predictive interval depend on the prior. The Turner prior, which concentrates on
 small to moderate heterogeneity typical of this kind of outcome, gives the narrowest intervals
 (posterior median $\tau = 0.17$). The half-Cauchy prior with scale 1 allows larger heterogeneity,
@@ -325,7 +324,7 @@ intermediate answer that is honest about heterogeneity without being uninformati
 depends visibly on the prior, which is why the prior must be justified, and with two studies an
 empirically based prior is particularly attractive. The `bayesmeta` documentation also shows how
 the non-randomized studies could inform the heterogeneity prior for an analysis of the randomized
-ones, a form of dynamic borrowing.
+ones, by using the posterior of $\tau$ from the former as the prior for the latter.
 
 ## Bayesian meta-analysis with brms {#sec-bayesian-brms}
 
@@ -397,15 +396,16 @@ should be zero, and if they are not, increasing `adapt_delta` is the first remed
 library(posterior)
 summarise_draws(as_draws_df(fit_re, variable = c("b_Intercept", "sd_study__Intercept")),
                 "mean", "sd", ~quantile(.x, c(0.025, 0.975)), "rhat", "ess_bulk", "ess_tail")
-sum(nuts_params(fit_re)$Value[nuts_params(fit_re)$Parameter == "divergent__"])
+n_div <- sum(nuts_params(fit_re)$Value[nuts_params(fit_re)$Parameter == "divergent__"])
+n_div
 ```
 
 ```{r bayes-brms-trace, fig.cap = "Trace plots of the four chains for mu (b_Intercept) and tau (sd_study__Intercept).", fig.height = 3.5}
 bayesplot::mcmc_trace(as_draws_df(fit_re), pars = c("b_Intercept", "sd_study__Intercept"))
 ```
 
-$\hat{R}$ is 1.00 for both parameters, bulk ESS is above 800, and the trace plots in Figure
-\@ref(fig:bayes-brms-trace) show well-mixed chains.
+$\hat{R}$ is 1.00 for both parameters, bulk ESS is above 800, there are `r n_div` divergent
+transitions, and the trace plots in Figure \@ref(fig:bayes-brms-trace) show well-mixed chains.
 
 ### Posterior predictive checks {#sec-bayesian-brms-ppc}
 
@@ -421,7 +421,7 @@ pp_check(fit_re, type = "intervals", ndraws = 1000) +
   labs(x = "Study (data order)", y = "Log risk ratio")
 ```
 
-All observed values lie within the predictive intervals in Figure \@ref(fig:bayes-brms-ppc).
+All observed values lie within the 90% predictive intervals in Figure \@ref(fig:bayes-brms-ppc).
 
 ### Study-specific estimates and a forest plot {#sec-bayesian-brms-forest}
 
@@ -435,6 +435,7 @@ study_draws <- fit_re |>
   ungroup() |>
   select(.draw, study, theta)
 
+set.seed(2026)
 pooled_draws <- fit_re |>
   spread_draws(b_Intercept, sd_study__Intercept) |>
   mutate(Pooled = b_Intercept,
@@ -465,17 +466,24 @@ study_draws |>
   arrange(yi) |>
   knitr::kable(digits = 2, caption = "Observed and shrinkage estimates (posterior medians and 95% intervals) of the log risk ratio.")
 
-pooled_draws |>
+pooled_sum <- pooled_draws |>
   group_by(study) |>
   summarise(median = median(theta), lower = quantile(theta, 0.025),
-            upper = quantile(theta, 0.975), p_benefit = mean(theta < 0))
+            upper = quantile(theta, 0.975), p_benefit = mean(theta < 0)) |>
+  as.data.frame()
+rownames(pooled_sum) <- pooled_sum$study
+pooled_sum
 ```
 
 The shrinkage is visible for imprecise trials with extreme estimates. The predictive
-distribution for a new trial is wide, with a 95% interval from $-1.93$ to $0.56$ on the log risk
-ratio scale (risk ratios from about 0.15 to 1.75). The probability that a new trial would show a
-benefit ($\theta_{\text{new}} < 0$) is 0.88, noticeably lower than the probability that the
-average effect is beneficial (0.999). With heterogeneity this large, the average effect alone
+distribution for a new trial is wide, with a 95% interval from
+`r sprintf("%.2f", pooled_sum["New trial", "lower"])` to
+`r sprintf("%.2f", pooled_sum["New trial", "upper"])` on the log risk ratio scale (risk ratios
+from about `r sprintf("%.2f", exp(pooled_sum["New trial", "lower"]))` to
+`r sprintf("%.2f", exp(pooled_sum["New trial", "upper"]))`). The probability that a new trial
+would show a benefit ($\theta_{\text{new}} < 0$) is
+`r sprintf("%.2f", pooled_sum["New trial", "p_benefit"])`, noticeably lower than the probability
+that the average effect is beneficial (`r sprintf("%.3f", pooled_sum["Pooled", "p_benefit"])`). With heterogeneity this large, the average effect alone
 is a misleading summary, a point that is easy to communicate with the posterior predictive
 distribution.
 
@@ -539,7 +547,8 @@ it depends strongly on the prior under the alternative: a vague prior for $\mu$ 
 mass over implausible effects and pushes the Bayes factor toward the null. Priors used for Bayes
 factors must therefore be chosen with care and their influence reported.
 
-`bayesmeta` reports Bayes factors for $\mu = 0$ and $\tau = 0$, computed by the Savage-Dickey
+`bayesmeta` reports Bayes factors for $\mu = 0$ and $\tau = 0$, computed from the marginal
+likelihoods. Because the priors for $\mu$ and $\tau$ are independent, they equal the Savage-Dickey
 density ratio (the ratio of posterior to prior density at the null value):
 
 ```{r bayes-bf-bayesmeta}
@@ -625,11 +634,11 @@ summary(fit_robma_pp, type = "models")
 ```
 
 The first table reports the inclusion Bayes factors for the effect, heterogeneity, and bias
-components. With six studies of similar size, the data contain almost no information about
-publication bias, so the posterior probability of the bias component stays close to its prior
-probability and the inclusion Bayes factor for bias is close to 1. In this situation RoBMA
-behaves sensibly: it neither claims evidence for bias nor rules it out, and the model-averaged
-effect is shrunk toward zero to the extent that the bias-adjusted models receive weight. The
+components. Six studies of similar size carry little information about publication bias, so the
+inclusion Bayes factor for bias should be read with that in mind: a value near 1 means that the
+data neither support nor rule out bias, not that bias is absent. Whatever weight the
+bias-adjusted models receive pulls the model-averaged effect toward the bias-corrected
+estimates, so the averaged effect should be compared with the estimate of `metaBMA` above. The
 second table lists the individual models with their prior and posterior probabilities, which
 shows which specifications drive the averaged result. The default priors in `RoBMA` are defined on
 the Cohen's $d$ scale; for medical outcomes, the empirically informed priors of

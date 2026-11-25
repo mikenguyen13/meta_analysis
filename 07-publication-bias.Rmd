@@ -213,7 +213,7 @@ non-significant region (the white area around zero). If the apparent gap in the 
 inside the significance regions, significance-driven selection is an unlikely explanation and
 other causes of asymmetry, such as heterogeneity or quality differences, deserve more attention.
 
-```{r pubbias-contour, fig.cap = "Contour-enhanced funnel plots. Left: tobacco-smoke studies. Right: cholera vaccine trials. Shaded regions mark two-sided p-values between 0.10 and 0.05 (light), 0.05 and 0.01 (medium), and below 0.01 (dark); the white region around zero contains non-significant results.", fig.width = 10, fig.height = 5}
+```{r pubbias-contour, fig.cap = "Contour-enhanced funnel plots. Left: tobacco-smoke studies. Right: cholera vaccine trials. Shaded regions mark two-sided p-values between 0.10 and 0.05 (dark grey), between 0.05 and 0.01 (medium grey), and below 0.01 (light grey, the plot background); the white region around zero contains results with p > 0.10.", fig.width = 10, fig.height = 5}
 op <- par(mfrow = c(1, 2), mar = c(5, 5, 3, 1))
 funnel(res_ets, level = c(90, 95, 99), shade = c("white", "gray55", "gray75"),
        refline = 0, legend = "bottomleft", las = 1, main = "Tobacco smoke (ETS)",
@@ -392,8 +392,8 @@ Trim-and-fill is popular because it is intuitive and produces a single "adjusted
 limitations are serious. It assumes that asymmetry is caused by the suppression of the most
 extreme negative results, which is not how significance-based selection works: selection removes
 non-significant results, which may lie near the center. Under heterogeneity, trim-and-fill can
-impute studies when there is no publication bias at all [@terrin2003adjusting], and its
-adjustment is usually too small when bias is present [@peters2007performance]. The imputed
+impute studies when there is no publication bias at all [@terrin2003adjusting], and when bias is
+present it reduces the bias of the pooled estimate but does not remove it [@peters2007performance]. The imputed
 studies are fictitious and the confidence interval of the filled-in analysis does not reflect
 the uncertainty of the imputation. Trim-and-fill is best regarded as a sensitivity analysis that
 asks "what if the funnel were symmetric?", not as a correction.
@@ -462,9 +462,9 @@ interventions improve achievement.
 That conclusion should not be taken at face value. PET-PEESE attributes the *entire* association
 between effect size and standard error to bias. In education research, small studies often
 evaluate more intensive or better-implemented interventions, which would produce the same
-pattern. The method also performs poorly when heterogeneity is large, when the number of studies
-is small, and when there is little variation in the standard errors, conditions under which the
-intercept is an extrapolation far outside the data [@stanley2017limitations]. Here the most
+pattern. The method also performs poorly when heterogeneity is very large, when there are only a few
+studies, and when all studies are small [@stanley2017limitations]; in the last case the
+intercept is an extrapolation far outside the observed range of standard errors. Here the most
 precise study has $\sigma_i \approx 0.08$, so the intercept is extrapolated well beyond the
 observed range. PET-PEESE is most useful as one member of a set of sensitivity analyses rather
 than as the preferred estimate.
@@ -575,8 +575,8 @@ legend("topright", legend = ok, col = cols, lwd = 3, bg = "white", box.col = "wh
 ```
 
 Four of the seven weight functions (the step function, negative exponential, logistic, and
-negative-exponential-power) give adjusted means between about 0.11 and 0.17 with confidence
-intervals that include zero or come close to it. The beta, half-normal, and power functions
+negative-exponential-power) give adjusted means between about 0.11 and 0.17, all with confidence
+intervals that include zero. The beta, half-normal, and power functions
 produce warnings because the Hessian could not be inverted, so no standard errors or confidence
 intervals are available, and their point estimates range from below zero to an implausible 0.53.
 These are not "alternative estimates" to be averaged with the others; they are failed fits,
@@ -724,7 +724,8 @@ $$
 $$
 with $w_i = 1/(\sigma_i^2 + \hat\tau^2)$ and robust (sandwich) standard errors that do not
 assume normal random effects. The method requires no distributional assumption about the true
-effects, handles clustered estimates, and is valid for any number of studies, which makes it
+effects, handles clustered estimates, and uses small-sample corrections that make it usable in
+small meta-analyses, which makes it
 attractive as a complement to the selection models.
 
 ```{r pubbias-sensitivity}
@@ -795,15 +796,19 @@ left skew, a pile-up of results just below 0.05.
 
 The tests use *pp-values*, the probability of a result at least as extreme as the one observed,
 conditional on significance, under a reference hypothesis. Under the null of no effect, the pp
-value of a significant $p_i$ is simply $p_i/0.05$. These are combined with Stouffer's method,
-$Z = \sum_i \Phi^{-1}(pp_i)/\sqrt{k}$, and a strongly negative $Z$ indicates right skew, that is,
-*evidential value*. @simonsohn2015better refined the procedure: the *half $p$-curve* repeats the
-test using only $p < 0.025$, which is more robust to ambitious $p$-hacking, and a test for
-*inadequate evidential value* asks whether the curve is flatter than expected if studies had 33%
-power. The recommended decision rule declares evidential value if the half-curve test has
-$p < 0.05$ or both the full and half tests have $p < 0.10$, and declares the evidential value
-inadequate if the 33%-power test has $p < 0.05$ or both its full and half versions have
-$p < 0.10$.
+value of a significant $p_i$ is simply $p_i/0.05$. A test for *inadequate evidential value* asks
+whether the curve is flatter than expected if studies had 33% power; its pp-values are the
+probabilities, under 33% power and conditional on significance, of a result at least as weak as
+the one observed. The original proposal combined pp-values with Fisher's method.
+@simonsohn2015better replaced it with Stouffer's method,
+$Z = \sum_i \Phi^{-1}(pp_i)/\sqrt{k}$, where a strongly negative $Z$ indicates right skew (that is,
+*evidential value*) for the first test and a flatter-than-33%-power curve for the second. They
+also added the *half $p$-curve*, which repeats the tests using only $p < 0.025$ and is more robust
+to ambitious $p$-hacking. The recommended decision rule declares evidential value if the
+half-curve right-skew test has $p < 0.05$ or both the full and half right-skew tests have
+$p < 0.10$, and declares the evidential value inadequate or absent if the full-curve 33%-power
+test has $p < 0.05$ or both the half-curve 33%-power test and a binomial version of the 33%-power
+test have $p < 0.10$. The function below does not compute the binomial test.
 
 Because the `dmetar` package that implements this is not on CRAN, we write a small function
 that makes each step visible. It approximates each study's test by a $z$-test, $z_i = y_i/\sigma_i$,
@@ -856,8 +861,7 @@ round(pcurve_test(rnorm(4000, ncp33 * se_sim, se_sim), se_sim), 3)  # 33% power
 ```
 
 Under the null, the right-skew tests are not significant and the flatness tests reject strongly;
-under 33% power, the right-skew tests reject and the flatness tests are near their null
-distribution, as they should. Now the writing-to-learn data:
+under 33% power, the right-skew tests reject and the flatness tests do not, as they should. Now the writing-to-learn data:
 
 ```{r pubbias-pcurve-wtl}
 pc_wtl <- pcurve_test(wtl$yi, wtl$sei)
@@ -887,7 +891,8 @@ flatness test is. By the decision rule, the significant writing-to-learn results
 evidential value: they are not merely the product of selective reporting of null effects. Note
 what this does *not* say. $p$-curve answers whether the significant studies, as a set, are
 inconsistent with a zero effect in all of them; it does not estimate the average effect across
-all studies, and it ignores the 34 non-significant studies entirely.
+all studies, and it ignores the other 34 studies (33 non-significant, one significant in the
+opposite direction) entirely.
 
 $p$-curve also has an effect-size estimator (find the effect for which the $pp$-values are
 uniform), which is essentially the $p$-uniform estimator of the next section. Both assume a
@@ -904,7 +909,8 @@ q_i(\mu) = \frac{1 - \Phi\!\left(\frac{y_i - \mu}{\sigma_i}\right)}
 $$
 where $y_i^{cv}$ is the critical value for significance, are uniformly distributed. The
 estimate $\hat\mu$ is the value at which the $q_i$ look most uniform; with the default method
-`"P"` it solves $\sum_i -\ln q_i(\mu) = k$. A test for publication bias compares the $p$-uniform
+`"P"`, which uses the Irwin-Hall distribution of a sum of uniform variables, it solves
+$\sum_i q_i(\mu) = k/2$ (method `"LNP"` instead solves $\sum_i -\ln q_i(\mu) = k$). A test for publication bias compares the $p$-uniform
 estimate to the common-effect estimate from all studies [@vanaert2016conducting].
 
 ```{r pubbias-puniform}
@@ -1119,8 +1125,8 @@ the missing studies; the honest output is a range of estimates under explicit as
 - The Mathur-VanderWeele sensitivity analysis asks how much selection would be needed to change a
   conclusion and is valid under weak assumptions.
 - $p$-curve tests whether significant results contain evidential value; $p$-uniform and
-  $p$-uniform* estimate effects from the conditional distribution of $p$-values. The former two
-  assume homogeneity.
+  $p$-uniform* estimate effects from the conditional distribution of $p$-values. $p$-curve and
+  $p$-uniform assume homogeneity; $p$-uniform* allows for heterogeneity.
 - No method dominates in simulations. Report several methods with different assumptions and draw
   conclusions about the robustness of the finding, not about a single "true" adjusted estimate.
 

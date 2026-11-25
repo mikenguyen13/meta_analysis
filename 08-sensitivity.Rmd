@@ -76,7 +76,7 @@ l1o
 l1o_d <- as.data.frame(l1o)
 ```
 
-The pooled estimate ranges from `r f2(min(l1o_d$estimate), 3)` (without Maxwell) to `r f2(max(l1o_d$estimate), 3)`, and none of the leave-one-out confidence intervals excludes zero, so the qualitative conclusion is stable. The heterogeneity is not: without Maxwell, $I^2$ falls to `r f2(l1o_d$I2[10], 1)`% and the $Q$ test is no longer significant at the 5% level ($p$ `r fp(l1o_d$Qp[10])`). A large share of the apparent heterogeneity in this literature is attributable to one study.
+The pooled estimate ranges from `r f2(min(l1o_d$estimate), 3)` (without Maxwell) to `r f2(max(l1o_d$estimate), 3)`, and none of the leave-one-out confidence intervals excludes zero, so the qualitative conclusion is stable. The heterogeneity is not: without Maxwell, $I^2$ falls to `r f2(l1o_d$I2[10], 1)`% and the $Q$ test is no longer significant at the 5% level ($p$ `r fp(l1o_d$Qp[10])`). Removing the first Pellegrini and Hicks experiment instead has a smaller effect in the same direction ($I^2 =$ `r f2(l1o_d$I2[4], 1)`%, $p$ `r fp(l1o_d$Qp[4])`). A large share of the apparent heterogeneity in this literature is attributable to one or two small studies.
 
 ### Baujat plot {#sec-sensitivity-baujat}
 
@@ -146,7 +146,7 @@ forest(cum, xlim = c(-5, 2.5), atransf = exp, at = log(c(0.1, 0.25, 0.5, 1, 2)),
        header = c("Trials added (in order of publication)", "Risk ratio [95% CI]"))
 ```
 
-By the third trial (1953), the cumulative risk ratio was `r f2(exp(cumd$estimate[3]))` and already clearly below 1. It drifted towards the null as later trials were added, reaching `r f2(exp(cumd$estimate[13]))` after the large 1980 Madras trial, while $\hat\tau^2$ grew from `r f2(cumd$tau2[3], 3)` to `r f2(cumd$tau2[13], 3)` and $I^2$ from `r f2(cumd$I2[3], 0)`% to `r f2(cumd$I2[13], 0)`%. The early trials were not wrong about the existence of a protective effect, but they overstated its size and hid how variable it would prove to be. Ordering by a moderator rather than time (here, latitude) turns the cumulative plot into an informal moderator analysis. Note that cumulative meta-analysis involves repeated looks at accumulating data; if it is used to decide when to stop doing trials, the multiplicity of tests must be handled formally.
+By the third trial (1953), the cumulative risk ratio was `r f2(exp(cumd$estimate[3]))` and already clearly below 1. It drifted towards the null as later trials were added, reaching `r f2(exp(cumd$estimate[13]))` after the large 1980 Madras trial, while $\hat\tau^2$ grew from `r f2(cumd$tau2[3], 3)` to `r f2(cumd$tau2[13], 3)` and $I^2$ from `r f2(cumd$I2[3], 0)`% to `r f2(cumd$I2[13], 0)`%. The early trials were not wrong about the existence of a protective effect, but they overstated its size and hid how variable it would prove to be. Ordering by a moderator rather than time (for the BCG trials, absolute latitude) turns the cumulative plot into an informal moderator analysis. Note that cumulative meta-analysis involves repeated looks at accumulating data; if it is used to decide when to stop doing trials, the multiplicity of tests must be handled formally.
 
 ## L'Abbé plot {#sec-sensitivity-labbe}
 
@@ -268,7 +268,7 @@ che_no11 <- rma.mv(yi, V6, random = ~ 1 | study/esid, data = da, sparse = TRUE,
 c(all = coef(che)[[1]], without_11 = coef(che_no11)[[1]])
 ```
 
-Study 11 stands out, with a Cook's distance of `r f2(cd_study[11], 2)` and a DFBETAS of `r f2(dfb_study[11, 1], 2)`; it contributes `r sum(da$study == 11)` of the 100 effect sizes. Removing it changes the average effect from `r f2(coef(che), 3)` to `r f2(coef(che_no11), 3)`. Whether that matters depends on the question, but it should be reported, and it would be hidden by effect-level diagnostics that delete one outcome at a time. Cluster-level deletion refits the model once per study, so it is slower than the closed-form diagnostics of the univariate model; with many clusters, `parallel` options in `metafor` help.
+Study 11 stands out, with a Cook's distance of `r f2(cd_study[11], 2)` and a DFBETAS of `r f2(dfb_study[11, 1], 2)`; it contributes `r sum(da$study == 11)` of the 100 effect sizes. Removing it changes the average effect from `r f2(coef(che), 3)` to `r f2(coef(che_no11), 3)`. Whether that matters depends on the question, but it should be reported, and it would be hidden by effect-level diagnostics that delete one outcome at a time. Cluster-level deletion refits the multilevel model once per study, which is slow for large models; with many clusters, the `parallel` argument of these functions helps.
 
 ## Multiverse and specification-curve meta-analysis {#sec-sensitivity-multiverse}
 
