@@ -68,15 +68,9 @@ jobs:
           library(rjags)
           library(RoBMA)
 
-      - name: Cache knitr chunks
-        uses: actions/cache@v4
-        with:
-          path: |
-            _bookdown_files
-            *_cache
-          key: knitr-${{ runner.os }}-${{ hashFiles('*.Rmd', '_common.R', 'DESCRIPTION') }}
-          restore-keys: knitr-${{ runner.os }}-
-
+      # No knitr chunk cache in CI: every deploy runs all code from scratch, so a
+      # stale cache can never hide or cause a failure (a cached chunk skips its
+      # library() calls, and lazy-loaded datasets from that package vanish).
       - name: Render book
         run: Rscript -e 'bookdown::render_book("index.Rmd", output_format = "bookdown::bs4_book", quiet = TRUE)'
 
