@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 14 Meta-Analysis of Causal Estimates | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="Economics, management, marketing and policy research increasingly report effects estimated with designs built for causal identification: randomized controlled trials (RCTs) in the field and the...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 14 Meta-Analysis of Causal Estimates | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-causal-estimates.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="Economics, management, marketing and policy research increasingly report effects estimated with designs built for causal identification: randomized controlled trials (RCTs) in the field and the...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 14 Meta-Analysis of Causal Estimates | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="Economics, management, marketing and policy research increasingly report effects estimated with designs built for causal identification: randomized controlled trials (RCTs) in the field and the...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 14 Meta-Analysis of Causal Estimates | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="active" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-causal-estimates" class="section level1" number="14">
+<h1>
+<span class="header-section-number">14</span> Meta-Analysis of Causal Estimates<a class="anchor" aria-label="anchor" href="#sec-causal-estimates"><i class="fas fa-link"></i></a>
+</h1>
+<p>Economics, management, marketing and policy research increasingly report effects estimated with designs built for causal identification: randomized controlled trials (RCTs) in the field and the lab, difference-in-differences (DiD) and event studies, regression discontinuity (RD), instrumental variables (IV) and synthetic control. A literature on the effect of minimum wages on employment, of loyalty programs on customer spending, of microcredit on household income or of advertising on sales typically mixes all of these. Meta-analysis of such literatures raises problems that the clinical-trial template of earlier chapters does not prepare us for. Different designs identify different causal quantities, standard errors are reported in heterogeneous and sometimes incomplete ways, effect sizes are often regression coefficients on incompatible scales, many estimates come from the same paper, and publication selection is pervasive and design-specific.</p>
+<p>This chapter is written for researchers who synthesize such evidence. We first ask what is being pooled, that is, which estimand each design targets and when estimates from different designs can sensibly be combined. We then cover the practicalities of extracting effects and standard errors from regression tables, and the use and misuse of partial correlation coefficients. The middle part of the chapter deals with publication selection as it is studied in economics (FAT-PET-PEESE, WAAP-WLS and selection models), design and identification strength as moderators, and bias-adjusted meta-analysis that combines randomized and non-randomized evidence. A worked example on simulated, design-labelled estimates brings these tools together. The last part turns to generalizability: Bayesian hierarchical aggregation of the microcredit RCTs, pooling factors, and the predictive distribution for a new site.</p>
+<div class="sourceCode" id="cb270"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="http://jepusto.github.io/clubSandwich/">clubSandwich</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://gitlab.gwdg.de/croever/bayesmeta">bayesmeta</a></span><span class="op">)</span></span></code></pre></div>
+<div id="sec-causal-estimands" class="section level2" number="14.1">
+<h2>
+<span class="header-section-number">14.1</span> What is being pooled?<a class="anchor" aria-label="anchor" href="#sec-causal-estimands"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-causal-estimands-design" class="section level3" number="14.1.1">
+<h3>
+<span class="header-section-number">14.1.1</span> Estimands by design<a class="anchor" aria-label="anchor" href="#sec-causal-estimands-design"><i class="fas fa-link"></i></a>
+</h3>
+<p>In the potential-outcomes framework, unit <span class="math inline">\(j\)</span> has outcomes <span class="math inline">\(Y_j(1)\)</span> under treatment and <span class="math inline">\(Y_j(0)\)</span> without it, and the unit-level effect is <span class="math inline">\(\Delta_j = Y_j(1) - Y_j(0)\)</span>. Different designs identify different averages of <span class="math inline">\(\Delta_j\)</span>.</p>
+<p>An RCT with full compliance identifies the <strong>average treatment effect</strong> (ATE) in the experimental sample, <span class="math inline">\(E[\Delta_j]\)</span>. With one-sided noncompliance, the intention-to-treat effect is the effect of being <em>offered</em> the treatment, which is diluted relative to the effect of receiving it.</p>
+<p>An <strong>instrumental variables</strong> estimator with a binary instrument and a binary treatment, under independence, exclusion, relevance and monotonicity, identifies the <strong>local average treatment effect</strong> (LATE) for compliers, the units whose treatment status is changed by the instrument <span class="citation">(<a href="sec-references.html#ref-imbens1994identification">Imbens and Angrist 1994</a>)</span>. Two IV studies of the same treatment with different instruments estimate effects for different complier populations, and neither need equal the ATE.</p>
+<p>A sharp <strong>regression discontinuity</strong> design identifies the average effect for units <em>at the cutoff</em> of the running variable, <span class="math inline">\(E[\Delta_j \mid X_j = c]\)</span> <span class="citation">(<a href="sec-references.html#ref-imbens2008regression">Imbens and Lemieux 2008</a>; <a href="sec-references.html#ref-lee2010regression">Lee and Lemieux 2010</a>)</span>. If effects vary with the running variable, RD estimates from studies with different cutoffs are local effects at different points of the effect function.</p>
+<p><strong>Difference-in-differences</strong> under parallel trends identifies the <strong>average treatment effect on the treated</strong> (ATT) for the treated group in the post-treatment periods. With staggered adoption and effects that change over time, the conventional two-way fixed effects (TWFE) regression coefficient is a weighted average of group- and time-specific ATTs in which some weights can be negative, so it need not equal any interpretable ATT <span class="citation">(<a href="sec-references.html#ref-goodmanbacon2021differenceindifferences">Goodman-Bacon 2021</a>; <a href="sec-references.html#ref-dechaisemartin2020twoway">Chaisemartin and D’Haultfœuille 2020</a>)</span>. Estimators such as that of <span class="citation">Callaway and Sant’Anna (<a href="sec-references.html#ref-callaway2021differenceindifferences">2021</a>)</span> recover well-defined group-time ATTs and aggregations of them; <span class="citation">Roth et al. (<a href="sec-references.html#ref-roth2023whats">2023</a>)</span> review this literature. <strong>Event studies</strong> report dynamic effects at several horizons, so a meta-analyst must choose a common horizon (for example, the effect one year after treatment) or model the horizon explicitly as in a longitudinal meta-analysis (Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>). <strong>Synthetic control</strong> <span class="citation">(<a href="sec-references.html#ref-abadie2010synthetic">Abadie et al. 2010</a>)</span> estimates the effect for a single treated unit, often a region or a country, and its inference rests on placebo distributions rather than conventional standard errors.</p>
+</div>
+<div id="sec-causal-when-pool" class="section level3" number="14.1.2">
+<h3>
+<span class="header-section-number">14.1.2</span> When is pooling meaningful?<a class="anchor" aria-label="anchor" href="#sec-causal-when-pool"><i class="fas fa-link"></i></a>
+</h3>
+<p>A meta-analysis of causal estimates combines numbers that answer questions about different populations and margins. That is not a reason to refuse to pool, but it changes how the pooled result should be read. If the effect is homogeneous, ATE, ATT, LATE and the RD effect coincide, and pooling them estimates the common effect. If the effect is heterogeneous, which is usually the case, the pooled mean is an average of effects for different subpopulations, weighted by precision, and the between-study variance <span class="math inline">\(\tau^2\)</span> contains genuine variation in effects across populations and margins as well as differences in estimands. Three conditions make pooling defensible. The estimates must be on a common scale (an elasticity, a semi-elasticity in log points, a standardized mean difference, a percentage change), the treatment and outcome must be commensurable across studies, and the estimand should be recorded and examined as a moderator rather than ignored. When these conditions fail, for example when some studies report the effect of a 10% price change and others of a coupon on purchase incidence, separate syntheses are better than one.</p>
+<p>Table <a href="sec-causal-estimates.html#tab:causal-design-table">14.1</a> summarizes what each design typically delivers and what should be coded for meta-analysis.</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:causal-design-table">Table 14.1: </span>Causal designs, the estimands they identify, and study features worth coding in a meta-analysis.</caption>
+<colgroup>
+<col width="10%">
+<col width="23%">
+<col width="30%">
+<col width="36%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Design</th>
+<th align="left">Estimand</th>
+<th align="left">Key identifying assumption</th>
+<th align="left">What to code</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">RCT</td>
+<td align="left">ATE (or ITT) in the experimental sample</td>
+<td align="left">Randomization, no differential attrition</td>
+<td align="left">Compliance, attrition, ITT vs TOT</td>
+</tr>
+<tr class="even">
+<td align="left">IV</td>
+<td align="left">LATE for compliers with the instrument</td>
+<td align="left">Exclusion, monotonicity, strong first stage</td>
+<td align="left">Instrument type, first-stage F, complier share</td>
+</tr>
+<tr class="odd">
+<td align="left">RD</td>
+<td align="left">Local effect at the cutoff</td>
+<td align="left">No manipulation of the running variable, continuity</td>
+<td align="left">Bandwidth, polynomial order, cutoff location</td>
+</tr>
+<tr class="even">
+<td align="left">DiD / event study</td>
+<td align="left">ATT for treated units, by horizon</td>
+<td align="left">Parallel trends, no anticipation</td>
+<td align="left">Estimator (TWFE vs heterogeneity-robust), horizon, pre-trends</td>
+</tr>
+<tr class="odd">
+<td align="left">Synthetic control</td>
+<td align="left">Effect for one treated unit</td>
+<td align="left">Pre-period fit of donor pool</td>
+<td align="left">Donor pool, pre-period RMSPE, placebo rank</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div id="sec-causal-extraction" class="section level2" number="14.2">
+<h2>
+<span class="header-section-number">14.2</span> Extracting effect sizes and standard errors<a class="anchor" aria-label="anchor" href="#sec-causal-extraction"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-causal-se" class="section level3" number="14.2.1">
+<h3>
+<span class="header-section-number">14.2.1</span> Recovering standard errors<a class="anchor" aria-label="anchor" href="#sec-causal-se"><i class="fas fa-link"></i></a>
+</h3>
+<p>Inverse-variance weighting needs a standard error for every estimate, but regression tables report uncertainty in several forms: a standard error, a <span class="math inline">\(t\)</span> statistic, a confidence interval, a <span class="math inline">\(p\)</span> value, or only significance stars. The conversions are elementary but easy to get wrong. If a 95% interval <span class="math inline">\([L, U]\)</span> is symmetric,</p>
+<p><span class="math display">\[
+\text{SE} = \frac{U - L}{2\, q_{0.975}},
+\]</span></p>
+<p>where <span class="math inline">\(q_{0.975}\)</span> is the 0.975 quantile of the reference distribution used by the authors: 1.96 for a normal approximation, but <span class="math inline">\(t_{0.975, G-1}\)</span> when the authors used cluster-robust inference with <span class="math inline">\(G\)</span> clusters and the small-sample <span class="math inline">\(t\)</span> correction that is standard in many software packages <span class="citation">(<a href="sec-references.html#ref-cameron2015practitioners">Colin Cameron and Miller 2015</a>)</span>. From a <span class="math inline">\(t\)</span> statistic, <span class="math inline">\(\text{SE} = |b / t|\)</span>. From an exact two-sided <span class="math inline">\(p\)</span> value, <span class="math inline">\(\text{SE} = |b| / q_{1 - p/2}\)</span>. When <span class="math inline">\(p\)</span> is reported only as an inequality (such as <span class="math inline">\(p &lt; 0.05\)</span>) or as stars, the bound gives only an upper limit on the standard error, and such estimates should be flagged and examined in a sensitivity analysis. Intervals for ratio measures (odds, risk or hazard ratios) are symmetric only on the log scale, so their limits must be log-transformed before applying the formula, which then gives the standard error of the log ratio.</p>
+<div class="sourceCode" id="cb271"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">se_from_ci</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">lower</span>, <span class="va">upper</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span>, <span class="va">df</span> <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="op">(</span><span class="va">upper</span> <span class="op">-</span> <span class="va">lower</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">level</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">df</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">se_from_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span>, <span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">b</span> <span class="op">/</span> <span class="va">t</span><span class="op">)</span></span>
+<span><span class="va">se_from_p</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span>, <span class="va">p</span>, <span class="va">df</span> <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">p</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">df</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">reported</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  study <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A: 95% CI, normal"</span>, <span class="st">"B: 95% CI, 20 clusters"</span>, <span class="st">"C: t statistic"</span>,</span>
+<span>            <span class="st">"D: exact p value"</span>, <span class="st">"E: p &lt; 0.05 only"</span><span class="op">)</span>,</span>
+<span>  b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.080</span>, <span class="fl">0.080</span>, <span class="fl">0.050</span>, <span class="fl">0.120</span>, <span class="fl">0.060</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.020</span>, <span class="fl">0.020</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.140</span>, <span class="fl">0.140</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">2.5</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.031</span>, <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  df <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">Inf</span>, <span class="fl">19</span>, <span class="cn">NA</span>, <span class="cn">Inf</span>, <span class="cn">Inf</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">reported</span><span class="op">$</span><span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">reported</span>, <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">lower</span><span class="op">)</span>, <span class="fu">se_from_ci</span><span class="op">(</span><span class="va">lower</span>, <span class="va">upper</span>, df <span class="op">=</span> <span class="va">df</span><span class="op">)</span>,</span>
+<span>                              <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span>, <span class="fu">se_from_t</span><span class="op">(</span><span class="va">b</span>, <span class="va">t</span><span class="op">)</span>, <span class="fu">se_from_p</span><span class="op">(</span><span class="va">b</span>, <span class="va">p</span>, <span class="va">df</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">reported</span><span class="op">$</span><span class="va">se_upper_bound</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grepl</a></span><span class="op">(</span><span class="st">"only"</span>, <span class="va">reported</span><span class="op">$</span><span class="va">study</span><span class="op">)</span></span>
+<span><span class="va">reported</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"study"</span>, <span class="st">"b"</span>, <span class="st">"se"</span>, <span class="st">"se_upper_bound"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;                    study    b      se se_upper_bound</span></span>
+<span><span class="co">#&gt; 1      A: 95% CI, normal 0.08 0.03061          FALSE</span></span>
+<span><span class="co">#&gt; 2 B: 95% CI, 20 clusters 0.08 0.02867          FALSE</span></span>
+<span><span class="co">#&gt; 3         C: t statistic 0.05 0.02000          FALSE</span></span>
+<span><span class="co">#&gt; 4       D: exact p value 0.12 0.05563          FALSE</span></span>
+<span><span class="co">#&gt; 5       E: p &lt; 0.05 only 0.06 0.03061           TRUE</span></span></code></pre></div>
+<p>Studies A and B report the same interval, but B’s authors used a <span class="math inline">\(t\)</span> distribution with 19 degrees of freedom for 20 clusters, so the implied standard error is 0.0287 rather than 0.0306 under the normal assumption. Applying the normal formula to B would understate its weight slightly. For study E, 0.0306 is only an upper bound on the standard error, because <span class="math inline">\(p\)</span> could be anywhere below 0.05.</p>
+<p>Two further extraction issues are specific to causal designs. First, many papers report several specifications of the same design (with and without controls, different bandwidths, different clusterings of standard errors). The meta-analyst must decide in advance whether to extract the authors’ preferred specification, all specifications, or a rule-based subset; extracting all and modeling the dependence (Section <a href="sec-causal-estimates.html#sec-causal-example">14.6</a>) avoids the arbitrariness of picking one, but gives more weight to papers that report more robustness checks. Second, coefficients must be converted to a common scale. A coefficient on a log outcome is approximately a proportional change for small values; the exact percentage change is <span class="math inline">\(100(e^{b} - 1)\)</span>. A coefficient on a level outcome can be converted to a semi-elasticity by dividing by the control-group mean, and to a standardized effect by dividing by the outcome standard deviation, with the delta method providing approximate standard errors.</p>
+</div>
+<div id="sec-causal-pcc" class="section level3" number="14.2.2">
+<h3>
+<span class="header-section-number">14.2.2</span> Partial correlation coefficients<a class="anchor" aria-label="anchor" href="#sec-causal-pcc"><i class="fas fa-link"></i></a>
+</h3>
+<p>When studies report regression coefficients on incompatible scales, economists often convert each coefficient to a <strong>partial correlation coefficient</strong> (PCC), which can be computed from the <span class="math inline">\(t\)</span> statistic and the residual degrees of freedom of the regression alone <span class="citation">(<a href="sec-references.html#ref-stanley2012metaregression">Stanley and Doucouliagos 2012</a>)</span>:</p>
+<p><span class="math display">\[
+r_p = \frac{t}{\sqrt{t^2 + df}}.
+\]</span></p>
+<p>Two variance estimators are in common use, <span class="math inline">\(\widehat{\operatorname{Var}}_1(r_p) = (1 - r_p^2)/df\)</span>, which follows from <span class="math inline">\(\text{SE} = r_p/t\)</span>, and <span class="math inline">\(\widehat{\operatorname{Var}}_2(r_p) = (1 - r_p^2)^2/df\)</span>, which follows from the large-sample variance of a correlation coefficient. <span class="citation">Aert and Goos (<a href="sec-references.html#ref-vanaert2023critical">2023</a>)</span> examine the statistical properties of both estimators and give recommendations for applied work. <span class="citation">Stanley et al. (<a href="sec-references.html#ref-stanley2024metaanalyses">2024</a>)</span> show that conventional meta-analyses of PCCs are biased in small samples and propose remedies, including a modified unrestricted weighted least squares estimator and the use of Fisher’s <span class="math inline">\(z\)</span> transformation. <span class="citation">Aloe and Becker (<a href="sec-references.html#ref-aloe2012effect">2012</a>)</span> discuss the related semi-partial correlation as an effect size for regression predictors.</p>
+<p>The PCC has two drawbacks that matter more than the choice of variance formula. It measures the strength of a conditional association, not the size of an effect, so it cannot answer the question that usually motivates a policy or marketing meta-analysis (“by how much does sales revenue change?”). And its value depends on everything else in the regression. The following simulation shows the same causal effect producing very different PCCs depending on which controls are included.</p>
+<div class="sourceCode" id="cb272"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">500</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>                       <span class="co"># treatment intensity</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>                       <span class="co"># prognostic control, independent of x</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fl">0.2</span> <span class="op">*</span> <span class="va">x</span> <span class="op">+</span> <span class="fl">1.0</span> <span class="op">*</span> <span class="va">z</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>   <span class="co"># true effect of x is 0.2</span></span>
+<span><span class="va">pcc</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">term</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tval</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="va">term</span>, <span class="st">"t value"</span><span class="op">]</span></span>
+<span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">df.residual</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="va">term</span><span class="op">]</span><span class="op">)</span>, t <span class="op">=</span> <span class="va">tval</span>, df <span class="op">=</span> <span class="va">df</span>, pcc <span class="op">=</span> <span class="va">tval</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">tval</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="va">df</span><span class="op">)</span>,</span>
+<span>    se_pcc_1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="va">tval</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="va">tval</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="va">df</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">df</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>without_control <span class="op">=</span> <span class="fu">pcc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span><span class="op">)</span>, <span class="st">"x"</span><span class="op">)</span>,</span>
+<span>            with_control    <span class="op">=</span> <span class="fu">pcc</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span> <span class="op">+</span> <span class="va">z</span><span class="op">)</span>, <span class="st">"x"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                     b     t  df   pcc se_pcc_1</span></span>
+<span><span class="co">#&gt; without_control 0.192 3.217 498 0.143    0.044</span></span>
+<span><span class="co">#&gt; with_control    0.213 4.802 497 0.211    0.044</span></span></code></pre></div>
+<p>The coefficient on <span class="math inline">\(x\)</span> is about 0.2 in both regressions, as it should be, since <span class="math inline">\(z\)</span> is independent of <span class="math inline">\(x\)</span>. But adding the prognostic control removes residual variance, which raises the <span class="math inline">\(t\)</span> statistic from 3.2 to 4.8 and the PCC from 0.14 to 0.21. In a meta-analysis, PCCs from studies with rich and sparse control sets are therefore not comparable even when the underlying effect is the same. Notice also that the PCC’s standard error is a function of the PCC itself, which builds a mechanical relation between effect size and precision into funnel-plot-based diagnostics. The recommendation is to prefer a common economic metric (elasticities, semi-elasticities, standardized effects) whenever the primary studies allow it, to use PCCs only when no such metric exists, and then to code the number and type of controls as moderators.</p>
+</div>
+</div>
+<div id="sec-causal-selection" class="section level2" number="14.3">
+<h2>
+<span class="header-section-number">14.3</span> Publication selection in economics<a class="anchor" aria-label="anchor" href="#sec-causal-selection"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-causal-selection-evidence" class="section level3" number="14.3.1">
+<h3>
+<span class="header-section-number">14.3.1</span> Evidence of selection<a class="anchor" aria-label="anchor" href="#sec-causal-selection-evidence"><i class="fas fa-link"></i></a>
+</h3>
+<p>The general methods for publication bias are covered in Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>. Economics has produced some of the most direct evidence on the phenomenon. Using about 50,000 tests published in three leading general-interest journals, <span class="citation">Brodeur et al. (<a href="sec-references.html#ref-brodeur2016star">2016</a>)</span> found a two-humped distribution of test statistics with missing <span class="math inline">\(p\)</span> values between 0.25 and 0.10 and an excess just below 0.05, which they interpret as researchers inflating marginal results by choosing significant specifications. <span class="citation">Brodeur et al. (<a href="sec-references.html#ref-brodeur2020methods">2020</a>)</span> extended the analysis to over 21,000 tests in 25 journals and found that the extent of <span class="math inline">\(p\)</span>-hacking and publication bias varies greatly by method: IV, and to a lesser extent DiD, are particularly problematic, while RCTs and RD designs show less evidence of manipulation. <span class="citation">Ioannidis et al. (<a href="sec-references.html#ref-ioannidis2017power">2017</a>)</span> surveyed 159 meta-analyses in economics and estimated that the median statistical power of the underlying studies is about 18% or less, so that most reported effects are exaggerated. Classic applications include the minimum-wage literature, where meta-regression has found substantial publication selection <span class="citation">(<a href="sec-references.html#ref-doucouliagos2009publication">Doucouliagos and Stanley 2009</a>)</span>.</p>
+<p>Two consequences follow for meta-analysis of causal estimates. Selection pressure differs by design, so design moderators can be confounded with selection, and publication-bias corrections should be applied within design or with design-specific terms. And because selection operates on statistical significance, which is a function of both the estimate and its standard error, methods that exploit the relation between estimates and standard errors are natural tools.</p>
+</div>
+<div id="sec-causal-pet-peese" class="section level3" number="14.3.2">
+<h3>
+<span class="header-section-number">14.3.2</span> FAT-PET-PEESE<a class="anchor" aria-label="anchor" href="#sec-causal-pet-peese"><i class="fas fa-link"></i></a>
+</h3>
+<p>The meta-regression approach of <span class="citation">Stanley (<a href="sec-references.html#ref-stanley2007metaregression">2007</a>)</span> regresses estimates on their standard errors by weighted least squares with weights <span class="math inline">\(1/\text{SE}_i^2\)</span>:</p>
+<p><span class="math display">\[
+y_i = \beta_0 + \beta_1 \text{SE}_i + \varepsilon_i, \qquad \operatorname{Var}(\varepsilon_i) = \phi\, \text{SE}_i^2.
+\]</span></p>
+<p>The <strong>funnel asymmetry test</strong> (FAT) tests <span class="math inline">\(\beta_1 = 0\)</span>; a positive <span class="math inline">\(\beta_1\)</span> means that less precise estimates are systematically larger, as selection for significance would produce. The <strong>precision-effect test</strong> (PET) tests <span class="math inline">\(\beta_0 = 0\)</span>, where <span class="math inline">\(\beta_0\)</span> is the predicted effect of a hypothetical study with <span class="math inline">\(\text{SE} = 0\)</span>. Because the linear specification is biased toward zero when there is a genuine effect, <span class="citation">Stanley and Doucouliagos (<a href="sec-references.html#ref-stanley2013metaregression">2013</a>)</span> recommend a conditional procedure: if PET rejects <span class="math inline">\(\beta_0 = 0\)</span>, re-estimate with the variance instead of the standard error as the regressor,</p>
+<p><span class="math display">\[
+y_i = \gamma_0 + \gamma_1 \text{SE}_i^2 + \varepsilon_i,
+\]</span></p>
+<p>the <strong>precision-effect estimate with standard error</strong> (PEESE), and report <span class="math inline">\(\hat\gamma_0\)</span> as the corrected effect; otherwise report <span class="math inline">\(\hat\beta_0\)</span>. Note the multiplicative error term <span class="math inline">\(\phi\,\text{SE}_i^2\)</span>: these are WLS regressions with an estimated scale factor, not random-effects meta-regressions, and the unrestricted weighted least squares (UWLS) average <span class="math inline">\(\hat\beta_0\)</span> from the model without a slope is the corresponding average effect. When estimates are clustered within papers, the standard errors of <span class="math inline">\(\hat\beta_0\)</span> and <span class="math inline">\(\hat\beta_1\)</span> should be cluster-robust.</p>
+</div>
+<div id="sec-causal-waap" class="section level3" number="14.3.3">
+<h3>
+<span class="header-section-number">14.3.3</span> WAAP-WLS<a class="anchor" aria-label="anchor" href="#sec-causal-waap"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Stanley et al. (<a href="sec-references.html#ref-stanley2017finding">2017</a>)</span> proposed the <strong>weighted average of the adequately powered</strong> (WAAP). First, the UWLS average <span class="math inline">\(\hat\mu_{\text{UWLS}}\)</span> is computed from all estimates. A study is adequately powered (power of at least 80% for a two-sided 5% test) to detect an effect of that size if <span class="math inline">\(\text{SE}_i \le |\hat\mu_{\text{UWLS}}| / 2.8\)</span>, since <span class="math inline">\(1.96 + 0.84 = 2.8\)</span>. WAAP is the UWLS average computed from the adequately powered estimates only; if fewer than two estimates qualify, UWLS over all estimates is reported instead. Their simulations show that WAAP has smaller bias than the conventional random-effects estimator under selective reporting at essentially no cost when there is none, although notable bias can remain under severe selection or very large heterogeneity <span class="citation">(<a href="sec-references.html#ref-stanley2017finding">Stanley et al. 2017</a>)</span>. <span class="citation">Ioannidis et al. (<a href="sec-references.html#ref-ioannidis2017power">2017</a>)</span> used WAAP to document the extent of exaggeration across economics.</p>
+</div>
+<div id="sec-causal-selection-models" class="section level3" number="14.3.4">
+<h3>
+<span class="header-section-number">14.3.4</span> Selection models<a class="anchor" aria-label="anchor" href="#sec-causal-selection-models"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Andrews and Kasy (<a href="sec-references.html#ref-andrews2019identification">2019</a>)</span> show that the publication probability as a function of the test statistic can be identified from replication studies or, under an independence assumption, from the joint distribution of estimates and standard errors in a meta-analysis, and they propose corrected estimators and confidence sets. Step-function selection models (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>) with thresholds at the conventional significance levels implement the same idea and are available in <code>metafor</code> through <code><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel()</a></code>. In causal literatures, where reported specifications are themselves selected, these models are a useful complement to the regression-based methods, but they assume that estimates are independent, so they are best applied to one estimate per paper.</p>
+</div>
+</div>
+<div id="sec-causal-design-moderators" class="section level2" number="14.4">
+<h2>
+<span class="header-section-number">14.4</span> Design and identification strength as moderators<a class="anchor" aria-label="anchor" href="#sec-causal-design-moderators"><i class="fas fa-link"></i></a>
+</h2>
+<p>The most important moderators in a meta-analysis of causal estimates are usually features of the research design. Design type (RCT, DiD, RD, IV, observational regression) captures both the estimand and the threats to identification. Finer codes describe the strength of identification within a design: the first-stage <span class="math inline">\(F\)</span> statistic of an IV estimator (weak instruments bias IV toward OLS), the presence of pre-trend tests and the estimator used in DiD (TWFE versus heterogeneity-robust estimators), bandwidth selection and manipulation tests in RD, attrition and compliance in RCTs, and the source of variation in observational studies. Risk-of-bias tools such as ROBINS-I <span class="citation">(<a href="sec-references.html#ref-sterne2016robinsi">Sterne et al. 2016</a>)</span>, developed for non-randomized studies of interventions, provide a structured vocabulary for these judgments.</p>
+<p>Design moderators should be interpreted with care. A difference between pooled RCT and DiD estimates may reflect bias in one of them, different estimands (ATE in experimental samples versus ATT in the populations that chose to adopt a policy), different populations, or differential publication selection <span class="citation">(<a href="sec-references.html#ref-brodeur2020methods">Brodeur et al. 2020</a>)</span>. A meta-regression cannot separate these explanations; it can only quantify the difference and check whether it survives adjustment for observable study characteristics. Because the number of studies per design is often small, moderators should be tested with small-sample corrections such as cluster-robust tests with the CR2 correction and Satterthwaite degrees of freedom <span class="citation">(<a href="sec-references.html#ref-pustejovsky2021metaanalysis">Pustejovsky and Tipton 2021b</a>)</span>.</p>
+</div>
+<div id="sec-causal-bias-adjusted" class="section level2" number="14.5">
+<h2>
+<span class="header-section-number">14.5</span> Bias-adjusted meta-analysis<a class="anchor" aria-label="anchor" href="#sec-causal-bias-adjusted"><i class="fas fa-link"></i></a>
+</h2>
+<p>When randomized and non-randomized estimates are combined, an alternative to treating design as a moderator is to adjust each estimate for its expected bias. <span class="citation">Turner et al. (<a href="sec-references.html#ref-turner2008bias">2008</a>)</span> proposed a generic bias model. Write each estimate as</p>
+<p><span class="math display">\[
+y_i = \theta + \delta_i^{I} + \delta_i^{E} + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i),
+\]</span></p>
+<p>where <span class="math inline">\(\delta_i^{I}\)</span> is the <strong>internal bias</strong> arising from the study’s lack of rigor (for example, violations of parallel trends) and <span class="math inline">\(\delta_i^{E}\)</span> the <strong>external bias</strong> arising from its lack of relevance to the target question (a different population, setting or version of the treatment). Rather than estimating the biases from the data, which is usually impossible, their distributions are elicited from assessors who read each study: <span class="math inline">\(\delta_i^{I} \sim N(\mu_i^{I}, \sigma_i^{2I})\)</span> and <span class="math inline">\(\delta_i^{E} \sim N(\mu_i^{E}, \sigma_i^{2E})\)</span>. The bias-adjusted estimate and variance are</p>
+<p><span class="math display">\[
+y_i^{\text{adj}} = y_i - \mu_i^{I} - \mu_i^{E}, \qquad v_i^{\text{adj}} = v_i + \sigma_i^{2I} + \sigma_i^{2E},
+\]</span></p>
+<p>and these replace <span class="math inline">\((y_i, v_i)\)</span> in a standard meta-analysis. In the original application, adjustment shifted the combined estimate by about 10% and almost tripled its variance, so less rigorous or less relevant studies were effectively downweighted <span class="citation">(<a href="sec-references.html#ref-turner2008bias">Turner et al. 2008</a>)</span>. The approach is transparent and computationally trivial, and it makes explicit the judgments that a simple design moderator leaves implicit. Its weakness is its dependence on elicitation; different assessors may disagree, and the elicited distributions should be reported and varied. <span class="citation">Efthimiou et al. (<a href="sec-references.html#ref-efthimiou2017combining">2017</a>)</span> discuss related approaches for combining randomized and non-randomized evidence in network meta-analysis, including using non-randomized evidence as an informative prior.</p>
+</div>
+<div id="sec-causal-example" class="section level2" number="14.6">
+<h2>
+<span class="header-section-number">14.6</span> Worked example: a simulated literature of design-labelled estimates<a class="anchor" aria-label="anchor" href="#sec-causal-example"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-causal-example-data" class="section level3" number="14.6.1">
+<h3>
+<span class="header-section-number">14.6.1</span> The data<a class="anchor" aria-label="anchor" href="#sec-causal-example-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>To bring these tools together we <strong>simulate</strong> a literature, so that the truth is known. Consider the effect of a retail loyalty program on customer spending, measured in log points. Eighty papers each report between one and four estimates using one of four designs. The true average effect in the populations studied by RCTs is 0.04 (about 4%). DiD estimates are biased upward by 0.02 on average (for instance because firms adopt programs when sales are about to rise), IV estimates target compliers whose effects are larger by 0.05, and RD estimates are unbiased for their local population but imprecise. True effects vary between papers (SD 0.015) and between estimates within papers (SD 0.01), and paper sample sizes range from 150 to 20,000. Publication is selective: an estimate that is positive and significant at the 5% level is always published, any other estimate only with probability 0.25.</p>
+<div class="sourceCode" id="cb273"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">n_paper</span> <span class="op">&lt;-</span> <span class="fl">80</span></span>
+<span><span class="va">design_p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"RCT"</span>, <span class="st">"DiD"</span>, <span class="st">"RD"</span>, <span class="st">"IV"</span><span class="op">)</span>, <span class="va">n_paper</span>, replace <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.30</span>, <span class="fl">0.35</span>, <span class="fl">0.15</span>, <span class="fl">0.20</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">shift</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>RCT <span class="op">=</span> <span class="fl">0</span>, DiD <span class="op">=</span> <span class="fl">0.02</span>, RD <span class="op">=</span> <span class="fl">0</span>, IV <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>   <span class="co"># bias or estimand difference</span></span>
+<span><span class="va">se_mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>RCT <span class="op">=</span> <span class="fl">1.0</span>, DiD <span class="op">=</span> <span class="fl">0.8</span>, RD <span class="op">=</span> <span class="fl">1.8</span>, IV <span class="op">=</span> <span class="fl">2.2</span><span class="op">)</span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="fl">0.04</span>; <span class="va">tau_paper</span> <span class="op">&lt;-</span> <span class="fl">0.015</span>; <span class="va">tau_est</span> <span class="op">&lt;-</span> <span class="fl">0.01</span></span>
+<span></span>
+<span><span class="va">all_est</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">n_paper</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">N</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fl">150</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fl">20000</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">u</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="va">tau_paper</span><span class="op">)</span></span>
+<span>  <span class="va">se</span> <span class="op">&lt;-</span> <span class="va">se_mult</span><span class="op">[</span><span class="va">design_p</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fl">2</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">m</span>, <span class="fl">0</span>, <span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">theta</span> <span class="op">&lt;-</span> <span class="va">mu</span> <span class="op">+</span> <span class="va">shift</span><span class="op">[</span><span class="va">design_p</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">]</span> <span class="op">+</span> <span class="va">u</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">m</span>, <span class="fl">0</span>, <span class="va">tau_est</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>paper <span class="op">=</span> <span class="va">j</span>, design <span class="op">=</span> <span class="va">design_p</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, N <span class="op">=</span> <span class="va">N</span>, yi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">m</span>, <span class="va">theta</span>, <span class="va">se</span><span class="op">)</span>, sei <span class="op">=</span> <span class="va">se</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">significant</span> <span class="op">&lt;-</span> <span class="va">all_est</span><span class="op">$</span><span class="va">yi</span> <span class="op">/</span> <span class="va">all_est</span><span class="op">$</span><span class="va">sei</span> <span class="op">&gt;</span> <span class="fl">1.96</span></span>
+<span><span class="va">published</span> <span class="op">&lt;-</span> <span class="va">significant</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">all_est</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.25</span></span>
+<span><span class="va">dat_ce</span> <span class="op">&lt;-</span> <span class="va">all_est</span><span class="op">[</span><span class="va">published</span>, <span class="op">]</span></span>
+<span><span class="va">dat_ce</span><span class="op">$</span><span class="va">vi</span> <span class="op">&lt;-</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">sei</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="va">dat_ce</span><span class="op">$</span><span class="va">es_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dat_ce</span><span class="op">$</span><span class="va">design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">$</span><span class="va">design</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"RCT"</span>, <span class="st">"DiD"</span>, <span class="st">"RD"</span>, <span class="st">"IV"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimates_generated <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">all_est</span><span class="op">)</span>, published <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">)</span>,</span>
+<span>  papers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; estimates_generated           published              papers </span></span>
+<span><span class="co">#&gt;                 208                  97                  54</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">$</span><span class="va">design</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; RCT DiD  RD  IV </span></span>
+<span><span class="co">#&gt;  24  44  10  19</span></span></code></pre></div>
+</div>
+<div id="sec-causal-example-che" class="section level3" number="14.6.2">
+<h3>
+<span class="header-section-number">14.6.2</span> Naive and dependence-aware pooling<a class="anchor" aria-label="anchor" href="#sec-causal-example-che"><i class="fas fa-link"></i></a>
+</h3>
+<p>A conventional random-effects model that treats all estimates as independent is the first, naive benchmark. The correlated and hierarchical effects (CHE) model of Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a> is more appropriate: it assumes a working correlation (here 0.6) between sampling errors of estimates from the same paper, includes paper- and estimate-level random effects, and is combined with cluster-robust variance estimation <span class="citation">(<a href="sec-references.html#ref-hedges2010robust">Hedges et al. 2010</a>; <a href="sec-references.html#ref-pustejovsky2021metaanalysis">Pustejovsky and Tipton 2021b</a>)</span>.</p>
+<div class="sourceCode" id="cb274"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">naive_re</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">V_ce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">paper</span>, obs <span class="op">=</span> <span class="va">es_id</span>, rho <span class="op">=</span> <span class="fl">0.6</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">che</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V_ce</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">paper</span> <span class="op">/</span> <span class="va">es_id</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">che_rve</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">che</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>naive_RE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">naive_re</span><span class="op">)</span>, <span class="va">naive_re</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>            CHE_RVE  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">che_rve</span><span class="op">$</span><span class="va">beta</span>, <span class="va">che_rve</span><span class="op">$</span><span class="va">SE</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          intrcpt       </span></span>
+<span><span class="co">#&gt; naive_RE  0.0783 0.0043</span></span>
+<span><span class="co">#&gt; CHE_RVE   0.0767 0.0050</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">che</span><span class="op">$</span><span class="va">sigma2</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.0000 0.0248</span></span></code></pre></div>
+<p>Of the 208 estimates generated, 97 from 54 papers were “published”. Both models estimate an average effect of about 0.077, almost twice the true RCT-population effect of 0.04 and well above the average true effect of the published estimates across designs (about 0.06, given the design shifts). The gap is publication selection. The CHE model splits heterogeneity into a between-paper and a within-paper component; here it attributes all of it to the estimate level (SD 0.025), which shows how hard the two components are to separate with one to four estimates per paper. Its robust standard error (0.0050) is larger than the naive one (0.0043) because it acknowledges that estimates from the same paper are not independent pieces of information.</p>
+</div>
+<div id="sec-causal-example-design" class="section level3" number="14.6.3">
+<h3>
+<span class="header-section-number">14.6.3</span> Design as a moderator<a class="anchor" aria-label="anchor" href="#sec-causal-example-design"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb275"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">che_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V_ce</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">design</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">paper</span> <span class="op">/</span> <span class="va">es_id</span>,</span>
+<span>                     data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">che_design</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;      Coef. Estimate      SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;    intrcpt  0.06529 0.00941          0  6.936        5.07       &lt;0.001  ***</span></span>
+<span><span class="co">#&gt;  designDiD  0.01225 0.01140          0  1.074        9.66       0.3090     </span></span>
+<span><span class="co">#&gt;   designRD  0.00286 0.01986          0  0.144        3.18       0.8941     </span></span>
+<span><span class="co">#&gt;   designIV  0.03438 0.01389          0  2.475        6.54       0.0449    *</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/Wald_test.html">Wald_test</a></span><span class="op">(</span><span class="va">che_design</span>, constraints <span class="op">=</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/constraint_matrices.html">constrain_zero</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  test Fstat df_num df_denom p_val sig</span></span>
+<span><span class="co">#&gt;   HTZ  1.67      3      6.2 0.268</span></span></code></pre></div>
+<p>The intercept is the average for RCTs, and the coefficients are the differences of the other designs from RCTs. IV estimates are larger by 0.034 (<span class="math inline">\(p = 0.045\)</span>), close to the 0.05 shift built into the simulation, while the DiD (0.012) and RD (0.003) differences are small and imprecise. The Satterthwaite degrees of freedom are small for several coefficients (3.2 for RD), which reflects how few papers use each design, and the joint robust Wald test of equal means across designs is not significant (<span class="math inline">\(F = 1.67\)</span>, <span class="math inline">\(p = 0.27\)</span>). A design moderator is thus a low-powered tool in a literature of this size. Even the RCT intercept, 0.065, overstates the truth of 0.04, because selection also inflated the published RCT estimates.</p>
+</div>
+<div id="sec-causal-example-selection" class="section level3" number="14.6.4">
+<h3>
+<span class="header-section-number">14.6.4</span> Correcting for publication selection<a class="anchor" aria-label="anchor" href="#sec-causal-example-selection"><i class="fas fa-link"></i></a>
+</h3>
+<p>We now apply PET, PEESE and WAAP. Because these are WLS regressions with clustered estimates, we use cluster-robust (CR2) standard errors by paper.</p>
+<div class="sourceCode" id="cb276"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pet</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">sei</span>, weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">peese</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">vi</span>,  weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">pet</span>,   vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;        Coef. Estimate     SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  (Intercept)   0.0649 0.0117          0   5.57        3.74      0.00617   **</span></span>
+<span><span class="co">#&gt;          sei   0.5008 0.3173          0   1.58        3.51      0.19946</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">peese</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;        Coef. Estimate      SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  (Intercept)   0.0728 0.00648          0  11.24        5.78       &lt;0.001  ***</span></span>
+<span><span class="co">#&gt;           vi   4.6206 2.02227          0   2.28        5.81       0.0638    .</span></span></code></pre></div>
+<div class="sourceCode" id="cb277"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">uwls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="fl">1</span>, weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">mu_uwls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uwls</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">powered</span> <span class="op">&lt;-</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">sei</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">mu_uwls</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2.8</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>UWLS <span class="op">=</span> <span class="va">mu_uwls</span>, n_adequately_powered <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">powered</span><span class="op">)</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">powered</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 UWLS n_adequately_powered                share </span></span>
+<span><span class="co">#&gt;              0.07606             32.00000              0.32990</span></span>
+<span><span class="va">waap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="fl">1</span>, weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">[</span><span class="va">powered</span>, <span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">waap</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">[</span><span class="va">powered</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;        Coef. Estimate      SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  (Intercept)   0.0729 0.00722          0   10.1         5.7       &lt;0.001  ***</span></span></code></pre></div>
+<p>The FAT slope on the standard error is positive (0.50), the expected sign under selection for significance, but with robust standard errors and about 3.5 degrees of freedom it is far from significant (<span class="math inline">\(p = 0.20\)</span>). Funnel asymmetry tests have low power when the precision of the studies varies little or when a few papers dominate the weights. PET (0.065) and PEESE (0.073) both pull the average down from the naive 0.078. The UWLS average is 0.076, and 32 of the 97 estimates (33%) are adequately powered to detect an effect of that size; WAAP, computed from these alone, is 0.073. Because the overall average mixes designs with different true means, these corrections are not yet aimed at a well-defined target. Adding design to the PET regression asks what each design would report at infinite precision:</p>
+<div class="sourceCode" id="cb278"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pet_design</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">sei</span> <span class="op">+</span> <span class="va">design</span>, weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">pet_design</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;        Coef. Estimate     SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  (Intercept)  0.05236 0.0103          0  5.096        2.31       0.0268    *</span></span>
+<span><span class="co">#&gt;          sei  0.42390 0.3107          0  1.364        3.83       0.2471     </span></span>
+<span><span class="co">#&gt;    designDiD  0.01737 0.0112          0  1.551        3.88       0.1980     </span></span>
+<span><span class="co">#&gt;     designRD -0.00604 0.0309          0 -0.196        2.12       0.8621     </span></span>
+<span><span class="co">#&gt;     designIV  0.03641 0.0149          0  2.452        4.50       0.0633    .</span></span></code></pre></div>
+<p>The intercept, 0.052 (SE 0.010), is now the selection-corrected estimate for RCTs. It is much closer to the true value of 0.04 than the uncorrected RCT mean (0.065), although some upward bias remains: when true effects vary, selection filters out even very precise estimates whose true effects happen to be small, and no correction based on the relation between estimates and standard errors can fully undo that. The Satterthwaite degrees of freedom (2.3 for the intercept) show that a few large, precise papers carry most of the information. This is typical of economics meta-analyses and a reason to report several correction methods side by side rather than a single “corrected” number <span class="citation">(<a href="sec-references.html#ref-irsova2023metaanalysis">Irsova et al. 2023</a>)</span>.</p>
+</div>
+<div id="sec-causal-example-bias-adjusted" class="section level3" number="14.6.5">
+<h3>
+<span class="header-section-number">14.6.5</span> Bias-adjusted analysis<a class="anchor" aria-label="anchor" href="#sec-causal-example-bias-adjusted"><i class="fas fa-link"></i></a>
+</h3>
+<p>Finally, suppose that a panel of assessors, after reading the papers, elicited the following bias distributions relative to the target estimand (the ATE in the population of retailers considering a program): no bias for RCTs; internal bias with mean 0.02 and SD 0.02 for DiD; for IV, a mean shift of 0.03 with SD 0.04, reflecting both possible exclusion violations and the difference between complier and population effects; and for RD, no mean bias but an external-bias SD of 0.02 because the local population at the cutoff may differ from the target. The adjusted estimates subtract the bias means, and the bias variances are added to the sampling variances. Because all estimates from a paper share the same design and data, we treat the bias as common to all estimates within a paper, which adds the bias variance to every within-paper covariance as well.</p>
+<div class="sourceCode" id="cb279"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bias_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>RCT <span class="op">=</span> <span class="fl">0</span>, DiD <span class="op">=</span> <span class="fl">0.02</span>, RD <span class="op">=</span> <span class="fl">0</span>, IV <span class="op">=</span> <span class="fl">0.03</span><span class="op">)</span></span>
+<span><span class="va">bias_sd</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>RCT <span class="op">=</span> <span class="fl">0</span>, DiD <span class="op">=</span> <span class="fl">0.02</span>, RD <span class="op">=</span> <span class="fl">0.02</span>, IV <span class="op">=</span> <span class="fl">0.04</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">$</span><span class="va">design</span><span class="op">)</span></span>
+<span><span class="va">dat_ce</span><span class="op">$</span><span class="va">yi_adj</span> <span class="op">&lt;-</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">yi</span> <span class="op">-</span> <span class="va">bias_mean</span><span class="op">[</span><span class="va">d</span><span class="op">]</span></span>
+<span><span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html">outer</a></span><span class="op">(</span><span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span>, <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span>, <span class="st">"=="</span><span class="op">)</span>                 <span class="co"># same-paper indicator</span></span>
+<span><span class="va">B</span> <span class="op">&lt;-</span> <span class="va">Z</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/outer.html">outer</a></span><span class="op">(</span><span class="va">bias_sd</span><span class="op">[</span><span class="va">d</span><span class="op">]</span>, <span class="va">bias_sd</span><span class="op">[</span><span class="va">d</span><span class="op">]</span><span class="op">)</span>                       <span class="co"># shared bias covariance</span></span>
+<span><span class="va">che_adj</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi_adj</span>, <span class="va">V_ce</span> <span class="op">+</span> <span class="va">B</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">paper</span> <span class="op">/</span> <span class="va">es_id</span>, data <span class="op">=</span> <span class="va">dat_ce</span><span class="op">)</span></span>
+<span><span class="va">adj_rve</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">che_adj</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>CHE_unadjusted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">che_rve</span><span class="op">$</span><span class="va">beta</span>, <span class="va">che_rve</span><span class="op">$</span><span class="va">SE</span><span class="op">)</span>,</span>
+<span>            CHE_bias_adjusted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">adj_rve</span><span class="op">$</span><span class="va">beta</span>, <span class="va">adj_rve</span><span class="op">$</span><span class="va">SE</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                     [,1]   [,2]</span></span>
+<span><span class="co">#&gt; CHE_unadjusted    0.0767 0.0050</span></span>
+<span><span class="co">#&gt; CHE_bias_adjusted 0.0620 0.0049</span></span></code></pre></div>
+<p>The bias-adjusted average is 0.062 instead of 0.077, because the DiD and IV estimates have been shifted down, and the less rigorous or less relevant estimates receive less weight because their variances now include the bias uncertainty. The adjustment does nothing about publication selection, which was not part of the elicitation, so in a real application bias modeling and selection correction would both be reported. Figure <a href="sec-causal-estimates.html#fig:causal-summary-plot">14.1</a> collects the estimates from all methods.</p>
+<div class="sourceCode" id="cb280"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ci_row</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">label</span>, <span class="va">est</span>, <span class="va">se</span>, <span class="va">df</span> <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">label</span>, est <span class="op">=</span> <span class="va">est</span>, lo <span class="op">=</span> <span class="va">est</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">0.975</span>, <span class="va">df</span><span class="op">)</span> <span class="op">*</span> <span class="va">se</span>,</span>
+<span>             hi <span class="op">=</span> <span class="va">est</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">0.975</span>, <span class="va">df</span><span class="op">)</span> <span class="op">*</span> <span class="va">se</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">pet_ct</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">pet</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="va">peese_ct</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">peese</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="va">waap_ct</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">waap</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">[</span><span class="va">powered</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">petd_ct</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">pet_design</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">dat_ce</span><span class="op">$</span><span class="va">paper</span><span class="op">)</span></span>
+<span><span class="va">desg_ct</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">coef_test</a></span><span class="op">(</span><span class="va">che_design</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="va">summary_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"Naive random effects"</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">naive_re</span><span class="op">)</span>, <span class="va">naive_re</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"CHE + RVE"</span>, <span class="va">che_rve</span><span class="op">$</span><span class="va">beta</span>, <span class="va">che_rve</span><span class="op">$</span><span class="va">SE</span>, <span class="va">che_rve</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"CHE + RVE, RCT only (design moderator)"</span>, <span class="va">desg_ct</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">desg_ct</span><span class="op">$</span><span class="va">SE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">desg_ct</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"PET (all designs)"</span>, <span class="va">pet_ct</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">pet_ct</span><span class="op">$</span><span class="va">SE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">pet_ct</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"PEESE (all designs)"</span>, <span class="va">peese_ct</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">peese_ct</span><span class="op">$</span><span class="va">SE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">peese_ct</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"WAAP"</span>, <span class="va">waap_ct</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">waap_ct</span><span class="op">$</span><span class="va">SE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">waap_ct</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"PET with design, RCT intercept"</span>, <span class="va">petd_ct</span><span class="op">$</span><span class="va">beta</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">petd_ct</span><span class="op">$</span><span class="va">SE</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">petd_ct</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu">ci_row</span><span class="op">(</span><span class="st">"Bias-adjusted CHE + RVE"</span>, <span class="va">adj_rve</span><span class="op">$</span><span class="va">beta</span>, <span class="va">adj_rve</span><span class="op">$</span><span class="va">SE</span>, <span class="va">adj_rve</span><span class="op">$</span><span class="va">df_Satt</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">summary_df</span><span class="op">$</span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">summary_df</span><span class="op">$</span><span class="va">method</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="va">summary_df</span><span class="op">$</span><span class="va">method</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">summary_df</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">est</span>, <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0.04</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_errorbarh</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">lo</span>, xmax <span class="op">=</span> <span class="va">hi</span><span class="op">)</span>, height <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Estimated average effect (log points)"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:causal-summary-plot"></span>
+<img src="14-causal-estimates_files/figure-html/causal-summary-plot-1.png" alt="Average effect of the (simulated) loyalty program under different estimators. The dashed line marks the true average effect in RCT populations (0.04). Intervals are 95% confidence intervals using cluster-robust (CR2) standard errors where estimates are clustered within papers." width="85%"><p class="caption">
+Figure 14.1: Average effect of the (simulated) loyalty program under different estimators. The dashed line marks the true average effect in RCT populations (0.04). Intervals are 95% confidence intervals using cluster-robust (CR2) standard errors where estimates are clustered within papers.
+</p>
+</div>
+<p>The lesson of the simulation is not that one method wins. It is that, in a literature with design heterogeneity and selective publication, the naive average can be badly misleading, that the different corrections address different problems (dependence, design differences, selection, bias), and that their answers should be reported together with a clear statement of the target estimand.</p>
+</div>
+</div>
+<div id="sec-causal-generalizability" class="section level2" number="14.7">
+<h2>
+<span class="header-section-number">14.7</span> Heterogeneity and generalizability across sites<a class="anchor" aria-label="anchor" href="#sec-causal-generalizability"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-causal-external-validity" class="section level3" number="14.7.1">
+<h3>
+<span class="header-section-number">14.7.1</span> External validity as a meta-analytic question<a class="anchor" aria-label="anchor" href="#sec-causal-external-validity"><i class="fas fa-link"></i></a>
+</h3>
+<p>A single well-identified study answers a question about one population, place and time. Whether its result generalizes is a question about heterogeneity across sites, and meta-analysis is the natural tool for it. <span class="citation">Vivalt (<a href="sec-references.html#ref-vivalt2020much">2020</a>)</span> assembled a large database of impact evaluations in development economics and found a large amount of effect heterogeneity. Effect sizes varied systematically with study characteristics: government-implemented programs had smaller effects than programs implemented by academics or non-governmental organizations, even controlling for sample size. Accounting for study characteristics reduced the heterogeneity appreciably. <span class="citation">Allcott (<a href="sec-references.html#ref-allcott2015site">2015</a>)</span> documented site selection bias: the sites that choose to host an evaluation can differ systematically from the sites where a program is later scaled, so that even a meta-analysis of many RCTs may not predict effects in new sites. For a policymaker, the relevant quantity is often the <strong>predictive distribution</strong> of the effect in a new site, not the mean of the sites studied so far.</p>
+</div>
+<div id="sec-causal-microcredit" class="section level3" number="14.7.2">
+<h3>
+<span class="header-section-number">14.7.2</span> Bayesian hierarchical aggregation of the microcredit trials<a class="anchor" aria-label="anchor" href="#sec-causal-microcredit"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Meager (<a href="sec-references.html#ref-meager2019understanding">2019</a>)</span> jointly analyzed seven randomized evaluations of expanded access to microcredit, six of which were published together in one journal issue <span class="citation">(<a href="sec-references.html#ref-banerjee2015six">Banerjee et al. 2015</a>)</span>, using Bayesian hierarchical models. She concluded that the impact on household business and consumption variables is unlikely to be transformative and may be negligible, that true heterogeneity across sites is moderate, with approximately 60% of the observed variation attributable to sampling error, and that external validity is therefore reasonable. We work with site-level summaries of household consumption (in USD PPP per two weeks) for the five sites with complete consumption data in the simplified version of these trials distributed with the <code>baggr</code> R package (<code>microcredit_simplified</code>). The estimates below were computed from that individual-level file as the difference in mean consumption between treated and control households and its standard error. The sites are identified only by number in that file, and we keep that labeling.</p>
+<p>The Rubin model <span class="citation">(<a href="sec-references.html#ref-rubin1981estimation">Rubin 1981</a>)</span> is the normal-normal hierarchical model of Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>: site effects <span class="math inline">\(\theta_k \sim N(\mu, \tau^2)\)</span>, observed effects <span class="math inline">\(\hat\theta_k \sim N(\theta_k, \text{SE}_k^2)\)</span>.</p>
+<div class="sourceCode" id="cb281"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mc_sites</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  site      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"Site"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span>,</span>
+<span>  tau       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5.51</span>, <span class="fl">50.45</span>, <span class="op">-</span><span class="fl">5.17</span>, <span class="fl">4.64</span>, <span class="op">-</span><span class="fl">2.94</span><span class="op">)</span>,  <span class="co"># treatment - control mean</span></span>
+<span>  se.tau    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4.10</span>, <span class="fl">22.16</span>, <span class="fl">19.27</span>, <span class="fl">5.45</span>, <span class="fl">6.02</span><span class="op">)</span>,</span>
+<span>  n.control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">8298</span>, <span class="fl">260</span>, <span class="fl">444</span>, <span class="fl">3248</span>, <span class="fl">2771</span><span class="op">)</span>,</span>
+<span>  n.treated <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">8262</span>, <span class="fl">701</span>, <span class="fl">551</span>, <span class="fl">3579</span>, <span class="fl">2716</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">mc_sites</span></span>
+<span><span class="co">#&gt;     site   tau se.tau n.control n.treated</span></span>
+<span><span class="co">#&gt; 1 Site 1  5.51   4.10      8298      8262</span></span>
+<span><span class="co">#&gt; 2 Site 2 50.45  22.16       260       701</span></span>
+<span><span class="co">#&gt; 3 Site 3 -5.17  19.27       444       551</span></span>
+<span><span class="co">#&gt; 4 Site 4  4.64   5.45      3248      3579</span></span>
+<span><span class="co">#&gt; 5 Site 5 -2.94   6.02      2771      2716</span></span></code></pre></div>
+<p>The <code>tau</code> column is the difference in mean consumption between treatment and control households, and <code>se.tau</code> its standard error. Site 2 has a large point estimate (50) but also a large standard error, while the largest site (Site 1, more than 16,000 households) estimates an effect of 5.5 with standard error 4.1. We fit the partial-pooling model with <code>bayesmeta</code> <span class="citation">(<a href="sec-references.html#ref-rover2020bayesian">Röver 2020</a>)</span>, which computes the posterior by direct numerical integration rather than MCMC, so there are no convergence diagnostics to check. The priors are weakly informative: a normal prior with SD 100 on <span class="math inline">\(\mu\)</span> and a half-normal prior with scale 50 on <span class="math inline">\(\tau\)</span>, both wide relative to the scale of the site estimates. With only five sites, the posterior for <span class="math inline">\(\tau\)</span> is sensitive to its prior.</p>
+<div class="sourceCode" id="cb282"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mc_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/bayesmeta.html">bayesmeta</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">tau</span>, sigma <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">se.tau</span>,</span>
+<span>                    labels <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">site</span>,</span>
+<span>                    mu.prior.mean <span class="op">=</span> <span class="fl">0</span>, mu.prior.sd <span class="op">=</span> <span class="fl">100</span>,</span>
+<span>                    tau.prior <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/pkg/bayesmeta/man/dhalfnormal.html">dhalfnormal</a></span><span class="op">(</span><span class="va">t</span>, scale <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">mc_fit</span><span class="op">$</span><span class="va">summary</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             tau    mu  theta</span></span>
+<span><span class="co">#&gt; mode       0.00  4.04   3.94</span></span>
+<span><span class="co">#&gt; median     6.99  4.48   4.30</span></span>
+<span><span class="co">#&gt; mean      10.55  5.09   5.09</span></span>
+<span><span class="co">#&gt; sd        11.06  7.94  17.20</span></span>
+<span><span class="co">#&gt; 95% lower  0.00 -9.84 -29.12</span></span>
+<span><span class="co">#&gt; 95% upper 32.52 22.56  42.42</span></span></code></pre></div>
+<p>The hypermean <span class="math inline">\(\mu\)</span> has posterior mean 5.1 dollars per two weeks (95% interval -9.8 to 22.6), a small effect relative to control-group consumption of roughly 200 to 330, and consistent with no effect. The heterogeneity SD <span class="math inline">\(\tau\)</span> has posterior mean 10.5, but its interval (0 to 32.5) shows that the data barely constrain it.</p>
+<p>The <strong>pooling factor</strong> for site <span class="math inline">\(k\)</span> is <span class="math inline">\(\omega_k = \text{SE}_k^2 / (\text{SE}_k^2 + \tau^2)\)</span>, the share of the site’s estimate that is replaced by the hypermean. Its posterior mean integrates this ratio over the posterior of <span class="math inline">\(\tau\)</span>:</p>
+<div class="sourceCode" id="cb283"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pooling</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">mc_sites</span><span class="op">$</span><span class="va">se.tau</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/integrate.html">integrate</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="va">s</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="va">s</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="va">t</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">mc_fit</span><span class="op">$</span><span class="fu">dposterior</span><span class="op">(</span>tau <span class="op">=</span> <span class="va">t</span><span class="op">)</span>,</span>
+<span>            lower <span class="op">=</span> <span class="fl">0</span>, upper <span class="op">=</span> <span class="cn">Inf</span><span class="op">)</span><span class="op">$</span><span class="va">value</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">site</span>, pooling <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">pooling</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>           shrunken <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">mc_fit</span><span class="op">$</span><span class="va">theta</span><span class="op">[</span><span class="st">"mean"</span>, <span class="op">]</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          site pooling shrunken</span></span>
+<span><span class="co">#&gt; Site 1 Site 1    0.37      5.0</span></span>
+<span><span class="co">#&gt; Site 2 Site 2    0.81     13.3</span></span>
+<span><span class="co">#&gt; Site 3 Site 3    0.78      2.5</span></span>
+<span><span class="co">#&gt; Site 4 Site 4    0.45      4.4</span></span>
+<span><span class="co">#&gt; Site 5 Site 5    0.47      0.4</span></span></code></pre></div>
+<p>Imprecise sites (2 and 3) are pooled heavily toward the mean (about 0.8), while the precise Site 1 keeps more of its own estimate (pooling of about 0.37). Site 2’s estimate of 50 shrinks to a posterior mean of about 13. Averaged over sites, the pooling factor is 0.58, so a little more than half of each estimate is replaced by the hypermean, broadly in line with Meager’s conclusion that about 60% of the observed variation in the full data is sampling error.</p>
+<p>The predictive distribution for a new site integrates over the uncertainty in <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\tau\)</span>:</p>
+<div class="sourceCode" id="cb284"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">mc_fit</span><span class="op">$</span><span class="fu">qposterior</span><span class="op">(</span>theta.p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.975</span><span class="op">)</span>, predict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -28.3  -9.0   4.3  20.6  43.2</span></span>
+<span><span class="fl">1</span> <span class="op">-</span> <span class="va">mc_fit</span><span class="op">$</span><span class="fu">pposterior</span><span class="op">(</span>theta <span class="op">=</span> <span class="fl">0</span>, predict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.7245</span></span></code></pre></div>
+<p>The 95% predictive interval for the effect in a new site runs from about <span class="math inline">\(-28\)</span> to <span class="math inline">\(+43\)</span>, far wider than the interval for <span class="math inline">\(\mu\)</span>, and the posterior probability that the effect in a new site is positive is about 0.72. For a policymaker deciding whether to expand microcredit to a new region, that predictive distribution, not the mean, is the relevant summary. Figure <a href="sec-causal-estimates.html#fig:causal-microcredit-plot">14.2</a> compares no pooling, partial pooling and full pooling.</p>
+<div class="sourceCode" id="cb285"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mc_common</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">tau</span>, sei <span class="op">=</span> <span class="va">se.tau</span>, data <span class="op">=</span> <span class="va">mc_sites</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span></span>
+<span><span class="va">plot_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">site</span>, type <span class="op">=</span> <span class="st">"No pooling"</span>, est <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">tau</span>,</span>
+<span>             lo <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">tau</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">se.tau</span>,</span>
+<span>             hi <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">tau</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">se.tau</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">site</span>, type <span class="op">=</span> <span class="st">"Partial pooling"</span>,</span>
+<span>             est <span class="op">=</span> <span class="va">mc_fit</span><span class="op">$</span><span class="va">theta</span><span class="op">[</span><span class="st">"mean"</span>, <span class="op">]</span>, lo <span class="op">=</span> <span class="va">mc_fit</span><span class="op">$</span><span class="va">theta</span><span class="op">[</span><span class="st">"95% lower"</span>, <span class="op">]</span>,</span>
+<span>             hi <span class="op">=</span> <span class="va">mc_fit</span><span class="op">$</span><span class="va">theta</span><span class="op">[</span><span class="st">"95% upper"</span>, <span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>site <span class="op">=</span> <span class="va">mc_sites</span><span class="op">$</span><span class="va">site</span>, type <span class="op">=</span> <span class="st">"Full pooling"</span>, est <span class="op">=</span> <span class="va">mc_common</span><span class="op">$</span><span class="va">b</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>             lo <span class="op">=</span> <span class="va">mc_common</span><span class="op">$</span><span class="va">ci.lb</span>, hi <span class="op">=</span> <span class="va">mc_common</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">plot_df</span><span class="op">$</span><span class="va">type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">plot_df</span><span class="op">$</span><span class="va">type</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"No pooling"</span>, <span class="st">"Partial pooling"</span>, <span class="st">"Full pooling"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">plot_df</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">est</span>, y <span class="op">=</span> <span class="va">site</span>, colour <span class="op">=</span> <span class="va">type</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="fl">2</span>, colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_pointrange</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">lo</span>, xmax <span class="op">=</span> <span class="va">hi</span><span class="op">)</span>, position <span class="op">=</span> <span class="fu">position_dodge</span><span class="op">(</span>width <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Effect on consumption (USD PPP per two weeks)"</span>, y <span class="op">=</span> <span class="cn">NULL</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:causal-microcredit-plot"></span>
+<img src="14-causal-estimates_files/figure-html/causal-microcredit-plot-1.png" alt="Treatment effects of microcredit on household consumption (USD PPP per two weeks) by site under no pooling (separate estimates), partial pooling (Bayesian hierarchical model) and full pooling (common effect), with 95% intervals. Site-level data derived from the simplified microcredit trial data analyzed by Meager (2019)." width="85%"><p class="caption">
+Figure 14.2: Treatment effects of microcredit on household consumption (USD PPP per two weeks) by site under no pooling (separate estimates), partial pooling (Bayesian hierarchical model) and full pooling (common effect), with 95% intervals. Site-level data derived from the simplified microcredit trial data analyzed by Meager (2019).
+</p>
+</div>
+<p>It is instructive to compare the Bayesian analysis with a frequentist random-effects model of the same five estimates.</p>
+<div class="sourceCode" id="cb286"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">tau</span>, sei <span class="op">=</span> <span class="va">se.tau</span>, data <span class="op">=</span> <span class="va">mc_sites</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 5; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.0000 (SE = 25.6951)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.0005</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   0.00%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  1.00</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 4) = 6.0978, p-val = 0.1920</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    tval  df    pval    ci.lb    ci.ub    </span></span>
+<span><span class="co">#&gt;   3.9185  3.4855  1.1242   4  0.3238  -5.7589  13.5959    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>REML estimates <span class="math inline">\(\tau^2 = 0\)</span>, so the frequentist model collapses to a common-effect model and implies perfect generalizability, while the Bayesian model averages over the whole posterior of <span class="math inline">\(\tau\)</span> (whose mode is also zero, but whose mean is about 10) and so carries the uncertainty about heterogeneity into the predictive distribution. With five sites, neither answer should be over-interpreted; the point is that the predictive question depends heavily on how <span class="math inline">\(\tau\)</span> is estimated or what prior is placed on it, and that conclusions should be checked against alternative priors (Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>). <span class="citation">Meager (<a href="sec-references.html#ref-meager2022aggregating">2022</a>)</span> extends the approach to quantile treatment effects, which capture heterogeneity within sites as well as between them.</p>
+</div>
+</div>
+<div id="sec-causal-reporting" class="section level2" number="14.8">
+<h2>
+<span class="header-section-number">14.8</span> Reporting: the MAER-Net guidelines<a class="anchor" aria-label="anchor" href="#sec-causal-reporting"><i class="fas fa-link"></i></a>
+</h2>
+<p>The Meta-Analysis of Economics Research Network (MAER-Net) has published reporting guidelines for meta-analyses in economics, updated in <span class="citation">Havránek et al. (<a href="sec-references.html#ref-havranek2020reporting">2020</a>)</span>. They complement PRISMA (Chapter <a href="sec-reporting.html#sec-reporting">15</a>) with items tailored to the way economics meta-analyses are done. Broadly, authors are asked to document the search and inclusion criteria, how estimates and their standard errors were coded (including whether all estimates or a subset were taken from each paper), the transformation to a common effect size metric, the methods used to assess publication selection, the modeling of heterogeneity with study, data and method characteristics as moderators, and robustness checks, and to make the data and code available. Readers should consult the guideline itself for the full checklist. <span class="citation">Irsova et al. (<a href="sec-references.html#ref-irsova2023metaanalysis">2023</a>)</span> provide a practitioner’s guide that walks through these steps for social science research.</p>
+<p>For a meta-analysis of causal estimates, we suggest adding four elements to these requirements. First, a table that maps each design to the estimand it identifies and to the coding of identification strength. Second, the rule for selecting among multiple specifications within a paper and a sensitivity analysis to that rule. Third, results stratified by design or with design moderators, with selection corrections reported within design when the data allow. Fourth, when the purpose is policy, a predictive distribution or prediction interval for the effect in a new setting.</p>
+</div>
+<div id="sec-causal-pitfalls" class="section level2" number="14.9">
+<h2>
+<span class="header-section-number">14.9</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-causal-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Pooling incompatible estimands without comment.</strong> Mixing ATEs, LATEs, local RD effects and TWFE coefficients is common and sometimes unavoidable, but the pooled number is then a weighted average of different quantities. Code the estimand and examine it.</p>
+<p><strong>Using the wrong reference distribution to recover standard errors.</strong> Standard errors recovered from confidence intervals or <span class="math inline">\(p\)</span> values must use the distribution the authors used. Cluster-robust inference with few clusters typically uses a <span class="math inline">\(t\)</span> distribution.</p>
+<p><strong>Treating PCCs as effect sizes.</strong> Partial correlations depend on the control set and degrees of freedom and do not measure the economic size of an effect. Prefer elasticities or other common metrics.</p>
+<p><strong>Ignoring within-paper dependence.</strong> Papers in economics often report dozens of specifications. Treating them as independent overweights prolific papers and understates uncertainty. Use CHE models with robust variance estimation, and report sensitivity to the selection rule.</p>
+<p><strong>Over-trusting a single bias correction.</strong> PET-PEESE, WAAP and selection models make different assumptions and can disagree, especially with high heterogeneity. Report several, and do not treat any one as the truth.</p>
+<p><strong>Confusing design differences with bias.</strong> A larger average IV estimate may reflect a larger complier effect rather than bias. Bias-adjusted meta-analysis makes such judgments explicit rather than hiding them in a moderator coefficient.</p>
+<p><strong>Equating the mean effect with the effect in a new site.</strong> With substantial heterogeneity, the predictive distribution can be much wider than the confidence interval for the mean and can include effects of the opposite sign.</p>
+</div>
+<div id="sec-causal-takeaways" class="section level2" number="14.10">
+<h2>
+<span class="header-section-number">14.10</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-causal-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<p>Causal designs identify different estimands: RCTs the ATE in the experimental sample, IV a LATE for compliers, RD a local effect at the cutoff, DiD an ATT that conventional TWFE regressions may weight oddly under staggered adoption, synthetic control the effect for one unit. Pooling them is meaningful on a common scale and with the estimand coded as a moderator. Standard errors must be recovered with the reference distribution the authors used, and partial correlations should be a last resort because they depend on the control set. Publication selection is well documented in economics and varies by design, so selection corrections (FAT-PET-PEESE, WAAP-WLS, selection models) should be reported together and, where possible, within design. Multiple estimates per paper call for CHE models with robust variance estimation. Bias-adjusted meta-analysis combines randomized and non-randomized estimates by making elicited bias distributions explicit. Finally, the generalizability of causal findings is a question about heterogeneity across sites, and Bayesian hierarchical models with pooling factors and predictive distributions, as in the microcredit analysis, answer it more directly than the pooled mean.</p>
+</div>
+<div id="sec-causal-reading" class="section level2" number="14.11">
+<h2>
+<span class="header-section-number">14.11</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-causal-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Stanley and Doucouliagos (<a href="sec-references.html#ref-stanley2012metaregression">2012</a>)</span> is the standard text on meta-regression analysis in economics and business, and <span class="citation">Irsova et al. (<a href="sec-references.html#ref-irsova2023metaanalysis">2023</a>)</span> is an up-to-date practitioner’s guide; the MAER-Net guidelines are <span class="citation">Havránek et al. (<a href="sec-references.html#ref-havranek2020reporting">2020</a>)</span>. On publication selection in economics, read <span class="citation">Brodeur et al. (<a href="sec-references.html#ref-brodeur2016star">2016</a>)</span>, <span class="citation">Brodeur et al. (<a href="sec-references.html#ref-brodeur2020methods">2020</a>)</span>, <span class="citation">Ioannidis et al. (<a href="sec-references.html#ref-ioannidis2017power">2017</a>)</span> and <span class="citation">Andrews and Kasy (<a href="sec-references.html#ref-andrews2019identification">2019</a>)</span>, and for the estimators <span class="citation">Stanley (<a href="sec-references.html#ref-stanley2007metaregression">2007</a>)</span>, <span class="citation">Stanley and Doucouliagos (<a href="sec-references.html#ref-stanley2013metaregression">2013</a>)</span> and <span class="citation">Stanley et al. (<a href="sec-references.html#ref-stanley2017finding">2017</a>)</span>. For partial correlations, see <span class="citation">Aert and Goos (<a href="sec-references.html#ref-vanaert2023critical">2023</a>)</span> and <span class="citation">Stanley et al. (<a href="sec-references.html#ref-stanley2024metaanalyses">2024</a>)</span>. <span class="citation">Turner et al. (<a href="sec-references.html#ref-turner2008bias">2008</a>)</span> is the key reference for bias modeling. On generalizability, <span class="citation">Meager (<a href="sec-references.html#ref-meager2019understanding">2019</a>)</span> and <span class="citation">Meager (<a href="sec-references.html#ref-meager2022aggregating">2022</a>)</span> show what Bayesian hierarchical models can do with a small number of RCTs, and <span class="citation">Vivalt (<a href="sec-references.html#ref-vivalt2020much">2020</a>)</span> and <span class="citation">Allcott (<a href="sec-references.html#ref-allcott2015site">2015</a>)</span> document heterogeneity and site selection in program evaluation. For the designs themselves, <span class="citation">Imbens and Angrist (<a href="sec-references.html#ref-imbens1994identification">1994</a>)</span>, <span class="citation">Imbens and Lemieux (<a href="sec-references.html#ref-imbens2008regression">2008</a>)</span>, <span class="citation">Roth et al. (<a href="sec-references.html#ref-roth2023whats">2023</a>)</span> and <span class="citation">Abadie et al. (<a href="sec-references.html#ref-abadie2010synthetic">2010</a>)</span> are good starting points.</p>
+
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></div>
+<div class="next"><a href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-estimates"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li>
+<a class="nav-link" href="#sec-causal-estimands"><span class="header-section-number">14.1</span> What is being pooled?</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-estimands-design"><span class="header-section-number">14.1.1</span> Estimands by design</a></li>
+<li><a class="nav-link" href="#sec-causal-when-pool"><span class="header-section-number">14.1.2</span> When is pooling meaningful?</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-causal-extraction"><span class="header-section-number">14.2</span> Extracting effect sizes and standard errors</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-se"><span class="header-section-number">14.2.1</span> Recovering standard errors</a></li>
+<li><a class="nav-link" href="#sec-causal-pcc"><span class="header-section-number">14.2.2</span> Partial correlation coefficients</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-causal-selection"><span class="header-section-number">14.3</span> Publication selection in economics</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-selection-evidence"><span class="header-section-number">14.3.1</span> Evidence of selection</a></li>
+<li><a class="nav-link" href="#sec-causal-pet-peese"><span class="header-section-number">14.3.2</span> FAT-PET-PEESE</a></li>
+<li><a class="nav-link" href="#sec-causal-waap"><span class="header-section-number">14.3.3</span> WAAP-WLS</a></li>
+<li><a class="nav-link" href="#sec-causal-selection-models"><span class="header-section-number">14.3.4</span> Selection models</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-causal-design-moderators"><span class="header-section-number">14.4</span> Design and identification strength as moderators</a></li>
+<li><a class="nav-link" href="#sec-causal-bias-adjusted"><span class="header-section-number">14.5</span> Bias-adjusted meta-analysis</a></li>
+<li>
+<a class="nav-link" href="#sec-causal-example"><span class="header-section-number">14.6</span> Worked example: a simulated literature of design-labelled estimates</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-example-data"><span class="header-section-number">14.6.1</span> The data</a></li>
+<li><a class="nav-link" href="#sec-causal-example-che"><span class="header-section-number">14.6.2</span> Naive and dependence-aware pooling</a></li>
+<li><a class="nav-link" href="#sec-causal-example-design"><span class="header-section-number">14.6.3</span> Design as a moderator</a></li>
+<li><a class="nav-link" href="#sec-causal-example-selection"><span class="header-section-number">14.6.4</span> Correcting for publication selection</a></li>
+<li><a class="nav-link" href="#sec-causal-example-bias-adjusted"><span class="header-section-number">14.6.5</span> Bias-adjusted analysis</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-causal-generalizability"><span class="header-section-number">14.7</span> Heterogeneity and generalizability across sites</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-causal-external-validity"><span class="header-section-number">14.7.1</span> External validity as a meta-analytic question</a></li>
+<li><a class="nav-link" href="#sec-causal-microcredit"><span class="header-section-number">14.7.2</span> Bayesian hierarchical aggregation of the microcredit trials</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-causal-reporting"><span class="header-section-number">14.8</span> Reporting: the MAER-Net guidelines</a></li>
+<li><a class="nav-link" href="#sec-causal-pitfalls"><span class="header-section-number">14.9</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-causal-takeaways"><span class="header-section-number">14.10</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-causal-reading"><span class="header-section-number">14.11</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/14-causal-estimates.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/14-causal-estimates.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

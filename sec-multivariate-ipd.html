@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 12 Multivariate, Dose-Response, and IPD Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="The models in Part II treat each study as contributing one effect size, or several effect sizes whose dependence is a nuisance to be handled (Chapter 6). This chapter covers three settings in...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 12 Multivariate, Dose-Response, and IPD Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-multivariate-ipd.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="The models in Part II treat each study as contributing one effect size, or several effect sizes whose dependence is a nuisance to be handled (Chapter 6). This chapter covers three settings in...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 12 Multivariate, Dose-Response, and IPD Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="The models in Part II treat each study as contributing one effect size, or several effect sizes whose dependence is a nuisance to be handled (Chapter 6). This chapter covers three settings in...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 12 Multivariate, Dose-Response, and IPD Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="active" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-multivariate-ipd" class="section level1" number="12">
+<h1>
+<span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis<a class="anchor" aria-label="anchor" href="#sec-multivariate-ipd"><i class="fas fa-link"></i></a>
+</h1>
+<p>The models in Part II treat each study as contributing one effect size, or several effect sizes whose dependence is a nuisance to be handled (Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>). This chapter covers three settings in which the structure inside a study is itself the object of interest. In <strong>multivariate meta-analysis</strong>, studies report several correlated outcomes, such as two clinical endpoints or one outcome at several time points, and the goal is to estimate all the average effects jointly, using their correlation to borrow strength. In <strong>dose-response meta-analysis</strong>, studies report effects at several exposure levels relative to a common reference, and the goal is the shape of the exposure-outcome curve. In <strong>individual participant data (IPD) meta-analysis</strong>, the analyst has the raw participant-level records from each study, which makes it possible to standardize analyses, examine who benefits most from a treatment, and avoid the ecological bias that afflicts meta-regression on aggregate data.</p>
+<p>The three topics share one statistical idea. Each study supplies a vector of estimates <span class="math inline">\(\hat{\boldsymbol\theta}_i\)</span> with a within-study covariance matrix <span class="math inline">\(\mathbf{S}_i\)</span>, and the meta-analysis combines these vectors with a between-study model. Getting <span class="math inline">\(\mathbf{S}_i\)</span> right is the central practical problem in all three.</p>
+<div class="sourceCode" id="cb230"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://alecri.github.io/software/dosresmeta.html">dosresmeta</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://hbiostat.org/R/rms/">rms</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/">lme4</a></span><span class="op">)</span></span></code></pre></div>
+<div id="sec-mvipd-multivariate" class="section level2" number="12.1">
+<h2>
+<span class="header-section-number">12.1</span> Multivariate meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-multivariate"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-mvipd-mv-model" class="section level3" number="12.1.1">
+<h3>
+<span class="header-section-number">12.1.1</span> The model<a class="anchor" aria-label="anchor" href="#sec-mvipd-mv-model"><i class="fas fa-link"></i></a>
+</h3>
+<p>Let study <span class="math inline">\(i\)</span> report estimates <span class="math inline">\(\mathbf{y}_i = (y_{i1}, \dots, y_{ip_i})^\top\)</span> of <span class="math inline">\(p_i \le p\)</span> outcomes, with within-study covariance matrix <span class="math inline">\(\mathbf{S}_i\)</span> treated as known. The random-effects multivariate model <span class="citation">(<a href="sec-references.html#ref-berkey1998metaanalysis">Berkey et al. 1998</a>; <a href="sec-references.html#ref-jackson2011multivariate">Jackson et al. 2011</a>)</span> is</p>
+<p><span class="math display">\[
+\mathbf{y}_i = \mathbf{X}_i \boldsymbol\beta + \mathbf{u}_i + \mathbf{e}_i, \qquad \mathbf{u}_i \sim N(\mathbf{0}, \boldsymbol\Sigma), \qquad \mathbf{e}_i \sim N(\mathbf{0}, \mathbf{S}_i),
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{X}_i\)</span> selects the outcomes that study <span class="math inline">\(i\)</span> reports (and may include moderators), <span class="math inline">\(\boldsymbol\beta\)</span> holds the average effects, and <span class="math inline">\(\boldsymbol\Sigma\)</span> is the between-study covariance matrix, with diagonal elements <span class="math inline">\(\tau_j^2\)</span> and between-study correlations <span class="math inline">\(\rho_{jl}\)</span>. The marginal covariance of <span class="math inline">\(\mathbf{y}_i\)</span> is <span class="math inline">\(\mathbf{S}_i + \mathbf{X}_i^{*}\boldsymbol\Sigma\mathbf{X}_i^{*\top}\)</span>, where <span class="math inline">\(\mathbf{X}_i^{*}\)</span> picks the rows of <span class="math inline">\(\boldsymbol\Sigma\)</span> for the reported outcomes. Given <span class="math inline">\(\boldsymbol\Sigma\)</span>, the GLS estimator is</p>
+<p><span class="math display">\[
+\hat{\boldsymbol\beta} = \Bigl(\sum_i \mathbf{X}_i^\top \mathbf{W}_i \mathbf{X}_i\Bigr)^{-1} \sum_i \mathbf{X}_i^\top \mathbf{W}_i \mathbf{y}_i, \qquad \mathbf{W}_i = \bigl(\mathbf{S}_i + \mathbf{X}_i^{*}\boldsymbol\Sigma\mathbf{X}_i^{*\top}\bigr)^{-1},
+\]</span></p>
+<p>and <span class="math inline">\(\boldsymbol\Sigma\)</span> is estimated by REML or by multivariate extensions of the method of moments <span class="citation">(<a href="sec-references.html#ref-jackson2010extending">Jackson et al. 2010</a>)</span>. Two correlations are involved and they should not be confused. The <strong>within-study correlation</strong> in <span class="math inline">\(\mathbf{S}_i\)</span> reflects the fact that the two outcomes were measured on the same participants; it is a property of sampling error. The <strong>between-study correlation</strong> in <span class="math inline">\(\boldsymbol\Sigma\)</span> describes whether studies with larger true effects on one outcome also have larger true effects on the other.</p>
+</div>
+<div id="sec-mvipd-why-joint" class="section level3" number="12.1.2">
+<h3>
+<span class="header-section-number">12.1.2</span> Why model outcomes jointly?<a class="anchor" aria-label="anchor" href="#sec-mvipd-why-joint"><i class="fas fa-link"></i></a>
+</h3>
+<p>If every study reports every outcome and the interest lies only in the marginal averages, separate univariate meta-analyses often give similar point estimates. The joint model earns its keep in three situations <span class="citation">(<a href="sec-references.html#ref-jackson2011multivariate">Jackson et al. 2011</a>; <a href="sec-references.html#ref-riley2009multivariate">Riley 2009</a>)</span>. First, when some studies report only a subset of outcomes, the correlated outcomes that <em>are</em> reported carry information about the missing ones, an effect known as <strong>borrowing of strength</strong> <span class="citation">(<a href="sec-references.html#ref-jackson2015borrowing">Jackson et al. 2015</a>; <a href="sec-references.html#ref-copas2018role">Copas et al. 2018</a>)</span>. If outcomes are missing because they were unfavorable, the multivariate model can partially correct the resulting outcome reporting bias <span class="citation">(<a href="sec-references.html#ref-kirkham2012multivariate">Kirkham et al. 2012</a>)</span>. Second, joint inference about functions of several effects, such as the difference between two outcomes or a joint confidence region, requires their covariance. Third, ignoring the within-study correlation can bias the estimates and their standard errors, particularly when outcomes are missing <span class="citation">(<a href="sec-references.html#ref-riley2009multivariate">Riley 2009</a>)</span>.</p>
+<p>The price is that within-study correlations are rarely reported in aggregate data. Common responses are to obtain them from IPD for a subset of studies, to assume a plausible value and vary it in a sensitivity analysis <span class="citation">(<a href="sec-references.html#ref-ishak2007impact">Ishak, Platt, Joseph, and Hanley 2007</a>)</span>, to use the alternative model of <span class="citation">R. D. Riley et al. (<a href="sec-references.html#ref-riley2007alternative">2007</a>)</span>, which estimates a single overall correlation in place of separate within- and between-study correlations, or to combine an assumed working correlation with robust variance estimation (Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>).</p>
+</div>
+<div id="sec-mvipd-berkey" class="section level3" number="12.1.3">
+<h3>
+<span class="header-section-number">12.1.3</span> Example: two periodontal outcomes<a class="anchor" aria-label="anchor" href="#sec-mvipd-berkey"><i class="fas fa-link"></i></a>
+</h3>
+<p>The classic example <span class="citation">(<a href="sec-references.html#ref-berkey1998metaanalysis">Berkey et al. 1998</a>)</span> comprises five randomized trials comparing surgical and non-surgical treatment of periodontal disease. Each trial reports the mean difference between surgical and non-surgical treatment in the one-year improvement of probing depth (PD) and of attachment level (AL), coded so that positive values favor surgery for both outcomes (a larger reduction in probing depth, a larger gain in attachment level), together with the full <span class="math inline">\(2 \times 2\)</span> within-trial covariance matrix.</p>
+<div class="sourceCode" id="cb231"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat_pd</span> <span class="op">&lt;-</span> <span class="va">dat.berkey1998</span></span>
+<span><span class="va">dat_pd</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trial"</span>, <span class="st">"author"</span>, <span class="st">"year"</span>, <span class="st">"ni"</span>, <span class="st">"outcome"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="st">"v1i"</span>, <span class="st">"v2i"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    trial           author year ni outcome      yi     vi    v1i    v2i </span></span>
+<span><span class="co">#&gt; 1      1 Pihlstrom et al. 1983 14      PD  0.4700 0.0075 0.0075 0.0030 </span></span>
+<span><span class="co">#&gt; 2      1 Pihlstrom et al. 1983 14      AL -0.3200 0.0077 0.0030 0.0077 </span></span>
+<span><span class="co">#&gt; 3      2    Lindhe et al. 1982 15      PD  0.2000 0.0057 0.0057 0.0009 </span></span>
+<span><span class="co">#&gt; 4      2    Lindhe et al. 1982 15      AL -0.6000 0.0008 0.0009 0.0008 </span></span>
+<span><span class="co">#&gt; 5      3   Knowles et al. 1979 78      PD  0.4000 0.0021 0.0021 0.0007 </span></span>
+<span><span class="co">#&gt; 6      3   Knowles et al. 1979 78      AL -0.1200 0.0014 0.0007 0.0014 </span></span>
+<span><span class="co">#&gt; 7      4  Ramfjord et al. 1987 89      PD  0.2600 0.0029 0.0029 0.0009 </span></span>
+<span><span class="co">#&gt; 8      4  Ramfjord et al. 1987 89      AL -0.3100 0.0015 0.0009 0.0015 </span></span>
+<span><span class="co">#&gt; 9      5    Becker et al. 1988 16      PD  0.5600 0.0148 0.0148 0.0072 </span></span>
+<span><span class="co">#&gt; 10     5    Becker et al. 1988 16      AL -0.3900 0.0304 0.0072 0.0304</span></span></code></pre></div>
+<p>Columns <code>v1i</code> and <code>v2i</code> contain each trial’s covariance matrix, so the block-diagonal <span class="math inline">\(\mathbf{S} = \operatorname{diag}(\mathbf{S}_1, \dots, \mathbf{S}_5)\)</span> is assembled with <code><a href="https://wviechtb.github.io/metafor/reference/bldiag.html">bldiag()</a></code>. The within-trial correlations range from about 0.34 to 0.43 (for the first trial, <span class="math inline">\(0.0030/\sqrt{0.0075 \times 0.0077} = 0.39\)</span>).</p>
+<div class="sourceCode" id="cb232"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">S_pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/bldiag.html">bldiag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">dat_pd</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"v1i"</span>, <span class="st">"v2i"</span><span class="op">)</span><span class="op">]</span>, <span class="va">dat_pd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="va">as.matrix</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mv_pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_pd</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">|</span> <span class="va">trial</span>,</span>
+<span>                struct <span class="op">=</span> <span class="st">"UN"</span>, data <span class="op">=</span> <span class="va">dat_pd</span><span class="op">)</span></span>
+<span><span class="va">mv_pd</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 10; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; outer factor: trial   (nlvls = 5)</span></span>
+<span><span class="co">#&gt; inner factor: outcome (nlvls = 2)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             estim    sqrt  k.lvl  fixed  level </span></span>
+<span><span class="co">#&gt; tau^2.1    0.0327  0.1807      5     no     AL </span></span>
+<span><span class="co">#&gt; tau^2.2    0.0117  0.1083      5     no     PD </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     rho.AL  rho.PD    AL  PD </span></span>
+<span><span class="co">#&gt; AL       1             -   5 </span></span>
+<span><span class="co">#&gt; PD  0.6088       1    no   - </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 8) = 128.2267, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficients 1:2):</span></span>
+<span><span class="co">#&gt; QM(df = 2) = 108.8616, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt; outcomeAL   -0.3392  0.0879  -3.8589  0.0001  -0.5115  -0.1669  *** </span></span>
+<span><span class="co">#&gt; outcomePD    0.3534  0.0588   6.0057  &lt;.0001   0.2381   0.4688  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The pooled effect is 0.353 mm (95% CI 0.238 to 0.469) for probing depth and <span class="math inline">\(-0.339\)</span> mm (<span class="math inline">\(-0.512\)</span> to <span class="math inline">\(-0.167\)</span>) for attachment level: surgery is better at reducing probing depth, non-surgical treatment at improving attachment level. The between-trial standard deviations are 0.108 (PD) and 0.181 (AL), and the estimated between-trial correlation is 0.61. With five trials, <span class="math inline">\(\boldsymbol\Sigma\)</span> is poorly determined; a profile likelihood plot (<code>profile(mv_pd)</code>) would show a very flat likelihood for the correlation.</p>
+<p>Separate univariate random-effects analyses give</p>
+<div class="sourceCode" id="cb233"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">uni_pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_pd</span>, subset <span class="op">=</span> <span class="va">outcome</span> <span class="op">==</span> <span class="st">"PD"</span><span class="op">)</span></span>
+<span><span class="va">uni_al</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_pd</span>, subset <span class="op">=</span> <span class="va">outcome</span> <span class="op">==</span> <span class="st">"AL"</span><span class="op">)</span></span>
+<span><span class="va">est_se</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">b</span>, <span class="va">se</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  multivariate_PD <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">mv_pd</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">mv_pd</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  univariate_PD   <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_pd</span><span class="op">)</span>, <span class="va">uni_pd</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>  multivariate_AL <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">mv_pd</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">mv_pd</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  univariate_AL   <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_al</span><span class="op">)</span>, <span class="va">uni_al</span><span class="op">$</span><span class="va">se</span><span class="op">)</span></span>
+<span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 estimate     se</span></span>
+<span><span class="co">#&gt; multivariate_PD   0.3534 0.0588</span></span>
+<span><span class="co">#&gt; univariate_PD     0.3606 0.0592</span></span>
+<span><span class="co">#&gt; multivariate_AL  -0.3392 0.0879</span></span>
+<span><span class="co">#&gt; univariate_AL    -0.3457 0.0885</span></span></code></pre></div>
+<p>With complete data, the two approaches agree closely: 0.353 versus 0.361 for probing depth and <span class="math inline">\(-0.339\)</span> versus <span class="math inline">\(-0.346\)</span> for attachment level, with standard errors that differ only in the third decimal. This illustrates a point stressed by <span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2011multivariate">2011</a>)</span>: when every study reports every outcome and interest lies in the marginal averages, the multivariate model adds little, and with few studies any differences are driven mostly by how the heterogeneity parameters are estimated.</p>
+</div>
+<div id="sec-mvipd-bos" class="section level3" number="12.1.4">
+<h3>
+<span class="header-section-number">12.1.4</span> Borrowing of strength when outcomes are missing<a class="anchor" aria-label="anchor" href="#sec-mvipd-bos"><i class="fas fa-link"></i></a>
+</h3>
+<p>The situation changes when outcomes are missing. To see this, suppose trials 1 and 3 had not reported attachment level.</p>
+<div class="sourceCode" id="cb234"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat_mis</span> <span class="op">&lt;-</span> <span class="va">dat_pd</span><span class="op">[</span><span class="op">!</span><span class="op">(</span><span class="va">dat_pd</span><span class="op">$</span><span class="va">outcome</span> <span class="op">==</span> <span class="st">"AL"</span> <span class="op">&amp;</span> <span class="va">dat_pd</span><span class="op">$</span><span class="va">trial</span> <span class="op"><a href="https://mc-stan.org/posterior/reference/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">S_mis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/bldiag.html">bldiag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">dat_mis</span>, <span class="va">dat_mis</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"v1i"</span>, <span class="st">"v2i"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>PD <span class="op">=</span> <span class="fl">1</span>, AL <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">outcome</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">m</span><span class="op">[</span>, <span class="va">keep</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mv_mis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_mis</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">|</span> <span class="va">trial</span>,</span>
+<span>                 struct <span class="op">=</span> <span class="st">"UN"</span>, data <span class="op">=</span> <span class="va">dat_mis</span><span class="op">)</span></span>
+<span><span class="va">uni_mis</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_mis</span>, subset <span class="op">=</span> <span class="va">outcome</span> <span class="op">==</span> <span class="st">"AL"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>multivariate_AL <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">mv_mis</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">mv_mis</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>            univariate_AL   <span class="op">=</span> <span class="fu">est_se</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_mis</span><span class="op">)</span>, <span class="va">uni_mis</span><span class="op">$</span><span class="va">se</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 estimate     se</span></span>
+<span><span class="co">#&gt; multivariate_AL  -0.4270 0.1019</span></span>
+<span><span class="co">#&gt; univariate_AL    -0.4439 0.1048</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>variance_reduction <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="va">mv_mis</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">/</span> <span class="va">uni_mis</span><span class="op">$</span><span class="va">se</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>, between_rho <span class="op">=</span> <span class="va">mv_mis</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span></span>
+<span><span class="co">#&gt; variance_reduction        between_rho </span></span>
+<span><span class="co">#&gt;            0.05469            0.24910</span></span></code></pre></div>
+<p>The univariate analysis of AL now rests on three trials. The multivariate analysis also uses the PD results of trials 1 and 3, which are informative about their unreported AL effects through both the within-trial and the between-trial correlations. The multivariate estimate for AL moves from <span class="math inline">\(-0.444\)</span> to <span class="math inline">\(-0.427\)</span>, toward the complete-data value of <span class="math inline">\(-0.339\)</span>, and its variance is about 5% smaller than in the univariate analysis. The gain is modest because the between-trial correlation, re-estimated from the reduced data, is only about 0.25 and the within-trial correlations are around 0.4. <span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2015borrowing">2015</a>)</span> formalize the contribution of the other outcomes through study weights and a borrowing-of-strength statistic. The gain depends on the correlations: if both the within- and between-study correlations were zero, the PD results would carry no information about AL. With five trials, the between-trial correlation is also fragile. Removing AL from a different pair of trials (for example trials 3 and 4) drives the REML estimate of the correlation to the boundary of <span class="math inline">\(\pm 1\)</span>, and the apparent borrowing of strength then becomes large but untrustworthy. Results like these should always be accompanied by a sensitivity analysis that fixes the between-study correlation at several plausible values (for example with the <code>rho</code> argument of <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv()</a></code>).</p>
+<div class="rmdwarning">
+<p>Borrowing of strength is only as good as the assumption that outcomes are missing at random given the reported ones. If AL was left unreported precisely because it was disappointing, the multivariate model reduces but does not remove the bias <span class="citation">(<a href="sec-references.html#ref-kirkham2012multivariate">Kirkham et al. 2012</a>)</span>. It also relies on correct within-study correlations, which in practice are often assumed.</p>
+</div>
+<p>Moderators enter as interactions with outcome, so each outcome gets its own slope. For example, publication year (centered at 1983):</p>
+<div class="sourceCode" id="cb235"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mv_year</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_pd</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">+</span> <span class="va">outcome</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="va">year</span> <span class="op">-</span> <span class="fl">1983</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>,</span>
+<span>                  random <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">|</span> <span class="va">trial</span>, struct <span class="op">=</span> <span class="st">"UN"</span>, data <span class="op">=</span> <span class="va">dat_pd</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">mv_year</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                          estimate     se    zval   pval   ci.lb   ci.ub</span></span>
+<span><span class="co">#&gt; outcomeAL                 -0.3357 0.0980 -3.4260 0.0006 -0.5278 -0.1437</span></span>
+<span><span class="co">#&gt; outcomePD                  0.3588 0.0735  4.8844 0.0000  0.2148  0.5027</span></span>
+<span><span class="co">#&gt; outcomeAL:I(year - 1983)  -0.0115 0.0300 -0.3850 0.7002 -0.0703  0.0472</span></span>
+<span><span class="co">#&gt; outcomePD:I(year - 1983)   0.0049 0.0219  0.2225 0.8239 -0.0380  0.0477</span></span></code></pre></div>
+<p>Neither slope is distinguishable from zero, which is unsurprising with five trials. The <code>metaSEM</code> package fits the same multivariate model by maximum likelihood (Chapter <a href="sec-masem.html#sec-masem">11</a>), and <code>mvmeta</code> offers an alternative implementation <span class="citation">(<a href="sec-references.html#ref-gasparrini2012multivariate">Gasparrini et al. 2012</a>)</span>.</p>
+</div>
+<div id="sec-mvipd-unknown-correlations" class="section level3" number="12.1.5">
+<h3>
+<span class="header-section-number">12.1.5</span> When within-study correlations are unknown<a class="anchor" aria-label="anchor" href="#sec-mvipd-unknown-correlations"><i class="fas fa-link"></i></a>
+</h3>
+<p>The Berkey data are unusual in reporting the full within-trial covariance matrices. More often only the variances are available. A practical approach is to impute the covariances from an assumed within-study correlation <span class="math inline">\(r\)</span>, <span class="math inline">\(\operatorname{Cov}(y_{i1}, y_{i2}) = r\sqrt{v_{i1}v_{i2}}\)</span>, which <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code> does, and to repeat the analysis over a plausible range of <span class="math inline">\(r\)</span>.</p>
+<div class="sourceCode" id="cb236"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">S_r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">trial</span>, type <span class="op">=</span> <span class="va">outcome</span>, rho <span class="op">=</span> <span class="va">r</span>, data <span class="op">=</span> <span class="va">dat_pd</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_r</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">|</span> <span class="va">trial</span>,</span>
+<span>                struct <span class="op">=</span> <span class="st">"UN"</span>, data <span class="op">=</span> <span class="va">dat_pd</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>r_within <span class="op">=</span> <span class="va">r</span>, AL <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, se_AL <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>    PD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, se_PD <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, rho_between <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">sens</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      r_within     AL se_AL    PD se_PD rho_between</span></span>
+<span><span class="co">#&gt; [1,]      0.0 -0.325 0.088 0.345 0.055       0.775</span></span>
+<span><span class="co">#&gt; [2,]      0.2 -0.334 0.088 0.350 0.057       0.681</span></span>
+<span><span class="co">#&gt; [3,]      0.4 -0.341 0.088 0.355 0.060       0.589</span></span>
+<span><span class="co">#&gt; [4,]      0.6 -0.349 0.088 0.361 0.062       0.499</span></span>
+<span><span class="co">#&gt; [5,]      0.8 -0.356 0.089 0.367 0.065       0.409</span></span></code></pre></div>
+<p>Here <code>type = outcome</code> tells <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code> that the two rows of a trial are different outcomes measured on the same participants, so they receive the assumed correlation. With complete data, the pooled estimates change only slightly (AL from <span class="math inline">\(-0.325\)</span> to <span class="math inline">\(-0.356\)</span> as <span class="math inline">\(r\)</span> goes from 0 to 0.8), while the estimated between-trial correlation falls from 0.78 to 0.41: part of the covariation between outcomes can be attributed either to sampling error or to true between-trial covariation. With missing outcomes, the borrowing of strength and hence the estimates themselves become more sensitive to <span class="math inline">\(r\)</span>, which is why the sensitivity analysis matters most precisely when the multivariate model is most useful. An alternative is to fit the model with a working correlation and then use cluster-robust standard errors (Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>), which remain valid even if the assumed correlation is wrong, provided there are enough studies; with five trials, as here, robust standard errors would not be trustworthy.</p>
+</div>
+<div id="sec-mvipd-longitudinal" class="section level3" number="12.1.6">
+<h3>
+<span class="header-section-number">12.1.6</span> Longitudinal outcomes<a class="anchor" aria-label="anchor" href="#sec-mvipd-longitudinal"><i class="fas fa-link"></i></a>
+</h3>
+<p>A special case of correlated outcomes arises when the same effect is measured at several follow-up times. <span class="citation">Ishak, Platt, Joseph, Hanley, and Caro (<a href="sec-references.html#ref-ishak2007metaanalysis">2007</a>)</span> analyzed 46 studies of deep-brain stimulation in Parkinson’s disease, which reported the mean change in motor function (UPDRS score, where negative values are improvements) at 3, 6, 12 months and a longer follow-up, with each study reporting only some of the four time points. Because the same patients are measured repeatedly, estimates from the same study are correlated, and the correlation is plausibly stronger for adjacent time points. A first-order autoregressive (AR(1)) structure captures this: the correlation between time points <span class="math inline">\(t\)</span> and <span class="math inline">\(t'\)</span> is <span class="math inline">\(\phi^{|t-t'|}\)</span>. Following <span class="citation">Ishak, Platt, Joseph, Hanley, and Caro (<a href="sec-references.html#ref-ishak2007metaanalysis">2007</a>)</span>, we assume a within-study autocorrelation of <span class="math inline">\(\phi = 0.97\)</span> between successive measurement occasions and build the within-study covariance matrix with <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code>.</p>
+<div class="sourceCode" id="cb237"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat_dbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/reshape.html">reshape</a></span><span class="op">(</span><span class="va">dat.ishak2007</span>, direction <span class="op">=</span> <span class="st">"long"</span>, idvar <span class="op">=</span> <span class="st">"study"</span>,</span>
+<span>                   v.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span>, varying <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">9</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dat_dbs</span> <span class="op">&lt;-</span> <span class="va">dat_dbs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">dat_dbs</span><span class="op">$</span><span class="va">study</span>, <span class="va">dat_dbs</span><span class="op">$</span><span class="va">time</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">dat_dbs</span> <span class="op">&lt;-</span> <span class="va">dat_dbs</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">dat_dbs</span><span class="op">$</span><span class="va">yi</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">dat_dbs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">dat_dbs</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  1  2  3  4 </span></span>
+<span><span class="co">#&gt; 24 22 25 11</span></span>
+<span><span class="va">S_dbs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">study</span>, time1 <span class="op">=</span> <span class="va">time</span>, phi <span class="op">=</span> <span class="fl">0.97</span>, data <span class="op">=</span> <span class="va">dat_dbs</span><span class="op">)</span></span></code></pre></div>
+<p>The true effects are modeled with a heteroscedastic AR(1) structure (<code>struct = "HAR"</code>), which allows a different between-study variance at each time point but constrains the between-study correlations to decay as <span class="math inline">\(\rho^{|t-t'|}\)</span>. A homoscedastic version (<code>struct = "AR"</code>) is nested within it.</p>
+<div class="sourceCode" id="cb238"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dbs_har</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_dbs</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">time</span> <span class="op">|</span> <span class="va">study</span>,</span>
+<span>                  struct <span class="op">=</span> <span class="st">"HAR"</span>, data <span class="op">=</span> <span class="va">dat_dbs</span><span class="op">)</span></span>
+<span><span class="va">dbs_ar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">S_dbs</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">time</span> <span class="op">|</span> <span class="va">study</span>,</span>
+<span>                 struct <span class="op">=</span> <span class="st">"AR"</span>, data <span class="op">=</span> <span class="va">dat_dbs</span><span class="op">)</span></span>
+<span><span class="va">dbs_har</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 82; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; outer factor: study (nlvls = 46)</span></span>
+<span><span class="co">#&gt; inner factor: time  (nlvls = 4)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              estim    sqrt  k.lvl  fixed  level </span></span>
+<span><span class="co">#&gt; tau^2.1    22.7258  4.7672     24     no      1 </span></span>
+<span><span class="co">#&gt; tau^2.2    33.7295  5.8077     22     no      2 </span></span>
+<span><span class="co">#&gt; tau^2.3    26.1426  5.1130     25     no      3 </span></span>
+<span><span class="co">#&gt; tau^2.4    31.1803  5.5839     11     no      4 </span></span>
+<span><span class="co">#&gt; rho         0.8832                    no        </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 78) = 856.1635, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficients 1:4):</span></span>
+<span><span class="co">#&gt; QM(df = 4) = 873.1568, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                estimate      se      zval    pval     ci.lb     ci.ub      </span></span>
+<span><span class="co">#&gt; factor(time)1  -25.9047  1.0118  -25.6022  &lt;.0001  -27.8879  -23.9216  *** </span></span>
+<span><span class="co">#&gt; factor(time)2  -27.4608  1.1406  -24.0768  &lt;.0001  -29.6963  -25.2254  *** </span></span>
+<span><span class="co">#&gt; factor(time)3  -28.6559  1.0321  -27.7634  &lt;.0001  -30.6789  -26.6330  *** </span></span>
+<span><span class="co">#&gt; factor(time)4  -26.4934  1.3817  -19.1743  &lt;.0001  -29.2015  -23.7853  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">dbs_har</span>, <span class="va">dbs_ar</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         df      AIC      BIC     AICc    logLik    LRT   pval       QE </span></span>
+<span><span class="co">#&gt; Full     9 480.7247 501.9351 483.3718 -231.3624               856.1635 </span></span>
+<span><span class="co">#&gt; Reduced  6 476.5404 490.6806 477.7235 -232.2702 1.8156 0.6115 856.1635</span></span></code></pre></div>
+<p>The average improvement is about 26 UPDRS points at 3 months, 27 at 6 months, 29 at 12 months and 26 at the long-term follow-up, so the benefit of stimulation appears early and is sustained. The between-study autocorrelation is high (0.88): studies with larger effects at one time point tend to have larger effects at the next. The likelihood-ratio test does not favor time-specific heterogeneity variances over a common variance (<span class="math inline">\(p\)</span> well above 0.05), so the simpler AR structure would be adequate. When measurement times are irregular, <code>struct = "CAR"</code> (continuous-time AR) uses the actual time lags rather than occasion numbers.</p>
+</div>
+</div>
+<div id="sec-mvipd-dose-response" class="section level2" number="12.2">
+<h2>
+<span class="header-section-number">12.2</span> Dose-response meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-dose-response"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-mvipd-dr-structure" class="section level3" number="12.2.1">
+<h3>
+<span class="header-section-number">12.2.1</span> The data structure<a class="anchor" aria-label="anchor" href="#sec-mvipd-dr-structure"><i class="fas fa-link"></i></a>
+</h3>
+<p>Epidemiological studies of exposures such as alcohol, coffee or red meat often report relative risks for several categories of exposure, each compared with the same reference category. Study <span class="math inline">\(i\)</span> provides <span class="math inline">\(m_i\)</span> log relative risks <span class="math inline">\(y_{ij}\)</span> (<span class="math inline">\(j = 1, \dots, m_i\)</span>) at assigned doses <span class="math inline">\(x_{ij}\)</span>, all relative to a reference dose <span class="math inline">\(x_{i0}\)</span>. Because every non-reference estimate shares the same reference group, the <span class="math inline">\(y_{ij}\)</span> within a study are correlated, and ignoring this correlation misstates the precision of a pooled trend. <span class="citation">Greenland and Longnecker (<a href="sec-references.html#ref-greenland1992methods">1992</a>)</span> showed how to reconstruct the within-study covariance matrix <span class="math inline">\(\mathbf{S}_i\)</span> from the reported case and non-case (or person-time) counts in each category, together with the adjusted relative risks; <span class="citation">Orsini et al. (<a href="sec-references.html#ref-orsini2006generalized">2006</a>)</span> describe the estimation in detail.</p>
+<p>The dose-response function is specified as <span class="math inline">\(y_{ij} = f(x_{ij}) - f(x_{i0})\)</span>, typically through a linear combination of transformations of dose, <span class="math inline">\(f(x) = \sum_q \beta_q g_q(x)\)</span>. In the <strong>two-stage</strong> approach <span class="citation">(<a href="sec-references.html#ref-orsini2011metaanalysis">Orsini et al. 2011</a>; <a href="sec-references.html#ref-crippa2016multivariate">Crippa and Orsini 2016</a>)</span>, each study’s curve is first estimated by GLS,</p>
+<p><span class="math display">\[
+\hat{\boldsymbol\beta}_i = (\mathbf{X}_i^\top \mathbf{S}_i^{-1}\mathbf{X}_i)^{-1}\mathbf{X}_i^\top \mathbf{S}_i^{-1}\mathbf{y}_i,
+\]</span></p>
+<p>where the rows of <span class="math inline">\(\mathbf{X}_i\)</span> are <span class="math inline">\(g(x_{ij}) - g(x_{i0})\)</span>, and the study-specific coefficient vectors are then pooled by a multivariate random-effects meta-analysis, exactly as in Section <a href="sec-multivariate-ipd.html#sec-mvipd-mv-model">12.1.1</a>. Because no intercept is estimated (the curve passes through the reference by construction), a linear trend has one coefficient and a restricted cubic spline with three knots has two. The <strong>one-stage</strong> approach of <span class="citation">Crippa et al. (<a href="sec-references.html#ref-crippa2018onestage">2018</a>)</span> fits a linear mixed model to all the <span class="math inline">\(y_{ij}\)</span> at once, which allows studies with only two exposure categories to contribute to a nonlinear curve. The <code>dosresmeta</code> package implements both <span class="citation">(<a href="sec-references.html#ref-crippa2016multivariate">Crippa and Orsini 2016</a>)</span>.</p>
+</div>
+<div id="sec-mvipd-dr-example" class="section level3" number="12.2.2">
+<h3>
+<span class="header-section-number">12.2.2</span> Example: alcohol and cardiovascular disease<a class="anchor" aria-label="anchor" href="#sec-mvipd-dr-example"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>alcohol_cvd</code> data contain six studies of alcohol intake (grams per day) and cardiovascular disease risk. Four are case-control (<code>type = "cc"</code>) and two report cumulative incidence (<code>"ci"</code>). The first row of each study is the reference category with log relative risk 0 and no standard error.</p>
+<div class="sourceCode" id="cb239"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"alcohol_cvd"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">alcohol_cvd</span>, <span class="fl">9</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   id  author type  dose cases   n   logrr     se</span></span>
+<span><span class="co">#&gt; 1  1 Bianchi   cc  0.00   126 414  0.0000     NA</span></span>
+<span><span class="co">#&gt; 2  1 Bianchi   cc  9.06    61 261 -0.2231 0.2233</span></span>
+<span><span class="co">#&gt; 3  1 Bianchi   cc 27.00    69 228 -0.0001 0.2338</span></span>
+<span><span class="co">#&gt; 4  1 Bianchi   cc 45.00    22  44  0.5306 0.3765</span></span>
+<span><span class="co">#&gt; 5  1 Bianchi   cc 64.80    19  34  0.8755 0.4440</span></span>
+<span><span class="co">#&gt; 6  2   Bobak   cc  0.00    77 258  0.0000     NA</span></span>
+<span><span class="co">#&gt; 7  2   Bobak   cc 16.05    88 413 -0.4308 0.2213</span></span>
+<span><span class="co">#&gt; 8  2   Bobak   cc 46.42    24 202 -1.0788 0.2976</span></span>
+<span><span class="co">#&gt; 9  2   Bobak   cc 77.16    13  64 -0.6162 0.3871</span></span></code></pre></div>
+<p>A linear trend is the simplest model. The <code>type</code>, <code>cases</code> and <code>n</code> arguments let <code><a href="https://rdrr.io/pkg/dosresmeta/man/dosresmeta.html">dosresmeta()</a></code> reconstruct the Greenland-Longnecker covariances.</p>
+<div class="sourceCode" id="cb240"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dr_lin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/dosresmeta/man/dosresmeta.html">dosresmeta</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="va">logrr</span> <span class="op">~</span> <span class="va">dose</span>, id <span class="op">=</span> <span class="va">id</span>, se <span class="op">=</span> <span class="va">se</span>, type <span class="op">=</span> <span class="va">type</span>,</span>
+<span>                     cases <span class="op">=</span> <span class="va">cases</span>, n <span class="op">=</span> <span class="va">n</span>, data <span class="op">=</span> <span class="va">alcohol_cvd</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dr_lin</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Call:  dosresmeta(formula = logrr ~ dose, id = id, type = type, cases = cases, </span></span>
+<span><span class="co">#&gt;     n = n, data = alcohol_cvd, se = se)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Two-stage random-effects meta-analysis</span></span>
+<span><span class="co">#&gt; Estimation method: REML</span></span>
+<span><span class="co">#&gt; Covariance approximation: Greenland &amp; Longnecker</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Chi2 model: X2 = 0.549 (df = 1), p-value = 0.459</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fixed-effects coefficients</span></span>
+<span><span class="co">#&gt;              Estimate  Std. Error       z  Pr(&gt;|z|)  95%ci.lb  95%ci.ub   </span></span>
+<span><span class="co">#&gt; (Intercept)    -0.004       0.006  -0.741     0.459    -0.016     0.007   </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Between-study random-effects (co)variance components</span></span>
+<span><span class="co">#&gt;   Std. Dev</span></span>
+<span><span class="co">#&gt;      0.010</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Univariate Cochran Q-test for residual heterogeneity:</span></span>
+<span><span class="co">#&gt; Q = 14.146 (df = 5), p-value = 0.015</span></span>
+<span><span class="co">#&gt; I-square statistic = 64.7%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 6 studies, 6 values, 1 fixed and 1 random-effects parameters</span></span>
+<span><span class="co">#&gt;  logLik      AIC      BIC  </span></span>
+<span><span class="co">#&gt;  14.034  -24.068  -24.849</span></span></code></pre></div>
+<p>The pooled linear slope is <span class="math inline">\(-0.0044\)</span> per gram per day (95% CI <span class="math inline">\(-0.016\)</span> to <span class="math inline">\(0.007\)</span>), which corresponds to a relative risk of <span class="math inline">\(\exp(-0.0044 \times 12) = 0.95\)</span> for one standard drink of about 12 g per day, with a confidence interval that includes 1. The Q test (<span class="math inline">\(p = 0.015\)</span>, <span class="math inline">\(I^2 = 65\%\)</span>) indicates heterogeneity in the study-specific slopes. A linear model, however, cannot represent the hypothesis that moderate drinking is associated with lower and heavy drinking with higher risk.</p>
+</div>
+<div id="sec-mvipd-dr-spline" class="section level3" number="12.2.3">
+<h3>
+<span class="header-section-number">12.2.3</span> Restricted cubic splines<a class="anchor" aria-label="anchor" href="#sec-mvipd-dr-spline"><i class="fas fa-link"></i></a>
+</h3>
+<p>A restricted cubic spline (RCS) is cubic between knots and linear beyond the outer knots. With three knots it has two coefficients, the first for the linear component and the second for the departure from linearity. Knots are conventionally placed at the 10th, 50th and 90th percentiles of the dose distribution <span class="citation">(<a href="sec-references.html#ref-orsini2011metaanalysis">Orsini et al. 2011</a>)</span>.</p>
+<div class="sourceCode" id="cb241"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">knots_alc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html">quantile</a></span><span class="op">(</span><span class="va">alcohol_cvd</span><span class="op">$</span><span class="va">dose</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">knots_alc</span></span>
+<span><span class="co">#&gt;   10%   50%   90% </span></span>
+<span><span class="co">#&gt;  0.00  9.06 45.85</span></span>
+<span><span class="va">dr_spl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/dosresmeta/man/dosresmeta.html">dosresmeta</a></span><span class="op">(</span>formula <span class="op">=</span> <span class="va">logrr</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/pkg/rms/man/rms.trans.html">rcs</a></span><span class="op">(</span><span class="va">dose</span>, <span class="va">knots_alc</span><span class="op">)</span>, id <span class="op">=</span> <span class="va">id</span>, se <span class="op">=</span> <span class="va">se</span>,</span>
+<span>                     type <span class="op">=</span> <span class="va">type</span>, cases <span class="op">=</span> <span class="va">cases</span>, n <span class="op">=</span> <span class="va">n</span>, data <span class="op">=</span> <span class="va">alcohol_cvd</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">dr_spl</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Call:  dosresmeta(formula = logrr ~ rcs(dose, knots_alc), id = id, type = type, </span></span>
+<span><span class="co">#&gt;     cases = cases, n = n, data = alcohol_cvd, se = se)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Two-stage random-effects meta-analysis</span></span>
+<span><span class="co">#&gt; Estimation method: REML</span></span>
+<span><span class="co">#&gt; Covariance approximation: Greenland &amp; Longnecker</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Chi2 model: X2 = 9.238 (df = 2), p-value = 0.010</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fixed-effects coefficients</span></span>
+<span><span class="co">#&gt;                            Estimate  Std. Error       z  Pr(&gt;|z|)  95%ci.lb</span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose     -0.031       0.011  -2.805     0.005    -0.052</span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose'     0.094       0.050   1.879     0.060    -0.004</span></span>
+<span><span class="co">#&gt;                            95%ci.ub    </span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose     -0.009  **</span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose'     0.193   .</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Between-study random-effects (co)variance components</span></span>
+<span><span class="co">#&gt;                            Std. Dev                      Corr</span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose      0.014  rcs(dose, knots_alc)dose</span></span>
+<span><span class="co">#&gt; rcs(dose, knots_alc)dose'     0.080                    -0.931</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Univariate Cochran Q-test for residual heterogeneity:</span></span>
+<span><span class="co">#&gt; Q = 32.357 (df = 10), p-value = 0.000</span></span>
+<span><span class="co">#&gt; I-square statistic = 69.1%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 6 studies, 12 values, 2 fixed and 3 random-effects parameters</span></span>
+<span><span class="co">#&gt;  logLik      AIC      BIC  </span></span>
+<span><span class="co">#&gt;  12.149  -14.298  -12.785</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/dosresmeta/man/waldtest.html">waldtest</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">dr_spl</span><span class="op">)</span>, Sigma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">dr_spl</span><span class="op">)</span>, Terms <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Wald test:</span></span>
+<span><span class="co">#&gt; ----------</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Chi-squared test:</span></span>
+<span><span class="co">#&gt; X2 = 3.5, df = 1, P(&gt; X2) = 0.06</span></span></code></pre></div>
+<p>The 10th percentile of dose is 0 because each study contributes a reference category at zero, so the first knot sits at no drinking. The first spline coefficient is clearly negative (<span class="math inline">\(-0.031\)</span>, <span class="math inline">\(p = 0.005\)</span>), and the Wald test of the nonlinear term gives <span class="math inline">\(\chi^2(1) = 3.5\)</span>, <span class="math inline">\(p = 0.06\)</span>, which is weak evidence of departure from linearity. The two-coefficient random-effects model estimates a strong negative correlation (<span class="math inline">\(-0.93\)</span>) between the study-specific coefficients, a sign that six studies barely identify the <span class="math inline">\(2 \times 2\)</span> between-study covariance matrix. Predicted relative risks relative to non-drinkers are obtained with <code><a href="https://rdrr.io/r/stats/predict.html">predict()</a></code>.</p>
+<div class="sourceCode" id="cb242"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">new_dose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span>, <span class="fl">12</span>, <span class="fl">24</span>, <span class="fl">36</span>, <span class="fl">48</span>, <span class="fl">60</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dr_spl</span>, <span class="va">new_dose</span>, xref <span class="op">=</span> <span class="fl">0</span>, expo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   rcs(dose, knots_alc)dose rcs(dose, knots_alc)dose'  pred ci.lb ci.ub</span></span>
+<span><span class="co">#&gt; 1                        0                     0.000 1.000 1.000 1.000</span></span>
+<span><span class="co">#&gt; 2                        6                     0.103 0.840 0.745 0.947</span></span>
+<span><span class="co">#&gt; 3                       12                     0.807 0.747 0.616 0.905</span></span>
+<span><span class="co">#&gt; 4                       24                     4.598 0.739 0.575 0.949</span></span>
+<span><span class="co">#&gt; 5                       36                    10.601 0.900 0.532 1.524</span></span>
+<span><span class="co">#&gt; 6                       48                    17.601 1.205 0.456 3.182</span></span>
+<span><span class="co">#&gt; 7                       60                    24.714 1.630 0.383 6.941</span></span></code></pre></div>
+<p>The spline curve reaches its minimum around 12 to 24 g per day, where the risk is about 25% lower than for non-drinkers (RR 0.75, 95% CI 0.62 to 0.90 at 12 g), and rises above 1 at higher intakes, although the confidence intervals widen rapidly beyond about 40 g per day because few participants drink that much. Figure <a href="sec-multivariate-ipd.html#fig:mvipd-dr-plot">12.1</a> shows both fitted curves.</p>
+<div class="sourceCode" id="cb243"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">65</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pr_spl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dr_spl</span>, <span class="va">grid</span>, xref <span class="op">=</span> <span class="fl">0</span>, expo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">pr_lin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">dr_lin</span>, <span class="va">grid</span>, xref <span class="op">=</span> <span class="fl">0</span>, expo <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">curve_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>dose <span class="op">=</span> <span class="va">grid</span><span class="op">$</span><span class="va">dose</span>, spline <span class="op">=</span> <span class="va">pr_spl</span><span class="op">$</span><span class="va">pred</span>, lo <span class="op">=</span> <span class="va">pr_spl</span><span class="op">$</span><span class="va">ci.lb</span>,</span>
+<span>                       hi <span class="op">=</span> <span class="va">pr_spl</span><span class="op">$</span><span class="va">ci.ub</span>, linear <span class="op">=</span> <span class="va">pr_lin</span><span class="op">$</span><span class="va">pred</span><span class="op">)</span></span>
+<span><span class="va">pts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">alcohol_cvd</span>, <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">curve_df</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">lo</span>, ymax <span class="op">=</span> <span class="va">hi</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey85"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">spline</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">linear</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>data <span class="op">=</span> <span class="va">pts</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">dose</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">logrr</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">se</span><span class="op">)</span>,</span>
+<span>             shape <span class="op">=</span> <span class="fl">21</span>, fill <span class="op">=</span> <span class="st">"white"</span>, alpha <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span>, colour <span class="op">=</span> <span class="st">"grey50"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_y_log10</span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">coord_cartesian</span><span class="op">(</span>xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">65</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_size_continuous</span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span>, guide <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Alcohol intake (g/day)"</span>, y <span class="op">=</span> <span class="st">"Relative risk (log scale)"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:mvipd-dr-plot"></span>
+<img src="12-multivariate-ipd_files/figure-html/mvipd-dr-plot-1.png" alt="Pooled dose-response curves for alcohol intake and cardiovascular disease risk (six studies). Solid line and band: restricted cubic spline with 95% confidence interval; dashed line: linear trend. Points are the study-specific relative risks, sized by inverse standard error (one point above 65 g/day lies outside the plotted range)." width="85%"><p class="caption">
+Figure 12.1: Pooled dose-response curves for alcohol intake and cardiovascular disease risk (six studies). Solid line and band: restricted cubic spline with 95% confidence interval; dashed line: linear trend. Points are the study-specific relative risks, sized by inverse standard error (one point above 65 g/day lies outside the plotted range).
+</p>
+</div>
+</div>
+<div id="sec-mvipd-dr-practical" class="section level3" number="12.2.4">
+<h3>
+<span class="header-section-number">12.2.4</span> Practical issues in dose-response synthesis<a class="anchor" aria-label="anchor" href="#sec-mvipd-dr-practical"><i class="fas fa-link"></i></a>
+</h3>
+<p>Most of the work in a dose-response meta-analysis lies in data extraction. Each exposure category needs an assigned dose. The usual convention is the reported median or mean within the category, or the midpoint of closed intervals; for open-ended upper categories the width of the adjacent interval is often borrowed. These choices should be prespecified and varied in sensitivity analyses. When a study’s reference category is not the lowest one, the relative risks must be re-expressed relative to a common reference before analysis. The Greenland-Longnecker covariance requires the number of cases and of non-cases or person-years per category; when these are not reported, they can sometimes be reconstructed, or the within-study correlations can be set to zero as a last resort, which usually overstates the precision of the trend. Finally, spline curves are sensitive to knot placement and to sparse data at the extremes. The curve should be reported only over the dose range where most studies contribute, and alternative knot positions and fractional polynomials are useful sensitivity checks <span class="citation">(<a href="sec-references.html#ref-orsini2011metaanalysis">Orsini et al. 2011</a>)</span>. For continuous outcomes such as blood pressure, the same machinery applies to mean differences <span class="citation">(<a href="sec-references.html#ref-crippa2016multivariate">Crippa and Orsini 2016</a>)</span>.</p>
+</div>
+</div>
+<div id="sec-mvipd-ipd" class="section level2" number="12.3">
+<h2>
+<span class="header-section-number">12.3</span> Individual participant data meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-mvipd-ipd-why" class="section level3" number="12.3.1">
+<h3>
+<span class="header-section-number">12.3.1</span> Why collect IPD?<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-why"><i class="fas fa-link"></i></a>
+</h3>
+<p>An IPD meta-analysis obtains and reanalyzes the participant-level data from each study rather than the published summaries <span class="citation">(<a href="sec-references.html#ref-riley2010metaanalysis">Riley et al. 2010</a>; <a href="sec-references.html#ref-riley2021individual"><em>Individual Participant Data Meta‐analysis</em> 2021</a>)</span>. The effort is considerable, often taking years of negotiation with trialists, but it brings advantages that no aggregate-data method can replicate. The analyst can check data quality, apply consistent inclusion criteria, outcome definitions and follow-up times across studies, and adjust for the same prognostic covariates everywhere. Unreported outcomes and subgroups can be analyzed. Time-to-event outcomes can be modeled properly. Most importantly, treatment-covariate interactions can be estimated <em>within</em> trials, using the variation of patient characteristics inside each trial, instead of by regressing trial-level effects on trial-level averages, an analysis that is both low-powered and prone to ecological bias <span class="citation">(<a href="sec-references.html#ref-berlin2002individual">Berlin et al. 2002</a>)</span>. <span class="citation">Debray et al. (<a href="sec-references.html#ref-debray2015get">2015</a>)</span> review the methodology, and reporting is governed by PRISMA-IPD <span class="citation">(<a href="sec-references.html#ref-stewart2015preferred">Stewart et al. 2015</a>)</span>.</p>
+</div>
+<div id="sec-mvipd-ipd-data" class="section level3" number="12.3.2">
+<h3>
+<span class="header-section-number">12.3.2</span> A simulated IPD example<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>To illustrate the methods without access to restricted trial data, we <strong>simulate</strong> IPD from eight hypothetical randomized trials of an antihypertensive treatment. Each participant has an age, a randomized treatment indicator and an outcome, systolic blood pressure (mmHg) at follow-up. The data-generating model has an average treatment effect of <span class="math inline">\(-6\)</span> mmHg at age 60 with between-trial standard deviation 1, a <em>within-trial</em> treatment-by-age interaction of <span class="math inline">\(-0.20\)</span> mmHg per year (older patients benefit more), and trial-level differences that make the average effect smaller in trials with older populations (for instance because those trials used lower doses). The trials differ in size and in mean age.</p>
+<div class="sourceCode" id="cb244"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">K</span> <span class="op">&lt;-</span> <span class="fl">8</span></span>
+<span><span class="va">n_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">180</span>, <span class="fl">120</span>, <span class="fl">350</span>, <span class="fl">500</span>, <span class="fl">220</span>, <span class="fl">400</span>, <span class="fl">150</span>, <span class="fl">300</span><span class="op">)</span></span>
+<span><span class="va">mean_age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">48</span>, <span class="fl">52</span>, <span class="fl">55</span>, <span class="fl">58</span>, <span class="fl">61</span>, <span class="fl">64</span>, <span class="fl">67</span>, <span class="fl">70</span><span class="op">)</span></span>
+<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">6</span>        <span class="co"># average effect at age 60</span></span>
+<span><span class="va">tau</span> <span class="op">&lt;-</span> <span class="fl">1</span>           <span class="co"># between-trial SD of the treatment effect</span></span>
+<span><span class="va">gamma_w</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fl">0.20</span>   <span class="co"># within-trial interaction per year of age</span></span>
+<span><span class="co"># trial-level departures: trials with older populations have weaker effects</span></span>
+<span><span class="va">u_k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">K</span>, <span class="fl">0</span>, <span class="va">tau</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.45</span> <span class="op">*</span> <span class="op">(</span><span class="va">mean_age</span> <span class="op">-</span> <span class="fl">60</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ipd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="va">K</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n_k</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="va">mean_age</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="fl">8</span><span class="op">)</span></span>
+<span>  <span class="va">treat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html">rbinom</a></span><span class="op">(</span><span class="va">n_k</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="fl">1</span>, <span class="fl">0.5</span><span class="op">)</span></span>
+<span>  <span class="va">base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">3</span><span class="op">)</span>                       <span class="co"># trial-specific baseline level</span></span>
+<span>  <span class="va">sbp</span> <span class="op">&lt;-</span> <span class="fl">140</span> <span class="op">+</span> <span class="va">base</span> <span class="op">+</span> <span class="fl">0.3</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">60</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="va">treat</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span> <span class="op">+</span> <span class="va">u_k</span><span class="op">[</span><span class="va">k</span><span class="op">]</span> <span class="op">+</span> <span class="va">gamma_w</span> <span class="op">*</span> <span class="op">(</span><span class="va">age</span> <span class="op">-</span> <span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n_k</span><span class="op">[</span><span class="va">k</span><span class="op">]</span>, <span class="fl">0</span>, <span class="fl">12</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>trial <span class="op">=</span> <span class="va">k</span>, age <span class="op">=</span> <span class="va">age</span>, treat <span class="op">=</span> <span class="va">treat</span>, sbp <span class="op">=</span> <span class="va">sbp</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ipd</span><span class="op">$</span><span class="va">trial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span></span>
+<span><span class="va">ipd</span><span class="op">$</span><span class="va">age60</span> <span class="op">&lt;-</span> <span class="va">ipd</span><span class="op">$</span><span class="va">age</span> <span class="op">-</span> <span class="fl">60</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ipd</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   trial   age treat   sbp  age60</span></span>
+<span><span class="co">#&gt; 1     1 48.91     1 112.0 -11.09</span></span>
+<span><span class="co">#&gt; 2     1 44.21     0 141.2 -15.79</span></span>
+<span><span class="co">#&gt; 3     1 44.73     0 150.2 -15.27</span></span>
+<span><span class="co">#&gt; 4     1 42.16     0 113.7 -17.84</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, mean_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="va">ipd</span><span class="op">$</span><span class="va">age</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span>, <span class="va">mean</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;              1     2     3     4     5     6     7     8</span></span>
+<span><span class="co">#&gt; n        180.0 120.0 350.0 500.0 220.0 400.0 150.0 300.0</span></span>
+<span><span class="co">#&gt; mean_age  48.3  53.3  54.7  57.8  60.2  64.6  67.1  70.1</span></span></code></pre></div>
+</div>
+<div id="sec-mvipd-ipd-two-stage" class="section level3" number="12.3.3">
+<h3>
+<span class="header-section-number">12.3.3</span> Two-stage IPD meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-two-stage"><i class="fas fa-link"></i></a>
+</h3>
+<p>In the two-stage approach, each trial is analyzed separately, here by linear regression of blood pressure on treatment adjusted for age, and the treatment effect estimates are then pooled with a standard random-effects model. Adjusting for a prognostic covariate in each trial increases precision for continuous outcomes, one of the benefits of having IPD.</p>
+<div class="sourceCode" id="cb245"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">stage1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">ipd</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age60</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>trial <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">trial</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, mean_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">age</span><span class="op">)</span>,</span>
+<span>             yi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span><span class="op">]</span><span class="op">)</span>, vi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span>, <span class="st">"treat"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">stage1</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     n mean_age      yi    vi</span></span>
+<span><span class="co">#&gt; 1 180    48.34 -12.833 3.504</span></span>
+<span><span class="co">#&gt; 2 120    53.34 -10.459 4.412</span></span>
+<span><span class="co">#&gt; 3 350    54.73  -4.090 1.568</span></span>
+<span><span class="co">#&gt; 4 500    57.79  -6.633 1.201</span></span>
+<span><span class="co">#&gt; 5 220    60.24  -5.872 2.402</span></span>
+<span><span class="co">#&gt; 6 400    64.59  -7.831 1.456</span></span>
+<span><span class="co">#&gt; 7 150    67.07  -7.640 4.339</span></span>
+<span><span class="co">#&gt; 8 300    70.14  -4.206 2.085</span></span>
+<span><span class="va">two_stage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">stage1</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">two_stage</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 8; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 5.6674 (SE = 4.3156)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      2.3806</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   72.31%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  3.61</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 7) = 22.6054, p-val = 0.0020</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     tval  df    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -7.2072  1.0321  -6.9829   7  0.0002  -9.6478  -4.7666  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The pooled treatment effect is <span class="math inline">\(-7.2\)</span> mmHg (95% CI <span class="math inline">\(-9.6\)</span> to <span class="math inline">\(-4.8\)</span>, with the Hartung-Knapp adjustment), with an estimated between-trial standard deviation of 2.4 mmHg. The second stage is an ordinary meta-analysis, so all the tools of Part II (forest plots, prediction intervals, meta-regression, sensitivity analyses) apply directly.</p>
+</div>
+<div id="sec-mvipd-ipd-one-stage" class="section level3" number="12.3.4">
+<h3>
+<span class="header-section-number">12.3.4</span> One-stage IPD meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-one-stage"><i class="fas fa-link"></i></a>
+</h3>
+<p>The one-stage approach fits a single hierarchical model to all participants. For a continuous outcome,</p>
+<p><span class="math display">\[
+y_{ki} = \alpha_k + \lambda_k \,\text{age}_{ki} + (\theta + u_k)\,\text{treat}_{ki} + \varepsilon_{ki}, \qquad u_k \sim N(0, \tau^2), \qquad \varepsilon_{ki} \sim N(0, \sigma^2),
+\]</span></p>
+<p>where participant <span class="math inline">\(i\)</span> is in trial <span class="math inline">\(k\)</span>. The trial-specific intercepts <span class="math inline">\(\alpha_k\)</span> (and here the trial-specific age effects <span class="math inline">\(\lambda_k\)</span>) are <strong>stratified</strong>, that is, estimated as fixed parameters, which preserves the within-trial randomized comparison. Placing a random effect on the intercepts instead would let between-trial differences in baseline blood pressure leak into the treatment effect estimate if the allocation ratio differs between trials <span class="citation">(<a href="sec-references.html#ref-burke2016metaanalysis">Burke et al. 2016</a>; <a href="sec-references.html#ref-riley2021individual"><em>Individual Participant Data Meta‐analysis</em> 2021</a>)</span>. The treatment effect has a random component <span class="math inline">\(u_k\)</span>, as in a random-effects meta-analysis.</p>
+<div class="sourceCode" id="cb246"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">one_stage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">trial</span> <span class="op">+</span> <span class="va">trial</span><span class="op">:</span><span class="va">age60</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">0</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">|</span> <span class="va">trial</span><span class="op">)</span>,</span>
+<span>                  data <span class="op">=</span> <span class="va">ipd</span>, REML <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">one_stage</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="st">"treat"</span>, <span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   Estimate Std. Error    t value </span></span>
+<span><span class="co">#&gt;     -7.217      1.015     -7.113</span></span>
+<span><span class="fu">lme4</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/VarCorr.html">VarCorr</a></span><span class="op">(</span><span class="va">one_stage</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Groups   Name  Std.Dev.</span></span>
+<span><span class="co">#&gt;  trial    treat  2.4    </span></span>
+<span><span class="co">#&gt;  Residual       12.1</span></span></code></pre></div>
+<p>The one-stage estimate is <span class="math inline">\(-7.22\)</span> mmHg (SE 1.01) with <span class="math inline">\(\hat\tau = 2.40\)</span>, almost identical to the two-stage result. This is the typical finding when both approaches use the same specification <span class="citation">(<a href="sec-references.html#ref-burke2016metaanalysis">Burke et al. 2016</a>)</span>: with continuous outcomes, stratified intercepts and REML in both stages, one- and two-stage analyses usually agree closely. They diverge when the specifications differ, for example a one-stage model with random rather than stratified intercepts, a common residual variance <span class="math inline">\(\sigma^2\)</span> across trials where the two-stage approach allows trial-specific variances (as here, strictly speaking), different estimators of <span class="math inline">\(\tau^2\)</span>, or binary outcomes in small trials, where the exact binomial likelihood of the one-stage model is more accurate than the normal approximation used in stage 2. <span class="citation">Burke et al. (<a href="sec-references.html#ref-burke2016metaanalysis">2016</a>)</span> recommend that the analysis report which of these choices was made, since the choices, rather than the number of stages, drive any differences. The <code>nlme</code> package can relax the common residual variance assumption by allowing a separate residual variance per trial.</p>
+<p>For a binary outcome the same logic applies with logistic models. Define blood pressure control as <span class="math inline">\(\text{SBP} &lt; 135\)</span> mmHg:</p>
+<div class="sourceCode" id="cb247"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ipd</span><span class="op">$</span><span class="va">controlled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html">as.integer</a></span><span class="op">(</span><span class="va">ipd</span><span class="op">$</span><span class="va">sbp</span> <span class="op">&lt;</span> <span class="fl">135</span><span class="op">)</span></span>
+<span><span class="va">stage1_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">ipd</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span><span class="op">(</span><span class="va">controlled</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">age60</span>, family <span class="op">=</span> <span class="va">binomial</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span><span class="op">]</span><span class="op">)</span>, vi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span>, <span class="st">"treat"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">two_stage_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">stage1_bin</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="va">one_stage_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/glmer.html">glmer</a></span><span class="op">(</span><span class="va">controlled</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">trial</span> <span class="op">+</span> <span class="va">trial</span><span class="op">:</span><span class="va">age60</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">+</span> <span class="op">(</span><span class="fl">0</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">|</span> <span class="va">trial</span><span class="op">)</span>,</span>
+<span>                       family <span class="op">=</span> <span class="va">binomial</span>, data <span class="op">=</span> <span class="va">ipd</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>two_stage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>logOR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">two_stage_bin</span><span class="op">)</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">two_stage_bin</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>            one_stage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>logOR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">one_stage_bin</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                          se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">one_stage_bin</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span>, <span class="st">"treat"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           logOR    se</span></span>
+<span><span class="co">#&gt; two_stage 0.952 0.176</span></span>
+<span><span class="co">#&gt; one_stage 0.932 0.146</span></span></code></pre></div>
+<p>Treatment increases the odds of blood pressure control about 2.5-fold in both analyses (log odds ratios of 0.95 and 0.93), with a somewhat smaller standard error in the one-stage model. With trials of this size, the two approaches again agree.</p>
+</div>
+<div id="sec-mvipd-ipd-interactions" class="section level3" number="12.3.5">
+<h3>
+<span class="header-section-number">12.3.5</span> Treatment-covariate interactions and ecological bias<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-interactions"><i class="fas fa-link"></i></a>
+</h3>
+<p>The main scientific motivation for IPD is often the question “who benefits most?” Suppose we want to know whether the treatment effect changes with age. Three analyses are possible, and they answer different questions.</p>
+<p>The <strong>aggregate-data meta-regression</strong> regresses the trial-level treatment effects on trial mean age. This uses only <em>across-trial</em> information, eight data points, and is confounded by every other trial characteristic that correlates with mean age.</p>
+<div class="sourceCode" id="cb248"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metareg_age</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="va">mean_age</span> <span class="op">-</span> <span class="fl">60</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">stage1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">metareg_age</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                  estimate    se   zval  pval  ci.lb  ci.ub</span></span>
+<span><span class="co">#&gt; intrcpt            -7.114 0.939 -7.575 0.000 -8.954 -5.273</span></span>
+<span><span class="co">#&gt; I(mean_age - 60)    0.222 0.140  1.590 0.112 -0.052  0.495</span></span></code></pre></div>
+<p>The <strong>within-trial</strong> interaction is obtained by estimating the treatment-by-age interaction in each trial and pooling the eight interaction estimates (a two-stage approach), or equivalently in one stage by centering age at each trial’s mean and including the trial mean age as a separate term <span class="citation">(<a href="sec-references.html#ref-hua2016onestage">Hua et al. 2016</a>; <a href="sec-references.html#ref-riley2020individual">Riley et al. 2020</a>)</span>:</p>
+<p><span class="math display">\[
+y_{ki} = \alpha_k + \lambda_k\,\text{age}_{ki} + \text{treat}_{ki}\bigl[\theta + u_k + \gamma_W(\text{age}_{ki} - \overline{\text{age}}_k) + \gamma_A(\overline{\text{age}}_k - 60)\bigr] + \varepsilon_{ki}.
+\]</span></p>
+<p>Here <span class="math inline">\(\gamma_W\)</span> is the within-trial interaction and <span class="math inline">\(\gamma_A\)</span> the across-trial association. A <strong>naive one-stage model</strong> that includes <span class="math inline">\(\text{treat} \times \text{age}\)</span> without centering estimates a weighted average of <span class="math inline">\(\gamma_W\)</span> and <span class="math inline">\(\gamma_A\)</span>, and it is therefore exposed to ecological bias whenever the two differ.</p>
+<div class="sourceCode" id="cb249"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ipd</span><span class="op">$</span><span class="va">age_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ave.html">ave</a></span><span class="op">(</span><span class="va">ipd</span><span class="op">$</span><span class="va">age</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span></span>
+<span><span class="va">ipd</span><span class="op">$</span><span class="va">age_within</span> <span class="op">&lt;-</span> <span class="va">ipd</span><span class="op">$</span><span class="va">age</span> <span class="op">-</span> <span class="va">ipd</span><span class="op">$</span><span class="va">age_mean</span></span>
+<span><span class="va">ipd</span><span class="op">$</span><span class="va">age_across</span> <span class="op">&lt;-</span> <span class="va">ipd</span><span class="op">$</span><span class="va">age_mean</span> <span class="op">-</span> <span class="fl">60</span></span>
+<span></span>
+<span><span class="va">naive</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">trial</span> <span class="op">+</span> <span class="va">trial</span><span class="op">:</span><span class="va">age60</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">treat</span><span class="op">:</span><span class="va">age60</span> <span class="op">+</span></span>
+<span>                <span class="op">(</span><span class="fl">0</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">|</span> <span class="va">trial</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">ipd</span><span class="op">)</span></span>
+<span><span class="va">separated</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">trial</span> <span class="op">+</span> <span class="va">trial</span><span class="op">:</span><span class="va">age60</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">+</span> <span class="va">treat</span><span class="op">:</span><span class="va">age_within</span> <span class="op">+</span></span>
+<span>                    <span class="va">treat</span><span class="op">:</span><span class="va">age_across</span> <span class="op">+</span> <span class="op">(</span><span class="fl">0</span> <span class="op">+</span> <span class="va">treat</span> <span class="op">|</span> <span class="va">trial</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">ipd</span><span class="op">)</span></span>
+<span><span class="va">stage1_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">ipd</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">*</span> <span class="va">age60</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat:age60"</span><span class="op">]</span><span class="op">)</span>, vi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat:age60"</span>, <span class="st">"treat:age60"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">two_stage_int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">stage1_int</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  aggregate_metaregression <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">metareg_age</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  naive_one_stage          <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">naive</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="st">"age60:treat"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  within_one_stage         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">separated</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="st">"treat:age_within"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  across_one_stage         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">separated</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span><span class="st">"treat:age_across"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  within_two_stage         <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">two_stage_int</span><span class="op">)</span>, <span class="va">two_stage_int</span><span class="op">$</span><span class="va">se</span><span class="op">)</span></span>
+<span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                          estimate    se</span></span>
+<span><span class="co">#&gt; aggregate_metaregression    0.222 0.140</span></span>
+<span><span class="co">#&gt; naive_one_stage            -0.197 0.062</span></span>
+<span><span class="co">#&gt; within_one_stage           -0.242 0.065</span></span>
+<span><span class="co">#&gt; across_one_stage            0.223 0.138</span></span>
+<span><span class="co">#&gt; within_two_stage           -0.245 0.065</span></span></code></pre></div>
+<p>The results show ecological bias in action. The true within-trial interaction is <span class="math inline">\(-0.20\)</span> mmHg per year: older patients benefit more. The within-trial estimates recover this (<span class="math inline">\(-0.24\)</span> in both the one-stage model with separated terms and the two-stage pooling of interactions, SE about 0.065). The aggregate meta-regression, by contrast, estimates a slope of <span class="math inline">\(+0.22\)</span> per year of mean age, with the opposite sign, because trials with older populations differed in other ways that weakened the effect. Anyone who relied on the aggregate analysis would conclude that the treatment works <em>less</em> well in older patients. The naive one-stage interaction (<span class="math inline">\(-0.20\)</span>) happens to land close to the truth here because the within-trial information dominates, but it is a blend of within- and across-trial information and its validity depends on how large and how biased the across-trial component is. Figure <a href="sec-multivariate-ipd.html#fig:mvipd-ipd-ecological">12.2</a> displays the two sources of information.</p>
+<div class="sourceCode" id="cb250"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">seg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">ipd</span>, <span class="va">ipd</span><span class="op">$</span><span class="va">trial</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">sbp</span> <span class="op">~</span> <span class="va">treat</span> <span class="op">*</span> <span class="va">age_within</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span>  <span class="va">q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html">quantile</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">age_within</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.75</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>trial <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">trial</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, x0 <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">age_mean</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">q</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, x1 <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">age_mean</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">+</span> <span class="va">q</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>             y0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat:age_within"</span><span class="op">]</span> <span class="op">*</span> <span class="va">q</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>             y1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat"</span><span class="op">]</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[</span><span class="st">"treat:age_within"</span><span class="op">]</span> <span class="op">*</span> <span class="va">q</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">stage1</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">mean_age</span>, <span class="va">yi</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_abline</span><span class="op">(</span>intercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">metareg_age</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span> <span class="op">-</span> <span class="fl">60</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">metareg_age</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>              slope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">metareg_age</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_segment</span><span class="op">(</span>data <span class="op">=</span> <span class="va">seg</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x0</span>, xend <span class="op">=</span> <span class="va">x1</span>, y <span class="op">=</span> <span class="va">y0</span>, yend <span class="op">=</span> <span class="va">y1</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span><span class="op">)</span>, shape <span class="op">=</span> <span class="fl">21</span>, fill <span class="op">=</span> <span class="st">"white"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_size_continuous</span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">5</span><span class="op">)</span>, guide <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Age (years)"</span>, y <span class="op">=</span> <span class="st">"Treatment effect on SBP (mmHg)"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:mvipd-ipd-ecological"></span>
+<img src="12-multivariate-ipd_files/figure-html/mvipd-ipd-ecological-1.png" alt="Within-trial versus across-trial information about the treatment-by-age interaction in the simulated IPD. Points: each trial's treatment effect at its mean age, plotted against mean age; the dashed line is the aggregate meta-regression. Short solid segments: each trial's own estimated treatment-by-age slope, drawn over the trial's interquartile age range." width="85%"><p class="caption">
+Figure 12.2: Within-trial versus across-trial information about the treatment-by-age interaction in the simulated IPD. Points: each trial’s treatment effect at its mean age, plotted against mean age; the dashed line is the aggregate meta-regression. Short solid segments: each trial’s own estimated treatment-by-age slope, drawn over the trial’s interquartile age range.
+</p>
+</div>
+<p>These recommendations are now standard. <span class="citation">Fisher et al. (<a href="sec-references.html#ref-fisher2017metaanalytical">2017</a>)</span> classify approaches to identifying who benefits as “daft” (pooling the treatment effect separately within each subgroup and comparing the pooled results), “deluded” (amalgamating within- and across-trial information) or “deft” (pooling within-trial interactions only). <span class="citation">Riley et al. (<a href="sec-references.html#ref-riley2020individual">2020</a>)</span> recommend that interactions be estimated directly rather than by comparing subgroup meta-analyses, be based solely on within-study information, keep continuous covariates and outcomes on their continuous scale, and examine nonlinear relationships, for instance by a multivariate meta-analysis of spline coefficients, which connects this section to the dose-response methods above. They also note that the decision to start an IPD project should not hinge on between-study heterogeneity in the overall effect, because interactions can exist when the overall effect is homogeneous.</p>
+</div>
+<div id="sec-mvipd-ipd-ad" class="section level3" number="12.3.6">
+<h3>
+<span class="header-section-number">12.3.6</span> Combining IPD with aggregate data<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-ad"><i class="fas fa-link"></i></a>
+</h3>
+<p>IPD are rarely available for every eligible trial, and restricting the analysis to trials that shared their data invites availability bias. The two-stage framework makes it straightforward to add trials that provide only aggregate data (AD): their published effect estimates and standard errors enter the second stage alongside the IPD-derived estimates <span class="citation">(<a href="sec-references.html#ref-riley2007metaanalysis">Richard D. Riley et al. 2007b</a>; <a href="sec-references.html#ref-riley2021individual"><em>Individual Participant Data Meta‐analysis</em> 2021</a>)</span>. Suppose three further trials, of the same design, report only their treatment effect and standard error.</p>
+<div class="sourceCode" id="cb251"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">11</span><span class="op">)</span></span>
+<span><span class="va">ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>trial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"AD1"</span>, <span class="st">"AD2"</span>, <span class="st">"AD3"</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">160</span>, <span class="fl">400</span><span class="op">)</span>,</span>
+<span>                 mean_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">57</span>, <span class="fl">63</span>, <span class="fl">59</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ad</span><span class="op">$</span><span class="va">vi</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">*</span> <span class="fl">12</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="va">ad</span><span class="op">$</span><span class="va">n</span>                     <span class="co"># approximate variance of a mean difference</span></span>
+<span><span class="va">ad</span><span class="op">$</span><span class="va">yi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">3</span>, <span class="va">theta</span> <span class="op">+</span> <span class="fl">0.45</span> <span class="op">*</span> <span class="op">(</span><span class="va">ad</span><span class="op">$</span><span class="va">mean_age</span> <span class="op">-</span> <span class="fl">60</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">+</span> <span class="va">ad</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">stage1</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trial"</span>, <span class="st">"n"</span>, <span class="st">"mean_age"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span>, source <span class="op">=</span> <span class="st">"IPD"</span><span class="op">)</span>,</span>
+<span>                  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">ad</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"trial"</span>, <span class="st">"n"</span>, <span class="st">"mean_age"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span>, source <span class="op">=</span> <span class="st">"AD"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ipd_ad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">combined</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">ipd_ad_src</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">source</span>, data <span class="op">=</span> <span class="va">combined</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>IPD_only <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">two_stage</span><span class="op">)</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">two_stage</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>            IPD_plus_AD <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">ipd_ad</span><span class="op">)</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">ipd_ad</span><span class="op">$</span><span class="va">se</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             estimate    se</span></span>
+<span><span class="co">#&gt; IPD_only      -7.207 1.032</span></span>
+<span><span class="co">#&gt; IPD_plus_AD   -7.254 0.791</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">ipd_ad_src</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span>, <span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           estimate    se  tval df  pval  ci.lb ci.ub</span></span>
+<span><span class="co">#&gt; sourceIPD    0.305 1.871 0.163  9 0.874 -3.926 4.537</span></span></code></pre></div>
+<p>Adding the three AD trials changes the pooled estimate only slightly and narrows its uncertainty. The coefficient for data source tests whether trials that provided IPD differ systematically from those that did not; here there is no evidence of a difference. For the overall treatment effect this combination is simple. For interactions it is not: the AD trials contribute only across-trial information about age, so they should not be pooled with within-trial interaction estimates, although they can inform the across-trial term in a model that separates the two <span class="citation">(<a href="sec-references.html#ref-riley2007metaanalysis">Richard D. Riley et al. 2007b</a>; <a href="sec-references.html#ref-riley2021individual"><em>Individual Participant Data Meta‐analysis</em> 2021</a>)</span>.</p>
+</div>
+<div id="sec-mvipd-ipd-reporting" class="section level3" number="12.3.7">
+<h3>
+<span class="header-section-number">12.3.7</span> Planning and reporting an IPD meta-analysis<a class="anchor" aria-label="anchor" href="#sec-mvipd-ipd-reporting"><i class="fas fa-link"></i></a>
+</h3>
+<p>An IPD project needs a protocol that specifies, in addition to the usual systematic review elements, the variables requested from each trial and their harmonized definitions, how data will be checked (for example by reproducing published results), how missing covariate values will be handled, the one- or two-stage model and its specification (stratified or random intercepts, estimator of <span class="math inline">\(\tau^2\)</span>, treatment of residual variances), and how trials without IPD will be handled. PRISMA-IPD <span class="citation">(<a href="sec-references.html#ref-stewart2015preferred">Stewart et al. 2015</a>)</span> adds items on data provision, integrity checks and the comparison of trials with and without IPD. The handbook by <span class="citation"><em>Individual Participant Data Meta‐analysis</em> (<a href="sec-references.html#ref-riley2021individual">2021</a>)</span> covers these steps in detail, including power calculations for detecting treatment-covariate interactions and multivariate IPD meta-analysis <span class="citation">(<a href="sec-references.html#ref-riley2014multivariate">Riley et al. 2014</a>)</span>.</p>
+</div>
+</div>
+<div id="sec-mvipd-pitfalls" class="section level2" number="12.4">
+<h2>
+<span class="header-section-number">12.4</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-mvipd-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Ignoring within-study correlations.</strong> Analyzing correlated outcomes, time points or dose categories as if they were independent misstates precision. In dose-response analysis it typically overstates the precision of the trend. When correlations are unknown, assume plausible values and show that conclusions are robust to them.</p>
+<p><strong>Over-parameterized between-study models.</strong> An unstructured <span class="math inline">\(\boldsymbol\Sigma\)</span> for <span class="math inline">\(p\)</span> outcomes has <span class="math inline">\(p(p+1)/2\)</span> parameters. With few studies, between-study correlations are often estimated at <span class="math inline">\(\pm 1\)</span> or with very wide uncertainty <span class="citation">(<a href="sec-references.html#ref-riley2007bivariate">Richard D. Riley et al. 2007a</a>)</span>. Structured alternatives (compound symmetry, AR, diagonal) or a Bayesian prior on <span class="math inline">\(\boldsymbol\Sigma\)</span> (Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>) are more stable.</p>
+<p><strong>Expecting borrowing of strength to fix selective reporting.</strong> Multivariate models help when outcomes are missing at random given the observed outcomes. They are not a cure for strongly selective reporting.</p>
+<p><strong>Unrealistic spline curves.</strong> Spline-based dose-response curves become unstable at sparsely observed doses. Restrict reporting to the supported range and check sensitivity to knot positions.</p>
+<p><strong>Random intercepts in one-stage IPD models.</strong> Unless there is a reason to do otherwise, stratify the trial intercepts (and prognostic covariate effects) so that the treatment effect is estimated from within-trial comparisons only.</p>
+<p><strong>Amalgamating within- and across-trial information.</strong> A single treatment-by-covariate term in a one-stage model, or a meta-regression on trial-level means, can give answers with the wrong sign. Center covariates within trials and report the within-trial interaction.</p>
+<p><strong>Availability bias.</strong> Trials that share IPD may differ from those that do not. Compare them, and include AD from non-providing trials where possible.</p>
+</div>
+<div id="sec-mvipd-takeaways" class="section level2" number="12.5">
+<h2>
+<span class="header-section-number">12.5</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-mvipd-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<p>Multivariate meta-analysis models several correlated effect sizes per study jointly, through a within-study covariance matrix and a between-study covariance matrix. Its main benefits arise when outcomes are missing for some studies, where correlated outcomes allow borrowing of strength, and when inference concerns functions of several outcomes. With complete data and few studies, it need not be more precise than separate analyses. Longitudinal outcomes are a special case for which autoregressive structures are natural. Dose-response meta-analysis treats the log relative risks at several exposure levels as a correlated vector, reconstructs their covariance from the reported counts, and pools linear or spline curves in a multivariate model; reporting should be restricted to the well-supported dose range. IPD meta-analysis permits standardized analyses and, above all, valid estimation of treatment-covariate interactions using within-trial information only. One- and two-stage IPD analyses usually agree when specified consistently; what matters is stratifying trial intercepts, choosing the heterogeneity estimator deliberately and separating within- from across-trial information. Aggregate-data meta-regression on trial-level covariate means can be misleading about individual-level effect modification, even reversing its direction.</p>
+</div>
+<div id="sec-mvipd-reading" class="section level2" number="12.6">
+<h2>
+<span class="header-section-number">12.6</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-mvipd-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2011multivariate">2011</a>)</span> is the standard review of multivariate meta-analysis, with discussion and rejoinder in the same issue; <span class="citation">Riley (<a href="sec-references.html#ref-riley2009multivariate">2009</a>)</span> examines the consequences of ignoring within-study correlation, and <span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2015borrowing">2015</a>)</span> quantifies borrowing of strength. For dose-response meta-analysis, start with <span class="citation">Greenland and Longnecker (<a href="sec-references.html#ref-greenland1992methods">1992</a>)</span> and <span class="citation">Orsini et al. (<a href="sec-references.html#ref-orsini2011metaanalysis">2011</a>)</span>, then <span class="citation">Crippa and Orsini (<a href="sec-references.html#ref-crippa2016multivariate">2016</a>)</span> for the <code>dosresmeta</code> software and <span class="citation">Crippa et al. (<a href="sec-references.html#ref-crippa2018onestage">2018</a>)</span> for the one-stage model. For IPD meta-analysis, <span class="citation">Riley et al. (<a href="sec-references.html#ref-riley2010metaanalysis">2010</a>)</span> is a concise introduction, <span class="citation"><em>Individual Participant Data Meta‐analysis</em> (<a href="sec-references.html#ref-riley2021individual">2021</a>)</span> the comprehensive handbook, <span class="citation">Burke et al. (<a href="sec-references.html#ref-burke2016metaanalysis">2016</a>)</span> the definitive comparison of one- and two-stage approaches, and <span class="citation">Riley et al. (<a href="sec-references.html#ref-riley2020individual">2020</a>)</span> and <span class="citation">Fisher et al. (<a href="sec-references.html#ref-fisher2017metaanalytical">2017</a>)</span> the key references on treatment-covariate interactions. <span class="citation">Debray et al. (<a href="sec-references.html#ref-debray2015get">2015</a>)</span> review IPD methodology more broadly.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></div>
+<div class="next"><a href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-multivariate-ipd"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li>
+<a class="nav-link" href="#sec-mvipd-multivariate"><span class="header-section-number">12.1</span> Multivariate meta-analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-mvipd-mv-model"><span class="header-section-number">12.1.1</span> The model</a></li>
+<li><a class="nav-link" href="#sec-mvipd-why-joint"><span class="header-section-number">12.1.2</span> Why model outcomes jointly?</a></li>
+<li><a class="nav-link" href="#sec-mvipd-berkey"><span class="header-section-number">12.1.3</span> Example: two periodontal outcomes</a></li>
+<li><a class="nav-link" href="#sec-mvipd-bos"><span class="header-section-number">12.1.4</span> Borrowing of strength when outcomes are missing</a></li>
+<li><a class="nav-link" href="#sec-mvipd-unknown-correlations"><span class="header-section-number">12.1.5</span> When within-study correlations are unknown</a></li>
+<li><a class="nav-link" href="#sec-mvipd-longitudinal"><span class="header-section-number">12.1.6</span> Longitudinal outcomes</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-mvipd-dose-response"><span class="header-section-number">12.2</span> Dose-response meta-analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-mvipd-dr-structure"><span class="header-section-number">12.2.1</span> The data structure</a></li>
+<li><a class="nav-link" href="#sec-mvipd-dr-example"><span class="header-section-number">12.2.2</span> Example: alcohol and cardiovascular disease</a></li>
+<li><a class="nav-link" href="#sec-mvipd-dr-spline"><span class="header-section-number">12.2.3</span> Restricted cubic splines</a></li>
+<li><a class="nav-link" href="#sec-mvipd-dr-practical"><span class="header-section-number">12.2.4</span> Practical issues in dose-response synthesis</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-mvipd-ipd"><span class="header-section-number">12.3</span> Individual participant data meta-analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-mvipd-ipd-why"><span class="header-section-number">12.3.1</span> Why collect IPD?</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-data"><span class="header-section-number">12.3.2</span> A simulated IPD example</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-two-stage"><span class="header-section-number">12.3.3</span> Two-stage IPD meta-analysis</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-one-stage"><span class="header-section-number">12.3.4</span> One-stage IPD meta-analysis</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-interactions"><span class="header-section-number">12.3.5</span> Treatment-covariate interactions and ecological bias</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-ad"><span class="header-section-number">12.3.6</span> Combining IPD with aggregate data</a></li>
+<li><a class="nav-link" href="#sec-mvipd-ipd-reporting"><span class="header-section-number">12.3.7</span> Planning and reporting an IPD meta-analysis</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-mvipd-pitfalls"><span class="header-section-number">12.4</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-mvipd-takeaways"><span class="header-section-number">12.5</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-mvipd-reading"><span class="header-section-number">12.6</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/12-multivariate-ipd.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/12-multivariate-ipd.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

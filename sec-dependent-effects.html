@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 6 Dependent Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="The models of Chapter 4 and Chapter 5 assume that each study contributes one effect size and that the sampling errors of different effect sizes are independent. Real literatures rarely cooperate....">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 6 Dependent Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-dependent-effects.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="The models of Chapter 4 and Chapter 5 assume that each study contributes one effect size and that the sampling errors of different effect sizes are independent. Real literatures rarely cooperate....">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 6 Dependent Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="The models of Chapter 4 and Chapter 5 assume that each study contributes one effect size and that the sampling errors of different effect sizes are independent. Real literatures rarely cooperate....">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 6 Dependent Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="active" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-dependent-effects" class="section level1" number="6">
+<h1>
+<span class="header-section-number">6</span> Dependent Effect Sizes<a class="anchor" aria-label="anchor" href="#sec-dependent-effects"><i class="fas fa-link"></i></a>
+</h1>
+<p>The models of Chapter <a href="sec-models.html#sec-models">4</a> and Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a> assume that each study contributes one effect size and that the sampling errors of different effect sizes are independent. Real literatures rarely cooperate. A single trial reports depression at the end of treatment and at six-month follow-up; an experiment compares two doses of a drug with the same placebo group; a survey reports correlations of job satisfaction with three performance measures; a paper reports four studies run by the same lab with the same materials. Treating every effect size as an independent observation inflates the effective sample size, gives too much weight to studies that report many outcomes, and produces standard errors and <span class="math inline">\(p\)</span>-values that are too small. Throwing away all but one effect per study avoids the problem but wastes information and forces arbitrary choices.</p>
+<p>This chapter develops the modern toolkit for dependent effects. We begin with the forms dependence takes and the quick fixes recommended for unit-of-analysis problems. We then fit three-level models that represent hierarchical dependence explicitly, multivariate models that use known or imputed sampling covariances, and the correlated-and-hierarchical-effects (CHE) working model combined with cluster-robust variance estimation (RVE), which is now the recommended default for most applied meta-analyses with dependent effects <span class="citation">(<a href="sec-references.html#ref-pustejovsky2021meta">Pustejovsky and Tipton 2021a</a>)</span>. We close with the original RVE implementation in <code>robumeta</code> and a side-by-side comparison of all approaches on one data set.</p>
+<div id="sec-dependent-types" class="section level2" number="6.1">
+<h2>
+<span class="header-section-number">6.1</span> Types of dependence<a class="anchor" aria-label="anchor" href="#sec-dependent-types"><i class="fas fa-link"></i></a>
+</h2>
+<p>Let <span class="math inline">\(y_{ij}\)</span> denote the <span class="math inline">\(i\)</span>th effect size from study (cluster) <span class="math inline">\(j\)</span>, <span class="math inline">\(j = 1, \dots, J\)</span>, with <span class="math inline">\(k_j\)</span> effects in study <span class="math inline">\(j\)</span> and <span class="math inline">\(k = \sum_j k_j\)</span> in total. It is useful to distinguish two sources of dependence <span class="citation">(<a href="sec-references.html#ref-hedges2010robust">Hedges et al. 2010</a>)</span>.</p>
+<p><em>Correlated effects</em> arise when several estimates share participants, so that their <em>sampling errors</em> are correlated. Typical cases are multiple outcomes measured on the same sample, the same outcome at several time points, and several treatment arms compared with one shared control group. If <span class="math inline">\(y_{ij} = \theta_{ij} + \varepsilon_{ij}\)</span>, then <span class="math inline">\(\mathrm{Cov}(\varepsilon_{ij}, \varepsilon_{i'j}) = \rho_{ii'j} \sqrt{v_{ij} v_{i'j}} \neq 0\)</span>. The correlation <span class="math inline">\(\rho_{ii'j}\)</span> depends on the correlation between the outcome measures (or time points) within persons, which primary studies almost never report.</p>
+<p><em>Hierarchical effects</em> arise when estimates come from <em>different</em> samples that are nested in a higher-level unit: several experiments in one paper, several schools in one district, several sites run by one lab. The sampling errors are independent, but the <em>true effects</em> <span class="math inline">\(\theta_{ij}\)</span> in the same cluster are more alike than true effects in different clusters, because they share investigators, materials, populations, or measurement practices.</p>
+<p>Both forms often occur together. A study can report several outcomes (correlated) for several independent subsamples (hierarchical). The methods below differ mainly in which form of dependence they model explicitly, which they approximate, and how they protect inference against getting the approximation wrong. <span class="citation">López‐López et al. (<a href="sec-references.html#ref-lopezlopez2018dealing">2018</a>)</span> review the strategies used in practice and their trade-offs.</p>
+</div>
+<div id="sec-dependent-unit" class="section level2" number="6.2">
+<h2>
+<span class="header-section-number">6.2</span> Unit-of-analysis problems and quick fixes<a class="anchor" aria-label="anchor" href="#sec-dependent-unit"><i class="fas fa-link"></i></a>
+</h2>
+<p>Before reaching for multilevel models, it is worth knowing the simpler fixes, because they are often adequate when dependence is limited to a few studies, and because systematic-review guidance recommends them for specific designs <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. The underlying problem is always the same: the <em>unit of analysis</em> used in the meta-analysis (the effect size) does not correspond to an independent unit of information.</p>
+<div id="sec-dependent-shared-control" class="section level3" number="6.2.1">
+<h3>
+<span class="header-section-number">6.2.1</span> Multi-arm trials with a shared control group<a class="anchor" aria-label="anchor" href="#sec-dependent-shared-control"><i class="fas fa-link"></i></a>
+</h3>
+<p>Consider a three-arm trial that compares a low dose and a high dose with a common control group. Entering both comparisons as if they were independent counts the control participants twice. For raw mean differences the size of the dependence is known exactly: <span class="math inline">\(\mathrm{MD}_1 = \bar y_{L} - \bar y_C\)</span> and <span class="math inline">\(\mathrm{MD}_2 = \bar y_{H} - \bar y_C\)</span> share the term <span class="math inline">\(\bar y_C\)</span>, so
+<span class="math display">\[
+\mathrm{Cov}(\mathrm{MD}_1, \mathrm{MD}_2) = \mathrm{Var}(\bar y_C) = s_C^2 / n_C .
+\]</span>
+We simulate such a trial to compare the options.</p>
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">arms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">10</span><span class="op">)</span>, low <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">45</span>, <span class="fl">10</span><span class="op">)</span>, high <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">42</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>arm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">arms</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lengths.html">lengths</a></span><span class="op">(</span><span class="va">arms</span><span class="op">)</span>,</span>
+<span>                m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">arms</span>, <span class="va">mean</span><span class="op">)</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">arms</span>, <span class="va">sd</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">s</span></span>
+<span><span class="co">#&gt;             arm  n     m     sd</span></span>
+<span><span class="co">#&gt; control control 40 49.59  9.991</span></span>
+<span><span class="co">#&gt; low         low 40 43.70  9.052</span></span>
+<span><span class="co">#&gt; high       high 40 40.60 11.542</span></span></code></pre></div>
+<p>There are three standard ways to handle the shared control <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>, ch. 23)</span>. The first is to <em>split the shared group</em>: each comparison gets half the control participants (here 20) with the same mean and SD, so the two comparisons no longer double-count anyone, at the cost of some precision. The second, which the Cochrane Handbook recommends when the arms can sensibly be pooled, is to <em>combine the experimental groups</em> into one arm using
+<span class="math display">\[
+n = n_1 + n_2, \qquad \bar y = \frac{n_1 \bar y_1 + n_2 \bar y_2}{n_1 + n_2}, \qquad
+s^2 = \frac{(n_1 - 1)s_1^2 + (n_2 - 1)s_2^2 + \frac{n_1 n_2}{n_1 + n_2}(\bar y_1 - \bar y_2)^2}{n_1 + n_2 - 1},
+\]</span>
+and to compute a single effect against the control. The third is to <em>keep both comparisons and model their covariance</em>.</p>
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">combine_groups</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n1</span>, <span class="va">m1</span>, <span class="va">s1</span>, <span class="va">n2</span>, <span class="va">m2</span>, <span class="va">s2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">n</span> <span class="op">&lt;-</span> <span class="va">n1</span> <span class="op">+</span> <span class="va">n2</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">n1</span> <span class="op">*</span> <span class="va">m1</span> <span class="op">+</span> <span class="va">n2</span> <span class="op">*</span> <span class="va">m2</span><span class="op">)</span> <span class="op">/</span> <span class="va">n</span></span>
+<span>  <span class="va">sd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="op">(</span><span class="va">n1</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">s1</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="va">n2</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">s2</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="va">n1</span> <span class="op">*</span> <span class="va">n2</span> <span class="op">/</span> <span class="va">n</span> <span class="op">*</span> <span class="op">(</span><span class="va">m1</span> <span class="op">-</span> <span class="va">m2</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>n <span class="op">=</span> <span class="va">n</span>, m <span class="op">=</span> <span class="va">m</span>, sd <span class="op">=</span> <span class="va">sd</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">ctl</span> <span class="op">&lt;-</span> <span class="va">s</span><span class="op">[</span><span class="va">s</span><span class="op">$</span><span class="va">arm</span> <span class="op">==</span> <span class="st">"control"</span>, <span class="op">]</span>; <span class="va">low</span> <span class="op">&lt;-</span> <span class="va">s</span><span class="op">[</span><span class="va">s</span><span class="op">$</span><span class="va">arm</span> <span class="op">==</span> <span class="st">"low"</span>, <span class="op">]</span>; <span class="va">high</span> <span class="op">&lt;-</span> <span class="va">s</span><span class="op">[</span><span class="va">s</span><span class="op">$</span><span class="va">arm</span> <span class="op">==</span> <span class="st">"high"</span>, <span class="op">]</span></span>
+<span></span>
+<span><span class="co"># (1) naive: both comparisons, control counted twice</span></span>
+<span><span class="va">naive</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span><span class="st">"MD"</span>, m1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">low</span><span class="op">$</span><span class="va">m</span>, <span class="va">high</span><span class="op">$</span><span class="va">m</span><span class="op">)</span>, sd1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">low</span><span class="op">$</span><span class="va">sd</span>, <span class="va">high</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>, n1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span>,</span>
+<span>                m2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">ctl</span><span class="op">$</span><span class="va">m</span>, <span class="fl">2</span><span class="op">)</span>, sd2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">ctl</span><span class="op">$</span><span class="va">sd</span>, <span class="fl">2</span><span class="op">)</span>, n2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># (2) split the control group</span></span>
+<span><span class="va">split</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span><span class="st">"MD"</span>, m1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">low</span><span class="op">$</span><span class="va">m</span>, <span class="va">high</span><span class="op">$</span><span class="va">m</span><span class="op">)</span>, sd1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">low</span><span class="op">$</span><span class="va">sd</span>, <span class="va">high</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span>, n1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="fl">40</span><span class="op">)</span>,</span>
+<span>                m2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">ctl</span><span class="op">$</span><span class="va">m</span>, <span class="fl">2</span><span class="op">)</span>, sd2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">ctl</span><span class="op">$</span><span class="va">sd</span>, <span class="fl">2</span><span class="op">)</span>, n2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># (3) combine the two active arms</span></span>
+<span><span class="va">cg</span> <span class="op">&lt;-</span> <span class="fu">combine_groups</span><span class="op">(</span><span class="fl">40</span>, <span class="va">low</span><span class="op">$</span><span class="va">m</span>, <span class="va">low</span><span class="op">$</span><span class="va">sd</span>, <span class="fl">40</span>, <span class="va">high</span><span class="op">$</span><span class="va">m</span>, <span class="va">high</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span></span>
+<span><span class="va">comb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span><span class="st">"MD"</span>, m1i <span class="op">=</span> <span class="va">cg</span><span class="op">[</span><span class="st">"m"</span><span class="op">]</span>, sd1i <span class="op">=</span> <span class="va">cg</span><span class="op">[</span><span class="st">"sd"</span><span class="op">]</span>, n1i <span class="op">=</span> <span class="va">cg</span><span class="op">[</span><span class="st">"n"</span><span class="op">]</span>,</span>
+<span>               m2i <span class="op">=</span> <span class="va">ctl</span><span class="op">$</span><span class="va">m</span>, sd2i <span class="op">=</span> <span class="va">ctl</span><span class="op">$</span><span class="va">sd</span>, n2i <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
+<span><span class="co"># (4) keep both, with the exact covariance from the shared control</span></span>
+<span><span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">naive</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span></span>
+<span><span class="va">V</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">V</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">ctl</span><span class="op">$</span><span class="va">sd</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="fl">40</span></span>
+<span><span class="va">fix_rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  naive    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">naive</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta"</span>, <span class="st">"se"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  split    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">split</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta"</span>, <span class="st">"se"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  combined <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">comb</span><span class="op">$</span><span class="va">yi</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">comb</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  gls      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">naive</span><span class="op">$</span><span class="va">yi</span>, <span class="va">V</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"beta"</span>, <span class="st">"se"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">fix_rows</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"estimate"</span>, <span class="st">"se"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">fix_rows</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          estimate    se</span></span>
+<span><span class="co">#&gt; naive      -7.243 1.598</span></span>
+<span><span class="co">#&gt; split      -7.305 1.953</span></span>
+<span><span class="co">#&gt; combined   -7.435 1.963</span></span>
+<span><span class="co">#&gt; gls        -7.065 1.940</span></span></code></pre></div>
+<p>All approaches give a mean difference between -7.4 and -7.1 points (lower scores under treatment), but their standard errors differ. Treating the comparisons as independent gives 1.60, which is too small because the control group’s information is used twice. The generalised least-squares average with the correct covariance has standard error 1.94, close to the combined-arm analysis (1.96); splitting the control group is slightly conservative (1.95). Splitting and combining are easy and transparent; modelling the covariance keeps the dose-specific comparisons, which matters if dose is itself a moderator. For standardised mean differences or log odds ratios the covariance is only approximately known, and <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code> in <code>metafor</code> can compute it for multi-treatment studies via its <code>grp1</code> and <code>grp2</code> arguments.</p>
+</div>
+<div id="sec-dependent-aggregate" class="section level3" number="6.2.2">
+<h3>
+<span class="header-section-number">6.2.2</span> Multiple outcomes in the same sample: aggregation<a class="anchor" aria-label="anchor" href="#sec-dependent-aggregate"><i class="fas fa-link"></i></a>
+</h3>
+<p>When a study reports several outcomes for the same participants and the meta-analytic question concerns the construct rather than individual measures, the effects can be averaged within studies before analysis. If <span class="math inline">\(\mathbf{y}_j\)</span> holds the <span class="math inline">\(k_j\)</span> effects of study <span class="math inline">\(j\)</span> with covariance matrix <span class="math inline">\(\mathbf{V}_j\)</span>, the optimal (GLS) composite and its variance are
+<span class="math display">\[
+\bar y_j = (\mathbf{1}^\top \mathbf{V}_j^{-1}\mathbf{1})^{-1} \mathbf{1}^\top \mathbf{V}_j^{-1} \mathbf{y}_j, \qquad \mathrm{Var}(\bar y_j) = (\mathbf{1}^\top \mathbf{V}_j^{-1}\mathbf{1})^{-1}.
+\]</span>
+Because <span class="math inline">\(\mathbf V_j\)</span> is unknown, a common choice is a constant correlation <span class="math inline">\(\rho\)</span> between sampling errors, <span class="math inline">\([\mathbf V_j]_{ii'} = \rho\sqrt{v_{ij}v_{i'j}}\)</span>. With <span class="math inline">\(\rho = 1\)</span> (and equal sampling variances) the composite has the same variance as a single outcome; with <span class="math inline">\(\rho = 0\)</span> it is treated as if it pooled independent samples, which overstates precision.</p>
+<p>We use the data of <span class="citation">Assink and Wibbelink (<a href="sec-references.html#ref-assink2016fitting">2016</a>)</span> in <code>dat.assink2016</code>: 100 standardised mean differences on the association between recidivism and mental health in delinquent juveniles, from 17 studies, with up to 22 effects per study.</p>
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">da</span> <span class="op">&lt;-</span> <span class="va">dat.assink2016</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  1  2  3  5  6 10 16 22 </span></span>
+<span><span class="co">#&gt;  3  2  2  3  4  1  1  1</span></span>
+<span><span class="va">agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html">aggregate</a></span><span class="op">(</span><span class="va">da</span>, cluster <span class="op">=</span> <span class="va">study</span>, rho <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">agg</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 17</span></span>
+<span><span class="va">res_agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">agg</span><span class="op">)</span></span>
+<span><span class="va">res_agg</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 17; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.0839 (SE = 0.0377)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.2896</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   89.37%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  9.41</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 16) = 90.5385, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.2845  0.0801  3.5500  0.0004  0.1274  0.4415  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>Aggregating to one composite per study with <span class="math inline">\(\rho = 0.6\)</span> gives an average effect of 0.284 (95% CI 0.127 to 0.442) across the 17 studies. Aggregation is simple and robust, but it discards within-study variation: outcome-level moderators can no longer be studied, and heterogeneity among outcomes within studies disappears from the model.</p>
+</div>
+<div id="sec-dependent-rcalc" class="section level3" number="6.2.3">
+<h3>
+<span class="header-section-number">6.2.3</span> Correlated correlation coefficients<a class="anchor" aria-label="anchor" href="#sec-dependent-rcalc"><i class="fas fa-link"></i></a>
+</h3>
+<p>For correlation matrices the sampling covariances can be computed from the reported correlations themselves. <span class="citation">Olkin and Finn (<a href="sec-references.html#ref-olkin1990testing">1990</a>)</span> give the large-sample covariance between two correlations <span class="math inline">\(r_{st}\)</span> and <span class="math inline">\(r_{uv}\)</span> from the same sample, which covers the overlapping case (the two correlations share a variable, as <span class="math inline">\(r_{12}\)</span> and <span class="math inline">\(r_{13}\)</span>) and the non-overlapping case (no shared variable, as <span class="math inline">\(r_{12}\)</span> and <span class="math inline">\(r_{34}\)</span>). <code><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc()</a></code> implements these formulas. The data in <code>dat.craft2003</code> <span class="citation">(<a href="sec-references.html#ref-craft2003relationship">Craft et al. 2003</a>)</span> contain, for each study, the correlations among cognitive anxiety (<code>acog</code>), somatic anxiety (<code>asom</code>), self-confidence (<code>conf</code>), and sport performance (<code>perf</code>).</p>
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">dat.craft2003</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   study  ni sport    ri var1 var2</span></span>
+<span><span class="co">#&gt; 1     1 142     I -0.55 acog perf</span></span>
+<span><span class="co">#&gt; 2     1 142     I -0.48 asom perf</span></span>
+<span><span class="co">#&gt; 3     1 142     I  0.66 conf perf</span></span>
+<span><span class="co">#&gt; 4     1 142     I  0.47 acog asom</span></span>
+<span><span class="co">#&gt; 5     1 142     I -0.38 acog conf</span></span>
+<span><span class="co">#&gt; 6     1 142     I -0.46 asom conf</span></span>
+<span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc</a></span><span class="op">(</span><span class="va">ri</span> <span class="op">~</span> <span class="va">var1</span> <span class="op">+</span> <span class="va">var2</span> <span class="op">|</span> <span class="va">study</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">dat.craft2003</span><span class="op">)</span></span>
+<span><span class="va">V_craft</span> <span class="op">&lt;-</span> <span class="va">tmp</span><span class="op">$</span><span class="va">V</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/blsplit.html">blsplit</a></span><span class="op">(</span><span class="va">V_craft</span>, <span class="va">tmp</span><span class="op">$</span><span class="va">dat</span><span class="op">$</span><span class="va">study</span><span class="op">)</span><span class="op">[[</span><span class="st">"1"</span><span class="op">]</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           acog.perf asom.perf conf.perf acog.asom acog.conf asom.conf </span></span>
+<span><span class="co">#&gt; acog.perf    0.0035    0.0013   -0.0006   -0.0014    0.0025    0.0009 </span></span>
+<span><span class="co">#&gt; asom.perf    0.0013    0.0042   -0.0010   -0.0019    0.0013    0.0025 </span></span>
+<span><span class="co">#&gt; conf.perf   -0.0006   -0.0010    0.0023    0.0006   -0.0015   -0.0011 </span></span>
+<span><span class="co">#&gt; acog.asom   -0.0014   -0.0019    0.0006    0.0043   -0.0018   -0.0012 </span></span>
+<span><span class="co">#&gt; acog.conf    0.0025    0.0013   -0.0015   -0.0018    0.0052    0.0019 </span></span>
+<span><span class="co">#&gt; asom.conf    0.0009    0.0025   -0.0011   -0.0012    0.0019    0.0044</span></span></code></pre></div>
+<p>The block for study 1 is the <span class="math inline">\(6 \times 6\)</span> covariance matrix of its six correlations. The correlation between cognitive anxiety and performance and the correlation between somatic anxiety and performance have a positive sampling covariance (0.0013): both share performance, and the two anxiety scales are themselves correlated. The matrix enters a multivariate model as <code>rma.mv(yi, V_craft, ...)</code>, and it is the input to meta-analytic structural equation modelling (Chapter <a href="sec-masem.html#sec-masem">11</a>). By default the covariances refer to raw correlations; <code>rtoz = TRUE</code> switches to Fisher’s <span class="math inline">\(z\)</span>, and when the sample sizes differ across the correlations in a study the <code>nfun</code> argument sets how a common <span class="math inline">\(n\)</span> is chosen.</p>
+</div>
+</div>
+<div id="sec-dependent-three-level" class="section level2" number="6.3">
+<h2>
+<span class="header-section-number">6.3</span> The three-level model<a class="anchor" aria-label="anchor" href="#sec-dependent-three-level"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-dependent-three-level-model" class="section level3" number="6.3.1">
+<h3>
+<span class="header-section-number">6.3.1</span> Model and interpretation<a class="anchor" aria-label="anchor" href="#sec-dependent-three-level-model"><i class="fas fa-link"></i></a>
+</h3>
+<p>The three-level model represents hierarchical dependence directly <span class="citation">(<a href="sec-references.html#ref-konstantopoulos2011fixed">Konstantopoulos 2011</a>; <a href="sec-references.html#ref-cheung2014modeling">Cheung 2014</a>; <a href="sec-references.html#ref-vandennoortgate2012three">Van den Noortgate et al. 2012</a>)</span>:
+<span class="math display">\[
+y_{ij} = \mu + u_{(3)j} + u_{(2)ij} + \varepsilon_{ij}, \qquad u_{(3)j} \sim N(0, \sigma^2_{(3)}), \quad u_{(2)ij} \sim N(0, \sigma^2_{(2)}), \quad \varepsilon_{ij} \sim N(0, v_{ij}).
+\]</span>
+Level 1 is sampling error, level 2 is variation among effects within clusters, and level 3 is variation between clusters. The total heterogeneity is <span class="math inline">\(\sigma^2_{(2)} + \sigma^2_{(3)}\)</span>, and two effects in the same cluster have covariance <span class="math inline">\(\sigma^2_{(3)}\)</span>, so the intra-cluster correlation of true effects is <span class="math inline">\(\sigma^2_{(3)} / (\sigma^2_{(2)} + \sigma^2_{(3)})\)</span>. The model assumes that sampling errors are independent, which is exactly right for independent samples nested in clusters and an approximation when effects share participants. In <code>metafor</code> it is <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv()</a></code> with <code>random = ~ 1 | cluster/effect</code>.</p>
+</div>
+<div id="sec-dependent-konstantopoulos" class="section level3" number="6.3.2">
+<h3>
+<span class="header-section-number">6.3.2</span> Example: schools within districts<a class="anchor" aria-label="anchor" href="#sec-dependent-konstantopoulos"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Konstantopoulos (<a href="sec-references.html#ref-konstantopoulos2011fixed">2011</a>)</span> analysed 56 standardised mean differences of modified school calendars on achievement, from schools nested in 11 districts (<code>dat.konstantopoulos2011</code>). Schools are independent samples, so this is a purely hierarchical structure.</p>
+<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dk</span> <span class="op">&lt;-</span> <span class="va">dat.konstantopoulos2011</span></span>
+<span><span class="va">m3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">district</span><span class="op">/</span><span class="va">school</span>, data <span class="op">=</span> <span class="va">dk</span><span class="op">)</span></span>
+<span><span class="va">m3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 56; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             estim    sqrt  nlvls  fixed           factor </span></span>
+<span><span class="co">#&gt; sigma^2.1  0.0651  0.2551     11     no         district </span></span>
+<span><span class="co">#&gt; sigma^2.2  0.0327  0.1809     56     no  district/school </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 55) = 578.8640, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub    </span></span>
+<span><span class="co">#&gt;   0.1847  0.0846  2.1845  0.0289  0.0190  0.3504  * </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dk</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>two_level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">m2</span><span class="op">$</span><span class="va">se</span><span class="op">)</span></span>
+<span><span class="co">#&gt; two_level.intrcpt                se </span></span>
+<span><span class="co">#&gt;           0.12793           0.04387</span></span></code></pre></div>
+<p>The three-level estimate of the average effect is 0.185 (SE 0.085), with between-district variance <span class="math inline">\(\hat\sigma^2_{(3)} =\)</span> 0.0651 and within-district variance <span class="math inline">\(\hat\sigma^2_{(2)} =\)</span> 0.0327. A two-level model that ignores the districts gives 0.128 with a standard error of only 0.044. Ignoring the clustering changes the point estimate, because districts with many schools receive too much weight, and underestimates the uncertainty by roughly half, because 56 schools from 11 districts carry much less independent information than 56 unrelated schools.</p>
+</div>
+<div id="sec-dependent-i2" class="section level3" number="6.3.3">
+<h3>
+<span class="header-section-number">6.3.3</span> Distribution of variance across levels<a class="anchor" aria-label="anchor" href="#sec-dependent-i2"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Cheung (<a href="sec-references.html#ref-cheung2014modeling">2014</a>)</span> extended <span class="math inline">\(I^2\)</span> to the three-level model by dividing each variance component by the total variance, using the “typical” sampling variance of <span class="citation">Higgins and Thompson (<a href="sec-references.html#ref-higgins2002quantifying">2002</a>)</span> for level 1:
+<span class="math display">\[
+I^2_{(2)} = \frac{\hat\sigma^2_{(2)}}{\hat\sigma^2_{(2)} + \hat\sigma^2_{(3)} + \tilde v}, \qquad
+I^2_{(3)} = \frac{\hat\sigma^2_{(3)}}{\hat\sigma^2_{(2)} + \hat\sigma^2_{(3)} + \tilde v}, \qquad
+\tilde v = \frac{(k - 1)\sum_i w_i}{(\sum_i w_i)^2 - \sum_i w_i^2}, \quad w_i = 1/v_i .
+\]</span></p>
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">i2_levels</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">w</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">fit</span><span class="op">$</span><span class="va">vi</span></span>
+<span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">k</span></span>
+<span>  <span class="va">vtyp</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">s2</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">sigma2</span></span>
+<span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">s2</span>, <span class="va">vtyp</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">s2</span><span class="op">)</span> <span class="op">+</span> <span class="va">vtyp</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"level"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">s2</span><span class="op">)</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="va">s2</span><span class="op">)</span><span class="op">)</span>, <span class="st">"level1 (sampling)"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">out</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">i2_levels</span><span class="op">(</span><span class="va">m3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            level3            level2 level1 (sampling) </span></span>
+<span><span class="co">#&gt;              63.3              31.9               4.8</span></span></code></pre></div>
+<p>About 63% of the total variance lies between districts, 32% between schools within districts, and only 5% is attributable to sampling error. Decompositions like this help to decide where moderators should be sought: district-level characteristics (funding, calendar policy) are likely to matter more than school-level ones.</p>
+</div>
+<div id="sec-dependent-lrt" class="section level3" number="6.3.4">
+<h3>
+<span class="header-section-number">6.3.4</span> Testing the variance components<a class="anchor" aria-label="anchor" href="#sec-dependent-lrt"><i class="fas fa-link"></i></a>
+</h3>
+<p>Is the third level needed? A likelihood-ratio test compares the full model with a model in which one variance component is fixed at zero, which <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv()</a></code> allows through the <code>sigma2</code> argument:</p>
+<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m3_no3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">district</span><span class="op">/</span><span class="va">school</span>, data <span class="op">=</span> <span class="va">dk</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">m3_no2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">district</span><span class="op">/</span><span class="va">school</span>, data <span class="op">=</span> <span class="va">dk</span>, sigma2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m3</span>, <span class="va">m3_no3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         df     AIC     BIC    AICc   logLik     LRT   pval       QE </span></span>
+<span><span class="co">#&gt; Full     3 21.9174 27.9394 22.3880  -7.9587                578.8640 </span></span>
+<span><span class="co">#&gt; Reduced  2 37.6910 41.7057 37.9218 -16.8455 17.7736 &lt;.0001 578.8640</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m3</span>, <span class="va">m3_no2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         df     AIC     BIC    AICc   logLik     LRT   pval       QE </span></span>
+<span><span class="co">#&gt; Full     3 21.9174 27.9394 22.3880  -7.9587                578.8640 </span></span>
+<span><span class="co">#&gt; Reduced  2 68.4330 72.4476 68.6637 -32.2165 48.5155 &lt;.0001 578.8640</span></span></code></pre></div>
+<p>Removing the district level increases the deviance by 17.77 and removing the school level by 48.52; both components are clearly needed, and the AIC agrees. Because the null value of a variance lies on the boundary of the parameter space, the usual <span class="math inline">\(\chi^2_1\)</span> reference distribution is conservative; the correct asymptotic null distribution is a 50:50 mixture of <span class="math inline">\(\chi^2_0\)</span> and <span class="math inline">\(\chi^2_1\)</span>, so the reported <span class="math inline">\(p\)</span>-value can be halved. In practice, many analysts keep the three-level structure whenever it reflects the design, regardless of the test, because a variance component estimated near zero does little harm.</p>
+</div>
+<div id="sec-dependent-profile" class="section level3" number="6.3.5">
+<h3>
+<span class="header-section-number">6.3.5</span> Profile likelihood<a class="anchor" aria-label="anchor" href="#sec-dependent-profile"><i class="fas fa-link"></i></a>
+</h3>
+<p>Variance components of multilevel models can be poorly identified, especially with few clusters, and REML can converge to a boundary or a flat ridge. Profiling the restricted log-likelihood over each component, re-estimating the others at each point, checks that the estimates are at a proper peak (Figure <a href="sec-dependent-effects.html#fig:dep-profile">6.1</a>).</p>
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/profile.html">profile</a></span><span class="op">(</span><span class="va">m3</span>, progbar <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:dep-profile"></span>
+<img src="06-dependent-effects_files/figure-html/dep-profile-1.png" alt="Profile restricted log-likelihoods for the between-district ($\sigma^2_1$) and within-district ($\sigma^2_2$) variance components of the three-level model. The dotted lines mark the REML estimates; both profiles have a clear peak." width="85%"><p class="caption">
+Figure 6.1: Profile restricted log-likelihoods for the between-district (<span class="math inline">\(\sigma^2_1\)</span>) and within-district (<span class="math inline">\(\sigma^2_2\)</span>) variance components of the three-level model. The dotted lines mark the REML estimates; both profiles have a clear peak.
+</p>
+</div>
+<p>Both profiles have a well-defined peak. A profile that is flat, or that peaks at zero, signals that the data cannot separate the levels, which is common with fewer than about ten clusters; <code>confint(m3)</code> then returns very wide profile-likelihood intervals.</p>
+</div>
+</div>
+<div id="sec-dependent-multivariate" class="section level2" number="6.4">
+<h2>
+<span class="header-section-number">6.4</span> Multivariate models with imputed sampling covariances<a class="anchor" aria-label="anchor" href="#sec-dependent-multivariate"><i class="fas fa-link"></i></a>
+</h2>
+<p>The three-level model assumes independent sampling errors within clusters. In <code>dat.assink2016</code> this is false: within a study, many effects come from the <em>same</em> participants measured on different outcomes. The multivariate approach writes the full model
+<span class="math display">\[
+\mathbf{y}_j = \mathbf{X}_j\boldsymbol\beta + \mathbf{u}_j + \boldsymbol\varepsilon_j, \qquad \boldsymbol\varepsilon_j \sim N(\mathbf 0, \mathbf V_j), \qquad \mathbf{u}_j \sim N(\mathbf 0, \boldsymbol\Sigma_j),
+\]</span>
+with <span class="math inline">\(\mathbf V_j\)</span> the within-study sampling covariance matrix. When <span class="math inline">\(\mathbf{V}_j\)</span> is known (as for correlations via <code><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc()</a></code> or for shared control groups) it should be used. When it is not, it can be <em>imputed</em> from an assumed correlation, typically a constant <span class="math inline">\(\rho\)</span> among effects in the same study. <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code> builds the block-diagonal matrix:</p>
+<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">V6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">study</span>, obs <span class="op">=</span> <span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, rho <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">V6</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        1      2      3      4 </span></span>
+<span><span class="co">#&gt; 1 0.0740 0.0326 0.0358 0.0252 </span></span>
+<span><span class="co">#&gt; 2 0.0326 0.0398 0.0263 0.0185 </span></span>
+<span><span class="co">#&gt; 3 0.0358 0.0263 0.0481 0.0203 </span></span>
+<span><span class="co">#&gt; 4 0.0252 0.0185 0.0203 0.0239</span></span></code></pre></div>
+<p>The imputed covariance for the first two effects of study 1 is <span class="math inline">\(0.6\sqrt{v_{11} v_{21}} =\)</span> 0.0326. The value <span class="math inline">\(\rho = 0.6\)</span> is an assumption, not an estimate, and the analysis below examines how much it matters. <code><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc()</a></code> also supports more refined structures, for example different correlations for different outcome pairs or an autoregressive correlation for repeated time points.</p>
+</div>
+<div id="sec-dependent-che-rve" class="section level2" number="6.5">
+<h2>
+<span class="header-section-number">6.5</span> Correlated and hierarchical effects with robust variance estimation<a class="anchor" aria-label="anchor" href="#sec-dependent-che-rve"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-dependent-che" class="section level3" number="6.5.1">
+<h3>
+<span class="header-section-number">6.5.1</span> The CHE working model<a class="anchor" aria-label="anchor" href="#sec-dependent-che"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Pustejovsky and Tipton (<a href="sec-references.html#ref-pustejovsky2021meta">2021a</a>)</span> proposed a strategy with two parts. First, fit a <em>working model</em> that approximates both forms of dependence: the imputed sampling covariance <span class="math inline">\(\mathbf V_j\)</span> with constant <span class="math inline">\(\rho\)</span> (correlated effects) plus random effects for studies and for effects within studies (hierarchical effects),
+<span class="math display">\[
+y_{ij} = \mathbf{x}_{ij}^\top\boldsymbol\beta + u_{(3)j} + u_{(2)ij} + \varepsilon_{ij}, \qquad \mathrm{Cov}(\varepsilon_{ij}, \varepsilon_{i'j}) = \rho \sqrt{v_{ij} v_{i'j}} .
+\]</span>
+This is the correlated-and-hierarchical-effects (CHE) model. Second, because <span class="math inline">\(\rho\)</span> is guessed and the random-effects structure is a simplification, base inference on <em>cluster-robust</em> standard errors that remain valid even if the working model is wrong. The working model affects efficiency (how the effects are weighted); the robust variance estimator protects validity.</p>
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">che</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">che</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 100; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             estim    sqrt  nlvls  fixed      factor </span></span>
+<span><span class="co">#&gt; sigma^2.1  0.0807  0.2841     17     no       study </span></span>
+<span><span class="co">#&gt; sigma^2.2  0.1545  0.3931    100     no  study/esid </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 99) = 745.4385, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.3678  0.0965  3.8097  0.0001  0.1786  0.5570  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The CHE model gives an average effect of 0.368 (model-based SE 0.097), with <span class="math inline">\(\hat\sigma^2_{(3)} =\)</span> 0.081 between studies and <span class="math inline">\(\hat\sigma^2_{(2)} =\)</span> 0.155 within studies. Compare the three-level model that assumes <span class="math inline">\(\rho = 0\)</span>:</p>
+<div class="sourceCode" id="cb101"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">a3</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">a3</span><span class="op">$</span><span class="va">se</span>, sigma2 <span class="op">=</span> <span class="va">a3</span><span class="op">$</span><span class="va">sigma2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; estimate.intrcpt               se          sigma21          sigma22 </span></span>
+<span><span class="co">#&gt;           0.4268           0.1184           0.1879           0.1120</span></span></code></pre></div>
+<p>With <span class="math inline">\(\rho = 0\)</span> the estimate is 0.427 and more of the variance is attributed to the study level (0.188). When sampling errors within a study are positively correlated but the model assumes independence, the shared sampling error masquerades as between-study variance.</p>
+</div>
+<div id="sec-dependent-rve" class="section level3" number="6.5.2">
+<h3>
+<span class="header-section-number">6.5.2</span> Cluster-robust variance estimation<a class="anchor" aria-label="anchor" href="#sec-dependent-rve"><i class="fas fa-link"></i></a>
+</h3>
+<p>Let <span class="math inline">\(\mathbf{W}_j\)</span> be the working-model weight matrix for study <span class="math inline">\(j\)</span> (the inverse of its marginal covariance under the working model), <span class="math inline">\(\mathbf{M} = (\sum_j \mathbf{X}_j^\top \mathbf{W}_j \mathbf{X}_j)^{-1}\)</span>, and <span class="math inline">\(\mathbf{e}_j = \mathbf{y}_j - \mathbf{X}_j\hat{\boldsymbol\beta}\)</span>. The cluster-robust (sandwich) variance estimator is
+<span class="math display">\[
+\mathbf{V}^{R} = \mathbf{M}\left(\sum_{j=1}^J \mathbf{X}_j^\top \mathbf{W}_j \mathbf{A}_j \mathbf{e}_j \mathbf{e}_j^\top \mathbf{A}_j^\top \mathbf{W}_j \mathbf{X}_j\right)\mathbf{M} .
+\]</span>
+With <span class="math inline">\(\mathbf{A}_j = \mathbf{I}\)</span> this is the original estimator of <span class="citation">Hedges et al. (<a href="sec-references.html#ref-hedges2010robust">2010</a>)</span>, which is consistent as the number of <em>studies</em> grows, whatever the true covariance structure. With few studies it is biased downward and tests based on it are too liberal. The CR2 correction chooses the adjustment matrices <span class="math inline">\(\mathbf{A}_j\)</span> so that <span class="math inline">\(\mathbf{V}^R\)</span> is exactly unbiased when the working model is correct, and pairs it with <span class="math inline">\(t\)</span> tests whose degrees of freedom come from a Satterthwaite approximation <span class="citation">(<a href="sec-references.html#ref-tipton2015small">Tipton 2015</a>; <a href="sec-references.html#ref-pustejovsky2017small">Pustejovsky and Tipton 2017</a>)</span>. For hypotheses involving several coefficients, <span class="citation">Tipton and Pustejovsky (<a href="sec-references.html#ref-tipton2015smallsample">2015</a>)</span> developed an approximate Hotelling’s <span class="math inline">\(T^2\)</span> test (HTZ) that keeps the Type I error rate close to nominal with few studies.</p>
+<p>In <code>metafor</code>, <code><a href="https://wviechtb.github.io/metafor/reference/robust.html">robust()</a></code> with <code>clubSandwich = TRUE</code> applies CR2 with Satterthwaite degrees of freedom; <code><a href="http://jepusto.github.io/clubSandwich/reference/coef_test.html">clubSandwich::coef_test()</a></code> and <code>Wald_test()</code> provide the same and additional tests directly.</p>
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">che_rve</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/robust.html">robust</a></span><span class="op">(</span><span class="va">che</span>, cluster <span class="op">=</span> <span class="va">study</span>, clubSandwich <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">che_rve</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 100; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             estim    sqrt  nlvls  fixed      factor </span></span>
+<span><span class="co">#&gt; sigma^2.1  0.0807  0.2841     17     no       study </span></span>
+<span><span class="co">#&gt; sigma^2.2  0.1545  0.3931    100     no  study/esid </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 99) = 745.4385, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of estimates:   100</span></span>
+<span><span class="co">#&gt; Number of clusters:    17</span></span>
+<span><span class="co">#&gt; Estimates per cluster: 1-22 (mean: 5.88, median: 5)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se¹    tval¹     df¹    pval¹   ci.lb¹   ci.ub¹     </span></span>
+<span><span class="co">#&gt;   0.3678  0.0970   3.7924   14.53   0.0019   0.1605   0.5750   ** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 1) results based on cluster-robust inference (var-cov estimator: CR2,</span></span>
+<span><span class="co">#&gt;    approx t-test and confidence interval, df: Satterthwaite approx)</span></span>
+<span><span class="fu">coef_test</span><span class="op">(</span><span class="va">che</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, cluster <span class="op">=</span> <span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;    Coef. Estimate    SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  intrcpt    0.368 0.097          0   3.79        14.5      0.00186   **</span></span></code></pre></div>
+<p>The robust standard error (0.0970) is almost the same as the model-based one (0.0965), which suggests that the working model is reasonable for this purpose. The Satterthwaite degrees of freedom are 14.5, far fewer than the 99 that the number of effect sizes might suggest: with RVE the effective sample size is driven by the number of studies, and by how evenly the information is spread across them.</p>
+</div>
+<div id="sec-dependent-rho" class="section level3" number="6.5.3">
+<h3>
+<span class="header-section-number">6.5.3</span> Sensitivity to the assumed correlation<a class="anchor" aria-label="anchor" href="#sec-dependent-rho"><i class="fas fa-link"></i></a>
+</h3>
+<p>Because <span class="math inline">\(\rho\)</span> is assumed, a sensitivity analysis across plausible values is part of every CHE analysis:</p>
+<div class="sourceCode" id="cb103"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rho_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.2</span>, <span class="fl">0.4</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="fl">0.9</span><span class="op">)</span></span>
+<span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">rho_grid</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">study</span>, obs <span class="op">=</span> <span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, rho <span class="op">=</span> <span class="va">r</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="va">rob</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/robust.html">robust</a></span><span class="op">(</span><span class="va">fit</span>, cluster <span class="op">=</span> <span class="va">study</span>, clubSandwich <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>rho <span class="op">=</span> <span class="va">r</span>, estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, se_model <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span>, se_robust <span class="op">=</span> <span class="va">rob</span><span class="op">$</span><span class="va">se</span>,</span>
+<span>    sigma2_study <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">sigma2</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, sigma2_esid <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">sigma2</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">sens</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      rho estimate se_model se_robust sigma2_study sigma2_esid</span></span>
+<span><span class="co">#&gt; [1,] 0.0   0.4268   0.1184    0.1186       0.1879      0.1120</span></span>
+<span><span class="co">#&gt; [2,] 0.2   0.4046   0.1094    0.1097       0.1434      0.1236</span></span>
+<span><span class="co">#&gt; [3,] 0.4   0.3847   0.1021    0.1024       0.1080      0.1377</span></span>
+<span><span class="co">#&gt; [4,] 0.6   0.3678   0.0965    0.0970       0.0807      0.1545</span></span>
+<span><span class="co">#&gt; [5,] 0.8   0.3542   0.0928    0.0933       0.0600      0.1746</span></span>
+<span><span class="co">#&gt; [6,] 0.9   0.3487   0.0915    0.0921       0.0515      0.1861</span></span></code></pre></div>
+<p>As <span class="math inline">\(\rho\)</span> increases from 0 to 0.9, the estimate decreases from 0.427 to 0.349, the robust standard error from 0.119 to 0.092, and variance shifts from the study level (0.188 to 0.052) to the effect level. The substantive conclusion, a moderate positive average effect, holds throughout. The estimate moves because <span class="math inline">\(\rho\)</span> changes the weights: with larger <span class="math inline">\(\rho\)</span> the many outcomes from one study are recognised as more redundant, so studies with many effects receive relatively less weight. The robust standard errors remain valid for every <span class="math inline">\(\rho\)</span>; what changes is efficiency and the interpretation of the variance components.</p>
+</div>
+<div id="sec-dependent-rve-metareg" class="section level3" number="6.5.4">
+<h3>
+<span class="header-section-number">6.5.4</span> Meta-regression with robust variance estimation<a class="anchor" aria-label="anchor" href="#sec-dependent-rve-metareg"><i class="fas fa-link"></i></a>
+</h3>
+<p>Moderators are added to the working model as usual, and tested with CR2 <span class="math inline">\(t\)</span> tests for single coefficients and HTZ Wald tests for several. The publication year (approximately mean-centred in these data) is a study-level moderator (except in study 3, which combines two publications of the same data):</p>
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">che_year</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">year</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>,</span>
+<span>                   data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">coef_test</span><span class="op">(</span><span class="va">che_year</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;    Coef. Estimate     SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;  intrcpt   0.3835 0.0953          0   4.02       13.16      0.00141   **</span></span>
+<span><span class="co">#&gt;     year  -0.0388 0.0228          0  -1.70        7.66      0.12916</span></span></code></pre></div>
+<p>The year slope is -0.0388 (robust SE 0.0228, <span class="math inline">\(t\)</span> = -1.70 on 7.7 degrees of freedom, <span class="math inline">\(p\)</span> = .129). Even though there are 100 effect sizes, only 17 studies inform a study-level moderator and the degrees of freedom are fewer still, because the studies differ greatly in their number of effects and in their weights.</p>
+</div>
+<div id="sec-dependent-few-clusters" class="section level3" number="6.5.5">
+<h3>
+<span class="header-section-number">6.5.5</span> Few clusters and small-sample corrections<a class="anchor" aria-label="anchor" href="#sec-dependent-few-clusters"><i class="fas fa-link"></i></a>
+</h3>
+<p>The type of delinquent behaviour (<code>deltype</code>: general, overt, covert) varies <em>within</em> studies, so it is an effect-level moderator. Looking at how it is distributed across studies is instructive:</p>
+<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/tapply.html">tapply</a></span><span class="op">(</span><span class="va">da</span><span class="op">$</span><span class="va">study</span>, <span class="va">da</span><span class="op">$</span><span class="va">deltype</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  covert general   overt </span></span>
+<span><span class="co">#&gt;       1      17       3</span></span>
+<span><span class="va">che_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">deltype</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>,</span>
+<span>                   data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">coef_test</span><span class="op">(</span><span class="va">che_type</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;           Coef. Estimate     SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;         intrcpt   -0.290 0.0823          0  -3.52        4.20      0.02249    *</span></span>
+<span><span class="co">#&gt;  deltypegeneral    0.706 0.0418          0  16.89        2.32      0.00177   **</span></span>
+<span><span class="co">#&gt;    deltypeovert    0.450 0.0665          0   6.77        2.10      0.01860    *</span></span>
+<span><span class="fu">Wald_test</span><span class="op">(</span><span class="va">che_type</span>, constraints <span class="op">=</span> <span class="fu">constrain_zero</span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span>, test <span class="op">=</span> <span class="st">"HTZ"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  test Fstat df_num df_denom p_val sig</span></span>
+<span><span class="co">#&gt;   HTZ  66.6      2    0.878  0.11</span></span></code></pre></div>
+<p>Covert delinquency appears in a single study and overt delinquency in three. The model-based Wald test from the CHE working model, which trusts the assumed covariance structure, finds a clear difference among the three types (<span class="math inline">\(Q_M(2) =\)</span> 13.72, <span class="math inline">\(p\)</span> = .001). The robust analysis tells a different story about the information in the data. The CR2 <span class="math inline">\(t\)</span> statistics for the two contrasts are large (16.9 and 6.8), but their Satterthwaite degrees of freedom are only 2.3 and 2.1, and the HTZ test of both contrasts together has 0.88 denominator degrees of freedom, so that an <span class="math inline">\(F\)</span> statistic of 66.6 yields <span class="math inline">\(p\)</span> = .110. <span class="citation">Tipton (<a href="sec-references.html#ref-tipton2015small">2015</a>)</span> found that RVE tests with degrees of freedom below about 4 do not control the Type I error rate even after the small-sample correction, and recommended not trusting them. None of these tests is trustworthy, and that is the substantive finding: the covert-versus-general contrast is estimated from within a single study, so there is essentially no between-study replication of it, however many effect sizes there are. The tiny degrees of freedom are the diagnostic that reveals this; the model-based test hides it.</p>
+<p>The practical rules that follow are simple. Always use the small-sample-corrected tests (CR2 with Satterthwaite <span class="math inline">\(t\)</span>, HTZ for multiple contrasts) rather than the original large-sample RVE tests. Report the degrees of freedom. When they fall below 4, do not interpret the robust <span class="math inline">\(p\)</span>-value; report the result as inconclusive, rely on the model-based results with explicit caveats about the working model, or refrain from testing the moderator.</p>
+</div>
+<div id="sec-dependent-within-between" class="section level3" number="6.5.6">
+<h3>
+<span class="header-section-number">6.5.6</span> Within-study and between-study moderator effects<a class="anchor" aria-label="anchor" href="#sec-dependent-within-between"><i class="fas fa-link"></i></a>
+</h3>
+<p>An effect-level moderator such as delinquency type carries two kinds of information. <em>Between</em> studies, it compares studies that measured mostly general delinquency with studies that measured other types; <em>within</em> studies, it compares outcomes of different types measured on the same participants. The within-study contrast is protected from study-level confounding, because everything about the study (population, design, country, decade) is held constant; the between-study contrast is not. A single coefficient for the moderator mixes the two, and if they differ the mixture is hard to interpret. The remedy, familiar from multilevel modelling, is to split the moderator into its study mean <span class="math inline">\(\bar x_j\)</span> and the deviation <span class="math inline">\(x_{ij} - \bar x_j\)</span> and enter both:</p>
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">da</span><span class="op">$</span><span class="va">general</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">da</span><span class="op">$</span><span class="va">deltype</span> <span class="op">==</span> <span class="st">"general"</span><span class="op">)</span></span>
+<span><span class="va">da</span><span class="op">$</span><span class="va">general_b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/ave.html">ave</a></span><span class="op">(</span><span class="va">da</span><span class="op">$</span><span class="va">general</span>, <span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span></span>
+<span><span class="va">da</span><span class="op">$</span><span class="va">general_w</span> <span class="op">&lt;-</span> <span class="va">da</span><span class="op">$</span><span class="va">general</span> <span class="op">-</span> <span class="va">da</span><span class="op">$</span><span class="va">general_b</span></span>
+<span><span class="va">che_wb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">general_b</span> <span class="op">+</span> <span class="va">general_w</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>,</span>
+<span>                 data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu">coef_test</span><span class="op">(</span><span class="va">che_wb</span>, vcov <span class="op">=</span> <span class="st">"CR2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Alternative hypothesis: two-sided </span></span>
+<span><span class="co">#&gt;      Coef. Estimate    SE Null value t-stat d.f. (Satt) p-val (Satt) Sig.</span></span>
+<span><span class="co">#&gt;    intrcpt    0.247 0.241          0  1.024        1.27        0.462     </span></span>
+<span><span class="co">#&gt;  general_b    0.134 0.256          0  0.526        1.76        0.658     </span></span>
+<span><span class="co">#&gt;  general_w    0.428 0.146          0  2.933        1.48        0.140</span></span></code></pre></div>
+<p>The within-study contrast between general and other delinquency is 0.428 and the between-study contrast 0.134, but both are estimated with Satterthwaite degrees of freedom below 2 (1.48 and 1.76). Only 3 studies contain any variation in the indicator, so the within-study contrast rests on those studies alone, and the between-study contrast rests on the few studies whose share of general-delinquency outcomes differs from 1. The decomposition does not create information; it shows where the information is, and here it confirms that the data cannot say much about delinquency type.</p>
+</div>
+</div>
+<div id="sec-dependent-robumeta" class="section level2" number="6.6">
+<h2>
+<span class="header-section-number">6.6</span> RVE with <code>robumeta</code><a class="anchor" aria-label="anchor" href="#sec-dependent-robumeta"><i class="fas fa-link"></i></a>
+</h2>
+<p>The <code>robumeta</code> package implements the original RVE approach of <span class="citation">Hedges et al. (<a href="sec-references.html#ref-hedges2010robust">2010</a>)</span> with the small-sample corrections of <span class="citation">Tipton (<a href="sec-references.html#ref-tipton2015small">2015</a>)</span>. Instead of fitting a full working model, it uses simple approximately efficient weights for one of two working models. For <em>correlated effects</em> (<code>modelweights = "CORR"</code>) each effect in study <span class="math inline">\(j\)</span> receives weight <span class="math inline">\(w_{ij} = 1/\{k_j(\bar v_j + \hat\tau^2)\}\)</span>, where <span class="math inline">\(\bar v_j\)</span> is the mean sampling variance in study <span class="math inline">\(j\)</span>, so each study contributes roughly the weight of one effect. For <em>hierarchical effects</em> (<code>modelweights = "HIER"</code>) the weights are <span class="math inline">\(w_{ij} = 1/(v_{ij} + \hat\tau^2 + \hat\omega^2)\)</span>, with <span class="math inline">\(\hat\tau^2\)</span> and <span class="math inline">\(\hat\omega^2\)</span> method-of-moments estimates of between- and within-cluster variance. Inference uses the robust variance estimator in both cases.</p>
+<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rb_corr</span> <span class="op">&lt;-</span> <span class="fu">robu</span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">da</span>, studynum <span class="op">=</span> <span class="va">study</span>, var.eff.size <span class="op">=</span> <span class="va">vi</span>,</span>
+<span>                modelweights <span class="op">=</span> <span class="st">"CORR"</span>, rho <span class="op">=</span> <span class="fl">0.6</span>, small <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">rb_corr</span></span>
+<span><span class="co">#&gt; RVE: Correlated Effects Model with Small-Sample Corrections </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model: yi ~ 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of studies = 17 </span></span>
+<span><span class="co">#&gt; Number of outcomes = 100 (min = 1 , mean = 5.88 , median = 5 , max = 22 )</span></span>
+<span><span class="co">#&gt; Rho = 0.6 </span></span>
+<span><span class="co">#&gt; I.sq = 77.44 </span></span>
+<span><span class="co">#&gt; Tau.sq = 0.08606 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                Estimate StdErr t-value  dfs P(|t|&gt;) 95% CI.L 95% CI.U Sig</span></span>
+<span><span class="co">#&gt; 1 X.Intercept.    0.359 0.0892    4.02 14.4  0.0012    0.168    0.549 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes: &lt; .01 *** &lt; .05 ** &lt; .10 *</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Note: If df &lt; 4, do not trust the results</span></span>
+<span><span class="va">rb_hier</span> <span class="op">&lt;-</span> <span class="fu">robu</span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">da</span>, studynum <span class="op">=</span> <span class="va">study</span>, var.eff.size <span class="op">=</span> <span class="va">vi</span>,</span>
+<span>                modelweights <span class="op">=</span> <span class="st">"HIER"</span>, small <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">rb_hier</span></span>
+<span><span class="co">#&gt; RVE: Hierarchical Effects Model with Small-Sample Corrections </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model: yi ~ 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of clusters = 17 </span></span>
+<span><span class="co">#&gt; Number of outcomes = 100 (min = 1 , mean = 5.88 , median = 5 , max = 22 )</span></span>
+<span><span class="co">#&gt; Omega.sq = 0 </span></span>
+<span><span class="co">#&gt; Tau.sq = 0.1828 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                Estimate StdErr t-value  dfs P(|t|&gt;) 95% CI.L 95% CI.U Sig</span></span>
+<span><span class="co">#&gt; 1 X.Intercept.    0.532  0.218    2.43 8.68  0.0387   0.0348     1.03  **</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes: &lt; .01 *** &lt; .05 ** &lt; .10 *</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Note: If df &lt; 4, do not trust the results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/sensitivity.html">sensitivity</a></span><span class="op">(</span><span class="va">rb_corr</span><span class="op">)</span></span>
+<span><span class="co">#&gt; RVE: Correlated Effects Model with Small-Sample Corrections </span></span>
+<span><span class="co">#&gt; Model: yi ~ 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Sensitivity Analysis </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                           Rho = 0 Rho = 0.2 Rho = 0.4 Rho = 0.6 Rho = 0.8</span></span>
+<span><span class="co">#&gt;  X.Intercept. Coefficient 0.3583  0.3583    0.3584    0.3585    0.3586   </span></span>
+<span><span class="co">#&gt;               Std. Error  0.0890  0.0891    0.0891    0.0892    0.0892   </span></span>
+<span><span class="co">#&gt;  Tau.sq       Estimate    0.0855  0.0857    0.0859    0.0861    0.0863   </span></span>
+<span><span class="co">#&gt;  Rho = 1</span></span>
+<span><span class="co">#&gt;  0.3587 </span></span>
+<span><span class="co">#&gt;  0.0892 </span></span>
+<span><span class="co">#&gt;  0.0865</span></span></code></pre></div>
+<p>The correlated-effects weights give 0.359 (SE 0.089), close to the CHE results. In the CORR model <span class="math inline">\(\rho\)</span> enters only through the estimate of <span class="math inline">\(\tau^2\)</span>, so the <code><a href="https://rdrr.io/pkg/psychmeta/man/sensitivity.html">sensitivity()</a></code> output shows that the estimate barely moves with <span class="math inline">\(\rho\)</span>. The hierarchical-effects weights treat the effects within a study as independent samples, which they are not here; the moment estimator puts the within-study variance <span class="math inline">\(\hat\omega^2\)</span> at zero, the weights then favour the many-effect studies, and the estimate jumps to 0.532 with a standard error more than twice as large.</p>
+<p>The CHE model can be seen as a generalisation of both: it models correlated sampling errors (as the CORR working model assumes) <em>and</em> hierarchical random effects (as the HIER model assumes) at the same time, estimates the variance components by REML, and accommodates effect-level moderators with weights that reflect within-study variation. <span class="citation">Pustejovsky and Tipton (<a href="sec-references.html#ref-pustejovsky2021meta">2021a</a>)</span> argue that the CHE working model describes the dependence structures typical of meta-analytic data better than either original working model, so that it can yield more precise estimates, and recommend CHE with CR2 inference as a default; <code>robumeta</code> remains useful for checking results and when its simpler weighting is preferred.</p>
+</div>
+<div id="sec-dependent-comparison" class="section level2" number="6.7">
+<h2>
+<span class="header-section-number">6.7</span> Comparing the approaches<a class="anchor" aria-label="anchor" href="#sec-dependent-comparison"><i class="fas fa-link"></i></a>
+</h2>
+<p>Table <a href="sec-dependent-effects.html#tab:dep-compare">6.1</a> collects the estimates of the average effect in <code>dat.assink2016</code> from every approach in this chapter.</p>
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">naive2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">da</span><span class="op">)</span></span>
+<span><span class="va">row_rma</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">label</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>approach <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>  se <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">se</span>, ci.lb <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">ci.lb</span>, ci.ub <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span></span>
+<span><span class="va">row_robu</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">label</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">reg_table</span>, <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>approach <span class="op">=</span> <span class="va">label</span>,</span>
+<span>  estimate <span class="op">=</span> <span class="va">b.r</span>, se <span class="op">=</span> <span class="va">SE</span>, ci.lb <span class="op">=</span> <span class="va">CI.L</span>, ci.ub <span class="op">=</span> <span class="va">CI.U</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">comp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu">row_rma</span><span class="op">(</span><span class="va">naive2</span>,  <span class="st">"Two-level RE, dependence ignored"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_rma</span><span class="op">(</span><span class="va">res_agg</span>, <span class="st">"Aggregated within studies (rho = 0.6)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_rma</span><span class="op">(</span><span class="va">a3</span>,      <span class="st">"Three-level, model-based (rho = 0)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_rma</span><span class="op">(</span><span class="va">che</span>,     <span class="st">"CHE, model-based (rho = 0.6)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_rma</span><span class="op">(</span><span class="va">che_rve</span>, <span class="st">"CHE + CR2 robust (rho = 0.6)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_robu</span><span class="op">(</span><span class="va">rb_corr</span>, <span class="st">"robumeta CORR (rho = 0.6)"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">row_robu</span><span class="op">(</span><span class="va">rb_hier</span>, <span class="st">"robumeta HIER"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">comp</span>, digits <span class="op">=</span> <span class="fl">3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>             caption <span class="op">=</span> <span class="st">"Average effect in the Assink and Wibbelink data under different treatments of dependence."</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:dep-compare">Table 6.1: </span>Average effect in the Assink and Wibbelink data under different treatments of dependence.</caption>
+<thead><tr class="header">
+<th align="left">approach</th>
+<th align="right">estimate</th>
+<th align="right">se</th>
+<th align="right">ci.lb</th>
+<th align="right">ci.ub</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Two-level RE, dependence ignored</td>
+<td align="right">0.563</td>
+<td align="right">0.067</td>
+<td align="right">0.431</td>
+<td align="right">0.695</td>
+</tr>
+<tr class="even">
+<td align="left">Aggregated within studies (rho = 0.6)</td>
+<td align="right">0.284</td>
+<td align="right">0.080</td>
+<td align="right">0.127</td>
+<td align="right">0.442</td>
+</tr>
+<tr class="odd">
+<td align="left">Three-level, model-based (rho = 0)</td>
+<td align="right">0.427</td>
+<td align="right">0.118</td>
+<td align="right">0.195</td>
+<td align="right">0.659</td>
+</tr>
+<tr class="even">
+<td align="left">CHE, model-based (rho = 0.6)</td>
+<td align="right">0.368</td>
+<td align="right">0.097</td>
+<td align="right">0.179</td>
+<td align="right">0.557</td>
+</tr>
+<tr class="odd">
+<td align="left">CHE + CR2 robust (rho = 0.6)</td>
+<td align="right">0.368</td>
+<td align="right">0.097</td>
+<td align="right">0.160</td>
+<td align="right">0.575</td>
+</tr>
+<tr class="even">
+<td align="left">robumeta CORR (rho = 0.6)</td>
+<td align="right">0.359</td>
+<td align="right">0.089</td>
+<td align="right">0.168</td>
+<td align="right">0.549</td>
+</tr>
+<tr class="odd">
+<td align="left">robumeta HIER</td>
+<td align="right">0.532</td>
+<td align="right">0.218</td>
+<td align="right">0.035</td>
+<td align="right">1.028</td>
+</tr>
+</tbody>
+</table></div>
+<p>The naive two-level model, which treats 100 effects as independent, gives 0.563 with the smallest standard error in the table (0.067), a precision that the data do not support. The models that account for dependence give estimates between about 0.28 and 0.43 with standard errors around 0.08 to 0.12, except for the hierarchical-effects weights, whose working model fits these data poorly. Differences among the defensible approaches are mostly differences in weighting, and the robust standard errors make the inference honest about the 17 independent studies behind the 100 effects. Figure <a href="sec-dependent-effects.html#fig:dep-compare-plot">6.2</a> shows the same results graphically.</p>
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">comp</span><span class="op">$</span><span class="va">approach</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">comp</span><span class="op">$</span><span class="va">approach</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="va">comp</span><span class="op">$</span><span class="va">approach</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">comp</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">estimate</span>, y <span class="op">=</span> <span class="va">approach</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_errorbar</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>xmin <span class="op">=</span> <span class="va">ci.lb</span>, xmax <span class="op">=</span> <span class="va">ci.ub</span><span class="op">)</span>, width <span class="op">=</span> <span class="fl">0.2</span>, orientation <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Standardised mean difference"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:dep-compare-plot"></span>
+<img src="06-dependent-effects_files/figure-html/dep-compare-plot-1.png" alt="Average effect and 95% confidence interval in the Assink and Wibbelink data under seven treatments of dependence." width="85%"><p class="caption">
+Figure 6.2: Average effect and 95% confidence interval in the Assink and Wibbelink data under seven treatments of dependence.
+</p>
+</div>
+<div id="sec-dependent-choosing" class="section level3" number="6.7.1">
+<h3>
+<span class="header-section-number">6.7.1</span> Choosing an approach<a class="anchor" aria-label="anchor" href="#sec-dependent-choosing"><i class="fas fa-link"></i></a>
+</h3>
+<p>Table <a href="sec-dependent-effects.html#tab:dep-choose">6.2</a> summarises when each approach is a reasonable choice. The rows are not mutually exclusive; in many reviews a CHE model with robust inference is the primary analysis and one or two of the others serve as sensitivity analyses.</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:dep-choose">Table 6.2: </span>Matching the treatment of dependence to the data structure.</caption>
+<colgroup>
+<col width="48%">
+<col width="51%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Situation</th>
+<th align="left">Approach</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Multi-arm trial, shared control, few such trials</td>
+<td align="left">Combine arms or split the control; or model the exact covariance</td>
+</tr>
+<tr class="even">
+<td align="left">Several outcomes per sample, question about the construct only</td>
+<td align="left">Aggregate within studies with an assumed correlation</td>
+</tr>
+<tr class="odd">
+<td align="left">Correlation matrices from primary studies</td>
+<td align="left">Multivariate model with rcalc() covariances (see MASEM chapter)</td>
+</tr>
+<tr class="even">
+<td align="left">Independent samples nested in papers, labs, or sites</td>
+<td align="left">Three-level model; check variance components with LRT and profiles</td>
+</tr>
+<tr class="odd">
+<td align="left">Several outcomes and/or samples per study, covariances unknown</td>
+<td align="left">CHE working model plus CR2 robust inference; sensitivity over rho</td>
+</tr>
+<tr class="even">
+<td align="left">Few studies (roughly fewer than 20) or unbalanced clusters</td>
+<td align="left">CR2 with Satterthwaite or HTZ tests; flag df below 4</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+<div id="sec-dependent-recommendations" class="section level2" number="6.8">
+<h2>
+<span class="header-section-number">6.8</span> Practical recommendations<a class="anchor" aria-label="anchor" href="#sec-dependent-recommendations"><i class="fas fa-link"></i></a>
+</h2>
+<p>Map the dependence structure before choosing a model: which effects share participants, which share a higher-level unit, and how many independent clusters there are. Use the design-specific fixes (splitting or combining arms, exact covariances for shared controls, <code><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc()</a></code> for correlation matrices) when the dependence is known and limited. For the common case of several outcomes and samples per study, fit a CHE working model with an imputed sampling correlation (0.6 to 0.8 is a typical range for related outcome measures, but use any information the literature provides), base inference on CR2 robust standard errors with Satterthwaite degrees of freedom, test multiple contrasts with HTZ, and report a sensitivity analysis over <span class="math inline">\(\rho\)</span> <span class="citation">(<a href="sec-references.html#ref-pustejovsky2021meta">Pustejovsky and Tipton 2021a</a>)</span>. Report variance components and their distribution across levels <span class="citation">(<a href="sec-references.html#ref-cheung2014modeling">Cheung 2014</a>)</span>, because they show where heterogeneity lives. Check the degrees of freedom of every robust test and treat values below 4 as a warning <span class="citation">(<a href="sec-references.html#ref-tipton2015small">Tipton 2015</a>)</span>. When a moderator varies only within a handful of studies, say so explicitly.</p>
+</div>
+<div id="sec-dependent-pitfalls" class="section level2" number="6.9">
+<h2>
+<span class="header-section-number">6.9</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-dependent-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>The most common error is still to ignore dependence and analyse all effect sizes as independent, which overweights studies that report many outcomes and gives standard errors that are too small. A second is to select one effect per study by an undocumented or outcome-dependent rule, which invites selective reporting by the meta-analyst. A third is to fit a three-level model to effects that share participants and to interpret the resulting study-level variance as true heterogeneity, when part of it is shared sampling error. A fourth is to treat the large number of effect sizes as the sample size: with RVE the information comes from the clusters, and with 10 to 20 clusters the large-sample sandwich estimator is too liberal unless the small-sample corrections are used. A fifth is to read robust tests with tiny degrees of freedom as if they were informative. Finally, analysts sometimes impute <span class="math inline">\(\rho\)</span> and present the result as if the correlation had been estimated; the assumed value and its sensitivity analysis belong in the report.</p>
+</div>
+<div id="sec-dependent-takeaways" class="section level2" number="6.10">
+<h2>
+<span class="header-section-number">6.10</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-dependent-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Dependence arises from shared participants (correlated sampling errors) and from shared higher-level units (hierarchically related true effects); most literatures have both.</li>
+<li>Unit-of-analysis problems in multi-arm trials and multi-outcome studies have simple fixes: split or combine groups, aggregate within studies, or compute exact covariances (<code><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc()</a></code> for correlations).</li>
+<li>Three-level models represent hierarchical dependence; variance decomposition, likelihood-ratio tests, and profile likelihoods describe and check the variance components.</li>
+<li>The CHE working model with an imputed sampling correlation, combined with CR2 cluster-robust inference and Satterthwaite or HTZ degrees of freedom, is the recommended default for most dependent-effects meta-analyses; a sensitivity analysis over the assumed correlation is part of it.</li>
+<li>The effective sample size for RVE is the number of independent clusters; robust tests with fewer than about 4 degrees of freedom are not trustworthy.</li>
+</ul>
+</div>
+<div id="sec-dependent-reading" class="section level2" number="6.11">
+<h2>
+<span class="header-section-number">6.11</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-dependent-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">López‐López et al. (<a href="sec-references.html#ref-lopezlopez2018dealing">2018</a>)</span> survey strategies for effect-size multiplicity. <span class="citation">Van den Noortgate et al. (<a href="sec-references.html#ref-vandennoortgate2012three">2012</a>)</span>, <span class="citation">Konstantopoulos (<a href="sec-references.html#ref-konstantopoulos2011fixed">2011</a>)</span>, and <span class="citation">Cheung (<a href="sec-references.html#ref-cheung2014modeling">2014</a>)</span> develop the three-level model, and <span class="citation">Assink and Wibbelink (<a href="sec-references.html#ref-assink2016fitting">2016</a>)</span> give a step-by-step tutorial in <code>metafor</code>. <span class="citation">Hedges et al. (<a href="sec-references.html#ref-hedges2010robust">2010</a>)</span> introduced robust variance estimation for meta-regression; <span class="citation">Tipton (<a href="sec-references.html#ref-tipton2015small">2015</a>)</span> and <span class="citation">Tipton and Pustejovsky (<a href="sec-references.html#ref-tipton2015smallsample">2015</a>)</span> developed the small-sample corrections for single coefficients and multiple-contrast tests, and <span class="citation">Pustejovsky and Tipton (<a href="sec-references.html#ref-pustejovsky2017small">2017</a>)</span> the CR2 methods underlying <code>clubSandwich</code>. <span class="citation">Pustejovsky and Tipton (<a href="sec-references.html#ref-pustejovsky2021meta">2021a</a>)</span> expand the range of working models and make the case for CHE. <span class="citation">Olkin and Finn (<a href="sec-references.html#ref-olkin1990testing">1990</a>)</span> derive the covariances of correlated correlations, and the Cochrane Handbook <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span> covers unit-of-analysis issues in multi-arm and other non-standard trial designs.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></div>
+<div class="next"><a href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dependent-effects"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="nav-link" href="#sec-dependent-types"><span class="header-section-number">6.1</span> Types of dependence</a></li>
+<li>
+<a class="nav-link" href="#sec-dependent-unit"><span class="header-section-number">6.2</span> Unit-of-analysis problems and quick fixes</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dependent-shared-control"><span class="header-section-number">6.2.1</span> Multi-arm trials with a shared control group</a></li>
+<li><a class="nav-link" href="#sec-dependent-aggregate"><span class="header-section-number">6.2.2</span> Multiple outcomes in the same sample: aggregation</a></li>
+<li><a class="nav-link" href="#sec-dependent-rcalc"><span class="header-section-number">6.2.3</span> Correlated correlation coefficients</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-dependent-three-level"><span class="header-section-number">6.3</span> The three-level model</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dependent-three-level-model"><span class="header-section-number">6.3.1</span> Model and interpretation</a></li>
+<li><a class="nav-link" href="#sec-dependent-konstantopoulos"><span class="header-section-number">6.3.2</span> Example: schools within districts</a></li>
+<li><a class="nav-link" href="#sec-dependent-i2"><span class="header-section-number">6.3.3</span> Distribution of variance across levels</a></li>
+<li><a class="nav-link" href="#sec-dependent-lrt"><span class="header-section-number">6.3.4</span> Testing the variance components</a></li>
+<li><a class="nav-link" href="#sec-dependent-profile"><span class="header-section-number">6.3.5</span> Profile likelihood</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-dependent-multivariate"><span class="header-section-number">6.4</span> Multivariate models with imputed sampling covariances</a></li>
+<li>
+<a class="nav-link" href="#sec-dependent-che-rve"><span class="header-section-number">6.5</span> Correlated and hierarchical effects with robust variance estimation</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dependent-che"><span class="header-section-number">6.5.1</span> The CHE working model</a></li>
+<li><a class="nav-link" href="#sec-dependent-rve"><span class="header-section-number">6.5.2</span> Cluster-robust variance estimation</a></li>
+<li><a class="nav-link" href="#sec-dependent-rho"><span class="header-section-number">6.5.3</span> Sensitivity to the assumed correlation</a></li>
+<li><a class="nav-link" href="#sec-dependent-rve-metareg"><span class="header-section-number">6.5.4</span> Meta-regression with robust variance estimation</a></li>
+<li><a class="nav-link" href="#sec-dependent-few-clusters"><span class="header-section-number">6.5.5</span> Few clusters and small-sample corrections</a></li>
+<li><a class="nav-link" href="#sec-dependent-within-between"><span class="header-section-number">6.5.6</span> Within-study and between-study moderator effects</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-dependent-robumeta"><span class="header-section-number">6.6</span> RVE with robumeta</a></li>
+<li>
+<a class="nav-link" href="#sec-dependent-comparison"><span class="header-section-number">6.7</span> Comparing the approaches</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec-dependent-choosing"><span class="header-section-number">6.7.1</span> Choosing an approach</a></li></ul>
+</li>
+<li><a class="nav-link" href="#sec-dependent-recommendations"><span class="header-section-number">6.8</span> Practical recommendations</a></li>
+<li><a class="nav-link" href="#sec-dependent-pitfalls"><span class="header-section-number">6.9</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-dependent-takeaways"><span class="header-section-number">6.10</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-dependent-reading"><span class="header-section-number">6.11</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/06-dependent-effects.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/06-dependent-effects.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

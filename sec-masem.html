@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 11 Meta-Analytic Structural Equation Modeling | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="Most meta-analyses in this book summarize one effect at a time: a standardized mean difference, a log odds ratio, a single correlation. Theories in psychology, management, marketing and education...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 11 Meta-Analytic Structural Equation Modeling | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-masem.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="Most meta-analyses in this book summarize one effect at a time: a standardized mean difference, a log odds ratio, a single correlation. Theories in psychology, management, marketing and education...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 11 Meta-Analytic Structural Equation Modeling | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="Most meta-analyses in this book summarize one effect at a time: a standardized mean difference, a log odds ratio, a single correlation. Theories in psychology, management, marketing and education...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 11 Meta-Analytic Structural Equation Modeling | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="active" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-masem" class="section level1" number="11">
+<h1>
+<span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling<a class="anchor" aria-label="anchor" href="#sec-masem"><i class="fas fa-link"></i></a>
+</h1>
+<p>Most meta-analyses in this book summarize one effect at a time: a standardized mean difference, a log odds ratio, a single correlation. Theories in psychology, management, marketing and education are rarely that simple. The technology acceptance model says that perceived ease of use shapes perceived usefulness, both shape attitudes, and attitudes and usefulness drive intentions to use a technology. The theory of planned behavior, the job demands-resources model, and most models of consumer satisfaction and loyalty are networks of paths among several constructs, often with mediators and latent variables. Testing such a theory against a body of primary studies requires pooling many correlations at once and then fitting a structural model to the pooled matrix. That combination is meta-analytic structural equation modeling (MASEM).</p>
+<p>This chapter develops MASEM from its statistical foundations. We begin with why the combination is attractive and where it is fragile, then formalize the correlation-structure problem and compare the three classical approaches: univariate pooling of each correlation, the generalized least squares (GLS) approach of <span class="citation">Becker (<a href="sec-references.html#ref-becker1992">1992</a>)</span>, and the two-stage structural equation modeling (TSSEM) approach of <span class="citation">Cheung and Chan (<a href="sec-references.html#ref-cheung2005meta">2005</a>)</span>. A worked example on 50 samples of teachers’ technology acceptance carries us through stage 1 (fixed- and random-effects pooling of correlation matrices), stage 2 (path models specified in <code>lavaan</code> syntax), likelihood-based confidence intervals, indirect effects and model comparison. We then fit a confirmatory factor model to Digman’s Big Five data, treat missing correlations, and move to one-stage MASEM <span class="citation">(<a href="sec-references.html#ref-jak2020meta">Jak and Cheung 2020</a>)</span>, which lets moderators act directly on structural parameters. A short section shows how the same software fits univariate, multivariate and three-level meta-analyses as structural equation models. We close with reporting guidance and common pitfalls.</p>
+<p>All analyses use the <code>metaSEM</code> package <span class="citation">(<a href="sec-references.html#ref-cheung2015metasem">M. W.-L. Cheung 2015</a>)</span>, which is built on <code>OpenMx</code> <span class="citation">(<a href="sec-references.html#ref-neale2016openmx">Neale et al. 2016</a>)</span>, together with <code>metafor</code> <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span>, <code>lavaan</code> <span class="citation">(<a href="sec-references.html#ref-rosseel2012lavaan">Rosseel 2012</a>)</span> and <code>semPlot</code> <span class="citation">(<a href="sec-references.html#ref-epskamp2015semplot">Epskamp 2015</a>)</span>. Book-length treatments are <span class="citation">M. W. ‐L. Cheung (<a href="sec-references.html#ref-cheung2015metaanalysis">2015</a>)</span> and <span class="citation">Jak (<a href="sec-references.html#ref-jak2015metaanalytic">2015</a>)</span>.</p>
+<div class="sourceCode" id="cb206"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikewlcheung/metasem">metaSEM</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://lavaan.ugent.be">lavaan</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/SachaEpskamp/semPlot">semPlot</a></span><span class="op">)</span></span></code></pre></div>
+<div id="sec-masem-why" class="section level2" number="11.1">
+<h2>
+<span class="header-section-number">11.1</span> Why combine meta-analysis and SEM?<a class="anchor" aria-label="anchor" href="#sec-masem-why"><i class="fas fa-link"></i></a>
+</h2>
+<p>A structural equation model (SEM) is a set of regression equations among observed and latent variables. Under multivariate normality, all the information needed to fit an SEM to standardized variables is contained in the correlation matrix and the sample size, so a theory that can be written as an SEM can in principle be tested on a meta-analytic correlation matrix. The literature uses many names for this idea, including meta-analytic path analysis, model-based meta-analysis, SEM of a meta-analytic correlation matrix, and meta-analysis of factor analysis. We follow <span class="citation">Cheung and Chan (<a href="sec-references.html#ref-cheung2005meta">2005</a>)</span> and <span class="citation">M. W. ‐L. Cheung (<a href="sec-references.html#ref-cheung2015metaanalysis">2015</a>)</span> in calling the whole family MASEM.</p>
+<p><span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span>, writing for strategic management, emphasize two payoffs. MASEM can test intermediate mechanisms (mediation) and pit competing theoretical models against each other, which a list of bivariate meta-analytic correlations cannot do; and because the pooled matrix draws on many samples, settings and measures, the fitted model has greater external validity than any single study. Two further advantages are statistical. MASEM can combine studies that each observed only part of the model: one study may report the correlation between ease of use and attitudes, another between attitudes and intentions, and the pooled matrix can still support the full path model. And because the pooled matrix is estimated with known sampling uncertainty, the precision of each path coefficient can be quantified honestly, which is not true of every MASEM procedure (Section <a href="sec-masem.html#sec-masem-univariate">11.3.1</a>).</p>
+<p>The limitations are equally real. A meta-analytic correlation matrix is a summary of observational associations; turning it into causal paths requires the same strong assumptions as any SEM on cross-sectional data, namely correct causal ordering, no omitted common causes and no reverse causation <span class="citation">(<a href="sec-references.html#ref-steinmetz2022meta">Steinmetz and Block 2022</a>)</span>. Effect size heterogeneity is a second problem. If studies differ in their true correlation matrices, the average matrix may not correspond to any population that actually exists, and a path model fitted to it describes an average of structures rather than a structure <span class="citation">(<a href="sec-references.html#ref-yu2016problem">Yu et al. 2016</a>; <a href="sec-references.html#ref-cheung2018issues">Cheung 2018</a>)</span>. Third, constructs are often operationalized differently across studies (a “firm performance” correlation may mix return on assets, sales growth and Tobin’s q), and pooling them assumes they measure the same thing. Fourth, sparse cells in the correlation matrix, where few studies report a particular pair of variables, make the pooled matrix unstable and can produce a matrix that is not positive definite. <span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span> recommend that MASEM be reserved for questions with genuine competing hypotheses and enough primary studies to estimate every cell of the matrix with reasonable precision, and that the number of variables be kept modest.</p>
+</div>
+<div id="sec-masem-notation" class="section level2" number="11.2">
+<h2>
+<span class="header-section-number">11.2</span> Notation and the correlation-structure problem<a class="anchor" aria-label="anchor" href="#sec-masem-notation"><i class="fas fa-link"></i></a>
+</h2>
+<p>Suppose study <span class="math inline">\(i = 1, \dots, k\)</span> measures <span class="math inline">\(p\)</span> variables on <span class="math inline">\(n_i\)</span> participants and reports a <span class="math inline">\(p \times p\)</span> correlation matrix <span class="math inline">\(\mathbf{R}_i\)</span>. Stack the <span class="math inline">\(p^* = p(p-1)/2\)</span> non-redundant off-diagonal elements in a vector <span class="math inline">\(\mathbf{r}_i = \operatorname{vechs}(\mathbf{R}_i)\)</span>. Some elements may be missing because study <span class="math inline">\(i\)</span> did not measure every variable. The large-sample sampling covariance matrix of <span class="math inline">\(\mathbf{r}_i\)</span>, denoted <span class="math inline">\(\mathbf{V}_i\)</span>, has elements given by the classical formulas for the covariance of two correlation coefficients <span class="citation">(<a href="sec-references.html#ref-olkin1990testing">Olkin and Finn 1990</a>)</span>; in practice these are evaluated at a pooled estimate of the correlations rather than at the study’s own noisy values, which reduces the correlation between effect sizes and their weights <span class="citation">(<a href="sec-references.html#ref-cheung2015metaanalysis">M. W. ‐L. Cheung 2015</a>)</span>.</p>
+<p>The target of MASEM is a structural model that implies a population correlation matrix <span class="math inline">\(\mathbf{P}(\boldsymbol{\theta})\)</span> as a function of parameters <span class="math inline">\(\boldsymbol{\theta}\)</span> (path coefficients, factor loadings, factor correlations). <code>metaSEM</code> uses the reticular action model (RAM) representation. With <span class="math inline">\(\mathbf{A}\)</span> the matrix of asymmetric paths (regression coefficients and loadings), <span class="math inline">\(\mathbf{S}\)</span> the matrix of symmetric paths (variances and covariances), and <span class="math inline">\(\mathbf{F}\)</span> a selection matrix that picks the observed variables out of the full set of observed and latent variables,</p>
+<p><span class="math display">\[
+\mathbf{P}(\boldsymbol{\theta}) = \mathbf{F}(\mathbf{I} - \mathbf{A})^{-1}\mathbf{S}(\mathbf{I} - \mathbf{A})^{-\top}\mathbf{F}^{\top},
+\]</span></p>
+<p>subject to the constraint that the diagonal of <span class="math inline">\(\mathbf{P}(\boldsymbol{\theta})\)</span> equals one. In a correlation structure analysis the residual variances in <span class="math inline">\(\mathbf{S}\)</span> are not free parameters; they are determined by the unit-diagonal constraint. The question every MASEM procedure must answer is how to get from the collection <span class="math inline">\(\{\mathbf{r}_i, \mathbf{V}_i\}\)</span> to estimates of <span class="math inline">\(\boldsymbol{\theta}\)</span> with correct standard errors and a valid test of fit.</p>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:masem-workflow"></span>
+<img src="11-masem_files/figure-html/masem-workflow-1.png" alt="The two-stage logic of MASEM. Stage 1 pools the study-level correlation matrices into a vector of average correlations and its asymptotic covariance matrix; stage 2 fits a structural model to the pooled matrix by weighted least squares. One-stage MASEM fits the structural model directly to the study-level correlations." width="85%"><p class="caption">
+Figure 11.1: The two-stage logic of MASEM. Stage 1 pools the study-level correlation matrices into a vector of average correlations and its asymptotic covariance matrix; stage 2 fits a structural model to the pooled matrix by weighted least squares. One-stage MASEM fits the structural model directly to the study-level correlations.
+</p>
+</div>
+</div>
+<div id="sec-masem-approaches" class="section level2" number="11.3">
+<h2>
+<span class="header-section-number">11.3</span> Approaches to MASEM<a class="anchor" aria-label="anchor" href="#sec-masem-approaches"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-masem-univariate" class="section level3" number="11.3.1">
+<h3>
+<span class="header-section-number">11.3.1</span> Univariate pooling<a class="anchor" aria-label="anchor" href="#sec-masem-univariate"><i class="fas fa-link"></i></a>
+</h3>
+<p>The oldest approach, associated with psychometric meta-analysis in the Hunter-Schmidt tradition <span class="citation">(<a href="sec-references.html#ref-viswesvaran1995theory">Viswesvaran and Ones 1995</a>; <a href="sec-references.html#ref-schmidt2015a">Schmidt and Hunter 2015</a>)</span>, pools each correlation separately. For the pair <span class="math inline">\((j, l)\)</span>, the sample-size-weighted mean is</p>
+<p><span class="math display">\[
+\bar r_{jl} = \frac{\sum_{i \in \mathcal{S}_{jl}} n_i r_{ijl}}{\sum_{i \in \mathcal{S}_{jl}} n_i},
+\]</span></p>
+<p>where <span class="math inline">\(\mathcal{S}_{jl}\)</span> is the set of studies that report that pair, possibly after corrections for measurement error and range restriction. The pooled correlations are assembled into a matrix <span class="math inline">\(\bar{\mathbf{R}}\)</span>, which is then analyzed in standard SEM software as if it were the covariance matrix of a single sample with some chosen sample size, often the harmonic mean of the cell-wise total sample sizes <span class="citation">(<a href="sec-references.html#ref-bergh2016using">Bergh et al. 2016</a>; <a href="sec-references.html#ref-landis2013successfully">Landis 2013</a>)</span>.</p>
+<p>The approach is simple and transparent, but it has three well-known defects <span class="citation">(<a href="sec-references.html#ref-cheung2005meta">Cheung and Chan 2005</a>; <a href="sec-references.html#ref-cheung2015metaanalysis">M. W. ‐L. Cheung 2015</a>)</span>. Treating a correlation matrix as a covariance matrix gives incorrect standard errors and test statistics for many models <span class="citation">(<a href="sec-references.html#ref-cudeck1989">Cudeck 1989</a>)</span>. Using one sample size for all cells ignores the fact that different correlations rest on different amounts of data, so some standard errors are too small and others too large. Finally, pooling each element separately ignores the dependence among correlations computed in the same sample, and with pairwise deletion the assembled matrix need not be positive definite. When the correlations are heterogeneous, a single <span class="math inline">\(N\)</span> also ignores between-study variance entirely, which makes the standard errors far too small.</p>
+</div>
+<div id="sec-masem-gls" class="section level3" number="11.3.2">
+<h3>
+<span class="header-section-number">11.3.2</span> The GLS approach<a class="anchor" aria-label="anchor" href="#sec-masem-gls"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Becker (<a href="sec-references.html#ref-becker1992">1992</a>)</span> proposed pooling the vector of correlations by multivariate GLS. Stack all study vectors into <span class="math inline">\(\mathbf{r} = (\mathbf{r}_1^\top, \dots, \mathbf{r}_k^\top)^\top\)</span>, let <span class="math inline">\(\mathbf{X}\)</span> be a matrix of zeros and ones indicating which population correlation each element estimates, and let <span class="math inline">\(\mathbf{V} = \operatorname{diag}(\mathbf{V}_1, \dots, \mathbf{V}_k)\)</span> be block diagonal. The fixed-effects GLS estimator and its covariance are</p>
+<p><span class="math display">\[
+\hat{\boldsymbol{\rho}} = (\mathbf{X}^\top \mathbf{V}^{-1} \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{V}^{-1} \mathbf{r}, \qquad
+\operatorname{Var}(\hat{\boldsymbol{\rho}}) = (\mathbf{X}^\top \mathbf{V}^{-1} \mathbf{X})^{-1}.
+\]</span></p>
+<p>A random-effects version replaces <span class="math inline">\(\mathbf{V}_i\)</span> by <span class="math inline">\(\mathbf{V}_i + \mathbf{T}^2\)</span>, where <span class="math inline">\(\mathbf{T}^2\)</span> is the between-study covariance matrix of the true correlations. This is exactly the multivariate meta-analysis of Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a> applied to correlations. In the second step, standardized regression coefficients are computed by matrix algebra, <span class="math inline">\(\hat{\boldsymbol{\beta}} = \hat{\mathbf{R}}_{xx}^{-1}\hat{\mathbf{r}}_{xy}\)</span>, with standard errors from the multivariate delta method <span class="citation">(<a href="sec-references.html#ref-becker2007synthesis">Becker and Wu 2007</a>)</span>. The GLS approach handles missing correlations and dependence correctly, but the second step works most naturally for recursive path models of observed variables. It does not directly provide a test of model fit for over-identified models or handle latent variables.</p>
+</div>
+<div id="sec-masem-tssem" class="section level3" number="11.3.3">
+<h3>
+<span class="header-section-number">11.3.3</span> Two-stage structural equation modeling<a class="anchor" aria-label="anchor" href="#sec-masem-tssem"><i class="fas fa-link"></i></a>
+</h3>
+<p>TSSEM <span class="citation">(<a href="sec-references.html#ref-cheung2005meta">Cheung and Chan 2005</a>; <a href="sec-references.html#ref-cheung2009">Cheung and Chan 2009</a>)</span> keeps the attractive first step of the GLS approach but replaces matrix algebra in the second step by a proper estimation of the structural model.</p>
+<p>In <strong>stage 1</strong>, the correlation matrices are pooled. In the fixed-effects version, the <span class="math inline">\(k\)</span> studies are treated as groups in a multiple-group SEM in which every group shares the same population correlation matrix <span class="math inline">\(\mathbf{P}\)</span>, and missing variables are handled by full-information maximum likelihood (FIML) within the multiple-group model. The likelihood-ratio test of this equality model is a test of homogeneity of correlation matrices. In the random-effects version <span class="citation">(<a href="sec-references.html#ref-cheung2013">Cheung 2013</a>; <a href="sec-references.html#ref-cheung2016">Cheung and Cheung 2016</a>)</span>, the study vectors follow</p>
+<p><span class="math display">\[
+\mathbf{r}_i = \boldsymbol{\rho} + \mathbf{u}_i + \mathbf{e}_i, \qquad \mathbf{u}_i \sim N(\mathbf{0}, \mathbf{T}^2), \qquad \mathbf{e}_i \sim N(\mathbf{0}, \mathbf{V}_i),
+\]</span></p>
+<p>which is a multivariate random-effects meta-analysis fitted by (restricted) maximum likelihood. With <span class="math inline">\(p^*\)</span> correlations, an unstructured <span class="math inline">\(\mathbf{T}^2\)</span> has <span class="math inline">\(p^*(p^*+1)/2\)</span> parameters, which is often too many; <code>metaSEM</code> therefore offers a diagonal structure (<code>RE.type = "Diag"</code>), in which each correlation has its own heterogeneity variance and the random effects are uncorrelated, as well as <code>"Symm"</code> (unstructured) and <code>"Zero"</code> (fixed effects). Stage 1 returns the pooled correlation vector <span class="math inline">\(\hat{\boldsymbol{\rho}}\)</span> and its asymptotic covariance matrix <span class="math inline">\(\hat{\mathbf{V}}_{\rho}\)</span>.</p>
+<p>In <strong>stage 2</strong>, the structural model is fitted to <span class="math inline">\(\hat{\boldsymbol{\rho}}\)</span> by weighted least squares (WLS), using the inverse of <span class="math inline">\(\hat{\mathbf{V}}_{\rho}\)</span> as the weight matrix:</p>
+<p><span class="math display">\[
+F_{\text{WLS}}(\boldsymbol{\theta}) = \bigl(\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta})\bigr)^\top \hat{\mathbf{V}}_{\rho}^{-1} \bigl(\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta})\bigr).
+\]</span></p>
+<p>Because each pooled correlation is weighted by its actual precision, no single “sample size” has to be chosen, standard errors reflect the amount of data and (under random effects) the heterogeneity behind each correlation, and the minimum of <span class="math inline">\(F_{\text{WLS}}\)</span> is asymptotically chi-square distributed with degrees of freedom equal to <span class="math inline">\(p^*\)</span> minus the number of free parameters. This provides a proper test of the structural model. <span class="citation">Oort and Jak (<a href="sec-references.html#ref-oort2016maximum">2016</a>)</span> discuss maximum likelihood alternatives with similar properties.</p>
+</div>
+<div id="sec-masem-other-approaches" class="section level3" number="11.3.4">
+<h3>
+<span class="header-section-number">11.3.4</span> Parameter-based and one-stage MASEM<a class="anchor" aria-label="anchor" href="#sec-masem-other-approaches"><i class="fas fa-link"></i></a>
+</h3>
+<p>Two further families deserve mention. In parameter-based MASEM, the structural model is fitted within each study and the resulting parameter estimates (for example, standardized regression slopes) are meta-analyzed <span class="citation">(<a href="sec-references.html#ref-becker2007synthesis">Becker and Wu 2007</a>; <a href="sec-references.html#ref-gnambs2016parameter">Gnambs and Staufenbiel 2016</a>)</span>. This requires that each study observe the full model, and slopes from differently specified models are not comparable, a problem we revisit for regression coefficients in Chapter <a href="sec-causal-estimates.html#sec-causal-estimates">14</a>. Bayesian variants relax some of these requirements <span class="citation">(<a href="sec-references.html#ref-ke2019bayesian">Ke et al. 2019</a>)</span>.</p>
+<p>One-stage MASEM (OSMASEM) fits the structural model directly to the study-level correlation vectors, <span class="math inline">\(\mathbf{r}_i = \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta}_i) + \mathbf{u}_i + \mathbf{e}_i\)</span>, which makes it possible to let study-level moderators change individual path coefficients <span class="citation">(<a href="sec-references.html#ref-jak2020meta">Jak and Cheung 2020</a>)</span>. We return to it in Section <a href="sec-masem.html#sec-masem-osmasem">11.8</a>.</p>
+</div>
+</div>
+<div id="sec-masem-tam" class="section level2" number="11.4">
+<h2>
+<span class="header-section-number">11.4</span> Worked example: teachers’ technology acceptance<a class="anchor" aria-label="anchor" href="#sec-masem-tam"><i class="fas fa-link"></i></a>
+</h2>
+<p>The technology acceptance model (TAM) explains the intention to use a technology (BI) by attitudes toward it (ATT) and its perceived usefulness (PU), with perceived ease of use (PEU) acting on usefulness and attitudes. <span class="citation">Scherer et al. (<a href="sec-references.html#ref-scherer2019technology">2019</a>)</span> synthesized the TAM literature on teachers’ adoption of digital technology with MASEM. The data below are uncorrected correlation matrices among the four TAM constructs from 50 samples drawn from that literature, each reporting all six correlations. The data-entry code is adapted from teaching materials prepared by Diego G. Campos.</p>
+<div id="sec-masem-tam-data" class="section level3" number="11.4.1">
+<h3>
+<span class="header-section-number">11.4.1</span> Data and preliminary checks<a class="anchor" aria-label="anchor" href="#sec-masem-tam-data"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb207"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Upper triangles (including the unit diagonal) of 50 correlation matrices,</span></span>
+<span><span class="co"># one row per sample, variables in the order PU, PEU, ATT, BI</span></span>
+<span><span class="va">tam_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,<span class="fl">0.6776</span>,<span class="fl">0.5138</span>,<span class="fl">1</span>,<span class="fl">0.599184</span>,<span class="fl">0.449892</span>,<span class="fl">0.860328</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.661</span>,<span class="fl">1</span>,<span class="fl">0.59</span>,<span class="fl">0.584</span>,<span class="fl">1</span>,<span class="fl">0.75</span>,<span class="fl">0.746</span>,<span class="fl">0.684</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.5</span>,<span class="fl">1</span>,<span class="fl">0.64</span>,<span class="fl">0.55</span>,<span class="fl">1</span>,<span class="fl">0.55</span>,<span class="fl">0.48</span>,<span class="fl">0.59</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.512</span>,<span class="fl">1</span>,<span class="fl">0.461</span>,<span class="fl">0.754</span>,<span class="fl">1</span>,<span class="fl">0.364</span>,<span class="fl">0.669</span>,<span class="fl">0.595</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.279</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.873</span>,<span class="fl">1</span>,<span class="fl">0.319</span>,<span class="fl">0.441</span>,<span class="fl">0.505</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.68</span>,<span class="fl">1</span>,<span class="fl">0.68</span>,<span class="fl">0.73</span>,<span class="fl">1</span>,<span class="fl">0.34</span>,<span class="fl">0.3</span>,<span class="fl">0.3</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.4</span>,<span class="fl">1</span>,<span class="fl">0.56</span>,<span class="fl">0.43</span>,<span class="fl">1</span>,<span class="fl">0.23</span>,<span class="fl">0.32</span>,<span class="fl">0.36</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.329</span>,<span class="fl">1</span>,<span class="fl">0.565</span>,<span class="fl">0.349</span>,<span class="fl">1</span>,<span class="fl">0.523</span>,<span class="fl">0.327</span>,<span class="fl">0.462</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.136</span>,<span class="fl">1</span>,<span class="fl">0.625</span>,<span class="fl">0.1</span>,<span class="fl">1</span>,<span class="fl">0.436</span>,<span class="fl">0.1</span>,<span class="fl">0.514</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.467</span>,<span class="fl">1</span>,<span class="fl">0.634</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,<span class="fl">0.562</span>,<span class="fl">0.494</span>,<span class="fl">0.681</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.62</span>,<span class="fl">1</span>,<span class="fl">0.72</span>,<span class="fl">0.73</span>,<span class="fl">1</span>,<span class="fl">0.76</span>,<span class="fl">0.6</span>,<span class="fl">0.71</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.69</span>,<span class="fl">1</span>,<span class="fl">0.76</span>,<span class="fl">0.71</span>,<span class="fl">1</span>,<span class="fl">0.03</span>,<span class="fl">0.18</span>,<span class="fl">0.27</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.067</span>,<span class="fl">1</span>,<span class="fl">0.207</span>,<span class="fl">0.426</span>,<span class="fl">1</span>,<span class="fl">0.199</span>,<span class="fl">0.076</span>,<span class="fl">0.006</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.649</span>,<span class="fl">1</span>,<span class="fl">0.525</span>,<span class="fl">0.408</span>,<span class="fl">1</span>,<span class="fl">0.521</span>,<span class="fl">0.406</span>,<span class="fl">0.418</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.3</span>,<span class="fl">1</span>,<span class="fl">0.66</span>,<span class="fl">0.52</span>,<span class="fl">1</span>,<span class="fl">0.57</span>,<span class="fl">0.26</span>,<span class="fl">0.5</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,<span class="fl">0.62</span>,<span class="fl">0.51</span>,<span class="fl">1</span>,<span class="fl">0.43</span>,<span class="fl">0.29</span>,<span class="fl">0.36</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.449</span>,<span class="fl">1</span>,<span class="fl">0.791</span>,<span class="fl">0.509</span>,<span class="fl">1</span>,<span class="fl">0.362</span>,<span class="fl">0.217</span>,<span class="fl">0.412</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.392</span>,<span class="fl">1</span>,<span class="fl">0.682</span>,<span class="fl">0.446</span>,<span class="fl">1</span>,<span class="fl">0.327</span>,<span class="fl">0.188</span>,<span class="fl">0.442</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.11</span>,<span class="fl">1</span>,<span class="fl">0.75</span>,<span class="fl">0.11</span>,<span class="fl">1</span>,<span class="fl">0.62</span>,<span class="fl">0.2</span>,<span class="fl">0.67</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.41</span>,<span class="fl">1</span>,<span class="fl">0.54</span>,<span class="fl">0.51</span>,<span class="fl">1</span>,<span class="fl">0.4</span>,<span class="fl">0.43</span>,<span class="fl">0.54</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.656</span>,<span class="fl">1</span>,<span class="fl">0.8358</span>,<span class="fl">0.564</span>,<span class="fl">1</span>,<span class="fl">0.643</span>,<span class="fl">0.5431</span>,<span class="fl">0.5299</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.33</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.5</span>,<span class="fl">1</span>,<span class="fl">0.738</span>,<span class="fl">0.311</span>,<span class="fl">0.527</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.23</span>,<span class="fl">1</span>,<span class="fl">0.46</span>,<span class="fl">0.35</span>,<span class="fl">1</span>,<span class="fl">0.43</span>,<span class="fl">0.19</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">0.48</span>,<span class="fl">1</span>,<span class="fl">0.68</span>,<span class="fl">0.33</span>,<span class="fl">0.55</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.72</span>,<span class="fl">1</span>,<span class="fl">0.71</span>,<span class="fl">0.7</span>,<span class="fl">1</span>,<span class="fl">0.73</span>,<span class="fl">0.65</span>,<span class="fl">0.68</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.52</span>,<span class="fl">1</span>,<span class="fl">0.535</span>,<span class="fl">0.51</span>,<span class="fl">1</span>,<span class="fl">0.707</span>,<span class="fl">0.553</span>,<span class="fl">0.437</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.54</span>,<span class="fl">1</span>,<span class="fl">0.64</span>,<span class="fl">0.56</span>,<span class="fl">1</span>,<span class="fl">0.54</span>,<span class="fl">0.38</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.53</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.65</span>,<span class="fl">1</span>,<span class="fl">0.57</span>,<span class="fl">0.51</span>,<span class="fl">0.69</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.54</span>,<span class="fl">1</span>,<span class="fl">0.46</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,<span class="fl">0.35</span>,<span class="fl">0.22</span>,<span class="fl">0.21</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.36</span>,<span class="fl">1</span>,<span class="fl">0.57</span>,<span class="fl">0.48</span>,<span class="fl">1</span>,<span class="fl">0.16</span>,<span class="fl">0.17</span>,<span class="fl">0.13</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.47</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.41</span>,<span class="fl">0.62</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.44</span>,<span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">0.49</span>,<span class="fl">1</span>,<span class="fl">0.41</span>,<span class="fl">0.3</span>,<span class="fl">0.4</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.66</span>,<span class="fl">1</span>,<span class="fl">0.28</span>,<span class="fl">0.2</span>,<span class="fl">1</span>,<span class="fl">0.58</span>,<span class="fl">0.5</span>,<span class="fl">0.07</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.53</span>,<span class="fl">1</span>,<span class="fl">0.81</span>,<span class="fl">0.67</span>,<span class="fl">1</span>,<span class="fl">0.7</span>,<span class="fl">0.63</span>,<span class="fl">0.69</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,<span class="fl">0.6</span>,<span class="fl">0.64</span>,<span class="fl">1</span>,<span class="fl">0.62</span>,<span class="fl">0.59</span>,<span class="fl">0.71</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.62</span>,<span class="fl">1</span>,<span class="fl">0.71</span>,<span class="fl">0.55</span>,<span class="fl">1</span>,<span class="fl">0.66</span>,<span class="fl">0.56</span>,<span class="fl">0.84</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.575</span>,<span class="fl">1</span>,<span class="fl">0.486</span>,<span class="fl">0.453</span>,<span class="fl">1</span>,<span class="fl">0.351</span>,<span class="fl">0.297</span>,<span class="fl">0.447</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.749</span>,<span class="fl">1</span>,<span class="fl">0.508</span>,<span class="fl">0.258</span>,<span class="fl">1</span>,<span class="fl">0.872</span>,<span class="fl">0.743</span>,<span class="fl">0.461</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.67</span>,<span class="fl">1</span>,<span class="fl">0.64</span>,<span class="fl">0.59</span>,<span class="fl">0.75</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.31</span>,<span class="fl">1</span>,<span class="fl">0.23</span>,<span class="fl">0.61</span>,<span class="fl">1</span>,<span class="fl">0.28</span>,<span class="fl">0.53</span>,<span class="fl">0.53</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.65</span>,<span class="fl">1</span>,<span class="fl">0.51</span>,<span class="fl">0.35</span>,<span class="fl">1</span>,<span class="fl">0.5</span>,<span class="fl">0.41</span>,<span class="fl">0.42</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.526</span>,<span class="fl">1</span>,<span class="fl">0.681</span>,<span class="fl">0.585</span>,<span class="fl">1</span>,<span class="fl">0.654</span>,<span class="fl">0.445</span>,<span class="fl">0.684</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.307</span>,<span class="fl">1</span>,<span class="fl">0.632</span>,<span class="fl">0.462</span>,<span class="fl">1</span>,<span class="fl">0.586</span>,<span class="fl">0.283</span>,<span class="fl">0.446</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.517</span>,<span class="fl">1</span>,<span class="fl">0.6</span>,<span class="fl">0.527</span>,<span class="fl">1</span>,<span class="fl">0.548</span>,<span class="fl">0.405</span>,<span class="fl">0.687</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.64</span>,<span class="fl">1</span>,<span class="fl">0.65</span>,<span class="fl">0.65</span>,<span class="fl">1</span>,<span class="fl">0.61</span>,<span class="fl">0.65</span>,<span class="fl">0.75</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.26</span>,<span class="fl">1</span>,<span class="fl">0.549</span>,<span class="fl">0.497</span>,<span class="fl">1</span>,<span class="fl">0.192</span>,<span class="fl">0.265</span>,<span class="fl">0.249</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.26</span>,<span class="fl">1</span>,<span class="fl">0.551</span>,<span class="fl">0.507</span>,<span class="fl">1</span>,<span class="fl">0.176</span>,<span class="fl">0.101</span>,<span class="fl">0.257</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.5376</span>,<span class="fl">1</span>,<span class="fl">0.6336</span>,<span class="fl">0.8396</span>,<span class="fl">1</span>,<span class="fl">0.8905</span>,<span class="fl">0.6887</span>,<span class="fl">0.8154</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.709</span>,<span class="fl">1</span>,<span class="fl">0.885</span>,<span class="fl">0.768</span>,<span class="fl">1</span>,<span class="fl">0.758</span>,<span class="fl">0.589</span>,<span class="fl">0.783</span>,<span class="fl">1</span>,</span>
+<span>    <span class="fl">1</span>,<span class="fl">0.49</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.53</span>,<span class="fl">1</span>,<span class="fl">0.63</span>,<span class="fl">0.46</span>,<span class="fl">0.62</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>  ncol <span class="op">=</span> <span class="fl">10</span>, byrow <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">tam_vars</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"PU"</span>, <span class="st">"PEU"</span>, <span class="st">"ATT"</span>, <span class="st">"BI"</span><span class="op">)</span></span>
+<span><span class="va">tam_cor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">tam_vec</span><span class="op">)</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span>, <span class="fl">4</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">upper.tri</a></span><span class="op">(</span><span class="va">m</span>, diag <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">tam_vec</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span></span>
+<span>  <span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">m</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">tam_cor</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Okazaki &amp; Renda dos Santos (2012)"</span>,</span>
+<span>  <span class="st">"Parkman (2015)"</span>,</span>
+<span>  <span class="st">"Wong (2015)"</span>,</span>
+<span>  <span class="st">"Cote &amp; Miliner (2015)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Milutinovic (2015)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Fan et al. (2015)-1"</span>,</span>
+<span>  <span class="st">"Teo &amp; Fan et al. (2015)-2"</span>,</span>
+<span>  <span class="st">"Koutromanos et al. (2015)-1"</span>,</span>
+<span>  <span class="st">"Koutromanos et al. (2015)-2"</span>,</span>
+<span>  <span class="st">"Wu et al. (2015)"</span>,</span>
+<span>  <span class="st">"Kabakci-Yurdakul et al. (2014)"</span>,</span>
+<span>  <span class="st">"Kirmizi (2014)"</span>,</span>
+<span>  <span class="st">"Mac Callum et al. (2014)"</span>,</span>
+<span>  <span class="st">"Wong et al. (2013)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Ursavas et al. (2011a)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Luan et al. (2008)"</span>,</span>
+<span>  <span class="st">"Sumak &amp; Sorgo (2016)-1"</span>,</span>
+<span>  <span class="st">"Sumak &amp; Sorgo (2016)-2"</span>,</span>
+<span>  <span class="st">"Wu et al. (2016)"</span>,</span>
+<span>  <span class="st">"Wong et al. (2016)"</span>,</span>
+<span>  <span class="st">"Atif et al. (2015)"</span>,</span>
+<span>  <span class="st">"Tokel &amp; Isler (2015)"</span>,</span>
+<span>  <span class="st">"Sadeghi et al. (2014)"</span>,</span>
+<span>  <span class="st">"Pynoo et al. (2012)"</span>,</span>
+<span>  <span class="st">"Aypay et al. (2012)"</span>,</span>
+<span>  <span class="st">"Chen &amp; Tseng (2012)"</span>,</span>
+<span>  <span class="st">"Teo (2012a)"</span>,</span>
+<span>  <span class="st">"Teo &amp; van Schaik (2012)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Noyes (2011)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Lee et al. (2009a)-1"</span>,</span>
+<span>  <span class="st">"Teo &amp; Lee et al. (2009a)-2"</span>,</span>
+<span>  <span class="st">"Teo (2009a)"</span>,</span>
+<span>  <span class="st">"Park et al. (2007)"</span>,</span>
+<span>  <span class="st">"Cheung &amp; Sachs (2006)"</span>,</span>
+<span>  <span class="st">"Teo (2011)"</span>,</span>
+<span>  <span class="st">"Shiue (2007)"</span>,</span>
+<span>  <span class="st">"Chiu (2017)"</span>,</span>
+<span>  <span class="st">"Lai et al. (2013)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Zhou et al. (2016)"</span>,</span>
+<span>  <span class="st">"Teo (2008)"</span>,</span>
+<span>  <span class="st">"Wong &amp; Teo et al. (2012)"</span>,</span>
+<span>  <span class="st">"Luan &amp; Teo (2009)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Ursavas et al. (2012)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Zhou (2014)"</span>,</span>
+<span>  <span class="st">"Teo (2013)"</span>,</span>
+<span>  <span class="st">"Teo &amp; Milutinovic et al. (2016a)-1"</span>,</span>
+<span>  <span class="st">"Teo &amp; Milutinovic et al. (2016a)-2"</span>,</span>
+<span>  <span class="st">"Pittalis &amp; Christou (2010)"</span>,</span>
+<span>  <span class="st">"Fathema et al. (2015)"</span>,</span>
+<span>  <span class="st">"Luan &amp; Teo (2011)"</span><span class="op">)</span></span>
+<span><span class="va">tam_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">446</span>, <span class="fl">88</span>, <span class="fl">234</span>, <span class="fl">29</span>, <span class="fl">313</span>, <span class="fl">169</span>, <span class="fl">170</span>, <span class="fl">151</span>, <span class="fl">106</span>, <span class="fl">340</span>, <span class="fl">579</span>,</span>
+<span>           <span class="fl">213</span>, <span class="fl">196</span>, <span class="fl">302</span>, <span class="fl">197</span>, <span class="fl">495</span>, <span class="fl">438</span>, <span class="fl">460</span>, <span class="fl">144</span>, <span class="fl">185</span>, <span class="fl">184</span>, <span class="fl">46</span>, <span class="fl">275</span>,</span>
+<span>           <span class="fl">919</span>, <span class="fl">754</span>, <span class="fl">402</span>, <span class="fl">157</span>, <span class="fl">429</span>, <span class="fl">153</span>, <span class="fl">250</span>, <span class="fl">245</span>, <span class="fl">475</span>, <span class="fl">191</span>, <span class="fl">57</span>, <span class="fl">592</span>,</span>
+<span>           <span class="fl">242</span>, <span class="fl">306</span>, <span class="fl">160</span>, <span class="fl">592</span>, <span class="fl">139</span>, <span class="fl">302</span>, <span class="fl">245</span>, <span class="fl">487</span>, <span class="fl">314</span>, <span class="fl">385</span>, <span class="fl">226</span>,</span>
+<span>           <span class="fl">226</span>, <span class="fl">105</span>, <span class="fl">560</span>, <span class="fl">245</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>studies <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">tam_cor</span><span class="op">)</span>, total_N <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">tam_n</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; studies total_N </span></span>
+<span><span class="co">#&gt;      50   14918</span></span>
+<span><span class="va">tam_cor</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co">#&gt;         PU    PEU    ATT     BI</span></span>
+<span><span class="co">#&gt; PU  1.0000 0.6100 0.6776 0.5992</span></span>
+<span><span class="co">#&gt; PEU 0.6100 1.0000 0.5138 0.4499</span></span>
+<span><span class="co">#&gt; ATT 0.6776 0.5138 1.0000 0.8603</span></span>
+<span><span class="co">#&gt; BI  0.5992 0.4499 0.8603 1.0000</span></span></code></pre></div>
+<p>Before pooling, every matrix should be checked for positive definiteness, because stage 1 needs to invert functions of each matrix. A correlation matrix that is not positive definite usually signals a typing error, correlations assembled from different subsamples, or extreme rounding. <code><a href="https://rdrr.io/pkg/metaSEM/man/is.pd.html">is.pd()</a></code> returns <code>TRUE</code> for each acceptable matrix, and <code><a href="https://rdrr.io/pkg/metaSEM/man/pattern.n.html">pattern.n()</a></code> shows the cumulative sample size behind each correlation.</p>
+<div class="sourceCode" id="cb208"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/is.pd.html">is.pd</a></span><span class="op">(</span><span class="va">tam_cor</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; TRUE </span></span>
+<span><span class="co">#&gt;   50</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/pattern.n.html">pattern.n</a></span><span class="op">(</span><span class="va">tam_cor</span>, <span class="va">tam_n</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        PU   PEU   ATT    BI</span></span>
+<span><span class="co">#&gt; PU  14918 14918 14918 14918</span></span>
+<span><span class="co">#&gt; PEU 14918 14918 14918 14918</span></span>
+<span><span class="co">#&gt; ATT 14918 14918 14918 14918</span></span>
+<span><span class="co">#&gt; BI  14918 14918 14918 14918</span></span></code></pre></div>
+<p>All 50 matrices are positive definite and there are no missing correlations, so every cell rests on all 14,918 participants. If a matrix failed the check, the analyst should first return to the source to look for transcription errors. Only if the matrix is correct as published should it be excluded or replaced, for example by the nearest positive definite matrix from <code><a href="https://rdrr.io/pkg/Matrix/man/nearPD.html">Matrix::nearPD()</a></code>, and that choice should be reported.</p>
+</div>
+<div id="sec-masem-tam-baselines" class="section level3" number="11.4.2">
+<h3>
+<span class="header-section-number">11.4.2</span> Univariate and GLS pooling as baselines<a class="anchor" aria-label="anchor" href="#sec-masem-tam-baselines"><i class="fas fa-link"></i></a>
+</h3>
+<p>To see what TSSEM adds, we first apply the univariate approach. Each correlation is pooled as a sample-size-weighted mean, and the resulting matrix is passed to <code>lavaan</code> with the total sample size, which here equals the harmonic mean of the cell-wise sample sizes because every cell is complete.</p>
+<div class="sourceCode" id="cb209"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">vechs_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">tam_cor</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">r_bar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">vechs_mat</span>, <span class="fl">2</span>, <span class="va">weighted.mean</span>, w <span class="op">=</span> <span class="va">tam_n</span><span class="op">)</span></span>
+<span><span class="va">R_uni</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/vec2symMat.html">vec2symMat</a></span><span class="op">(</span><span class="va">r_bar</span>, diag <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">R_uni</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">R_uni</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        PU   PEU   ATT    BI</span></span>
+<span><span class="co">#&gt; PU  1.000 0.504 0.625 0.538</span></span>
+<span><span class="co">#&gt; PEU 0.504 1.000 0.547 0.419</span></span>
+<span><span class="co">#&gt; ATT 0.625 0.547 1.000 0.545</span></span>
+<span><span class="co">#&gt; BI  0.538 0.419 0.545 1.000</span></span>
+<span></span>
+<span><span class="va">tam_lavaan</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  BI  ~ ATT + PU</span></span>
+<span><span class="st">  ATT ~ PEU + PU</span></span>
+<span><span class="st">  PU  ~ PEU</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">fit_uni</span> <span class="op">&lt;-</span> <span class="fu">sem</span><span class="op">(</span><span class="va">tam_lavaan</span>, sample.cov <span class="op">=</span> <span class="va">R_uni</span>, sample.nobs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">tam_n</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/parameterEstimates.html">parameterEstimates</a></span><span class="op">(</span><span class="va">fit_uni</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"lhs"</span>, <span class="st">"op"</span>, <span class="st">"rhs"</span>, <span class="st">"est"</span>, <span class="st">"se"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;   lhs op rhs   est    se</span></span>
+<span><span class="co">#&gt; 1  BI  ~ ATT 0.342 0.008</span></span>
+<span><span class="co">#&gt; 2  BI  ~  PU 0.325 0.008</span></span>
+<span><span class="co">#&gt; 3 ATT  ~ PEU 0.311 0.007</span></span>
+<span><span class="co">#&gt; 4 ATT  ~  PU 0.468 0.007</span></span>
+<span><span class="co">#&gt; 5  PU  ~ PEU 0.504 0.007</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/lavaan/man/fitMeasures.html">fitMeasures</a></span><span class="op">(</span><span class="va">fit_uni</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"chisq"</span>, <span class="st">"df"</span>, <span class="st">"pvalue"</span>, <span class="st">"cfi"</span>, <span class="st">"rmsea"</span>, <span class="st">"srmr"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   chisq      df  pvalue     cfi   rmsea    srmr </span></span>
+<span><span class="co">#&gt; 167.699   1.000   0.000   0.992   0.106   0.022</span></span></code></pre></div>
+<p>The path coefficients look sensible (for example, BI on ATT is 0.342), but the standard errors are around 0.008, the precision one would expect from a single random sample of nearly 15,000 teachers. As Stage 1 below shows, the correlations vary substantially across samples, and that between-sample variance is invisible to this analysis. The chi-square test is likewise computed as if the matrix came from one homogeneous sample.</p>
+<p>The GLS approach can be carried out with <code>metafor</code>. <code><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc()</a></code> converts the list of matrices into a long data set of correlations and the block-diagonal matrix of their within-study sampling covariances. A multivariate random-effects model with one heterogeneity variance per correlation (<code>struct = "DIAG"</code>) pools them, and <code><a href="https://wviechtb.github.io/metafor/reference/matreg.html">matreg()</a></code> computes the standardized regression of BI on ATT and PU from the pooled matrix with delta-method standard errors <span class="citation">(<a href="sec-references.html#ref-becker2007synthesis">Becker and Wu 2007</a>)</span>.</p>
+<div class="sourceCode" id="cb210"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rcalc.html">rcalc</a></span><span class="op">(</span><span class="va">tam_cor</span>, ni <span class="op">=</span> <span class="va">tam_n</span><span class="op">)</span></span>
+<span><span class="va">gls_dat</span> <span class="op">&lt;-</span> <span class="va">rc</span><span class="op">$</span><span class="va">dat</span></span>
+<span><span class="va">gls_dat</span><span class="op">$</span><span class="va">pair</span> <span class="op">&lt;-</span> <span class="va">gls_dat</span><span class="op">$</span><span class="va">var1.var2</span></span>
+<span><span class="va">gls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">rc</span><span class="op">$</span><span class="va">V</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">pair</span> <span class="op">-</span> <span class="fl">1</span>, random <span class="op">=</span> <span class="op">~</span> <span class="va">pair</span> <span class="op">|</span> <span class="va">id</span>,</span>
+<span>              struct <span class="op">=</span> <span class="st">"DIAG"</span>, data <span class="op">=</span> <span class="va">gls_dat</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">gls</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">gls</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, tau2 <span class="op">=</span> <span class="va">gls</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             estimate     se   tau2</span></span>
+<span><span class="co">#&gt; pairATT.BI    0.5331 0.0251 0.0291</span></span>
+<span><span class="co">#&gt; pairATT.PEU   0.5421 0.0199 0.0174</span></span>
+<span><span class="co">#&gt; pairATT.PU    0.6189 0.0160 0.0109</span></span>
+<span><span class="co">#&gt; pairBI.PEU    0.4256 0.0222 0.0217</span></span>
+<span><span class="co">#&gt; pairBI.PU     0.5277 0.0254 0.0298</span></span>
+<span><span class="co">#&gt; pairPEU.PU    0.4971 0.0207 0.0187</span></span>
+<span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">gls</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span><span class="op">(</span><span class="st">"pair"</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">R_gls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">R_gls</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">nm</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/strsplit.html">strsplit</a></span><span class="op">(</span><span class="va">nm</span>, <span class="st">"."</span>, fixed <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">R_gls</span><span class="op">[</span><span class="va">v</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">v</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">R_gls</span><span class="op">[</span><span class="va">v</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">v</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">b</span><span class="op">[</span><span class="va">nm</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">V_gls</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">gls</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">V_gls</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/matreg.html">matreg</a></span><span class="op">(</span>y <span class="op">=</span> <span class="st">"BI"</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ATT"</span>, <span class="st">"PU"</span><span class="op">)</span>, R <span class="op">=</span> <span class="va">R_gls</span>, cov <span class="op">=</span> <span class="cn">FALSE</span>, V <span class="op">=</span> <span class="va">V_gls</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt; ATT    0.3348  0.0364  9.1880  &lt;.0001  0.2634  0.4062  *** </span></span>
+<span><span class="co">#&gt; PU     0.3205  0.0326  9.8193  &lt;.0001  0.2565  0.3845  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The GLS slopes for BI are close to the univariate ones, but their standard errors are four to five times larger because they now carry the between-study variances <span class="math inline">\(\hat\tau^2\)</span>, which range from about 0.01 to 0.03 on the correlation scale. That is the honest precision of a summary of 50 heterogeneous samples. The GLS route stops here, however: it gives no test of the full path model, and latent variables would require a different machinery.</p>
+</div>
+<div id="sec-masem-stage1" class="section level3" number="11.4.3">
+<h3>
+<span class="header-section-number">11.4.3</span> Stage 1: pooling the correlation matrices<a class="anchor" aria-label="anchor" href="#sec-masem-stage1"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1()</a></code> performs the first stage. We start with the fixed-effects model, which tests whether a single population correlation matrix fits all 50 samples.</p>
+<div class="sourceCode" id="cb211"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_fem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1</a></span><span class="op">(</span><span class="va">tam_cor</span>, <span class="va">tam_n</span>, method <span class="op">=</span> <span class="st">"FEM"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_fem</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; tssem1FEM(Cov = Cov, n = n, cor.analysis = cor.analysis, model.name = model.name, </span></span>
+<span><span class="co">#&gt;     cluster = cluster, suppressWarnings = suppressWarnings, silent = silent, </span></span>
+<span><span class="co">#&gt;     run = run)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Coefficients:</span></span>
+<span><span class="co">#&gt;        Estimate Std.Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; S[1,2]  0.52125   0.00607    85.9   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; S[1,3]  0.64022   0.00491   130.4   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; S[1,4]  0.56399   0.00573    98.5   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; S[2,3]  0.56528   0.00568    99.6   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; S[2,4]  0.44060   0.00671    65.7   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; S[3,4]  0.57448   0.00565   101.6   &lt;2e-16 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Goodness-of-fit indices:</span></span>
+<span><span class="co">#&gt;                                     Value</span></span>
+<span><span class="co">#&gt; Sample size                      14918.00</span></span>
+<span><span class="co">#&gt; Chi-square of target model        3908.61</span></span>
+<span><span class="co">#&gt; DF of target model                 294.00</span></span>
+<span><span class="co">#&gt; p value of target model              0.00</span></span>
+<span><span class="co">#&gt; Chi-square of independence model 25262.48</span></span>
+<span><span class="co">#&gt; DF of independence model           300.00</span></span>
+<span><span class="co">#&gt; RMSEA                                0.20</span></span>
+<span><span class="co">#&gt; RMSEA lower 95% CI                   0.20</span></span>
+<span><span class="co">#&gt; RMSEA upper 95% CI                   0.21</span></span>
+<span><span class="co">#&gt; SRMR                                 0.14</span></span>
+<span><span class="co">#&gt; TLI                                  0.85</span></span>
+<span><span class="co">#&gt; CFI                                  0.86</span></span>
+<span><span class="co">#&gt; AIC                               3320.61</span></span>
+<span><span class="co">#&gt; BIC                               1083.17</span></span>
+<span><span class="co">#&gt; OpenMx status1: 0 ("0" or "1": The optimization is considered fine.</span></span>
+<span><span class="co">#&gt; Other values may indicate problems.)</span></span></code></pre></div>
+<p>The homogeneity hypothesis is clearly rejected: the chi-square statistic is about 3,908 on 294 degrees of freedom, RMSEA is 0.20 and CFI 0.86. A fixed-effects stage 1 would understate the uncertainty of the pooled correlations, and the stage 2 results would only describe these particular 50 samples. We therefore fit the random-effects model with a diagonal between-study covariance matrix.</p>
+<div class="sourceCode" id="cb212"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_rem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1</a></span><span class="op">(</span><span class="va">tam_cor</span>, <span class="va">tam_n</span>, method <span class="op">=</span> <span class="st">"REM"</span>, RE.type <span class="op">=</span> <span class="st">"Diag"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_rem</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; meta(y = ES, v = acovR, RE.constraints = Diag(paste0(RE.startvalues, </span></span>
+<span><span class="co">#&gt;     "*Tau2_", 1:no.es, "_", 1:no.es)), RE.lbound = RE.lbound, </span></span>
+<span><span class="co">#&gt;     I2 = I2, model.name = model.name, suppressWarnings = suppressWarnings, </span></span>
+<span><span class="co">#&gt;     silent = silent, run = run)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 95% confidence intervals: z statistic approximation (robust=FALSE)</span></span>
+<span><span class="co">#&gt; Coefficients:</span></span>
+<span><span class="co">#&gt;            Estimate Std.Error  lbound  ubound z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; Intercept1  0.48288   0.02177 0.44021 0.52555   22.18  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Intercept2  0.60682   0.01747 0.57258 0.64105   34.74  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Intercept3  0.51530   0.02543 0.46546 0.56515   20.26  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Intercept4  0.52764   0.02093 0.48663 0.56866   25.21  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Intercept5  0.40899   0.02202 0.36583 0.45215   18.57  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Intercept6  0.51871   0.02597 0.46781 0.56961   19.97  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; Tau2_1_1    0.02101   0.00471 0.01178 0.03025    4.46  8.2e-06 ***</span></span>
+<span><span class="co">#&gt; Tau2_2_2    0.01345   0.00307 0.00744 0.01946    4.39  1.1e-05 ***</span></span>
+<span><span class="co">#&gt; Tau2_3_3    0.02985   0.00648 0.01716 0.04254    4.61  4.0e-06 ***</span></span>
+<span><span class="co">#&gt; Tau2_4_4    0.01953   0.00441 0.01088 0.02817    4.43  9.6e-06 ***</span></span>
+<span><span class="co">#&gt; Tau2_5_5    0.02101   0.00485 0.01152 0.03051    4.34  1.4e-05 ***</span></span>
+<span><span class="co">#&gt; Tau2_6_6    0.03128   0.00667 0.01821 0.04435    4.69  2.7e-06 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Q statistic on the homogeneity of effect sizes: 3623</span></span>
+<span><span class="co">#&gt; Degrees of freedom of the Q statistic: 294</span></span>
+<span><span class="co">#&gt; P value of the Q statistic: 0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Heterogeneity indices (based on the estimated Tau2):</span></span>
+<span><span class="co">#&gt;                              Estimate</span></span>
+<span><span class="co">#&gt; Intercept1: I2 (Q statistic)     0.92</span></span>
+<span><span class="co">#&gt; Intercept2: I2 (Q statistic)     0.91</span></span>
+<span><span class="co">#&gt; Intercept3: I2 (Q statistic)     0.95</span></span>
+<span><span class="co">#&gt; Intercept4: I2 (Q statistic)     0.92</span></span>
+<span><span class="co">#&gt; Intercept5: I2 (Q statistic)     0.90</span></span>
+<span><span class="co">#&gt; Intercept6: I2 (Q statistic)     0.95</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of studies (or clusters): 50</span></span>
+<span><span class="co">#&gt; Number of observed statistics: 300</span></span>
+<span><span class="co">#&gt; Number of estimated parameters: 12</span></span>
+<span><span class="co">#&gt; Degrees of freedom: 288</span></span>
+<span><span class="co">#&gt; -2 log likelihood: -241 </span></span>
+<span><span class="co">#&gt; OpenMx status1: 0 ("0" or "1": The optimization is considered fine.</span></span>
+<span><span class="co">#&gt; Other values may indicate problems.)</span></span></code></pre></div>
+<p>The output lists six intercepts, the pooled correlations in column-major order of the lower triangle (PU-PEU, PU-ATT, PU-BI, PEU-ATT, PEU-BI, ATT-BI), followed by six heterogeneity variances. All <span class="math inline">\(I^2\)</span> values exceed 0.90, so almost all of the observed variation in each correlation reflects real differences between samples rather than sampling error. The pooled matrix is</p>
+<div class="sourceCode" id="cb213"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">R_rem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/vec2symMat.html">vec2symMat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">tam_rem</span>, select <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span>, diag <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">R_rem</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">R_rem</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        PU   PEU   ATT    BI</span></span>
+<span><span class="co">#&gt; PU  1.000 0.483 0.607 0.515</span></span>
+<span><span class="co">#&gt; PEU 0.483 1.000 0.528 0.409</span></span>
+<span><span class="co">#&gt; ATT 0.607 0.528 1.000 0.519</span></span>
+<span><span class="co">#&gt; BI  0.515 0.409 0.519 1.000</span></span></code></pre></div>
+<p>The random-effects correlations are somewhat smaller than the fixed-effects ones (for instance PU-ATT is 0.607 rather than 0.640), because random-effects weights are more nearly equal across samples, and smaller samples in this literature tend to report weaker correlations. They also differ slightly from the GLS estimates above, because <code><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1()</a></code> computes the within-study sampling covariances from the weighted average correlation rather than from each sample’s own correlations.</p>
+<div class="rmdnote">
+<p>With <code>RE.type = "Symm"</code> the full <span class="math inline">\(6 \times 6\)</span> between-study covariance matrix is estimated (21 parameters instead of 6). With 50 samples that is feasible, but with fewer studies or more variables the unstructured model often fails to converge or produces boundary estimates. The diagonal structure is the default in <code><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1()</a></code>; the choice affects the standard errors of the pooled correlations more than the point estimates.</p>
+</div>
+</div>
+<div id="sec-masem-stage2" class="section level3" number="11.4.4">
+<h3>
+<span class="header-section-number">11.4.4</span> Stage 2: fitting the path model<a class="anchor" aria-label="anchor" href="#sec-masem-stage2"><i class="fas fa-link"></i></a>
+</h3>
+<p>The structural model is written in <code>lavaan</code> syntax and translated into RAM matrices by <code><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM()</a></code>. Labels attached to the paths (<code>b1</code>, <code>c1</code>, and so on) become parameter names, which we need later for indirect effects. Because stage 2 is a correlation structure analysis, the variance of the exogenous variable PEU is fixed at one and the residual variances are determined by the unit-diagonal constraint.</p>
+<div class="sourceCode" id="cb214"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_model1</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  BI  ~ b1*ATT + c1*PU</span></span>
+<span><span class="st">  ATT ~ a2*PEU + a1*PU</span></span>
+<span><span class="st">  PU  ~ p1*PEU</span></span>
+<span><span class="st">  PEU ~~ 1*PEU</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">RAM1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM</a></span><span class="op">(</span><span class="va">tam_model1</span>, obs.variables <span class="op">=</span> <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="va">RAM1</span><span class="op">$</span><span class="va">A</span></span>
+<span><span class="co">#&gt;     PU       PEU      ATT      BI </span></span>
+<span><span class="co">#&gt; PU  "0"      "0.1*p1" "0"      "0"</span></span>
+<span><span class="co">#&gt; PEU "0"      "0"      "0"      "0"</span></span>
+<span><span class="co">#&gt; ATT "0.1*a1" "0.1*a2" "0"      "0"</span></span>
+<span><span class="co">#&gt; BI  "0.1*c1" "0"      "0.1*b1" "0"</span></span></code></pre></div>
+<p>The <code>A</code> matrix shows the five free regression paths with their labels and starting values. We fit the model to the random-effects stage 1 results and request likelihood-based confidence intervals <span class="citation">(<a href="sec-references.html#ref-neale1997use">Neale and Miller 1997</a>)</span>, which do not assume that the sampling distribution of a parameter is symmetric. The <code>mx.algebras</code> argument defines two functions of the parameters, the indirect effect of PU on BI through ATT (<span class="math inline">\(a_1 b_1\)</span>) and the total indirect effect of PEU on BI through all three mediated routes (<span class="math inline">\(p_1 c_1 + p_1 a_1 b_1 + a_2 b_1\)</span>), so that they receive likelihood-based intervals too.</p>
+<div class="sourceCode" id="cb215"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_ts1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/wls.html">tssem2</a></span><span class="op">(</span><span class="va">tam_rem</span>, RAM <span class="op">=</span> <span class="va">RAM1</span>, intervals.type <span class="op">=</span> <span class="st">"LB"</span>,</span>
+<span>  mx.algebras <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>    ind_PU  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/OpenMx/man/mxAlgebra.html">mxAlgebra</a></span><span class="op">(</span><span class="va">a1</span> <span class="op">*</span> <span class="va">b1</span>, name <span class="op">=</span> <span class="st">"ind_PU"</span><span class="op">)</span>,</span>
+<span>    ind_PEU <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/OpenMx/man/mxAlgebra.html">mxAlgebra</a></span><span class="op">(</span><span class="va">p1</span> <span class="op">*</span> <span class="va">c1</span> <span class="op">+</span> <span class="va">p1</span> <span class="op">*</span> <span class="va">a1</span> <span class="op">*</span> <span class="va">b1</span> <span class="op">+</span> <span class="va">a2</span> <span class="op">*</span> <span class="va">b1</span>, name <span class="op">=</span> <span class="st">"ind_PEU"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_ts1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; wls(Cov = pooledS, aCov = aCov, n = tssem1.obj$total.n, RAM = RAM, </span></span>
+<span><span class="co">#&gt;     Amatrix = Amatrix, Smatrix = Smatrix, Fmatrix = Fmatrix, </span></span>
+<span><span class="co">#&gt;     diag.constraints = diag.constraints, cor.analysis = cor.analysis, </span></span>
+<span><span class="co">#&gt;     intervals.type = intervals.type, mx.algebras = mx.algebras, </span></span>
+<span><span class="co">#&gt;     mxModel.Args = mxModel.Args, subset.variables = subset.variables, </span></span>
+<span><span class="co">#&gt;     model.name = model.name, suppressWarnings = suppressWarnings, </span></span>
+<span><span class="co">#&gt;     silent = silent, run = run)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 95% confidence intervals: Likelihood-based statistic</span></span>
+<span><span class="co">#&gt; Coefficients:</span></span>
+<span><span class="co">#&gt;    Estimate Std.Error lbound ubound z value Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; a2    0.327        NA  0.266  0.385      NA       NA</span></span>
+<span><span class="co">#&gt; a1    0.437        NA  0.386  0.488      NA       NA</span></span>
+<span><span class="co">#&gt; b1    0.355        NA  0.263  0.445      NA       NA</span></span>
+<span><span class="co">#&gt; c1    0.323        NA  0.230  0.414      NA       NA</span></span>
+<span><span class="co">#&gt; p1    0.500        NA  0.458  0.541      NA       NA</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; mxAlgebras objects (and their 95% likelihood-based CIs):</span></span>
+<span><span class="co">#&gt;              lbound Estimate ubound</span></span>
+<span><span class="co">#&gt; ind_PU[1,1]  0.1142   0.1548 0.2007</span></span>
+<span><span class="co">#&gt; ind_PEU[1,1] 0.3273   0.3544 0.3822</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Goodness-of-fit indices:</span></span>
+<span><span class="co">#&gt;                                               Value</span></span>
+<span><span class="co">#&gt; Sample size                                14918.00</span></span>
+<span><span class="co">#&gt; Chi-square of target model                    10.09</span></span>
+<span><span class="co">#&gt; DF of target model                             1.00</span></span>
+<span><span class="co">#&gt; p value of target model                        0.00</span></span>
+<span><span class="co">#&gt; Number of constraints imposed on "Smatrix"     0.00</span></span>
+<span><span class="co">#&gt; DF manually adjusted                           0.00</span></span>
+<span><span class="co">#&gt; Chi-square of independence model            3002.85</span></span>
+<span><span class="co">#&gt; DF of independence model                       6.00</span></span>
+<span><span class="co">#&gt; RMSEA                                          0.02</span></span>
+<span><span class="co">#&gt; RMSEA lower 95% CI                             0.01</span></span>
+<span><span class="co">#&gt; RMSEA upper 95% CI                             0.04</span></span>
+<span><span class="co">#&gt; SRMR                                           0.03</span></span>
+<span><span class="co">#&gt; TLI                                            0.98</span></span>
+<span><span class="co">#&gt; CFI                                            1.00</span></span>
+<span><span class="co">#&gt; AIC                                            8.09</span></span>
+<span><span class="co">#&gt; BIC                                            0.48</span></span>
+<span><span class="co">#&gt; OpenMx status1: 0 ("0" or "1": The optimization is considered fine.</span></span>
+<span><span class="co">#&gt; Other values indicate problems.)</span></span></code></pre></div>
+<p>Standard errors are reported as <code>NA</code> when likelihood-based intervals are requested; inference rests on the intervals. All five paths are clearly positive. Perceived usefulness affects intention both directly (<span class="math inline">\(\hat c_1 = 0.323\)</span>, 95% CI 0.230 to 0.414) and through attitudes (<span class="math inline">\(\hat a_1 \hat b_1 = 0.155\)</span>, 95% CI 0.114 to 0.201), so roughly a third of the total effect of usefulness on intention is mediated by attitudes. Ease of use has no direct path to intention in the TAM, but its total indirect effect is substantial, 0.354 (95% CI 0.327 to 0.382). The chi-square test of the over-identified model is significant, <span class="math inline">\(\chi^2(1) = 10.09\)</span>, <span class="math inline">\(p = .0015\)</span>. The one missing path is PEU <span class="math inline">\(\to\)</span> BI, so this test says that ease of use has some association with intention beyond what the mediated paths reproduce. With a total sample of almost 15,000, even small discrepancies are detectable; the approximate fit indices (RMSEA = 0.025, SRMR = 0.029, CFI = 0.997) indicate that the discrepancy is small. Section <a href="sec-masem.html#sec-masem-fit">11.5</a> discusses how to weigh these indices.</p>
+<p>For comparison, fitting the same model to the fixed-effects stage 1 gives similar point estimates but standard errors of about 0.006 to 0.009, between a fifth and a third of the random-effects standard errors (about 0.02 to 0.05), and a chi-square of 147.7 instead of 10.1.</p>
+<div class="sourceCode" id="cb216"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_ts1_fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/wls.html">tssem2</a></span><span class="op">(</span><span class="va">tam_fem</span>, RAM <span class="op">=</span> <span class="va">RAM1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_ts1_fe</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span></span>
+<span><span class="co">#&gt;    Estimate Std.Error</span></span>
+<span><span class="co">#&gt; a2   0.3235  0.007030</span></span>
+<span><span class="co">#&gt; a1   0.4719  0.006603</span></span>
+<span><span class="co">#&gt; b1   0.3665  0.008474</span></span>
+<span><span class="co">#&gt; c1   0.3356  0.008513</span></span>
+<span><span class="co">#&gt; p1   0.5281  0.006125</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_ts1_fe</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="st">"Chi-square of target model"</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt; [1] 147.7</span></span></code></pre></div>
+</div>
+<div id="sec-masem-model-comparison" class="section level3" number="11.4.5">
+<h3>
+<span class="header-section-number">11.4.5</span> Comparing nested models<a class="anchor" aria-label="anchor" href="#sec-masem-model-comparison"><i class="fas fa-link"></i></a>
+</h3>
+<p>A strong form of the TAM claims that usefulness affects intentions only through attitudes. That hypothesis removes the direct path <span class="math inline">\(c_1\)</span>.</p>
+<div class="sourceCode" id="cb217"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_model2</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  BI  ~ b1*ATT</span></span>
+<span><span class="st">  ATT ~ a2*PEU + a1*PU</span></span>
+<span><span class="st">  PU  ~ p1*PEU</span></span>
+<span><span class="st">  PEU ~~ 1*PEU</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">RAM2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM</a></span><span class="op">(</span><span class="va">tam_model2</span>, obs.variables <span class="op">=</span> <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="va">tam_ts2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/wls.html">tssem2</a></span><span class="op">(</span><span class="va">tam_rem</span>, RAM <span class="op">=</span> <span class="va">RAM2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">tam_ts2</span><span class="op">)</span><span class="op">$</span><span class="va">stat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Chi-square of target model"</span>, <span class="st">"DF of target model"</span>,</span>
+<span>                        <span class="st">"RMSEA"</span>, <span class="st">"SRMR"</span>, <span class="st">"CFI"</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt; Chi-square of target model         DF of target model </span></span>
+<span><span class="co">#&gt;                   52.17165                    2.00000 </span></span>
+<span><span class="co">#&gt;                      RMSEA                       SRMR </span></span>
+<span><span class="co">#&gt;                    0.04101                    0.07111 </span></span>
+<span><span class="co">#&gt;                        CFI </span></span>
+<span><span class="co">#&gt;                    0.98326</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">tam_ts1</span>, <span class="va">tam_ts2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 base         comparison ep minus2LL df   AIC diffLL diffdf</span></span>
+<span><span class="co">#&gt; 1 TSSEM2 Correlation               &lt;NA&gt;  5    10.09 -5 20.09     NA     NA</span></span>
+<span><span class="co">#&gt; 2 TSSEM2 Correlation TSSEM2 Correlation  4    52.17 -4 60.17  42.08      1</span></span>
+<span><span class="co">#&gt;           p</span></span>
+<span><span class="co">#&gt; 1        NA</span></span>
+<span><span class="co">#&gt; 2 8.754e-11</span></span></code></pre></div>
+<p>The full-mediation model fits markedly worse. The chi-square difference is 42.08 on one degree of freedom (<span class="math inline">\(p &lt; .001\)</span>), SRMR rises from 0.029 to 0.071, and without the direct path the coefficient of ATT on BI inflates from 0.35 to 0.63 because it must carry the whole effect of usefulness. The meta-analytic evidence therefore supports partial rather than full mediation. Because both models are fitted to the same stage 1 results with the same weight matrix, the chi-square difference test is valid in TSSEM <span class="citation">(<a href="sec-references.html#ref-cheung2015metaanalysis">M. W. ‐L. Cheung 2015</a>)</span>.</p>
+</div>
+<div id="sec-masem-plot" class="section level3" number="11.4.6">
+<h3>
+<span class="header-section-number">11.4.6</span> Plotting the fitted model<a class="anchor" aria-label="anchor" href="#sec-masem-plot"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://rdrr.io/pkg/metaSEM/man/meta2semPlot.html">meta2semPlot()</a></code> converts a <code>tssem2</code> object into a form that <code>semPlot</code> can draw (Figure <a href="sec-masem.html#fig:masem-tam-plot">11.2</a>).</p>
+<div class="sourceCode" id="cb218"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tam_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/meta2semPlot.html">meta2semPlot</a></span><span class="op">(</span><span class="va">tam_ts1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/semPlot/man/semPaths.html">semPaths</a></span><span class="op">(</span><span class="va">tam_plot</span>, whatLabels <span class="op">=</span> <span class="st">"est"</span>, rotation <span class="op">=</span> <span class="fl">2</span>, layout <span class="op">=</span> <span class="st">"tree2"</span>,</span>
+<span>         edge.label.cex <span class="op">=</span> <span class="fl">1.1</span>, sizeMan <span class="op">=</span> <span class="fl">9</span>, nCharNodes <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>         color <span class="op">=</span> <span class="st">"grey90"</span>, edge.color <span class="op">=</span> <span class="st">"grey20"</span>, residuals <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:masem-tam-plot"></span>
+<img src="11-masem_files/figure-html/masem-tam-plot-1.png" alt="Random-effects TSSEM estimates of the technology acceptance model (50 samples, N = 14,918). PEU = perceived ease of use, PU = perceived usefulness, ATT = attitudes, BI = behavioral intention." width="85%"><p class="caption">
+Figure 11.2: Random-effects TSSEM estimates of the technology acceptance model (50 samples, N = 14,918). PEU = perceived ease of use, PU = perceived usefulness, ATT = attitudes, BI = behavioral intention.
+</p>
+</div>
+</div>
+<div id="sec-masem-heterogeneous-structure" class="section level3" number="11.4.7">
+<h3>
+<span class="header-section-number">11.4.7</span> What does the average model mean under heterogeneity?<a class="anchor" aria-label="anchor" href="#sec-masem-heterogeneous-structure"><i class="fas fa-link"></i></a>
+</h3>
+<p>Random-effects TSSEM fits the structural model to the <em>average</em> correlation matrix. When the <span class="math inline">\(I^2\)</span> values exceed 0.9, as here, the samples differ substantially in their true correlations, and the path coefficients in any particular population may differ from the average-model coefficients. <span class="citation">Yu et al. (<a href="sec-references.html#ref-yu2016problem">2016</a>)</span> argued that this heterogeneity should be propagated into the structural parameters by sampling correlation matrices from the estimated random-effects distribution and fitting the model to each, and <span class="citation">Cheung (<a href="sec-references.html#ref-cheung2018issues">2018</a>)</span> discusses the statistical issues raised by that proposal and by its interpretation. Without taking sides in that debate, a quick simulation from the stage 1 estimates is a useful descriptive device. We draw true correlation vectors from <span class="math inline">\(N(\hat{\boldsymbol\rho}, \hat{\mathbf{T}}^2)\)</span>, discard the draws that do not form a positive definite matrix, and compute the standardized regression of BI on ATT and PU in each.</p>
+<div class="sourceCode" id="cb219"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">rho_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">tam_rem</span>, select <span class="op">=</span> <span class="st">"fixed"</span><span class="op">)</span></span>
+<span><span class="va">T2_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">tam_rem</span>, select <span class="op">=</span> <span class="st">"random"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu">MASS</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/MASS/man/mvrnorm.html">mvrnorm</a></span><span class="op">(</span><span class="fl">5000</span>, mu <span class="op">=</span> <span class="va">rho_hat</span>, Sigma <span class="op">=</span> <span class="va">T2_hat</span><span class="op">)</span></span>
+<span><span class="va">paths</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">draws</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/vec2symMat.html">vec2symMat</a></span><span class="op">(</span><span class="va">r</span>, diag <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">R</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/eigen.html">eigen</a></span><span class="op">(</span><span class="va">R</span>, only.values <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">values</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/solve-methods.html">solve</a></span><span class="op">(</span><span class="va">R</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ATT"</span>, <span class="st">"PU"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ATT"</span>, <span class="st">"PU"</span><span class="op">)</span><span class="op">]</span>, <span class="va">R</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ATT"</span>, <span class="st">"PU"</span><span class="op">)</span>, <span class="st">"BI"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">paths</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"BI_on_ATT"</span>, <span class="st">"BI_on_PU"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="va">paths</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.9452</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">paths</span>, <span class="fl">2</span>, <span class="va">quantile</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     BI_on_ATT BI_on_PU</span></span>
+<span><span class="co">#&gt; 10%    -0.096   -0.099</span></span>
+<span><span class="co">#&gt; 50%     0.320    0.330</span></span>
+<span><span class="co">#&gt; 90%     0.735    0.730</span></span></code></pre></div>
+<p>About 95% of the simulated matrices are positive definite. Among them, the coefficient of attitudes on intention has a median of 0.32, close to the average-model value of 0.35, but its 10th and 90th percentiles are -0.10 and 0.74; the coefficient of usefulness behaves almost identically. In some plausible populations, attitudes dominate intention; in others, usefulness does. This spread is not sampling error and will not shrink as more studies are added. It is a feature of the literature that the average path model hides, and it is the main reason to look for moderators of structural paths (Section <a href="sec-masem.html#sec-masem-osmasem">11.8</a>). The simulation assumes independent normal random effects (<code>RE.type = "Diag"</code>), so it should be read as a rough indication of heterogeneity rather than a formal prediction interval.</p>
+</div>
+</div>
+<div id="sec-masem-fit" class="section level2" number="11.5">
+<h2>
+<span class="header-section-number">11.5</span> Assessing fit in MASEM<a class="anchor" aria-label="anchor" href="#sec-masem-fit"><i class="fas fa-link"></i></a>
+</h2>
+<p>Fit indices in TSSEM are computed from the stage 2 WLS statistic, and the “sample size” used in RMSEA and related indices is the total <span class="math inline">\(N\)</span> across studies. Two features of MASEM make the chi-square test strict. Total sample sizes are large, so trivial misfit is detected, and in random-effects stage 1 the pooled correlations may be very precise even when heterogeneity is large. <span class="citation">Aguinis and Harden (<a href="sec-references.html#ref-aguinis2009cautionary">2009</a>)</span> argue against dismissing a significant chi-square too quickly, and the residual correlations (<span class="math inline">\(\hat{\boldsymbol{\rho}} - \operatorname{vechs}\,\mathbf{P}(\hat{\boldsymbol{\theta}})\)</span>) should always be inspected to locate misfit. The residuals are easy to obtain from the fitted <code>OpenMx</code> model inside the <code>tssem2</code> object, which stores the pooled matrix (<code>sampleS</code>) and the model-implied matrix (<code>impliedS</code>).</p>
+<div class="sourceCode" id="cb220"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">implied</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/OpenMx/man/mxEval.html">mxEval</a></span><span class="op">(</span><span class="va">impliedS</span>, <span class="va">tam_ts1</span><span class="op">$</span><span class="va">mx.fit</span><span class="op">)</span></span>
+<span><span class="va">pooled</span> <span class="op">&lt;-</span> <span class="va">tam_ts1</span><span class="op">$</span><span class="va">mx.fit</span><span class="op">$</span><span class="va">sampleS</span><span class="op">$</span><span class="va">values</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">implied</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">pooled</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">tam_vars</span>, <span class="va">tam_vars</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">pooled</span> <span class="op">-</span> <span class="va">implied</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         PU    PEU    ATT     BI</span></span>
+<span><span class="co">#&gt; PU   0.000 -0.017  0.007 -0.020</span></span>
+<span><span class="co">#&gt; PEU -0.017  0.000 -0.017  0.055</span></span>
+<span><span class="co">#&gt; ATT  0.007 -0.017  0.000 -0.029</span></span>
+<span><span class="co">#&gt; BI  -0.020  0.055 -0.029  0.000</span></span></code></pre></div>
+<p>The largest residual belongs to the PEU-BI correlation, which the model under-reproduces by 0.055; all other residuals are below 0.03 in absolute value. That is exactly the omitted direct path that the chi-square test flagged. A residual of this size is modest relative to correlations around 0.4 to 0.6, so the significant chi-square and the residuals tell a consistent story: the model misses a small direct association between ease of use and intention. At the same time, the cutoffs proposed by <span class="citation">Hu and Bentler (<a href="sec-references.html#ref-hu1999cutoff">1999</a>)</span> for single-sample SEM (RMSEA below about 0.06, SRMR below about 0.08, CFI above about 0.95) were not derived for MASEM and should be treated as rough guides rather than decision rules.</p>
+<p>Three practical rules follow. Compare substantively motivated nested models with chi-square difference tests rather than judging one model in isolation. Report the stage 1 heterogeneity together with stage 2 fit, because a well-fitting average model can coexist with large between-study variation in the structure <span class="citation">(<a href="sec-references.html#ref-yu2016problem">Yu et al. 2016</a>)</span>. And do not interpret good fit as evidence that the causal ordering is correct: equivalent models with different causal orderings reproduce the same correlation matrix and fit identically.</p>
+</div>
+<div id="sec-masem-cfa" class="section level2" number="11.6">
+<h2>
+<span class="header-section-number">11.6</span> A confirmatory factor model: higher-order Big Five factors<a class="anchor" aria-label="anchor" href="#sec-masem-cfa"><i class="fas fa-link"></i></a>
+</h2>
+<p>MASEM handles latent variables in exactly the same way. <span class="citation">Digman (<a href="sec-references.html#ref-digman1997higher">1997</a>)</span> argued that the Big Five personality traits are organized under two higher-order factors: Alpha (agreeableness A, conscientiousness C, emotional stability ES) and Beta (extraversion E and intellect I). <code>Digman97</code> contains the correlation matrices among the five traits from 14 samples (total <span class="math inline">\(N\)</span> = 4,496).</p>
+<div class="sourceCode" id="cb221"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Digman97</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/is.pd.html">is.pd</a></span><span class="op">(</span><span class="va">Digman97</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; TRUE </span></span>
+<span><span class="co">#&gt;   14</span></span>
+<span><span class="va">big5_rem</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/tssem1.html">tssem1</a></span><span class="op">(</span><span class="va">Digman97</span><span class="op">$</span><span class="va">data</span>, <span class="va">Digman97</span><span class="op">$</span><span class="va">n</span>, method <span class="op">=</span> <span class="st">"REM"</span>, RE.type <span class="op">=</span> <span class="st">"Diag"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">big5_rem</span><span class="op">)</span><span class="op">$</span><span class="va">I2.values</span></span>
+<span><span class="co">#&gt;                               lbound Estimate ubound</span></span>
+<span><span class="co">#&gt; Intercept1: I2 (Q statistic)      NA   0.9326     NA</span></span>
+<span><span class="co">#&gt; Intercept2: I2 (Q statistic)      NA   0.8872     NA</span></span>
+<span><span class="co">#&gt; Intercept3: I2 (Q statistic)      NA   0.9325     NA</span></span>
+<span><span class="co">#&gt; Intercept4: I2 (Q statistic)      NA   0.8703     NA</span></span>
+<span><span class="co">#&gt; Intercept5: I2 (Q statistic)      NA   0.8797     NA</span></span>
+<span><span class="co">#&gt; Intercept6: I2 (Q statistic)      NA   0.8480     NA</span></span>
+<span><span class="co">#&gt; Intercept7: I2 (Q statistic)      NA   0.8887     NA</span></span>
+<span><span class="co">#&gt; Intercept8: I2 (Q statistic)      NA   0.7669     NA</span></span>
+<span><span class="co">#&gt; Intercept9: I2 (Q statistic)      NA   0.8590     NA</span></span>
+<span><span class="co">#&gt; Intercept10: I2 (Q statistic)     NA   0.8193     NA</span></span></code></pre></div>
+<p>The between-sample heterogeneity is large again, with <span class="math inline">\(I^2\)</span> between 0.77 and 0.93 for the ten correlations. The two-factor model, with factor variances fixed at one (<code>std.lv = TRUE</code>), is fitted in stage 2 and compared with a one-factor model.</p>
+<div class="sourceCode" id="cb222"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">big5_model2</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  Alpha =~ A + C + ES</span></span>
+<span><span class="st">  Beta  =~ E + I</span></span>
+<span><span class="st">  Alpha ~~ Beta</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">big5_model1</span> <span class="op">&lt;-</span> <span class="st">"G =~ A + C + ES + E + I"</span></span>
+<span><span class="va">obs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"ES"</span>, <span class="st">"E"</span>, <span class="st">"I"</span><span class="op">)</span></span>
+<span><span class="va">big5_fit2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/wls.html">tssem2</a></span><span class="op">(</span><span class="va">big5_rem</span>, RAM <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM</a></span><span class="op">(</span><span class="va">big5_model2</span>, obs.variables <span class="op">=</span> <span class="va">obs</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">big5_fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/wls.html">tssem2</a></span><span class="op">(</span><span class="va">big5_rem</span>, RAM <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM</a></span><span class="op">(</span><span class="va">big5_model1</span>, obs.variables <span class="op">=</span> <span class="va">obs</span>, std.lv <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">big5_fit2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; wls(Cov = pooledS, aCov = aCov, n = tssem1.obj$total.n, RAM = RAM, </span></span>
+<span><span class="co">#&gt;     Amatrix = Amatrix, Smatrix = Smatrix, Fmatrix = Fmatrix, </span></span>
+<span><span class="co">#&gt;     diag.constraints = diag.constraints, cor.analysis = cor.analysis, </span></span>
+<span><span class="co">#&gt;     intervals.type = intervals.type, mx.algebras = mx.algebras, </span></span>
+<span><span class="co">#&gt;     mxModel.Args = mxModel.Args, subset.variables = subset.variables, </span></span>
+<span><span class="co">#&gt;     model.name = model.name, suppressWarnings = suppressWarnings, </span></span>
+<span><span class="co">#&gt;     silent = silent, run = run)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 95% confidence intervals: z statistic approximation</span></span>
+<span><span class="co">#&gt; Coefficients:</span></span>
+<span><span class="co">#&gt;               Estimate Std.Error lbound ubound z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; AONAlpha        0.5694    0.0524 0.4667 0.6722   10.86  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; CONAlpha        0.5906    0.0526 0.4874 0.6938   11.22  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; EONBeta         0.6800    0.0757 0.5315 0.8284    8.98  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; ESONAlpha       0.7605    0.0620 0.6390 0.8819   12.27  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; IONBeta         0.6418    0.0725 0.4998 0.7839    8.86  &lt; 2e-16 ***</span></span>
+<span><span class="co">#&gt; AlphaWITHBeta   0.3777    0.0474 0.2848 0.4706    7.97  1.6e-15 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Goodness-of-fit indices:</span></span>
+<span><span class="co">#&gt;                                              Value</span></span>
+<span><span class="co">#&gt; Sample size                                4496.00</span></span>
+<span><span class="co">#&gt; Chi-square of target model                    7.82</span></span>
+<span><span class="co">#&gt; DF of target model                            4.00</span></span>
+<span><span class="co">#&gt; p value of target model                       0.10</span></span>
+<span><span class="co">#&gt; Number of constraints imposed on "Smatrix"    0.00</span></span>
+<span><span class="co">#&gt; DF manually adjusted                          0.00</span></span>
+<span><span class="co">#&gt; Chi-square of independence model            501.68</span></span>
+<span><span class="co">#&gt; DF of independence model                     10.00</span></span>
+<span><span class="co">#&gt; RMSEA                                         0.01</span></span>
+<span><span class="co">#&gt; RMSEA lower 95% CI                            0.00</span></span>
+<span><span class="co">#&gt; RMSEA upper 95% CI                            0.03</span></span>
+<span><span class="co">#&gt; SRMR                                          0.04</span></span>
+<span><span class="co">#&gt; TLI                                           0.98</span></span>
+<span><span class="co">#&gt; CFI                                           0.99</span></span>
+<span><span class="co">#&gt; AIC                                          -0.18</span></span>
+<span><span class="co">#&gt; BIC                                         -25.82</span></span>
+<span><span class="co">#&gt; OpenMx status1: 0 ("0" or "1": The optimization is considered fine.</span></span>
+<span><span class="co">#&gt; Other values indicate problems.)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">big5_fit2</span>, <span class="va">big5_fit1</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 base         comparison ep minus2LL df    AIC diffLL diffdf</span></span>
+<span><span class="co">#&gt; 1 TSSEM2 Correlation               &lt;NA&gt;  6     7.82 -6  19.82     NA     NA</span></span>
+<span><span class="co">#&gt; 2 TSSEM2 Correlation TSSEM2 Correlation  5   101.73 -5 111.73  93.91      1</span></span>
+<span><span class="co">#&gt;           p</span></span>
+<span><span class="co">#&gt; 1        NA</span></span>
+<span><span class="co">#&gt; 2 3.307e-22</span></span></code></pre></div>
+<p>The two-factor model fits well: <span class="math inline">\(\chi^2(4) = 7.82\)</span>, <span class="math inline">\(p = .098\)</span>, RMSEA = 0.015, SRMR = 0.044, CFI = 0.992. The standardized loadings range from 0.57 (agreeableness on Alpha) to 0.76 (emotional stability on Alpha), and the two higher-order factors correlate 0.38 (95% CI 0.28 to 0.47). Collapsing them into a single general factor is decisively rejected, with a chi-square difference of 93.9 on one degree of freedom. These results agree with Digman’s conclusion while giving it a formal test and confidence intervals that account for between-sample heterogeneity.</p>
+<p>The <code>Digman97</code> data also record whether each sample consisted of children, adolescents, young adults or mature adults. Subgroup MASEM fits stage 1 and stage 2 separately in each subgroup and compares the structures <span class="citation">(<a href="sec-references.html#ref-jak2018testing">Jak and Cheung 2018</a>)</span>. With only five samples of children or adolescents here, the random-effects variances in that subgroup would be poorly determined, which illustrates a general limitation: subgroup MASEM needs many studies per group and only handles categorical moderators. One-stage MASEM (Section <a href="sec-masem.html#sec-masem-osmasem">11.8</a>) is the more flexible alternative.</p>
+</div>
+<div id="sec-masem-missing" class="section level2" number="11.7">
+<h2>
+<span class="header-section-number">11.7</span> Missing correlations and positive definiteness<a class="anchor" aria-label="anchor" href="#sec-masem-missing"><i class="fas fa-link"></i></a>
+</h2>
+<p>In most MASEM applications the studies do not all measure the same variables. <code>Roorda11</code> contains 45 studies on how positive (pos) and negative (neg) teacher-student relationships relate to students’ school engagement (enga) and achievement (achiev) <span class="citation">(<a href="sec-references.html#ref-roorda2011influence">Roorda et al. 2011</a>)</span>. The pattern of available correlations is very uneven.</p>
+<div class="sourceCode" id="cb223"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/pattern.na.html">pattern.na</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">data</span>, show.na <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        pos neg enga achiev</span></span>
+<span><span class="co">#&gt; pos     37  16   26     30</span></span>
+<span><span class="co">#&gt; neg     16  21   10     19</span></span>
+<span><span class="co">#&gt; enga    26  10   25     13</span></span>
+<span><span class="co">#&gt; achiev  30  19   13     33</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/pattern.n.html">pattern.n</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">data</span>, <span class="va">Roorda11</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          pos   neg  enga achiev</span></span>
+<span><span class="co">#&gt; pos    15305  4212 10636  21990</span></span>
+<span><span class="co">#&gt; neg     4212 17284  3105  16788</span></span>
+<span><span class="co">#&gt; enga   10636  3105 10583   4559</span></span>
+<span><span class="co">#&gt; achiev 21990 16788  4559  23414</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/is.pd.html">is.pd</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">data</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; TRUE </span></span>
+<span><span class="co">#&gt;   45</span></span></code></pre></div>
+<p>The diagonal of <code><a href="https://rdrr.io/pkg/metaSEM/man/pattern.na.html">pattern.na()</a></code> counts how many studies include each variable, and the off-diagonal cells count how many report each correlation. The correlation between negative relationships and engagement rests on only 10 studies (3,105 students), while the correlation between positive relationships and achievement rests on 30 studies (21,990 students). Every matrix that is present is positive definite once missing rows and columns are dropped, which is what <code><a href="https://rdrr.io/pkg/metaSEM/man/is.pd.html">is.pd()</a></code> checks.</p>
+<p>Univariate pooling would use 10 studies for one cell and 30 for another and then pretend that all cells have the same precision. TSSEM handles the pattern by FIML in the fixed-effects model and by maximum likelihood with missing data in the random-effects model, and the stage 2 weight matrix automatically gives the sparse correlations less weight <span class="citation">(<a href="sec-references.html#ref-cheung2005meta">Cheung and Chan 2005</a>; <a href="sec-references.html#ref-jak2017accounting">Jak and Cheung 2017</a>)</span>. This is valid when correlations are missing at random given the observed data. If studies omit correlations because they were small or non-significant, a form of outcome reporting bias, no MASEM estimator can recover from that without additional assumptions.</p>
+<p><span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span> list strategies for filling gaps before analysis, in order of preference: searching again for studies that report the missing pairs, requesting the correlations from authors, and, more cautiously, using conceptually similar proxy variables or composite correlations. Imputing a constant, such as the mean of the other correlations, should be avoided because it understates uncertainty and can produce non-positive-definite pooled matrices. If the pooled matrix itself is not positive definite, the most common causes are sparse cells and near-redundant constructs, and the remedies are to reduce the number of variables or to merge constructs that are empirically indistinguishable.</p>
+</div>
+<div id="sec-masem-osmasem" class="section level2" number="11.8">
+<h2>
+<span class="header-section-number">11.8</span> One-stage MASEM with moderators<a class="anchor" aria-label="anchor" href="#sec-masem-osmasem"><i class="fas fa-link"></i></a>
+</h2>
+<p>TSSEM tests moderators only through subgroups. In many applications, though, the question is whether a structural path changes with a continuous study characteristic: does the link between teacher-student relationships and engagement weaken in samples with higher socio-economic status (SES)? <span class="citation">Jak and Cheung (<a href="sec-references.html#ref-jak2020meta">2020</a>)</span> developed one-stage MASEM for this purpose. The model for study <span class="math inline">\(i\)</span> is</p>
+<p><span class="math display">\[
+\mathbf{r}_i = \operatorname{vechs}\,\mathbf{P}(\boldsymbol{\theta}_i) + \mathbf{u}_i + \mathbf{e}_i, \qquad
+\mathbf{A}_i = \mathbf{A}_0 + \mathbf{A}_1 x_i, \qquad
+\mathbf{u}_i \sim N(\mathbf{0}, \mathbf{T}^2), \quad \mathbf{e}_i \sim N(\mathbf{0}, \mathbf{V}_i),
+\]</span></p>
+<p>so each path coefficient is a linear function of the moderator <span class="math inline">\(x_i\)</span>, and the between-study variance <span class="math inline">\(\mathbf{T}^2\)</span> is now residual heterogeneity in the correlations after accounting for the moderator. The whole model is estimated in one step by maximum likelihood. A tutorial with a point-and-click web application is <span class="citation">Jak et al. (<a href="sec-references.html#ref-jak2021metaanalytic">2021</a>)</span>.</p>
+<p><code><a href="https://rdrr.io/pkg/metaSEM/man/Cor2DataFrame.html">Cor2DataFrame()</a></code> reshapes the correlation matrices into one row per study with the correlations, their sampling covariances and any moderators. Standardizing the moderator improves numerical stability and makes the intercept matrix <span class="math inline">\(\mathbf{A}_0\)</span> the structure at average SES.</p>
+<div class="sourceCode" id="cb224"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">roorda_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/Cor2DataFrame.html">Cor2DataFrame</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">data</span>, <span class="va">Roorda11</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">roorda_df</span><span class="op">$</span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">roorda_df</span><span class="op">$</span><span class="va">data</span>, SES <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">Roorda11</span><span class="op">$</span><span class="va">SES</span><span class="op">)</span>,</span>
+<span>                             check.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">roorda_df</span><span class="op">$</span><span class="va">data</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">roorda_df</span><span class="op">$</span><span class="va">ylabels</span>, <span class="st">"SES"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   neg_pos enga_pos achiev_pos enga_neg achiev_neg achiev_enga     SES</span></span>
+<span><span class="co">#&gt; 1   -0.54       NA       0.18       NA      -0.29          NA  0.4464</span></span>
+<span><span class="co">#&gt; 2      NA     0.64       0.29       NA         NA        0.23  0.7145</span></span>
+<span><span class="co">#&gt; 3      NA     0.29         NA       NA         NA          NA  0.8821</span></span>
+<span><span class="co">#&gt; 4      NA     0.29         NA       NA         NA          NA -0.8942</span></span></code></pre></div>
+<p>The hypothesized model has positive and negative relationships predicting engagement, which in turn predicts achievement. <code><a href="https://rdrr.io/pkg/metaSEM/man/create.vechsR.html">create.vechsR()</a></code> builds the model-implied correlation vector from the RAM matrices, and <code><a href="https://rdrr.io/pkg/metaSEM/man/create.Tau2.html">create.Tau2()</a></code> builds the heterogeneity structure.</p>
+<div class="sourceCode" id="cb225"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">roorda_model</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
+<span><span class="st">  enga   ~ e1*pos + e2*neg</span></span>
+<span><span class="st">  achiev ~ a1*enga</span></span>
+<span><span class="st">  pos ~~ 1*pos</span></span>
+<span><span class="st">  neg ~~ 1*neg</span></span>
+<span><span class="st">  pos ~~ pn*neg</span></span>
+<span><span class="st">"</span></span>
+<span><span class="va">roorda_RAM</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/lavaan2RAM.html">lavaan2RAM</a></span><span class="op">(</span><span class="va">roorda_model</span>, obs.variables <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pos"</span>, <span class="st">"neg"</span>, <span class="st">"enga"</span>, <span class="st">"achiev"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">M0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/create.vechsR.html">create.vechsR</a></span><span class="op">(</span>A0 <span class="op">=</span> <span class="va">roorda_RAM</span><span class="op">$</span><span class="va">A</span>, S0 <span class="op">=</span> <span class="va">roorda_RAM</span><span class="op">$</span><span class="va">S</span><span class="op">)</span></span>
+<span><span class="va">T0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/create.Tau2.html">create.Tau2</a></span><span class="op">(</span>RAM <span class="op">=</span> <span class="va">roorda_RAM</span>, RE.type <span class="op">=</span> <span class="st">"Diag"</span><span class="op">)</span></span>
+<span><span class="va">os_fit0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/osmasem.html">osmasem</a></span><span class="op">(</span>model.name <span class="op">=</span> <span class="st">"No moderator"</span>, Mmatrix <span class="op">=</span> <span class="va">M0</span>, Tmatrix <span class="op">=</span> <span class="va">T0</span>,</span>
+<span>                   data <span class="op">=</span> <span class="va">roorda_df</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">os_fit0</span>, fitIndices <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Summary of No moderator </span></span>
+<span><span class="co">#&gt;  </span></span>
+<span><span class="co">#&gt; free parameters:</span></span>
+<span><span class="co">#&gt;      name  matrix    row  col Estimate Std.Error A z value  Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; 1      e1      A0   enga  pos   0.2650   0.03781     7.009 2.400e-12</span></span>
+<span><span class="co">#&gt; 2      e2      A0   enga  neg  -0.2964   0.05475    -5.414 6.149e-08</span></span>
+<span><span class="co">#&gt; 3      a1      A0 achiev enga   0.3501   0.04053     8.637 5.763e-18</span></span>
+<span><span class="co">#&gt; 4      pn      S0    neg  pos  -0.2387   0.04058    -5.882 4.045e-09</span></span>
+<span><span class="co">#&gt; 5  Tau1_1 vecTau1      1    1  -3.9389   0.43954    -8.961 3.205e-19</span></span>
+<span><span class="co">#&gt; 6  Tau1_2 vecTau1      2    1  -3.7413   0.36747   -10.181 2.402e-24</span></span>
+<span><span class="co">#&gt; 7  Tau1_3 vecTau1      3    1  -5.1271   0.45402   -11.293 1.428e-29</span></span>
+<span><span class="co">#&gt; 8  Tau1_4 vecTau1      4    1  -4.1994   0.69798    -6.016 1.783e-09</span></span>
+<span><span class="co">#&gt; 9  Tau1_5 vecTau1      5    1  -4.7600   0.54940    -8.664 4.559e-18</span></span>
+<span><span class="co">#&gt; 10 Tau1_6 vecTau1      6    1  -3.9085   0.52666    -7.421 1.160e-13</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; To obtain confidence intervals re-run with intervals=TRUE</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Statistics: </span></span>
+<span><span class="co">#&gt;                |  Parameters  |  Degrees of Freedom  |  Fit (-2lnL units)</span></span>
+<span><span class="co">#&gt;        Model:             10                     91              -117.558</span></span>
+<span><span class="co">#&gt;    Saturated:             12                     89              -127.199</span></span>
+<span><span class="co">#&gt; Independence:              6                     95                 8.937</span></span>
+<span><span class="co">#&gt; Number of observations/statistics: 29438/101</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; chi-square:  χ² ( df=2 ) = 9.641,  p = 0.008062</span></span>
+<span><span class="co">#&gt; Information Criteria: </span></span>
+<span><span class="co">#&gt;       |  df Penalty  |  Parameters Penalty  |  Sample-Size Adjusted</span></span>
+<span><span class="co">#&gt; AIC:         -299.6                 -97.56                   -97.55</span></span>
+<span><span class="co">#&gt; BIC:        -1054.0                 -14.66                   -46.44</span></span>
+<span><span class="co">#&gt; CFI: 0.9413 </span></span>
+<span><span class="co">#&gt; TLI: 0.8239   (also known as NNFI) </span></span>
+<span><span class="co">#&gt; RMSEA:  0.01139  [95% CI (0.003446, 0.02035)]</span></span>
+<span><span class="co">#&gt; Prob(RMSEA &lt;= 0.05): 1</span></span>
+<span><span class="co">#&gt; timestamp: 2026-11-25 01:24:16 </span></span>
+<span><span class="co">#&gt; Wall clock time: 0.1456 secs </span></span>
+<span><span class="co">#&gt; optimizer:  SLSQP </span></span>
+<span><span class="co">#&gt; OpenMx version number: 2.22.11 </span></span>
+<span><span class="co">#&gt; Need help?  See help(mxSummary)</span></span></code></pre></div>
+<p>Without moderators, OSMASEM is an alternative to random-effects TSSEM. The estimates (engagement on positive relationships 0.265, on negative relationships <span class="math inline">\(-0.296\)</span>, achievement on engagement 0.350) are close to what TSSEM gives for these data. The <code>Tau1_</code> parameters are log standard deviations of the random effects; <code>VarCorr(os_fit0)</code> returns the variances. The model test, <span class="math inline">\(\chi^2(2) = 9.64\)</span>, <span class="math inline">\(p = .008\)</span>, with RMSEA = 0.011 and CFI = 0.94, compares the model with a saturated one-stage model and again suggests small misfit, notably the absence of direct paths from relationships to achievement.</p>
+<p>To let SES moderate the three regression paths, we create a matrix <code>Ax</code> with the moderator in the positions of those paths. The <code>data.</code> prefix tells <code>OpenMx</code> to read the value from each study’s row (a definition variable).</p>
+<div class="sourceCode" id="cb226"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Ax</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">4</span>, dimnames <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pos"</span>, <span class="st">"neg"</span>, <span class="st">"enga"</span>, <span class="st">"achiev"</span><span class="op">)</span>,</span>
+<span>                                      <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pos"</span>, <span class="st">"neg"</span>, <span class="st">"enga"</span>, <span class="st">"achiev"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">Ax</span><span class="op">[</span><span class="st">"enga"</span>, <span class="st">"pos"</span><span class="op">]</span>    <span class="op">&lt;-</span> <span class="st">"0*data.SES"</span></span>
+<span><span class="va">Ax</span><span class="op">[</span><span class="st">"enga"</span>, <span class="st">"neg"</span><span class="op">]</span>    <span class="op">&lt;-</span> <span class="st">"0*data.SES"</span></span>
+<span><span class="va">Ax</span><span class="op">[</span><span class="st">"achiev"</span>, <span class="st">"enga"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"0*data.SES"</span></span>
+<span><span class="va">M1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/create.vechsR.html">create.vechsR</a></span><span class="op">(</span>A0 <span class="op">=</span> <span class="va">roorda_RAM</span><span class="op">$</span><span class="va">A</span>, S0 <span class="op">=</span> <span class="va">roorda_RAM</span><span class="op">$</span><span class="va">S</span>, Ax <span class="op">=</span> <span class="va">Ax</span><span class="op">)</span></span>
+<span><span class="va">os_fit1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/osmasem.html">osmasem</a></span><span class="op">(</span>model.name <span class="op">=</span> <span class="st">"SES moderator"</span>, Mmatrix <span class="op">=</span> <span class="va">M1</span>, Tmatrix <span class="op">=</span> <span class="va">T0</span>,</span>
+<span>                   data <span class="op">=</span> <span class="va">roorda_df</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">os_fit1</span><span class="op">)</span><span class="op">$</span><span class="va">parameters</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"Estimate"</span>, <span class="st">"Std.Error"</span>, <span class="st">"z value"</span>, <span class="st">"Pr(&gt;|z|)"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;      name  Estimate Std.Error  z value  Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; 1      e1  0.265858   0.03772   7.0485 1.808e-12</span></span>
+<span><span class="co">#&gt; 2      e2 -0.274080   0.05309  -5.1622 2.441e-07</span></span>
+<span><span class="co">#&gt; 3      a1  0.350630   0.04062   8.6311 6.074e-18</span></span>
+<span><span class="co">#&gt; 4      pn -0.239005   0.04060  -5.8874 3.922e-09</span></span>
+<span><span class="co">#&gt; 5    e1_1  0.005017   0.03724   0.1347 8.928e-01</span></span>
+<span><span class="co">#&gt; 6    e2_1 -0.035717   0.04355  -0.8201 4.122e-01</span></span>
+<span><span class="co">#&gt; 7    a1_1 -0.055229   0.03289  -1.6795 9.306e-02</span></span>
+<span><span class="co">#&gt; 8  Tau1_1 -3.937808   0.43975  -8.9547 3.405e-19</span></span>
+<span><span class="co">#&gt; 9  Tau1_2 -3.758360   0.36767 -10.2221 1.580e-24</span></span>
+<span><span class="co">#&gt; 10 Tau1_3 -5.137405   0.45075 -11.3975 4.303e-30</span></span>
+<span><span class="co">#&gt; 11 Tau1_4 -4.570582   0.85502  -5.3456 9.013e-08</span></span>
+<span><span class="co">#&gt; 12 Tau1_5 -4.664573   0.54648  -8.5356 1.394e-17</span></span>
+<span><span class="co">#&gt; 13 Tau1_6 -4.068400   0.53835  -7.5571 4.121e-14</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">os_fit1</span>, <span class="va">os_fit0</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            base   comparison ep minus2LL df    AIC diffLL diffdf      p</span></span>
+<span><span class="co">#&gt; 1 SES moderator         &lt;NA&gt; 13   -120.8 88 -94.78     NA     NA     NA</span></span>
+<span><span class="co">#&gt; 2 SES moderator No moderator 10   -117.6 91 -97.56  3.224      3 0.3583</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/osmasemR2.html">osmasemR2</a></span><span class="op">(</span><span class="va">os_fit1</span>, <span class="va">os_fit0</span><span class="op">)</span><span class="op">$</span><span class="va">R2</span></span>
+<span><span class="co">#&gt; Tau2_1_1 Tau2_2_2 Tau2_3_3 Tau2_4_4 Tau2_5_5 Tau2_6_6 </span></span>
+<span><span class="co">#&gt;  0.00000  0.01689  0.01028  0.31010  0.00000  0.14775</span></span></code></pre></div>
+<p>The rows <code>e1_1</code>, <code>e2_1</code> and <code>a1_1</code> are the moderating effects in <span class="math inline">\(\mathbf{A}_1\)</span>, that is, the change in each path for a one-standard-deviation increase in sample SES. None is distinguishable from zero individually. The largest, for the engagement-achievement path, is <span class="math inline">\(-0.055\)</span> (<span class="math inline">\(p = .09\)</span>). Jointly, the likelihood-ratio test of the three moderator effects is <span class="math inline">\(\chi^2(3) = 3.22\)</span>, <span class="math inline">\(p = .36\)</span>. <code><a href="https://rdrr.io/pkg/metaSEM/man/osmasemR2.html">osmasemR2()</a></code> reports the proportional reduction in each heterogeneity variance. It is 31% for the fourth correlation (negative relationships with engagement) and 15% for the sixth (engagement with achievement), but these figures rest on only 10 and 13 studies respectively and should not be over-read. The substantive conclusion is that the structure linking relationships, engagement and achievement looks similar across samples differing in SES.</p>
+<div class="rmdtip">
+<p>OSMASEM is a model for continuous and categorical moderators of structural parameters, but it inherits the limitations of meta-regression (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>): moderators are study-level and observational, the number of studies limits how many moderated paths can be estimated, and ecological inferences about individuals are not justified. <span class="citation">Jak and Cheung (<a href="sec-references.html#ref-jak2020meta">2020</a>)</span> recommend standardizing continuous moderators and testing moderators jointly with likelihood-ratio tests.</p>
+</div>
+</div>
+<div id="sec-masem-metasem-meta" class="section level2" number="11.9">
+<h2>
+<span class="header-section-number">11.9</span> Univariate, multivariate and three-level meta-analysis in <code>metaSEM</code><a class="anchor" aria-label="anchor" href="#sec-masem-metasem-meta"><i class="fas fa-link"></i></a>
+</h2>
+<p>Because a meta-analysis is a special case of an SEM <span class="citation">(<a href="sec-references.html#ref-cheung2008model">Cheung 2008</a>)</span>, <code>metaSEM</code> also fits ordinary meta-analytic models. The advantages over the dedicated packages are likelihood-based confidence intervals, FIML treatment of missing covariates, and the possibility of embedding the meta-analysis in a larger structural model. <code><a href="https://rdrr.io/pkg/metaSEM/man/meta.html">meta()</a></code> fits univariate and multivariate random-effects models, with moderators entered through <code>x</code>.</p>
+<div class="sourceCode" id="cb227"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Becker83</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/meta.html">meta</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">di</span>, v <span class="op">=</span> <span class="va">vi</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">items</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Becker83</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span>
+<span><span class="co">#&gt;              Estimate Std.Error   lbound   ubound    z value  Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; Intercept1 -3.202e-01   0.10981 -0.53539 -0.10492 -2.915e+00 3.552e-03</span></span>
+<span><span class="co">#&gt; Slope1_1    2.109e-01   0.04508  0.12251  0.29924  4.677e+00 2.905e-06</span></span>
+<span><span class="co">#&gt; Tau2_1_1    1.000e-10   0.02010 -0.03939  0.03939  4.976e-09 1.000e+00</span></span></code></pre></div>
+<p>For <code>Becker83</code>, ten studies of sex differences in conformity, the mixed-effects model gives a slope of 0.21 for the log number of items in the conformity measure, with the residual heterogeneity variance estimated at essentially zero. A bivariate model takes a matrix of effect sizes and the vectorized within-study covariance matrices.</p>
+<div class="sourceCode" id="cb228"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Berkey98</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/meta.html">meta</a></span><span class="op">(</span>y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">PD</span>, <span class="va">AL</span><span class="op">)</span>, v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">var_PD</span>, <span class="va">cov_PD_AL</span>, <span class="va">var_AL</span><span class="op">)</span>,</span>
+<span>             data <span class="op">=</span> <span class="va">Berkey98</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span>
+<span><span class="co">#&gt;             Estimate Std.Error    lbound   ubound z value  Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; Intercept1  0.344839   0.05363  0.239724  0.44995  6.4298 1.278e-10</span></span>
+<span><span class="co">#&gt; Intercept2 -0.337938   0.08125 -0.497181 -0.17870 -4.1593 3.192e-05</span></span>
+<span><span class="co">#&gt; Tau2_1_1    0.007002   0.00905 -0.010735  0.02474  0.7737 4.391e-01</span></span>
+<span><span class="co">#&gt; Tau2_2_1    0.009461   0.00997 -0.010080  0.02900  0.9489 3.427e-01</span></span>
+<span><span class="co">#&gt; Tau2_2_2    0.026145   0.01774 -0.008627  0.06092  1.4737 1.406e-01</span></span></code></pre></div>
+<p>These are the periodontal disease data analysed in detail with <code>metafor</code> in Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>, and the pooled estimates (0.34 for probing depth and <span class="math inline">\(-0.34\)</span> for attachment level) are close to the REML estimates reported there; <code><a href="https://rdrr.io/pkg/metaSEM/man/meta.html">meta()</a></code> uses maximum likelihood by default. Finally, <code><a href="https://rdrr.io/pkg/metaSEM/man/meta3L.html">meta3L()</a></code> fits the three-level model for effect sizes nested in clusters <span class="citation">(<a href="sec-references.html#ref-cheung2014modeling">Cheung 2014</a>)</span>.</p>
+<div class="sourceCode" id="cb229"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Cooper03</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/metaSEM/man/meta3L.html">meta3L</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, v <span class="op">=</span> <span class="va">v</span>, cluster <span class="op">=</span> <span class="va">District</span>, data <span class="op">=</span> <span class="va">Cooper03</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span></span>
+<span><span class="co">#&gt;           Estimate Std.Error    lbound ubound z value Pr(&gt;|z|)</span></span>
+<span><span class="co">#&gt; Intercept  0.18446   0.08054  0.026598 0.3423   2.290 0.022010</span></span>
+<span><span class="co">#&gt; Tau2_2     0.03286   0.01114  0.011031 0.0547   2.950 0.003175</span></span>
+<span><span class="co">#&gt; Tau2_3     0.05774   0.03074 -0.002515 0.1180   1.878 0.060362</span></span></code></pre></div>
+<p>The 56 effect sizes on modified school calendars come from 11 districts. The pooled effect is 0.18, with a between-district variance (<code>Tau2_3</code>) of 0.058 and a within-district variance (<code>Tau2_2</code>) of 0.033. Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a> discusses three-level models, their alternatives, and robust variance estimation in detail.</p>
+</div>
+<div id="sec-masem-artifacts" class="section level2" number="11.10">
+<h2>
+<span class="header-section-number">11.10</span> Measurement error and dependent matrices<a class="anchor" aria-label="anchor" href="#sec-masem-artifacts"><i class="fas fa-link"></i></a>
+</h2>
+<p>Observed correlations are attenuated by unreliability. In the psychometric tradition <span class="citation">(<a href="sec-references.html#ref-schmidt2015a">Schmidt and Hunter 2015</a>)</span>, each correlation is disattenuated before pooling, <span class="math inline">\(r^{c}_{ijl} = r_{ijl}/\sqrt{a_{ij} a_{il}}\)</span>, where <span class="math inline">\(a_{ij}\)</span> is the reliability of variable <span class="math inline">\(j\)</span> in study <span class="math inline">\(i\)</span>, and its sampling variance is divided by the same product. For a full matrix this amounts to <span class="math inline">\(\mathbf{R}^{c}_i = \mathbf{D}_i^{-1/2}(\mathbf{R}_i - \mathbf{I})\mathbf{D}_i^{-1/2} + \mathbf{I}\)</span> with <span class="math inline">\(\mathbf{D}_i = \operatorname{diag}(a_{i1}, \dots, a_{ip})\)</span>. Corrected matrices can then be passed to TSSEM. Two cautions apply. Corrected matrices are more often non-positive definite, especially when reliabilities are low or poorly estimated, and the corrected sampling covariances are larger, so the effective weight of studies with unreliable measures falls. The sampling error in the reliability estimates themselves is usually ignored, and dependent correlations require additional care in the correction <span class="citation">(<a href="sec-references.html#ref-cheung2018a">Cheung et al. 2018</a>)</span>. An alternative that stays within SEM is to model each construct as a latent variable with a single indicator whose error variance is fixed at <span class="math inline">\(1 - \bar a_j\)</span>, using an average reliability. This corrects the structural paths for unreliability without altering the stage 1 data. Whichever route is chosen, the uncorrected analysis should be reported as well, because the size of the correction is itself informative.</p>
+<p>A second practical problem is that one study may contribute several matrices, for example from different subsamples that share participants, or several measures of the same construct. Stage 1 assumes that matrices are independent. The common solutions are to select one matrix per independent sample using a pre-specified rule, to average the correlations for multiple measures of the same construct into a composite correlation, or to model the dependence explicitly with a multilevel extension of the random-effects stage 1 model. <span class="citation">Geyskens et al. (<a href="sec-references.html#ref-geyskens2006make">2006</a>)</span> illustrate such selection and compositing rules in a large management meta-analysis.</p>
+</div>
+<div id="sec-masem-reporting" class="section level2" number="11.11">
+<h2>
+<span class="header-section-number">11.11</span> Practical recommendations and reporting<a class="anchor" aria-label="anchor" href="#sec-masem-reporting"><i class="fas fa-link"></i></a>
+</h2>
+<p>A MASEM project starts with theory. <span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span> recommend specifying the competing models before data collection and stating whether each is a priori or post hoc. The literature search must then target every bivariate relation in the model, not only the focal ones, because sparsely populated cells limit everything downstream. Extraction should record, for each study, the full correlation matrix among the coded variables, the sample size, the measures used and their reliabilities, and the moderators of interest. If correlations are to be corrected for unreliability, the corrections should be applied consistently, and missing reliabilities should be imputed transparently; <span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span> discuss using the mean observed reliability for that purpose. Whether to analyze corrected or uncorrected matrices is a substantive choice that should be reported and, ideally, varied in a sensitivity analysis.</p>
+<p>For estimation we recommend random-effects TSSEM as the default for testing structural models, OSMASEM when continuous moderators of paths are of interest, and likelihood-based confidence intervals for indirect effects. The univariate approach with a single harmonic-mean sample size should be avoided except for rough exploration. <span class="citation">Sheng et al. (<a href="sec-references.html#ref-sheng2016analyzing">2016</a>)</span> reviewed how meta-analytic correlation matrices are analyzed in published applications, documented the gaps between current and recommended practice, and offer recommendations covering planning, data collection, analysis and interpretation.</p>
+<p>There is no MASEM-specific reporting guideline comparable to PRISMA (Chapter <a href="sec-reporting.html#sec-reporting">15</a>), but the recommendations of <span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span>, <span class="citation">Sheng et al. (<a href="sec-references.html#ref-sheng2016analyzing">2016</a>)</span> and <span class="citation">Cheung and Hong (<a href="sec-references.html#ref-cheung2017">2017</a>)</span> converge on a minimal set. Report a table of all pooled correlations with their confidence intervals, the number of studies <span class="math inline">\(k\)</span> and total <span class="math inline">\(N\)</span> behind each cell, and the heterogeneity estimates (<span class="math inline">\(\hat\tau^2\)</span> or <span class="math inline">\(I^2\)</span>). Report the stage 1 model (fixed or random, structure of <span class="math inline">\(\mathbf{T}^2\)</span>) and the homogeneity test. For each fitted model report <span class="math inline">\(\chi^2\)</span>, df, RMSEA, SRMR and CFI, with chi-square difference tests for nested comparisons. Give a table of standardized parameter estimates with standard errors or confidence intervals, a path diagram, and the R code and extracted matrices as supplementary material. Report how positive definiteness problems, missing correlations, corrections for artifacts and dependent samples were handled. The MASEM literature also notes that a model containing only observed variables is a meta-analytic path analysis rather than a latent-variable SEM, so claims about constructs need to acknowledge measurement error <span class="citation">(<a href="sec-references.html#ref-bergh2016using">Bergh et al. 2016</a>)</span>.</p>
+</div>
+<div id="sec-masem-pitfalls" class="section level2" number="11.12">
+<h2>
+<span class="header-section-number">11.12</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-masem-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Ignoring heterogeneity.</strong> Fixed-effects TSSEM or univariate pooling with a single <span class="math inline">\(N\)</span> produces standard errors that are far too small when correlations vary between studies, as the TAM example showed (standard errors of about 0.007 for the univariate approach versus roughly 0.02 to 0.05 once heterogeneity is acknowledged). Use random-effects stage 1 by default, and report the heterogeneity.</p>
+<p><strong>Treating good fit as causal evidence.</strong> Equivalent models with reversed arrows fit identically. MASEM on observational correlations cannot establish causal direction <span class="citation">(<a href="sec-references.html#ref-steinmetz2022meta">Steinmetz and Block 2022</a>)</span>; the theory, temporal ordering in the primary designs, and the presence of experimental studies do that work.</p>
+<p><strong>Sparse cells.</strong> A correlation based on two or three studies has a poorly estimated heterogeneity variance and can destabilize the whole model. Report <span class="math inline">\(k\)</span> per cell, consider dropping variables with sparse coverage, and examine the sensitivity of key paths to their removal.</p>
+<p><strong>Dependent samples.</strong> Several matrices from overlapping samples, or several measures of the same construct within one study, violate the independence assumed in stage 1. Choose one matrix per independent sample, form composite correlations, or use models for dependent effect sizes <span class="citation">(<a href="sec-references.html#ref-geyskens2006make">Geyskens et al. 2006</a>; <a href="sec-references.html#ref-cheung2015metaanalysis">M. W. ‐L. Cheung 2015</a>)</span>.</p>
+<p><strong>Mixing constructs.</strong> Pooling correlations for differently operationalized constructs is the MASEM version of comparing apples and oranges. Code the operationalization and test it as a moderator, or restrict the analysis to commensurable measures.</p>
+<p><strong>Over-interpreting moderator results.</strong> OSMASEM moderators are study-level associations with all the confounding problems of meta-regression, and with few studies per path, power is low. A non-significant moderator effect is not evidence that the structure is invariant.</p>
+</div>
+<div id="sec-masem-takeaways" class="section level2" number="11.13">
+<h2>
+<span class="header-section-number">11.13</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-masem-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<p>MASEM tests multivariate theories, including mediation and latent-variable structures, against a body of primary studies by fitting an SEM to pooled correlation matrices. Pooling each correlation separately and then treating the pooled matrix as a single sample gives incorrect standard errors and tests, especially under heterogeneity. Two-stage SEM pools the correlation matrices in stage 1 (fixed or random effects, with FIML for missing correlations) and fits the structural model by WLS in stage 2, weighting each pooled correlation by its precision, which yields valid standard errors, likelihood-based intervals for indirect effects, and chi-square tests of fit and of nested models. Random-effects stage 1 should be the default, because correlation matrices in applied literatures are typically heterogeneous. One-stage MASEM lets study-level moderators act on individual structural paths. Fit indices should be interpreted with care given the large total samples, and good fit never establishes causal direction. Transparent reporting includes the pooled matrix with <span class="math inline">\(k\)</span>, <span class="math inline">\(N\)</span> and heterogeneity for each cell, the fit of all competing models, and the data and code.</p>
+</div>
+<div id="sec-masem-reading" class="section level2" number="11.14">
+<h2>
+<span class="header-section-number">11.14</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-masem-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">M. W. ‐L. Cheung (<a href="sec-references.html#ref-cheung2015metaanalysis">2015</a>)</span> is the standard book-length treatment of meta-analysis as SEM, including TSSEM and the <code>metaSEM</code> package; <span class="citation">Jak (<a href="sec-references.html#ref-jak2015metaanalytic">2015</a>)</span> is a concise introduction. The foundational articles are <span class="citation">Cheung and Chan (<a href="sec-references.html#ref-cheung2005meta">2005</a>)</span> on TSSEM, <span class="citation">Cheung (<a href="sec-references.html#ref-cheung2013">2013</a>)</span> and <span class="citation">Cheung and Cheung (<a href="sec-references.html#ref-cheung2016">2016</a>)</span> on fixed and random-effects MASEM, and <span class="citation">Jak and Cheung (<a href="sec-references.html#ref-jak2020meta">2020</a>)</span> on one-stage MASEM with moderators, with a practical tutorial in <span class="citation">Jak et al. (<a href="sec-references.html#ref-jak2021metaanalytic">2021</a>)</span>. For management and strategy researchers, <span class="citation">Bergh et al. (<a href="sec-references.html#ref-bergh2016using">2016</a>)</span> give step-by-step guidance and an empirical illustration, and <span class="citation">Steinmetz and Block (<a href="sec-references.html#ref-steinmetz2022meta">2022</a>)</span> review recent developments and the causal-inference issues. <span class="citation">Cheung and Hong (<a href="sec-references.html#ref-cheung2017">2017</a>)</span> discuss applications in health psychology. The debate between <span class="citation">Yu et al. (<a href="sec-references.html#ref-yu2016problem">2016</a>)</span> and <span class="citation">Cheung (<a href="sec-references.html#ref-cheung2018issues">2018</a>)</span> is essential reading on what MASEM estimates under heterogeneity.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></div>
+<div class="next"><a href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-masem"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="nav-link" href="#sec-masem-why"><span class="header-section-number">11.1</span> Why combine meta-analysis and SEM?</a></li>
+<li><a class="nav-link" href="#sec-masem-notation"><span class="header-section-number">11.2</span> Notation and the correlation-structure problem</a></li>
+<li>
+<a class="nav-link" href="#sec-masem-approaches"><span class="header-section-number">11.3</span> Approaches to MASEM</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-masem-univariate"><span class="header-section-number">11.3.1</span> Univariate pooling</a></li>
+<li><a class="nav-link" href="#sec-masem-gls"><span class="header-section-number">11.3.2</span> The GLS approach</a></li>
+<li><a class="nav-link" href="#sec-masem-tssem"><span class="header-section-number">11.3.3</span> Two-stage structural equation modeling</a></li>
+<li><a class="nav-link" href="#sec-masem-other-approaches"><span class="header-section-number">11.3.4</span> Parameter-based and one-stage MASEM</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-masem-tam"><span class="header-section-number">11.4</span> Worked example: teachers’ technology acceptance</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-masem-tam-data"><span class="header-section-number">11.4.1</span> Data and preliminary checks</a></li>
+<li><a class="nav-link" href="#sec-masem-tam-baselines"><span class="header-section-number">11.4.2</span> Univariate and GLS pooling as baselines</a></li>
+<li><a class="nav-link" href="#sec-masem-stage1"><span class="header-section-number">11.4.3</span> Stage 1: pooling the correlation matrices</a></li>
+<li><a class="nav-link" href="#sec-masem-stage2"><span class="header-section-number">11.4.4</span> Stage 2: fitting the path model</a></li>
+<li><a class="nav-link" href="#sec-masem-model-comparison"><span class="header-section-number">11.4.5</span> Comparing nested models</a></li>
+<li><a class="nav-link" href="#sec-masem-plot"><span class="header-section-number">11.4.6</span> Plotting the fitted model</a></li>
+<li><a class="nav-link" href="#sec-masem-heterogeneous-structure"><span class="header-section-number">11.4.7</span> What does the average model mean under heterogeneity?</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-masem-fit"><span class="header-section-number">11.5</span> Assessing fit in MASEM</a></li>
+<li><a class="nav-link" href="#sec-masem-cfa"><span class="header-section-number">11.6</span> A confirmatory factor model: higher-order Big Five factors</a></li>
+<li><a class="nav-link" href="#sec-masem-missing"><span class="header-section-number">11.7</span> Missing correlations and positive definiteness</a></li>
+<li><a class="nav-link" href="#sec-masem-osmasem"><span class="header-section-number">11.8</span> One-stage MASEM with moderators</a></li>
+<li><a class="nav-link" href="#sec-masem-metasem-meta"><span class="header-section-number">11.9</span> Univariate, multivariate and three-level meta-analysis in metaSEM</a></li>
+<li><a class="nav-link" href="#sec-masem-artifacts"><span class="header-section-number">11.10</span> Measurement error and dependent matrices</a></li>
+<li><a class="nav-link" href="#sec-masem-reporting"><span class="header-section-number">11.11</span> Practical recommendations and reporting</a></li>
+<li><a class="nav-link" href="#sec-masem-pitfalls"><span class="header-section-number">11.12</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-masem-takeaways"><span class="header-section-number">11.13</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-masem-reading"><span class="header-section-number">11.14</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/11-masem.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/11-masem.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

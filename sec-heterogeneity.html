@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 5 Heterogeneity, Subgroups, and Meta-Regression | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A random-effects model (Chapter 4) treats between-study variation as noise around a grand mean and summarises it with a single number, \(\tau^2\). That is a reasonable first description, but it is...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 5 Heterogeneity, Subgroups, and Meta-Regression | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-heterogeneity.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A random-effects model (Chapter 4) treats between-study variation as noise around a grand mean and summarises it with a single number, \(\tau^2\). That is a reasonable first description, but it is...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 5 Heterogeneity, Subgroups, and Meta-Regression | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A random-effects model (Chapter 4) treats between-study variation as noise around a grand mean and summarises it with a single number, \(\tau^2\). That is a reasonable first description, but it is...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 5 Heterogeneity, Subgroups, and Meta-Regression | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="active" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-heterogeneity" class="section level1" number="5">
+<h1>
+<span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression<a class="anchor" aria-label="anchor" href="#sec-heterogeneity"><i class="fas fa-link"></i></a>
+</h1>
+<p>A random-effects model (Chapter <a href="sec-models.html#sec-models">4</a>) treats between-study variation as noise around a grand mean and summarises it with a single number, <span class="math inline">\(\tau^2\)</span>. That is a reasonable first description, but it is rarely the end of the analysis. When the true effects of a vaccine, a training programme, or a marketing intervention differ across studies, the natural next question is <em>why</em>. Do they differ because the populations differ, because the interventions were delivered differently, because some studies were badly designed, or simply because the sampling error was underestimated? Answering that question is the job of subgroup analysis and meta-regression, and it is where meta-analysis moves from estimating an average to explaining variation.</p>
+<p>This chapter is also where meta-analysis is most often abused. Moderator analyses are observational comparisons <em>across</em> studies, typically with few studies and many candidate moderators, so false positives, confounding, and aggregation bias are the rule rather than the exception <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>; <a href="sec-references.html#ref-higgins2004controlling">Higgins and Thompson 2004</a>)</span>. We therefore develop the tools together with their failure modes: how to test subgroup differences properly, how to fit and interpret meta-regression models, how to probe interactions with the Johnson–Neyman technique, how to calibrate inference with Knapp–Hartung and permutation tests, how to compare many candidate models with multimodel inference, how to model heterogeneity itself with location-scale models, and how to use machine learning for exploratory moderator search without fooling ourselves.</p>
+<div id="sec-heterogeneity-sources" class="section level2" number="5.1">
+<h2>
+<span class="header-section-number">5.1</span> Where heterogeneity comes from<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-sources"><i class="fas fa-link"></i></a>
+</h2>
+<p>It helps to separate three kinds of heterogeneity, following the terminology of the Cochrane Handbook <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. <em>Clinical</em> (or substantive) heterogeneity refers to differences in participants, interventions, comparators, and outcomes: one trial vaccinates infants and another adults; one training programme runs for two weeks and another for a year; one study measures job performance with supervisor ratings and another with sales figures. <em>Methodological</em> heterogeneity refers to differences in design and risk of bias: randomised versus quasi-random allocation, blinded versus unblinded outcome assessment, different follow-up lengths, different ways of handling attrition. <em>Statistical</em> heterogeneity is the observable consequence of either: the variability of the estimated effects exceeds what sampling error alone would produce.</p>
+<p>Formally, in the random-effects model each observed effect <span class="math inline">\(y_i\)</span> (<span class="math inline">\(i = 1, \dots, k\)</span>) estimates a study-specific true effect <span class="math inline">\(\theta_i\)</span>,
+<span class="math display">\[
+y_i = \theta_i + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i), \qquad \theta_i = \mu + u_i, \qquad u_i \sim N(0, \tau^2),
+\]</span>
+where <span class="math inline">\(v_i\)</span> is the (treated as known) sampling variance. Statistical heterogeneity is <span class="math inline">\(\tau^2 &gt; 0\)</span>. The Cochran <span class="math inline">\(Q\)</span> statistic, <span class="math inline">\(I^2\)</span>, and <span class="math inline">\(H^2\)</span> <span class="citation">(<a href="sec-references.html#ref-higgins2002quantifying">Higgins and Thompson 2002</a>)</span> quantify it, and the prediction interval translates it into the range of true effects one should expect in a new setting. None of these statistics says anything about the <em>source</em> of the variation. Clinical and methodological heterogeneity are hypotheses about the source, and the methods in this chapter test those hypotheses by letting <span class="math inline">\(\theta_i\)</span> depend on study-level covariates.</p>
+<p>Two consequences follow immediately. First, the covariates are characteristics of <em>studies</em>, not of the individuals within them, so all inferences are about how average effects vary across study contexts. Second, because studies are not randomised to their characteristics, every moderator analysis is observational even when every included study is a randomised trial <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>)</span>. A difference between “random” and “systematic” allocation might reflect the allocation method, or the decade in which those trials were run, or the countries where they took place.</p>
+<div id="sec-heterogeneity-bcg" class="section level3" number="5.1.1">
+<h3>
+<span class="header-section-number">5.1.1</span> The running example: BCG vaccine trials<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-bcg"><i class="fas fa-link"></i></a>
+</h3>
+<p>We use the 13 trials of the Bacillus Calmette–Guérin (BCG) vaccine against tuberculosis compiled by <span class="citation">Colditz et al. (<a href="sec-references.html#ref-colditz1994efficacy">1994</a>)</span> and analysed with meta-regression by <span class="citation">Berkey et al. (<a href="sec-references.html#ref-berkey1995random">1995</a>)</span>. The data are in <code>metadat</code> as <code>dat.bcg</code>. Each trial reports a 2×2 table, the absolute latitude of the trial site (<code>ablat</code>), the year of publication, and the method of treatment allocation (<code>alloc</code>: random, alternate, or systematic). The effect size is the log risk ratio of tuberculosis, vaccinated versus control, so negative values favour the vaccine.</p>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>              slab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">author</span>, <span class="st">", "</span>, <span class="va">year</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">res</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3132 (SE = 0.1664)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5597</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.22%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.86</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.7145  0.1798  -3.9744  &lt;.0001  -1.0669  -0.3622  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.49  0.34  0.70  0.15  1.55</span></span></code></pre></div>
+<p>The REML estimate of the average log risk ratio is <span class="math inline">\(\hat\mu =\)</span> -0.715 (risk ratio 0.49), but heterogeneity is enormous: <span class="math inline">\(\hat\tau^2 =\)</span> 0.313, <span class="math inline">\(I^2 =\)</span> 92.2%, and <span class="math inline">\(Q(12) =\)</span> 152.2. The 95% prediction interval for the risk ratio in a new setting runs from 0.15 to 1.55, that is, from a strongly protective vaccine to one that increases risk by about half. The average effect is clearly not the whole story. The original investigators hypothesised that the vaccine works better farther from the equator, possibly because of differential exposure to environmental mycobacteria, which makes latitude a pre-specified, scientifically motivated moderator. That distinction matters later.</p>
+</div>
+</div>
+<div id="sec-heterogeneity-subgroups" class="section level2" number="5.2">
+<h2>
+<span class="header-section-number">5.2</span> Subgroup analysis<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-subgroups"><i class="fas fa-link"></i></a>
+</h2>
+<p>A subgroup analysis splits the studies by a categorical characteristic and asks whether the average effect differs between the groups. With <span class="math inline">\(G\)</span> subgroups, each with average true effect <span class="math inline">\(\mu_g\)</span>, the hypothesis of interest is <span class="math inline">\(H_0: \mu_1 = \dots = \mu_G\)</span>.</p>
+<div id="sec-heterogeneity-tau2-pooled" class="section level3" number="5.2.1">
+<h3>
+<span class="header-section-number">5.2.1</span> Separate versus pooled estimates of <span class="math inline">\(\tau^2\)</span><a class="anchor" aria-label="anchor" href="#sec-heterogeneity-tau2-pooled"><i class="fas fa-link"></i></a>
+</h3>
+<p>There are two ways to set up the model. In the <em>separate</em> approach, each subgroup gets its own random-effects model and its own <span class="math inline">\(\tau^2_g\)</span>:
+<span class="math display">\[
+y_{ig} = \mu_g + u_{ig} + \varepsilon_{ig}, \qquad u_{ig} \sim N(0, \tau_g^2).
+\]</span>
+In the <em>pooled</em> approach, all subgroups share a common residual heterogeneity <span class="math inline">\(\tau^2_{\text{res}}\)</span>; this is exactly a mixed-effects meta-regression with dummy-coded subgroup indicators. The pooled approach borrows strength across subgroups, which matters because <span class="math inline">\(\tau^2\)</span> is estimated very imprecisely in small subgroups. The separate approach is more flexible when the subgroups really differ in heterogeneity. In a simulation study, <span class="citation">Rubio‐Aparicio et al. (<a href="sec-references.html#ref-rubioaparicio2017analysis">2017</a>)</span> found that both approaches perform similarly when there are at least about 20 studies roughly balanced across categories, and recommended the pooled estimate for most scenarios unless the residual between-study variances are clearly different and each category has enough studies to estimate its own variance precisely.</p>
+<p>For the BCG data the three allocation subgroups are small: two alternate-allocation trials, seven random, and four systematic.</p>
+<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">alloc</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  alternate     random systematic </span></span>
+<span><span class="co">#&gt;          2          7          4</span></span>
+<span><span class="va">res_sep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">dat</span>, <span class="va">dat</span><span class="op">$</span><span class="va">alloc</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">res_sep</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">k</span>, estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, se <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">se</span>,</span>
+<span>                              tau2 <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">tau2</span>, I2 <span class="op">=</span> <span class="va">r</span><span class="op">$</span><span class="va">I2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          alternate  random systematic</span></span>
+<span><span class="co">#&gt; k           2.0000  7.0000     4.0000</span></span>
+<span><span class="co">#&gt; estimate   -0.5408 -0.9710    -0.4242</span></span>
+<span><span class="co">#&gt; se          0.2816  0.2760     0.3597</span></span>
+<span><span class="co">#&gt; tau2        0.1326  0.3925     0.4003</span></span>
+<span><span class="co">#&gt; I2         82.0225 89.9343    86.4221</span></span></code></pre></div>
+<p>The separate fits give log risk ratios of -0.541 (alternate), -0.971 (random), and -0.424 (systematic), with subgroup heterogeneity estimates between 0.133 and 0.400. The estimate of <span class="math inline">\(\tau^2\)</span> for the alternate group rests on two studies and is essentially uninformative.</p>
+</div>
+<div id="sec-heterogeneity-qbetween" class="section level3" number="5.2.2">
+<h3>
+<span class="header-section-number">5.2.2</span> Testing subgroup differences<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-qbetween"><i class="fas fa-link"></i></a>
+</h3>
+<p>With separate estimates, the test of subgroup differences treats the <span class="math inline">\(G\)</span> subgroup means as data and computes a between-group heterogeneity statistic
+<span class="math display">\[
+Q_B = \sum_{g=1}^G \hat w_g (\hat\mu_g - \bar\mu)^2, \qquad \hat w_g = 1/\widehat{\mathrm{SE}}(\hat\mu_g)^2, \qquad \bar\mu = \frac{\sum_g \hat w_g \hat\mu_g}{\sum_g \hat w_g},
+\]</span>
+which is compared with a <span class="math inline">\(\chi^2_{G-1}\)</span> distribution. Computationally this is a common-effect meta-analysis of the subgroup estimates:</p>
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>alloc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">res_sep</span><span class="op">)</span>,</span>
+<span>                  est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">res_sep</span>, <span class="va">coef</span><span class="op">)</span>,</span>
+<span>                  se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">res_sep</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="va">r</span><span class="op">$</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">qb_sep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">est</span>, sei <span class="op">=</span> <span class="va">se</span>, data <span class="op">=</span> <span class="va">sub</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span></span>
+<span><span class="va">qb_sep</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Equal-Effects Model (k = 3)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   0.00%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  0.93</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 2) = 1.8614, p-val = 0.3943</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.6827  0.1729  -3.9493  &lt;.0001  -1.0214  -0.3439  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>With pooled <span class="math inline">\(\tau^2\)</span>, the test is the omnibus moderator test <span class="math inline">\(Q_M\)</span> of a mixed-effects model with <code>alloc</code> as a factor:</p>
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_alloc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">alloc</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">res_alloc</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mixed-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of residual heterogeneity):     0.3615 (SE = 0.2111)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):             0.6013</span></span>
+<span><span class="co">#&gt; I^2 (residual heterogeneity / unaccounted variability): 88.77%</span></span>
+<span><span class="co">#&gt; H^2 (unaccounted variability / sampling variability):   8.91</span></span>
+<span><span class="co">#&gt; R^2 (amount of heterogeneity accounted for):            0.00%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 10) = 132.3676, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficients 2:3):</span></span>
+<span><span class="co">#&gt; QM(df = 2) = 1.7675, p-val = 0.4132</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  estimate      se     zval    pval    ci.lb   ci.ub    </span></span>
+<span><span class="co">#&gt; intrcpt           -0.5180  0.4412  -1.1740  0.2404  -1.3827  0.3468    </span></span>
+<span><span class="co">#&gt; allocrandom       -0.4478  0.5158  -0.8682  0.3853  -1.4588  0.5632    </span></span>
+<span><span class="co">#&gt; allocsystematic    0.0890  0.5600   0.1590  0.8737  -1.0086  1.1867    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The two approaches agree here: <span class="math inline">\(Q_B =\)</span> 1.86 (<span class="math inline">\(p\)</span> = .394) with separate variances, and <span class="math inline">\(Q_M =\)</span> 1.77 on 2 degrees of freedom (<span class="math inline">\(p\)</span> = .413) with a pooled residual variance of <span class="math inline">\(\hat\tau^2_{\text{res}} =\)</span> 0.362. Notice that the pooled residual heterogeneity is <em>larger</em> than the total heterogeneity of the intercept-only model (0.313), so the reported <span class="math inline">\(R^2\)</span> is truncated at zero: allocation method explains none of the variation. Neither test supports a difference between allocation methods, but with 13 studies such a test has low power, and “no significant difference” is not evidence of equivalence.</p>
+<p>Dropping the intercept gives the subgroup means directly, and linear contrasts give pairwise comparisons:</p>
+<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_alloc0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">alloc</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">res_alloc0</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 estimate     se   zval      pval  ci.lb   ci.ub</span></span>
+<span><span class="co">#&gt; allocalternate   -0.5180 0.4412 -1.174 0.2404004 -1.383  0.3468</span></span>
+<span><span class="co">#&gt; allocrandom      -0.9658 0.2672 -3.614 0.0003017 -1.490 -0.4420</span></span>
+<span><span class="co">#&gt; allocsystematic  -0.4289 0.3449 -1.243 0.2137066 -1.105  0.2472</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">res_alloc</span>, X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Hypotheses:                                      </span></span>
+<span><span class="co">#&gt; 1:                    allocrandom = 0 </span></span>
+<span><span class="co">#&gt; 2:                allocsystematic = 0 </span></span>
+<span><span class="co">#&gt; 3: -allocrandom + allocsystematic = 0 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Results:</span></span>
+<span><span class="co">#&gt;    estimate     se    zval   pval   </span></span>
+<span><span class="co">#&gt; 1:  -0.4478 0.5158 -0.8682 0.3853   </span></span>
+<span><span class="co">#&gt; 2:   0.0890 0.5600  0.1590 0.8737   </span></span>
+<span><span class="co">#&gt; 3:   0.5369 0.4364  1.2303 0.2186</span></span></code></pre></div>
+<p>Here the omnibus test in the no-intercept model (<span class="math inline">\(Q_M(3) =\)</span> 15.98) tests whether <em>all three</em> subgroup means are zero, which is a different and usually uninteresting hypothesis. Read the test that answers your question. In the model with an intercept, the omnibus test of coefficients 2 and 3 is the test of subgroup differences.</p>
+<div class="rmdwarning">
+<p>A common error is to declare a subgroup difference because the effect is “significant in one subgroup but not in another”. Here the random-allocation subgroup has <span class="math inline">\(p &lt; .001\)</span> and the other two do not, yet the formal test of the difference has <span class="math inline">\(p\)</span> = .413. Differences in significance are not significant differences. Only the test of the interaction (here <span class="math inline">\(Q_B\)</span> or <span class="math inline">\(Q_M\)</span>) addresses whether effects differ.</p>
+</div>
+</div>
+<div id="sec-heterogeneity-subgroup-forest" class="section level3" number="5.2.3">
+<h3>
+<span class="header-section-number">5.2.3</span> A forest plot with subgroups<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-subgroup-forest"><i class="fas fa-link"></i></a>
+</h3>
+<p>Figure <a href="sec-heterogeneity.html#fig:het-forest-subgroups">5.1</a> displays the trials grouped by allocation method with a summary polygon per subgroup, an overall polygon, and the test for subgroup differences. The code adapts an example from the <code>metafor</code> documentation. The <code>rows</code> argument places the studies, leaving gaps for subgroup headings and polygons.</p>
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mlabfun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">text</span>, <span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/bquote.html">bquote</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu">.</span><span class="op">(</span><span class="va">text</span><span class="op">)</span>,</span>
+<span>    <span class="st">" (Q = "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">f2</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">QE</span><span class="op">)</span><span class="op">)</span>, <span class="st">", df = "</span>, <span class="fu">.</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">k</span> <span class="op">-</span> <span class="va">x</span><span class="op">$</span><span class="va">p</span><span class="op">)</span>,</span>
+<span>    <span class="st">", p "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">fp</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">QEp</span><span class="op">)</span><span class="op">)</span>, <span class="st">"; "</span>, <span class="va">I</span><span class="op">^</span><span class="fl">2</span>, <span class="st">" = "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">f2</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">I2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>, <span class="st">"%, "</span>,</span>
+<span>    <span class="va">tau</span><span class="op">^</span><span class="fl">2</span>, <span class="st">" = "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">f2</span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span>, <span class="st">")"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/forest.html">forest</a></span><span class="op">(</span><span class="va">res</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">4.6</span><span class="op">)</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>, atransf <span class="op">=</span> <span class="va">exp</span>,</span>
+<span>       ilab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">tpos</span>, <span class="va">dat</span><span class="op">$</span><span class="va">tneg</span>, <span class="va">dat</span><span class="op">$</span><span class="va">cpos</span>, <span class="va">dat</span><span class="op">$</span><span class="va">cneg</span><span class="op">)</span>,</span>
+<span>       ilab.xpos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9.5</span>, <span class="op">-</span><span class="fl">8</span>, <span class="op">-</span><span class="fl">6</span>, <span class="op">-</span><span class="fl">4.5</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.9</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">3</span>, <span class="fl">27</span><span class="op">)</span>,</span>
+<span>       order <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">alloc</span>, rows <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3</span><span class="op">:</span><span class="fl">4</span>, <span class="fl">9</span><span class="op">:</span><span class="fl">15</span>, <span class="fl">20</span><span class="op">:</span><span class="fl">23</span><span class="op">)</span>,</span>
+<span>       mlab <span class="op">=</span> <span class="fu">mlabfun</span><span class="op">(</span><span class="st">"RE model for all studies"</span>, <span class="va">res</span><span class="op">)</span>,</span>
+<span>       psize <span class="op">=</span> <span class="fl">1</span>, header <span class="op">=</span> <span class="st">"Author(s) and year"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>xpd <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
+<span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.9</span>, font <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9.5</span>, <span class="op">-</span><span class="fl">8</span>, <span class="op">-</span><span class="fl">6</span>, <span class="op">-</span><span class="fl">4.5</span><span class="op">)</span>, <span class="fl">26</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"TB+"</span>, <span class="st">"TB-"</span>, <span class="st">"TB+"</span>, <span class="st">"TB-"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">8.75</span>, <span class="op">-</span><span class="fl">5.25</span><span class="op">)</span>, <span class="fl">27</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Vaccinated"</span>, <span class="st">"Control"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>font <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">24</span>, <span class="fl">16</span>, <span class="fl">5</span><span class="op">)</span>, pos <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>     <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Systematic allocation"</span>, <span class="st">"Random allocation"</span>, <span class="st">"Alternate allocation"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/addpoly.html">addpoly</a></span><span class="op">(</span><span class="va">res_sep</span><span class="op">$</span><span class="va">systematic</span>, row <span class="op">=</span> <span class="fl">18.5</span>, cex <span class="op">=</span> <span class="fl">0.9</span>, atransf <span class="op">=</span> <span class="va">exp</span>,</span>
+<span>        mlab <span class="op">=</span> <span class="fu">mlabfun</span><span class="op">(</span><span class="st">"RE model for subgroup"</span>, <span class="va">res_sep</span><span class="op">$</span><span class="va">systematic</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/addpoly.html">addpoly</a></span><span class="op">(</span><span class="va">res_sep</span><span class="op">$</span><span class="va">random</span>, row <span class="op">=</span> <span class="fl">7.5</span>, cex <span class="op">=</span> <span class="fl">0.9</span>, atransf <span class="op">=</span> <span class="va">exp</span>,</span>
+<span>        mlab <span class="op">=</span> <span class="fu">mlabfun</span><span class="op">(</span><span class="st">"RE model for subgroup"</span>, <span class="va">res_sep</span><span class="op">$</span><span class="va">random</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/addpoly.html">addpoly</a></span><span class="op">(</span><span class="va">res_sep</span><span class="op">$</span><span class="va">alternate</span>, row <span class="op">=</span> <span class="fl">1.5</span>, cex <span class="op">=</span> <span class="fl">0.9</span>, atransf <span class="op">=</span> <span class="va">exp</span>,</span>
+<span>        mlab <span class="op">=</span> <span class="fu">mlabfun</span><span class="op">(</span><span class="st">"RE model for subgroup"</span>, <span class="va">res_sep</span><span class="op">$</span><span class="va">alternate</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="op">-</span><span class="fl">2.4</span>, pos <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">0.9</span>, <span class="fu"><a href="https://rdrr.io/r/base/bquote.html">bquote</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span></span>
+<span>  <span class="st">"Test for subgroup differences: "</span>, <span class="va">Q</span><span class="op">[</span><span class="va">M</span><span class="op">]</span>, <span class="st">" = "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">f2</span><span class="op">(</span><span class="va">res_alloc</span><span class="op">$</span><span class="va">QM</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">", df = "</span>, <span class="fu">.</span><span class="op">(</span><span class="va">res_alloc</span><span class="op">$</span><span class="va">p</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, <span class="st">", p "</span>, <span class="fu">.</span><span class="op">(</span><span class="fu">fp</span><span class="op">(</span><span class="va">res_alloc</span><span class="op">$</span><span class="va">QMp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:het-forest-subgroups"></span>
+<img src="05-heterogeneity_files/figure-html/het-forest-subgroups-1.png" alt="Forest plot of the BCG trials grouped by method of treatment allocation, with random-effects summaries per subgroup (separate $\tau^2$) and the mixed-effects test for subgroup differences (pooled $\tau^2$)." width="100%"><p class="caption">
+Figure 5.1: Forest plot of the BCG trials grouped by method of treatment allocation, with random-effects summaries per subgroup (separate <span class="math inline">\(\tau^2\)</span>) and the mixed-effects test for subgroup differences (pooled <span class="math inline">\(\tau^2\)</span>).
+</p>
+</div>
+<p>The plot makes the problem of small subgroups visible: the alternate-allocation polygon is based on two trials, and the within-subgroup heterogeneity remains large in every group, so allocation cannot be what drives the variation.</p>
+</div>
+</div>
+<div id="sec-heterogeneity-metareg" class="section level2" number="5.3">
+<h2>
+<span class="header-section-number">5.3</span> Meta-regression<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-metareg"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-heterogeneity-model" class="section level3" number="5.3.1">
+<h3>
+<span class="header-section-number">5.3.1</span> The mixed-effects meta-regression model<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-model"><i class="fas fa-link"></i></a>
+</h3>
+<p>Meta-regression generalises subgroup analysis to any set of study-level covariates <span class="math inline">\(x_{i1}, \dots, x_{ip'}\)</span>, categorical or continuous:
+<span class="math display">\[
+y_i = \beta_0 + \beta_1 x_{i1} + \dots + \beta_{p'} x_{ip'} + u_i + \varepsilon_i, \qquad u_i \sim N(0, \tau^2_{\text{res}}), \qquad \varepsilon_i \sim N(0, v_i).
+\]</span>
+In matrix form <span class="math inline">\(\mathbf{y} = \mathbf{X}\boldsymbol\beta + \mathbf{u} + \boldsymbol\varepsilon\)</span> with <span class="math inline">\(p = p' + 1\)</span> columns in <span class="math inline">\(\mathbf X\)</span>. Given an estimate <span class="math inline">\(\hat\tau^2_{\text{res}}\)</span> (by default REML in <code>metafor</code>), the coefficients are estimated by weighted least squares,
+<span class="math display">\[
+\hat{\boldsymbol\beta} = (\mathbf{X}^\top \mathbf{W} \mathbf{X})^{-1} \mathbf{X}^\top \mathbf{W} \mathbf{y}, \qquad \mathbf{W} = \mathrm{diag}\{1/(v_i + \hat\tau^2_{\text{res}})\}, \qquad \widehat{\mathrm{Var}}(\hat{\boldsymbol\beta}) = (\mathbf{X}^\top \mathbf{W} \mathbf{X})^{-1}.
+\]</span>
+The residual variance <span class="math inline">\(\tau^2_{\text{res}}\)</span> is the heterogeneity left unexplained by the covariates. Ignoring it, that is, fitting a “fixed-effect” meta-regression with weights <span class="math inline">\(1/v_i\)</span>, understates standard errors whenever residual heterogeneity is present and produces badly inflated false-positive rates <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>; <a href="sec-references.html#ref-higgins2004controlling">Higgins and Thompson 2004</a>)</span>. A mixed-effects model is therefore the default.</p>
+<p>Two tests are reported. The test for residual heterogeneity <span class="math inline">\(Q_E = \sum_i (y_i - \mathbf{x}_i^\top \hat{\boldsymbol\beta}_{\text{EE}})^2 / v_i\)</span> compares with <span class="math inline">\(\chi^2_{k-p}\)</span> and asks whether variation remains after accounting for the moderators. The omnibus test of moderators <span class="math inline">\(Q_M = \hat{\boldsymbol\beta}_{[2]}^\top \widehat{\mathrm{Var}}(\hat{\boldsymbol\beta}_{[2]})^{-1} \hat{\boldsymbol\beta}_{[2]}\)</span>, where <span class="math inline">\([2]\)</span> denotes the non-intercept coefficients, is a Wald test compared with <span class="math inline">\(\chi^2_{p-1}\)</span>.</p>
+</div>
+<div id="sec-heterogeneity-continuous" class="section level3" number="5.3.2">
+<h3>
+<span class="header-section-number">5.3.2</span> A continuous moderator: latitude<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-continuous"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_lat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">res_lat</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mixed-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of residual heterogeneity):     0.0764 (SE = 0.0591)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):             0.2763</span></span>
+<span><span class="co">#&gt; I^2 (residual heterogeneity / unaccounted variability): 68.39%</span></span>
+<span><span class="co">#&gt; H^2 (unaccounted variability / sampling variability):   3.16</span></span>
+<span><span class="co">#&gt; R^2 (amount of heterogeneity accounted for):            75.62%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 11) = 30.7331, p-val = 0.0012</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficient 2):</span></span>
+<span><span class="co">#&gt; QM(df = 1) = 16.3571, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt; intrcpt    0.2515  0.2491   1.0095  0.3127  -0.2368   0.7397      </span></span>
+<span><span class="co">#&gt; ablat     -0.0291  0.0072  -4.0444  &lt;.0001  -0.0432  -0.0150  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>Each additional degree of absolute latitude changes the log risk ratio by -0.0291 (95% CI -0.0432 to -0.0150; <span class="math inline">\(z =\)</span> -4.04). On the risk ratio scale, ten degrees farther from the equator multiplies the risk ratio by <span class="math inline">\(\exp(10 \times\)</span> -0.0291<span class="math inline">\() =\)</span> 0.75. Residual heterogeneity falls from 0.313 to 0.076, but it is still significant (<span class="math inline">\(Q_E(11) =\)</span> 30.73, <span class="math inline">\(p\)</span> = .001): latitude explains much but not all of the variation.</p>
+<p>Predicted effects at chosen latitudes come from <code><a href="https://rdrr.io/r/stats/predict.html">predict()</a></code>. The confidence interval describes uncertainty about the average risk ratio at that latitude, and the prediction interval adds the residual heterogeneity:</p>
+<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_lat</span>, newmods <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, <span class="fl">50</span><span class="op">)</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt; 1 0.96  0.67  1.39  0.50  1.85 </span></span>
+<span><span class="co">#&gt; 2 0.54  0.44  0.66  0.30  0.96 </span></span>
+<span><span class="co">#&gt; 3 0.30  0.21  0.42  0.16  0.57</span></span></code></pre></div>
+<p>Near the equator (10°) the predicted risk ratio is 0.96, with a confidence interval that includes 1; at 50° it is 0.30.</p>
+<p>A bubble plot shows the fitted line together with the data, with point areas proportional to the model weights (Figure <a href="sec-heterogeneity.html#fig:het-bubble">5.2</a>).</p>
+<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/regplot.html">regplot</a></span><span class="op">(</span><span class="va">res_lat</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">60</span><span class="op">)</span>, predlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">60</span><span class="op">)</span>,</span>
+<span>        xlab <span class="op">=</span> <span class="st">"Absolute latitude"</span>, refline <span class="op">=</span> <span class="fl">0</span>, atransf <span class="op">=</span> <span class="va">exp</span>,</span>
+<span>        at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">2</span>, by <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">1</span>, las <span class="op">=</span> <span class="fl">1</span>, bty <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>        pi <span class="op">=</span> <span class="cn">TRUE</span>, label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">7</span>, <span class="fl">12</span>, <span class="fl">13</span><span class="op">)</span>, offset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.6</span>, <span class="fl">1</span><span class="op">)</span>, labsize <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:het-bubble"></span>
+<img src="05-heterogeneity_files/figure-html/het-bubble-1.png" alt="Bubble plot of the log risk ratios against absolute latitude. Point size is proportional to the weight in the mixed-effects model; the solid line is the fitted relationship, the darker band its 95% confidence band, and the lighter band the 95% prediction band. The y-axis is labelled on the risk-ratio scale." width="85%"><p class="caption">
+Figure 5.2: Bubble plot of the log risk ratios against absolute latitude. Point size is proportional to the weight in the mixed-effects model; the solid line is the fitted relationship, the darker band its 95% confidence band, and the lighter band the 95% prediction band. The y-axis is labelled on the risk-ratio scale.
+</p>
+</div>
+</div>
+<div id="sec-heterogeneity-r2" class="section level3" number="5.3.3">
+<h3>
+<span class="header-section-number">5.3.3</span> How much heterogeneity is explained?<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-r2"><i class="fas fa-link"></i></a>
+</h3>
+<p><code>metafor</code> reports a pseudo-<span class="math inline">\(R^2\)</span>, the proportional reduction in the heterogeneity variance,
+<span class="math display">\[
+R^2 = \max\left\{0, \frac{\hat\tau^2_{\text{RE}} - \hat\tau^2_{\text{res}}}{\hat\tau^2_{\text{RE}}}\right\},
+\]</span>
+which for latitude is 75.6%. The statistic is intuitive but fragile. It is a ratio of two noisy variance estimates from two separately fitted models, it can be negative before truncation, and it depends on the estimator of <span class="math inline">\(\tau^2\)</span>. <span class="citation">López‐López et al. (<a href="sec-references.html#ref-lopezlopez2013estimation">2013</a>)</span> found in simulations that precise estimates of the predictive power can be expected only with at least about 40 studies. Two quick checks show the instability on these 13 trials, first across <span class="math inline">\(\tau^2\)</span> estimators and then across leave-one-out subsets:</p>
+<div class="sourceCode" id="cb77"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r2_by_method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"REML"</span>, <span class="st">"ML"</span>, <span class="st">"DL"</span>, <span class="st">"PM"</span>, <span class="st">"SJ"</span>, <span class="st">"HE"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="va">m</span><span class="op">)</span><span class="op">$</span><span class="va">R2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">r2_by_method</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; REML   ML   DL   PM   SJ   HE </span></span>
+<span><span class="co">#&gt; 75.6 87.7 79.5 55.3 32.9 36.4</span></span>
+<span><span class="va">r2_loo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">t0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="va">i</span>, <span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">tau2</span></span>
+<span>  <span class="va">t1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">[</span><span class="op">-</span><span class="va">i</span>, <span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">tau2</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">t0</span> <span class="op">-</span> <span class="va">t1</span><span class="op">)</span> <span class="op">/</span> <span class="va">t0</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">r2_loo</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 60.9 86.2</span></span></code></pre></div>
+<p>Depending on the estimator, latitude “explains” between 32.9% and 87.7% of the heterogeneity; dropping one study at a time moves the REML-based value between 60.9% and 86.2%. Report <span class="math inline">\(R^2\)</span> if you must, but with this caveat, and put more weight on the coefficients, their confidence intervals, and the residual <span class="math inline">\(\hat\tau^2\)</span> and prediction interval.</p>
+</div>
+<div id="sec-heterogeneity-knha" class="section level3" number="5.3.4">
+<h3>
+<span class="header-section-number">5.3.4</span> Categorical moderators and the Knapp–Hartung adjustment<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-knha"><i class="fas fa-link"></i></a>
+</h3>
+<p>The Wald-type <span class="math inline">\(z\)</span> and <span class="math inline">\(\chi^2\)</span> tests above treat <span class="math inline">\(\hat\tau^2_{\text{res}}\)</span> as if it were known. With few studies that is optimistic. <span class="citation">Knapp and Hartung (<a href="sec-references.html#ref-knapp2003improved">2003</a>)</span> proposed scaling the variance–covariance matrix by
+<span class="math display">\[
+s^2 = \frac{1}{k - p} \sum_{i=1}^k \hat w_i (y_i - \mathbf{x}_i^\top \hat{\boldsymbol\beta})^2, \qquad \hat w_i = 1/(v_i + \hat\tau^2_{\text{res}}),
+\]</span>
+and using <span class="math inline">\(t_{k-p}\)</span> for individual coefficients and <span class="math inline">\(F_{p-1, k-p}\)</span> for the omnibus test. In a large simulation study, <span class="citation">Viechtbauer et al. (<a href="sec-references.html#ref-viechtbauer2015comparison">2015</a>)</span> found that this adjustment keeps the Type I error rate of moderator tests much closer to nominal than the standard Wald tests, which tend to be too liberal. In <code>metafor</code> it is <code>test = "knha"</code>.</p>
+<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_lat_kh</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span>, data <span class="op">=</span> <span class="va">dat</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">res_lat_kh</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mixed-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of residual heterogeneity):     0.0764 (SE = 0.0591)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):             0.2763</span></span>
+<span><span class="co">#&gt; I^2 (residual heterogeneity / unaccounted variability): 68.39%</span></span>
+<span><span class="co">#&gt; H^2 (unaccounted variability / sampling variability):   3.16</span></span>
+<span><span class="co">#&gt; R^2 (amount of heterogeneity accounted for):            75.62%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 11) = 30.7331, p-val = 0.0012</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficient 2):</span></span>
+<span><span class="co">#&gt; F(df1 = 1, df2 = 11) = 12.5905, p-val = 0.0046</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          estimate      se     tval  df    pval    ci.lb    ci.ub     </span></span>
+<span><span class="co">#&gt; intrcpt    0.2515  0.2839   0.8857  11  0.3948  -0.3735   0.8764     </span></span>
+<span><span class="co">#&gt; ablat     -0.0291  0.0082  -3.5483  11  0.0046  -0.0472  -0.0111  ** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>For latitude the conclusion is unchanged, <span class="math inline">\(F(1, 11) =\)</span> 12.59, <span class="math inline">\(p\)</span> = .005, but the confidence interval for the slope widens to -0.0472 to -0.0111. For allocation method the Knapp–Hartung test gives <span class="math inline">\(F(2, 10) =\)</span> 0.97. In what follows we use Knapp–Hartung tests by default. One caveat: whenever <span class="math inline">\(s^2 &lt; 1\)</span>, which is not rare when the residuals are small, the adjusted standard errors are smaller than the unadjusted ones, and the adjusted intervals can be narrower despite the larger <span class="math inline">\(t\)</span> quantile. Some authors truncate <span class="math inline">\(s^2\)</span> at 1 for that reason (<code>test = "adhoc"</code> in <code>metafor</code>).</p>
+</div>
+<div id="sec-heterogeneity-multiple" class="section level3" number="5.3.5">
+<h3>
+<span class="header-section-number">5.3.5</span> Multiple moderators and collinearity<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-multiple"><i class="fas fa-link"></i></a>
+</h3>
+<p>Moderators measured on studies are often correlated. In the BCG data, trials at higher latitudes were also older:</p>
+<div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">ablat</span>, <span class="va">dat</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] -0.6631</span></span>
+<span><span class="va">res_mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span> <span class="op">+</span> <span class="va">year</span> <span class="op">+</span> <span class="va">alloc</span>, data <span class="op">=</span> <span class="va">dat</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">res_mult</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mixed-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of residual heterogeneity):     0.1796 (SE = 0.1425)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):             0.4238</span></span>
+<span><span class="co">#&gt; I^2 (residual heterogeneity / unaccounted variability): 73.09%</span></span>
+<span><span class="co">#&gt; H^2 (unaccounted variability / sampling variability):   3.72</span></span>
+<span><span class="co">#&gt; R^2 (amount of heterogeneity accounted for):            42.67%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 8) = 26.2030, p-val = 0.0010</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficients 2:5):</span></span>
+<span><span class="co">#&gt; F(df1 = 4, df2 = 8) = 2.2668, p-val = 0.1509</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  estimate       se     tval  df    pval      ci.lb    ci.ub    </span></span>
+<span><span class="co">#&gt; intrcpt          -14.4984  39.3525  -0.3684   8  0.7221  -105.2454  76.2487    </span></span>
+<span><span class="co">#&gt; ablat             -0.0236   0.0136  -1.7382   8  0.1204    -0.0548   0.0077    </span></span>
+<span><span class="co">#&gt; year               0.0075   0.0199   0.3755   8  0.7170    -0.0385   0.0534    </span></span>
+<span><span class="co">#&gt; allocrandom       -0.3421   0.4284  -0.7984   8  0.4477    -1.3300   0.6459    </span></span>
+<span><span class="co">#&gt; allocsystematic    0.0101   0.4579   0.0221   8  0.9829    -1.0457   1.0659    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vif.html">vif</a></span><span class="op">(</span><span class="va">res_mult</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  ablat    year  allocrandom  allocsystematic </span></span>
+<span><span class="co">#&gt; 1.7697  1.9148       2.0858           2.0193</span></span></code></pre></div>
+<p>With latitude, year, and allocation in one model, no individual coefficient is significant and the omnibus test is not either (<span class="math inline">\(F(4, 8) =\)</span> 2.27, <span class="math inline">\(p\)</span> = .151). The latitude slope is still negative (-0.0236) but its standard error has grown from 0.0082 to 0.0136. The correlation of -0.66 between latitude and year means that the data cannot cleanly separate the two explanations, and with five parameters for 13 studies there are only eight residual degrees of freedom. The variance inflation factors (between 1.77 and 2.09) are not alarming by regression conventions, which is a reminder that a small <span class="math inline">\(k\)</span> can make a model unstable even without severe collinearity.</p>
+<p>The coefficients in a multiple meta-regression are <em>partial</em> associations: the latitude coefficient is the expected change in the log risk ratio for one degree of latitude among trials published in the same year with the same allocation method. Whether that is the quantity of scientific interest depends on whether year and allocation are confounders (common causes of latitude and effect) or mediators (consequences of the setting). This is a causal question that the regression itself cannot answer.</p>
+</div>
+<div id="sec-heterogeneity-overfitting" class="section level3" number="5.3.6">
+<h3>
+<span class="header-section-number">5.3.6</span> Many moderators, few studies<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-overfitting"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Higgins and Thompson (<a href="sec-references.html#ref-higgins2004controlling">2004</a>)</span> showed that standard meta-regression suffers from substantially inflated false-positive rates when there is heterogeneity, when there are few studies, and when there are many covariates, which are exactly the conditions under which it is typically used. A small simulation makes the point concrete. We generate 13 studies with no true moderator effect and <span class="math inline">\(\tau^2 = 0.1\)</span>, add four pure-noise moderators, and record how often the omnibus test rejects at <span class="math inline">\(\alpha = .05\)</span> under a fixed-effect meta-regression, a mixed-effects model with Wald tests, and a mixed-effects model with Knapp–Hartung tests. The mixed-effects models use the non-iterative DerSimonian–Laird estimator so that every replication converges.</p>
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">sim_once</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">k</span> <span class="op">=</span> <span class="fl">13</span>, <span class="va">p</span> <span class="op">=</span> <span class="fl">4</span>, <span class="va">tau2</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">vi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">k</span>, <span class="fl">0.01</span>, <span class="fl">0.2</span><span class="op">)</span></span>
+<span>  <span class="va">yi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">k</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">tau2</span> <span class="op">+</span> <span class="va">vi</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">k</span> <span class="op">*</span> <span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">k</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>fixed  <span class="op">=</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="va">X</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span><span class="op">$</span><span class="va">QMp</span>,</span>
+<span>    re_z   <span class="op">=</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="va">X</span>, method <span class="op">=</span> <span class="st">"DL"</span><span class="op">)</span><span class="op">$</span><span class="va">QMp</span>,</span>
+<span>    re_kh  <span class="op">=</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="va">X</span>, method <span class="op">=</span> <span class="st">"DL"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span><span class="op">$</span><span class="va">QMp</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">typeI</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html">rowMeans</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fu">sim_once</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">typeI</span></span>
+<span><span class="co">#&gt; fixed  re_z re_kh </span></span>
+<span><span class="co">#&gt; 0.501 0.138 0.064</span></span></code></pre></div>
+<p>The nominal rate is 5%. The fixed-effect meta-regression rejects in 50.1% of replications, the mixed-effects Wald test in 13.8%, and the Knapp–Hartung test in 6.4%. And this is for a <em>single</em> pre-specified test; analysts who screen moderators one at a time and report the significant ones face a multiple-testing problem on top. A frequently quoted rule of thumb asks for about ten studies per moderator <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>, but no rule substitutes for pre-registration of a small set of moderators with a scientific rationale <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>)</span>.</p>
+</div>
+<div id="sec-heterogeneity-ecological" class="section level3" number="5.3.7">
+<h3>
+<span class="header-section-number">5.3.7</span> Aggregation bias and the ecological fallacy<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-ecological"><i class="fas fa-link"></i></a>
+</h3>
+<p>Many moderators are study-level summaries of participant characteristics: mean age, percentage female, mean baseline severity. A meta-regression on mean age estimates how the <em>average</em> effect varies across studies with different mean ages. It does not estimate how the effect varies with age <em>within</em> studies. The two can differ in magnitude and even in sign, because between-study differences in mean age are confounded with everything else that differs between studies (country, decade, recruitment, intervention version), while within-study differences are not. Inferring individual-level effect modification from study-level associations is the ecological fallacy, and the resulting discrepancy is called aggregation bias <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>)</span>. The bias is worst when within-study variation in the covariate is large relative to between-study variation, so that study means cluster in a narrow range. Questions about patient-level effect modification are best addressed with individual participant data (Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>) or with within-study interaction estimates if studies report them.</p>
+<p>A related trap is meta-regression on <em>baseline risk</em> (the control-group event rate). Because the observed control-group risk appears in both the outcome (the treatment effect) and the predictor, measurement error induces a spurious association, a form of regression to the mean; specialised methods are needed for that question.</p>
+</div>
+</div>
+<div id="sec-heterogeneity-jn" class="section level2" number="5.4">
+<h2>
+<span class="header-section-number">5.4</span> Interactions and the Johnson–Neyman technique<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-jn"><i class="fas fa-link"></i></a>
+</h2>
+<p>Moderators can interact. Suppose the latitude gradient has changed over time, for example because the strains of BCG or the background exposure to environmental mycobacteria changed. The model
+<span class="math display">\[
+\theta_i = \beta_0 + \beta_1 X_i + \beta_2 W_i + \beta_3 X_i W_i
+\]</span>
+lets the slope of <span class="math inline">\(X\)</span> (latitude) depend on <span class="math inline">\(W\)</span> (year): the <em>conditional effect</em> of <span class="math inline">\(X\)</span> at <span class="math inline">\(W = w\)</span> is
+<span class="math display">\[
+\psi(w) = \beta_1 + \beta_3 w, \qquad \mathrm{Var}\{\hat\psi(w)\} = \sigma_{11} + 2 w \sigma_{13} + w^2 \sigma_{33},
+\]</span>
+where <span class="math inline">\(\sigma_{jl}\)</span> are elements of <span class="math inline">\(\widehat{\mathrm{Var}}(\hat{\boldsymbol\beta})\)</span>. Testing <span class="math inline">\(\psi(w)\)</span> at a few hand-picked values of <span class="math inline">\(w\)</span> (“simple slopes”) is arbitrary. The Johnson–Neyman technique instead finds every value of <span class="math inline">\(w\)</span> at which <span class="math inline">\(\hat\psi(w)\)</span> is exactly on the boundary of significance <span class="citation">(<a href="sec-references.html#ref-bauer2005probing">Bauer and Curran 2005</a>)</span>. Setting <span class="math inline">\(\hat\psi(w)^2 = c^2\, \mathrm{Var}\{\hat\psi(w)\}\)</span>, where <span class="math inline">\(c\)</span> is the critical value of the reference distribution (<span class="math inline">\(z\)</span> or <span class="math inline">\(t\)</span>), gives the quadratic
+<span class="math display">\[
+A w^2 + B w + C = 0, \qquad A = \hat\beta_3^2 - c^2 \sigma_{33}, \quad B = 2(\hat\beta_1 \hat\beta_3 - c^2 \sigma_{13}), \quad C = \hat\beta_1^2 - c^2 \sigma_{11}.
+\]</span>
+The conditional effect is significant wherever <span class="math inline">\(A w^2 + B w + C &gt; 0\)</span>. If <span class="math inline">\(A &gt; 0\)</span> that is <em>outside</em> the two roots (or everywhere, if there are no real roots); if <span class="math inline">\(A &lt; 0\)</span> it is <em>between</em> the two roots (or nowhere). Only the part of the region that lies inside the observed range of <span class="math inline">\(W\)</span> is interpretable; outside it the model extrapolates.</p>
+<p>The technique requires a continuous <span class="math inline">\(W\)</span>. With a binary moderator the conditional effect is defined only at <span class="math inline">\(W = 0\)</span> and <span class="math inline">\(W = 1\)</span>, both of which are already tested directly by the coefficients of a suitably coded model; “regions of significance” between 0 and 1 are meaningless.</p>
+<div id="sec-heterogeneity-jn-code" class="section level3" number="5.4.1">
+<h3>
+<span class="header-section-number">5.4.1</span> Implementation<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-jn-code"><i class="fas fa-link"></i></a>
+</h3>
+<p>The three functions below work for any <code>rma.uni</code> or <code>rma.mv</code> fit with a two-way interaction between continuous moderators. They take the coefficients and covariance matrix from the fitted model, use the same reference distribution as the model (normal for <code>test = "z"</code>, <span class="math inline">\(t\)</span> with the model’s degrees of freedom for <code>test = "knha"</code> or <code>test = "t"</code>), check that the moderator is not binary, and classify the region according to the sign of <span class="math inline">\(A\)</span> rather than by testing a random point.</p>
+<div class="sourceCode" id="cb81"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">jn_parts</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">pred</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html">stop</a></span><span class="op">(</span><span class="st">"'"</span>, <span class="va">pred</span>, <span class="st">"' is not a model coefficient."</span><span class="op">)</span></span>
+<span>  <span class="va">int</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">pred</span>, <span class="st">":"</span>, <span class="va">mod</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">mod</span>, <span class="st">":"</span>, <span class="va">pred</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">int</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">1</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/stop.html">stop</a></span><span class="op">(</span><span class="st">"No "</span>, <span class="va">pred</span>, <span class="st">" x "</span>, <span class="va">mod</span>, <span class="st">" interaction in the model."</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">X</span><span class="op">[</span>, <span class="va">mod</span><span class="op">]</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html">stop</a></span><span class="op">(</span><span class="st">"'"</span>, <span class="va">mod</span>, <span class="st">"' is binary: the Johnson-Neyman technique needs a continuous moderator."</span><span class="op">)</span></span>
+<span>  <span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span>  <span class="va">ddf</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">ddf</span></span>
+<span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">ddf</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span> <span class="va">ddf</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span><span class="op">(</span><span class="va">pred</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">]</span> <span class="kw">else</span> <span class="va">ddf</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span>
+<span>  <span class="va">crit</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">level</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="kw">else</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">level</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>b1 <span class="op">=</span> <span class="va">b</span><span class="op">[[</span><span class="va">pred</span><span class="op">]</span><span class="op">]</span>, b3 <span class="op">=</span> <span class="va">b</span><span class="op">[[</span><span class="va">int</span><span class="op">]</span><span class="op">]</span>, v11 <span class="op">=</span> <span class="va">V</span><span class="op">[</span><span class="va">pred</span>, <span class="va">pred</span><span class="op">]</span>, v33 <span class="op">=</span> <span class="va">V</span><span class="op">[</span><span class="va">int</span>, <span class="va">int</span><span class="op">]</span>,</span>
+<span>       v13 <span class="op">=</span> <span class="va">V</span><span class="op">[</span><span class="va">pred</span>, <span class="va">int</span><span class="op">]</span>, crit <span class="op">=</span> <span class="va">crit</span>, df <span class="op">=</span> <span class="va">df</span>, w <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">X</span><span class="op">[</span>, <span class="va">mod</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">jn_slopes</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">at</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">jn_parts</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span><span class="op">)</span></span>
+<span>  <span class="va">est</span> <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">b1</span> <span class="op">+</span> <span class="va">p</span><span class="op">$</span><span class="va">b3</span> <span class="op">*</span> <span class="va">at</span></span>
+<span>  <span class="va">se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">v11</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">at</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">v13</span> <span class="op">+</span> <span class="va">at</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">v33</span><span class="op">)</span></span>
+<span>  <span class="va">stat</span> <span class="op">&lt;-</span> <span class="va">est</span> <span class="op">/</span> <span class="va">se</span></span>
+<span>  <span class="va">pval</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">df</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">df</span><span class="op">)</span><span class="op">)</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">stat</span><span class="op">)</span><span class="op">)</span> <span class="kw">else</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">pt</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">stat</span><span class="op">)</span>, <span class="va">p</span><span class="op">$</span><span class="va">df</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>at <span class="op">=</span> <span class="va">at</span>, estimate <span class="op">=</span> <span class="va">est</span>, se <span class="op">=</span> <span class="va">se</span>,</span>
+<span>             ci.lb <span class="op">=</span> <span class="va">est</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span> <span class="op">*</span> <span class="va">se</span>, ci.ub <span class="op">=</span> <span class="va">est</span> <span class="op">+</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span> <span class="op">*</span> <span class="va">se</span>, pval <span class="op">=</span> <span class="va">pval</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">jn_region</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">jn_parts</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span><span class="op">)</span></span>
+<span>  <span class="va">A</span> <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">b3</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">v33</span></span>
+<span>  <span class="va">B</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">b1</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">b3</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">v13</span><span class="op">)</span></span>
+<span>  <span class="va">C</span> <span class="op">&lt;-</span> <span class="va">p</span><span class="op">$</span><span class="va">b1</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span><span class="op">^</span><span class="fl">2</span> <span class="op">*</span> <span class="va">p</span><span class="op">$</span><span class="va">v11</span></span>
+<span>  <span class="va">disc</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">A</span> <span class="op">*</span> <span class="va">C</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">A</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">bounds</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="va">C</span> <span class="op">/</span> <span class="va">B</span></span>
+<span>    <span class="va">where</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">B</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="st">"above the bound"</span> <span class="kw">else</span> <span class="st">"below the bound"</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="kw">if</span> <span class="op">(</span><span class="va">disc</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">bounds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span>
+<span>    <span class="va">where</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">A</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="st">"everywhere"</span> <span class="kw">else</span> <span class="st">"nowhere"</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="va">bounds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="op">(</span><span class="op">-</span><span class="va">B</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">disc</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">A</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">where</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="va">A</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="st">"outside the bounds"</span> <span class="kw">else</span> <span class="st">"between the bounds"</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>bounds <span class="op">=</span> <span class="va">bounds</span>, significant <span class="op">=</span> <span class="va">where</span>, observed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>,</span>
+<span>       crit <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">crit</span>, df <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">df</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">jn_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span>, <span class="va">shift</span> <span class="op">=</span> <span class="fl">0</span>, <span class="va">n</span> <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>                    <span class="va">xlab</span> <span class="op">=</span> <span class="va">mod</span>, <span class="va">ylab</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="st">"Conditional effect of"</span>, <span class="va">pred</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu">jn_parts</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span><span class="op">)</span></span>
+<span>  <span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">jn_slopes</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, at <span class="op">=</span> <span class="va">grid</span>, level <span class="op">=</span> <span class="va">level</span><span class="op">)</span></span>
+<span>  <span class="va">d</span><span class="op">$</span><span class="va">sig</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">$</span><span class="va">pval</span> <span class="op">&lt;</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">level</span></span>
+<span>  <span class="va">reg</span> <span class="op">&lt;-</span> <span class="fu">jn_region</span><span class="op">(</span><span class="va">fit</span>, <span class="va">pred</span>, <span class="va">mod</span>, <span class="va">level</span><span class="op">)</span></span>
+<span>  <span class="va">vb</span> <span class="op">&lt;-</span> <span class="va">reg</span><span class="op">$</span><span class="va">bounds</span><span class="op">[</span><span class="va">reg</span><span class="op">$</span><span class="va">bounds</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span> <span class="op">&amp;</span> <span class="va">reg</span><span class="op">$</span><span class="va">bounds</span> <span class="op">&lt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="va">d</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">at</span> <span class="op">+</span> <span class="va">shift</span>, y <span class="op">=</span> <span class="va">estimate</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">ci.lb</span>, ymax <span class="op">=</span> <span class="va">ci.ub</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0</span>, linetype <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">geom_line</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>colour <span class="op">=</span> <span class="va">sig</span>, group <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">vb</span> <span class="op">+</span> <span class="va">shift</span>, linetype <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">geom_rug</span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>w <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">w</span><span class="op">)</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">w</span> <span class="op">+</span> <span class="va">shift</span><span class="op">)</span>, inherit.aes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">scale_colour_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>`FALSE` <span class="op">=</span> <span class="st">"grey40"</span>, `TRUE` <span class="op">=</span> <span class="st">"firebrick"</span><span class="op">)</span>,</span>
+<span>                        labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>`FALSE` <span class="op">=</span> <span class="st">"not significant"</span>, `TRUE` <span class="op">=</span> <span class="st">"significant"</span><span class="op">)</span>,</span>
+<span>                        name <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="va">xlab</span>, y <span class="op">=</span> <span class="va">ylab</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
+<div id="sec-heterogeneity-jn-bcg" class="section level3" number="5.4.2">
+<h3>
+<span class="header-section-number">5.4.2</span> Latitude × year in the BCG trials<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-jn-bcg"><i class="fas fa-link"></i></a>
+</h3>
+<p>We centre both moderators so that <span class="math inline">\(\beta_1\)</span> is the latitude slope at the mean publication year and <span class="math inline">\(\beta_2\)</span> the year slope at mean latitude. Centring does not change the fit or the interaction coefficient; it makes the lower-order terms interpretable.</p>
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span><span class="op">$</span><span class="va">ablat_c</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">ablat</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">ablat</span><span class="op">)</span></span>
+<span><span class="va">dat</span><span class="op">$</span><span class="va">year_c</span>  <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">$</span><span class="va">year</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
+<span><span class="va">res_int_z</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat_c</span> <span class="op">*</span> <span class="va">year_c</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">res_int_kh</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat_c</span> <span class="op">*</span> <span class="va">year_c</span>, data <span class="op">=</span> <span class="va">dat</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">res_int_kh</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                  estimate       se    tval df     pval     ci.lb     ci.ub</span></span>
+<span><span class="co">#&gt; intrcpt        -0.7660042 0.214742 -3.5671  9 0.006052 -1.251785 -0.280223</span></span>
+<span><span class="co">#&gt; ablat_c        -0.0250613 0.017857 -1.4035  9 0.194028 -0.065456  0.015334</span></span>
+<span><span class="co">#&gt; year_c          0.0058636 0.024702  0.2374  9 0.817681 -0.050016  0.061743</span></span>
+<span><span class="co">#&gt; ablat_c:year_c -0.0002855 0.001539 -0.1855  9 0.856925 -0.003767  0.003196</span></span>
+<span><span class="va">jn_z</span>  <span class="op">&lt;-</span> <span class="fu">jn_region</span><span class="op">(</span><span class="va">res_int_z</span>,  <span class="st">"ablat_c"</span>, <span class="st">"year_c"</span><span class="op">)</span></span>
+<span><span class="va">jn_kh</span> <span class="op">&lt;-</span> <span class="fu">jn_region</span><span class="op">(</span><span class="va">res_int_kh</span>, <span class="st">"ablat_c"</span>, <span class="st">"year_c"</span><span class="op">)</span></span>
+<span><span class="va">jn_z</span></span>
+<span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; [1]  3.375 15.309</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $significant</span></span>
+<span><span class="co">#&gt; [1] "between the bounds"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $observed</span></span>
+<span><span class="co">#&gt; [1] -18.23  13.77</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $crit</span></span>
+<span><span class="co">#&gt; [1] 1.96</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $df</span></span>
+<span><span class="co">#&gt; [1] NA</span></span>
+<span><span class="va">jn_kh</span></span>
+<span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; numeric(0)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $significant</span></span>
+<span><span class="co">#&gt; [1] "nowhere"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $observed</span></span>
+<span><span class="co">#&gt; [1] -18.23  13.77</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $crit</span></span>
+<span><span class="co">#&gt; [1] 2.262</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $df</span></span>
+<span><span class="co">#&gt; [1] 9</span></span></code></pre></div>
+<p>The interaction coefficient is tiny and far from significant (-0.0003, <span class="math inline">\(p\)</span> = .857 with Knapp–Hartung), so there is no evidence that the latitude gradient changed over time. The Johnson–Neyman analysis nonetheless shows how much the conclusion about <em>where</em> latitude matters depends on inferential choices. With Wald <span class="math inline">\(z\)</span> tests, the latitude slope is significant for centred years between 3.37 and 15.31, that is, for trials published from about 1970 onward (the upper bound lies beyond the last observed year, 1980). With the Knapp–Hartung <span class="math inline">\(t_{9}\)</span> reference distribution the quadratic has no real roots and <span class="math inline">\(A &lt; 0\)</span>, so the conditional slope is significant nowhere.</p>
+<p>We can verify a bound directly: the Wald test of the linear combination <span class="math inline">\(\beta_1 + \beta_3 w\)</span> at the lower Johnson–Neyman bound should have <span class="math inline">\(p = .05\)</span> exactly.</p>
+<div class="sourceCode" id="cb83"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">res_int_z</span>, X <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="va">jn_z</span><span class="op">$</span><span class="va">bounds</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Hypothesis:                                       </span></span>
+<span><span class="co">#&gt; 1: ablat_c + 3.3746*ablat_c:year_c = 0 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Results:</span></span>
+<span><span class="co">#&gt;    estimate     se    zval   pval   </span></span>
+<span><span class="co">#&gt; 1:  -0.0260 0.0133 -1.9600 0.0500 . </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Hypothesis:</span></span>
+<span><span class="co">#&gt; QM(df = 1) = 3.8415, p-val = 0.0500</span></span>
+<span><span class="fu">jn_slopes</span><span class="op">(</span><span class="va">res_int_z</span>, <span class="st">"ablat_c"</span>, <span class="st">"year_c"</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">15</span>, <span class="fl">0</span>, <span class="va">jn_z</span><span class="op">$</span><span class="va">bounds</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        at estimate      se    ci.lb     ci.ub    pval</span></span>
+<span><span class="co">#&gt; 1 -15.000 -0.02078 0.03450 -0.08841  0.046849 0.54704</span></span>
+<span><span class="co">#&gt; 2   0.000 -0.02506 0.01623 -0.05688  0.006755 0.12263</span></span>
+<span><span class="co">#&gt; 3   3.375 -0.02602 0.01328 -0.05205  0.000000 0.05000</span></span>
+<span><span class="co">#&gt; 4  10.000 -0.02792 0.01161 -0.05067 -0.005163 0.01619</span></span></code></pre></div>
+<p>Figure <a href="sec-heterogeneity.html#fig:het-jn-plot">5.3</a> plots the conditional latitude slope across the observed range of years for the Knapp–Hartung model, with the rug showing where the trials lie.</p>
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">jn_plot</span><span class="op">(</span><span class="va">res_int_kh</span>, <span class="st">"ablat_c"</span>, <span class="st">"year_c"</span>, shift <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
+<span>        xlab <span class="op">=</span> <span class="st">"Publication year"</span>, ylab <span class="op">=</span> <span class="st">"Latitude slope (log RR per degree)"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:het-jn-plot"></span>
+<img src="05-heterogeneity_files/figure-html/het-jn-plot-1.png" alt="Conditional effect of absolute latitude on the log risk ratio as a function of publication year (Knapp–Hartung model) with its 95% confidence band. The slope is negative throughout but its confidence band includes zero over the whole observed range; the rug marks the publication years of the 13 trials." width="85%"><p class="caption">
+Figure 5.3: Conditional effect of absolute latitude on the log risk ratio as a function of publication year (Knapp–Hartung model) with its 95% confidence band. The slope is negative throughout but its confidence band includes zero over the whole observed range; the rug marks the publication years of the 13 trials.
+</p>
+</div>
+<p>Three lessons carry over to any application. First, probe an interaction only when the interaction itself is supported; a Johnson–Neyman region computed from a null interaction (here <span class="math inline">\(p\)</span> = .857) describes noise. Second, Johnson–Neyman bounds inherit all the weaknesses of the model’s standard errors, so use the same small-sample correction as for the main analysis. Third, report the bounds together with the observed range of the moderator, never as a statement about values that no study observed.</p>
+</div>
+</div>
+<div id="sec-heterogeneity-permutation" class="section level2" number="5.5">
+<h2>
+<span class="header-section-number">5.5</span> Permutation tests<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-permutation"><i class="fas fa-link"></i></a>
+</h2>
+<p>The Knapp–Hartung test improves on the Wald test but still relies on distributional assumptions. <span class="citation">Higgins and Thompson (<a href="sec-references.html#ref-higgins2004controlling">2004</a>)</span> proposed a permutation test: if the moderator is unrelated to the effects, then the assignment of moderator values to studies is exchangeable, so randomly reshuffling the rows of the moderator matrix generates the null distribution of the test statistic. With <span class="math inline">\(k\)</span> studies there are <span class="math inline">\(k!\)</span> permutations; for <span class="math inline">\(k = 13\)</span> that is more than six billion, so we take a random sample of permutations. They recommend this test before a statistically significant relationship from a standard meta-regression is claimed.</p>
+<div class="sourceCode" id="cb85"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">perm_lat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/permutest.html">permutest</a></span><span class="op">(</span><span class="va">res_lat_kh</span>, iter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Running 1000 iterations for an approximate permutation test.</span></span>
+<span><span class="va">perm_lat</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficient 2):¹</span></span>
+<span><span class="co">#&gt; F(df1 = 1, df2 = 11) = 12.5905, p-val = 0.0140</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          estimate      se     tval  df    pval¹    ci.lb    ci.ub    </span></span>
+<span><span class="co">#&gt; intrcpt    0.2515  0.2839   0.8857  11  0.7770   -0.3735   0.8764    </span></span>
+<span><span class="co">#&gt; ablat     -0.0291  0.0082  -3.5483  11  0.0140   -0.0472  -0.0111  * </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 1) p-values based on permutation testing</span></span>
+<span><span class="va">perm_mult</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/permutest.html">permutest</a></span><span class="op">(</span><span class="va">res_mult</span>, iter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Running 1000 iterations for an approximate permutation test.</span></span></code></pre></div>
+<p>For latitude alone, the permutation <span class="math inline">\(p\)</span>-value is 0.014 (based on 1000 permutations), compared with 0.0046 from the Knapp–Hartung <span class="math inline">\(F\)</span> test, so the association survives. For the four-moderator model, the omnibus permutation <span class="math inline">\(p\)</span>-value is 0.154. The permutation test is also the natural tool for screening analyses: permuting whole rows of the moderator matrix while recording the <em>minimum</em> <span class="math inline">\(p\)</span>-value across moderators gives a multiplicity-adjusted test, which is the adjustment <span class="citation">Higgins and Thompson (<a href="sec-references.html#ref-higgins2004controlling">2004</a>)</span> proposed for multiple covariates. Permutation tests are not a cure for confounding; they only calibrate the <span class="math inline">\(p\)</span>-value for the hypothesis of no association.</p>
+</div>
+<div id="sec-heterogeneity-mmi" class="section level2" number="5.6">
+<h2>
+<span class="header-section-number">5.6</span> Multimodel inference<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-mmi"><i class="fas fa-link"></i></a>
+</h2>
+<p>When several candidate moderators are plausible and none is singled out a priori, fitting one large model or choosing a single “best” model by stepwise selection both have problems. Multimodel inference fits all candidate models, ranks them with an information criterion such as <span class="math inline">\(\text{AIC}_c\)</span>, converts the differences <span class="math inline">\(\Delta_m = \text{AIC}_{c,m} - \min \text{AIC}_c\)</span> into Akaike weights
+<span class="math display">\[
+w_m = \frac{\exp(-\Delta_m/2)}{\sum_{l} \exp(-\Delta_l/2)},
+\]</span>
+and then averages coefficients across models and sums the weights of all models containing a predictor to obtain its relative importance <span class="citation">(<a href="sec-references.html#ref-burnham2004multimodel">Burnham and Anderson 2004</a>)</span>. Because likelihoods of models with different fixed effects are not comparable under REML, the models must be fitted by maximum likelihood.</p>
+<p>We illustrate with the writing-to-learn meta-analysis in <code>dat.bangertdrowns2004</code> (48 school-based interventions, standardised mean differences). Following the approach documented on the <code>metafor</code> website, we drop studies with missing values on any candidate moderator (so that all models are fitted to the same data) and register the helper methods that <code>MuMIn</code> needs for <code>rma</code> objects with <code>eval(metafor:::.MuMIn)</code>.</p>
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/eval.html">eval</a></span><span class="op">(</span><span class="fu">metafor</span><span class="fu">:::</span><span class="va">.MuMIn</span><span class="op">)</span></span>
+<span><span class="va">mods</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"length"</span>, <span class="st">"wic"</span>, <span class="st">"feedback"</span>, <span class="st">"info"</span>, <span class="st">"pers"</span>, <span class="st">"imag"</span>, <span class="st">"meta"</span><span class="op">)</span></span>
+<span><span class="va">bd</span> <span class="op">&lt;-</span> <span class="va">dat.bangertdrowns2004</span></span>
+<span><span class="va">bd</span> <span class="op">&lt;-</span> <span class="va">bd</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">bd</span><span class="op">)</span><span class="op">[</span>, <span class="va">mods</span><span class="op">]</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">bd</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 41</span></span>
+<span><span class="va">full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">length</span> <span class="op">+</span> <span class="va">wic</span> <span class="op">+</span> <span class="va">feedback</span> <span class="op">+</span> <span class="va">info</span> <span class="op">+</span> <span class="va">pers</span> <span class="op">+</span> <span class="va">imag</span> <span class="op">+</span> <span class="va">meta</span>,</span>
+<span>            data <span class="op">=</span> <span class="va">bd</span>, method <span class="op">=</span> <span class="st">"ML"</span><span class="op">)</span></span></code></pre></div>
+<p>The seven moderators are treatment length in weeks (<code>length</code>) and indicators for writing in class (<code>wic</code>), feedback (<code>feedback</code>), writing that contained informational components (<code>info</code>), personal components (<code>pers</code>), imaginative components (<code>imag</code>), and metacognitive prompts (<code>meta</code>). With seven binary-or-continuous main effects there are <span class="math inline">\(2^7 = 128\)</span> candidate models.</p>
+<div class="sourceCode" id="cb87"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dd</span> <span class="op">&lt;-</span> <span class="fu">dredge</span><span class="op">(</span><span class="va">full</span>, trace <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">dd</span>, <span class="va">delta</span> <span class="op">&lt;=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Global model call: rma(yi = yi, vi = vi, mods = ~length + wic + feedback + info + </span></span>
+<span><span class="co">#&gt;     pers + imag + meta, data = bd, method = "ML")</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Model selection table </span></span>
+<span><span class="co">#&gt;    (Intrc)   fdbck   imag    lngth    meta    pers      wic df logLik AICc</span></span>
+<span><span class="co">#&gt; 3        +         0.4437                                    3 -3.427 13.5</span></span>
+<span><span class="co">#&gt; 19       +         0.4020          0.10880                   4 -2.197 13.5</span></span>
+<span><span class="co">#&gt; 4        + 0.09907 0.4359                                    4 -2.446 14.0</span></span>
+<span><span class="co">#&gt; 11       +         0.4059 0.007695                           4 -2.510 14.1</span></span>
+<span><span class="co">#&gt; 20       + 0.09112 0.3967          0.10140                   5 -1.360 14.4</span></span>
+<span><span class="co">#&gt; 83       +         0.4209          0.12500         -0.09359  5 -1.517 14.7</span></span>
+<span><span class="co">#&gt; 36       + 0.11820 0.3869                  0.08858           5 -1.636 15.0</span></span>
+<span><span class="co">#&gt; 35       +         0.4072                  0.06671           4 -2.974 15.1</span></span>
+<span><span class="co">#&gt; 27       +         0.3812 0.005604 0.09186                   5 -1.748 15.2</span></span>
+<span><span class="co">#&gt; 67       +         0.4608                          -0.05935  4 -3.150 15.4</span></span>
+<span><span class="co">#&gt;    delta weight</span></span>
+<span><span class="co">#&gt; 3   0.00  0.156</span></span>
+<span><span class="co">#&gt; 19  0.00  0.156</span></span>
+<span><span class="co">#&gt; 4   0.50  0.121</span></span>
+<span><span class="co">#&gt; 11  0.63  0.114</span></span>
+<span><span class="co">#&gt; 20  0.93  0.098</span></span>
+<span><span class="co">#&gt; 83  1.25  0.084</span></span>
+<span><span class="co">#&gt; 36  1.48  0.074</span></span>
+<span><span class="co">#&gt; 35  1.56  0.072</span></span>
+<span><span class="co">#&gt; 27  1.71  0.066</span></span>
+<span><span class="co">#&gt; 67  1.91  0.060</span></span>
+<span><span class="co">#&gt; Models ranked by AICc(x)</span></span>
+<span><span class="va">avg</span> <span class="op">&lt;-</span> <span class="fu">model.avg</span><span class="op">(</span><span class="va">dd</span>, revised.var <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu">coefTable</span><span class="op">(</span><span class="va">avg</span>, full <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          Estimate Std. Error</span></span>
+<span><span class="co">#&gt; intrcpt    0.1084       0.10</span></span>
+<span><span class="co">#&gt; imag       0.3512       0.20</span></span>
+<span><span class="co">#&gt; meta       0.0512       0.09</span></span>
+<span><span class="co">#&gt; feedback   0.0366       0.07</span></span>
+<span><span class="co">#&gt; length     0.0023       0.00</span></span>
+<span><span class="co">#&gt; wic       -0.0170       0.05</span></span>
+<span><span class="co">#&gt; pers       0.0132       0.07</span></span>
+<span><span class="co">#&gt; info      -0.0183       0.08</span></span>
+<span><span class="fu">sw</span><span class="op">(</span><span class="va">dd</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                      imag meta feedback length pers wic  info</span></span>
+<span><span class="co">#&gt; Sum of weights:      0.85 0.42 0.37     0.33   0.29 0.26 0.24</span></span>
+<span><span class="co">#&gt; N containing models:   64   64   64       64     64   64   64</span></span></code></pre></div>
+<p>10 models lie within two <span class="math inline">\(\text{AIC}_c\)</span> units of the best, and every one of them contains <code>imag</code>. Its importance (sum of Akaike weights over the 64 models that include it) is 0.85, far above the next predictors, <code>meta</code> (0.42) and <code>feedback</code> (0.37). The full model-averaged coefficient for <code>imag</code>, which treats the coefficient as zero in models that exclude it, is 0.351 (SE 0.202).</p>
+<p>Multimodel inference is a principled way to express model uncertainty, but it is not a licence to dredge. The averaged estimates are only as good as the candidate set; importance values have no absolute threshold and even a pure-noise predictor can receive substantial weight; and with 41 studies and 128 models, any conclusion is exploratory. An alternative implementation is the <code>glmulti</code> package <span class="citation">(<a href="sec-references.html#ref-calcagno2010glmulti">Calcagno and Mazancourt 2010</a>)</span>, which can also search candidate sets with interactions using a genetic algorithm when exhaustive search is infeasible. The <code>metafor</code> website shows how to use it with <code>rma</code> models; it is not run here because <code>glmulti</code> depends on Java.</p>
+</div>
+<div id="sec-heterogeneity-location-scale" class="section level2" number="5.7">
+<h2>
+<span class="header-section-number">5.7</span> Location-scale models<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-location-scale"><i class="fas fa-link"></i></a>
+</h2>
+<p>Standard meta-regression lets the <em>mean</em> of the true effects depend on moderators but assumes the same residual heterogeneity <span class="math inline">\(\tau^2\)</span> for every study. Yet one may expect more heterogeneity among small, community-based studies than among large, protocol-driven trials, or more among studies with a particular design. The location-scale model of <span class="citation">Viechtbauer and López‐López (<a href="sec-references.html#ref-viechtbauer2022location">2022</a>)</span> adds a second linear predictor for the heterogeneity:
+<span class="math display">\[
+y_i = \mathbf{x}_i^\top \boldsymbol\beta + u_i + \varepsilon_i, \qquad u_i \sim N(0, \tau_i^2), \qquad \log \tau_i^2 = \mathbf{z}_i^\top \boldsymbol\alpha .
+\]</span>
+The log link keeps <span class="math inline">\(\tau_i^2\)</span> positive. The model answers questions that standard models cannot: whether a characteristic is related to the <em>consistency</em> of effects rather than (or as well as) to their average size. A subgroup analysis with separate <span class="math inline">\(\tau^2_g\)</span> (Section <a href="sec-heterogeneity.html#sec-heterogeneity-tau2-pooled">5.2.1</a>) is the special case with a single categorical predictor in both parts.</p>
+<p>In the writing-to-learn data, we ask whether heterogeneity is related to study size:</p>
+<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ls0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, scale <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span>, data <span class="op">=</span> <span class="va">dat.bangertdrowns2004</span><span class="op">)</span></span>
+<span><span class="va">ls_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, scale <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">ni</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">dat.bangertdrowns2004</span><span class="op">)</span></span>
+<span><span class="va">ls_n</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Location-Scale Model (k = 48; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 47) = 107.1061, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results (Location):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.1708  0.0412  4.1445  &lt;.0001  0.0900  0.2515  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Scale Coefficients (coefficient 2):</span></span>
+<span><span class="co">#&gt; QM(df = 1) = 3.3488, p-val = 0.0673</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results (Scale):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          estimate      se     zval    pval    ci.lb   ci.ub    </span></span>
+<span><span class="co">#&gt; intrcpt    1.5141  2.3582   0.6421  0.5208  -3.1078  6.1361    </span></span>
+<span><span class="co">#&gt; log(ni)   -0.9659  0.5278  -1.8300  0.0673  -2.0003  0.0686  . </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">ls_n</span>, <span class="va">ls0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         df     AIC     BIC    AICc   logLik    LRT   pval       QE </span></span>
+<span><span class="co">#&gt; Full     3 39.8610 45.4114 40.4191 -16.9305               107.1061 </span></span>
+<span><span class="co">#&gt; Reduced  2 40.9886 44.6889 41.2613 -18.4943 3.1276 0.0770 107.1061</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">ls_n</span>, newscale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">100</span>, <span class="fl">300</span><span class="op">)</span><span class="op">)</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    pred ci.lb ci.ub </span></span>
+<span><span class="co">#&gt; 1 0.170 0.047 0.610 </span></span>
+<span><span class="co">#&gt; 2 0.053 0.025 0.114 </span></span>
+<span><span class="co">#&gt; 3 0.018 0.004 0.085</span></span></code></pre></div>
+<p>The scale coefficient for <span class="math inline">\(\log n_i\)</span> is -0.966 (SE 0.528): larger studies tend to be more homogeneous. The implied heterogeneity is <span class="math inline">\(\hat\tau^2 =\)</span> 0.170 for a study with 30 pupils, 0.053 with 100 pupils, and 0.018 with 300. The evidence is modest, however: the likelihood-ratio test against the homoscedastic model gives <span class="math inline">\(\chi^2(1) =\)</span> 3.13, <span class="math inline">\(p\)</span> = .077. Location-scale models need more data than location models, because variance components are estimated with less precision than means; with a few dozen studies they are best viewed as hypothesis-generating unless the scale predictors were specified in advance.</p>
+</div>
+<div id="sec-heterogeneity-metaforest" class="section level2" number="5.8">
+<h2>
+<span class="header-section-number">5.8</span> Exploratory moderator search with machine learning<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-metaforest"><i class="fas fa-link"></i></a>
+</h2>
+<p>When a literature offers many coded study characteristics and little theory to choose among them, a data-driven screen can suggest which characteristics are worth a confirmatory analysis in future syntheses. MetaForest adapts random forests to meta-analysis by growing trees on bootstrap samples of studies, weighting studies by their random-effects weights, and assessing predictive performance on the studies left out of each bootstrap sample (out-of-bag) <span class="citation">(<a href="sec-references.html#ref-vanlissa2020small">Lissa 2020</a>)</span>. Its appeal is that it can capture non-linear relations and interactions without specifying them; its cost is that it offers no inference in the usual sense.</p>
+<div class="sourceCode" id="cb89"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mf_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">dat.bangertdrowns2004</span><span class="op">)</span><span class="op">[</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span>, <span class="st">"grade"</span>, <span class="st">"length"</span>, <span class="st">"wic"</span>, <span class="st">"info"</span>, <span class="st">"pers"</span>, <span class="st">"imag"</span>, <span class="st">"meta"</span>, <span class="st">"year"</span>, <span class="st">"ni"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">mf</span> <span class="op">&lt;-</span> <span class="fu">MetaForest</span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">grade</span> <span class="op">+</span> <span class="va">length</span> <span class="op">+</span> <span class="va">wic</span> <span class="op">+</span> <span class="va">info</span> <span class="op">+</span> <span class="va">pers</span> <span class="op">+</span> <span class="va">imag</span> <span class="op">+</span> <span class="va">meta</span> <span class="op">+</span> <span class="va">year</span> <span class="op">+</span> <span class="va">ni</span>,</span>
+<span>                 data <span class="op">=</span> <span class="va">mf_dat</span>, vi <span class="op">=</span> <span class="st">"vi"</span>, whichweights <span class="op">=</span> <span class="st">"random"</span>, num.trees <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="va">mf</span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; MetaForest(formula = yi ~ grade + length + wic + info + pers + </span></span>
+<span><span class="co">#&gt;     imag + meta + year + ni, data = mf_dat, vi = "vi", whichweights = "random", </span></span>
+<span><span class="co">#&gt;     num.trees = 1000)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; R squared (OOB):                  -0.0902 </span></span>
+<span><span class="co">#&gt; Residual heterogeneity (tau2):    0.0470</span></span></code></pre></div>
+<p>The out-of-bag <span class="math inline">\(R^2\)</span> is -0.090. A negative value means the forest predicts the effect sizes of held-out studies <em>worse</em> than their mean does: with 42 studies and nine moderators there is no stable, generalisable moderator structure to find. The variable-importance plot (Figure <a href="sec-heterogeneity.html#fig:het-metaforest-varimp">5.4</a>) should be read in that light, as a ranking of noise.</p>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">VarImpPlot</span><span class="op">(</span><span class="va">mf</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:het-metaforest-varimp"></span>
+<img src="05-heterogeneity_files/figure-html/het-metaforest-varimp-1.png" alt="Permutation variable importance from MetaForest for the writing-to-learn data. Because the out-of-bag $R^2$ is negative, these importances do not indicate reliable moderators." width="85%"><p class="caption">
+Figure 5.4: Permutation variable importance from MetaForest for the writing-to-learn data. Because the out-of-bag <span class="math inline">\(R^2\)</span> is negative, these importances do not indicate reliable moderators.
+</p>
+</div>
+<p>This is the honest outcome of many machine-learning analyses of small meta-analytic data sets, and it is worth reporting. When MetaForest does find positive out-of-bag <span class="math inline">\(R^2\)</span>, good practice is to check that the forest has converged (<code>plot(mf)</code> shows the out-of-bag error by number of trees), to tune <code>mtry</code> and the minimum node size by cross-validation, to use clustered bootstrap sampling via the <code>study</code> argument when effect sizes are nested in studies, and to treat the variables it selects as hypotheses to be tested in a pre-specified meta-regression on new data <span class="citation">(<a href="sec-references.html#ref-vanlissa2020small">Lissa 2020</a>)</span>.</p>
+</div>
+<div id="sec-heterogeneity-recommendations" class="section level2" number="5.9">
+<h2>
+<span class="header-section-number">5.9</span> Practical recommendations<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-recommendations"><i class="fas fa-link"></i></a>
+</h2>
+<p>Specify a small number of moderators, each with a substantive rationale, in the protocol, and label everything else exploratory <span class="citation">(<a href="sec-references.html#ref-thompson2002how">Thompson and Higgins 2002</a>)</span>. Use mixed-effects models and Knapp–Hartung tests by default, and confirm key findings with a permutation test when <span class="math inline">\(k\)</span> is small <span class="citation">(<a href="sec-references.html#ref-viechtbauer2015comparison">Viechtbauer et al. 2015</a>; <a href="sec-references.html#ref-higgins2004controlling">Higgins and Thompson 2004</a>)</span>. For categorical moderators, test subgroup differences with <span class="math inline">\(Q_B\)</span> or <span class="math inline">\(Q_M\)</span>, never by comparing within-subgroup <span class="math inline">\(p\)</span>-values, and prefer a pooled <span class="math inline">\(\tau^2\)</span> unless subgroups are large and clearly differ in heterogeneity <span class="citation">(<a href="sec-references.html#ref-rubioaparicio2017analysis">Rubio‐Aparicio et al. 2017</a>)</span>. Report coefficients with confidence intervals, the residual <span class="math inline">\(\tau^2\)</span>, and predictions with prediction intervals at meaningful moderator values; present <span class="math inline">\(R^2\)</span> only with a caveat about its instability <span class="citation">(<a href="sec-references.html#ref-lopezlopez2013estimation">López‐López et al. 2013</a>)</span>. Centre continuous moderators before forming interactions, probe interactions with Johnson–Neyman regions only when the interaction is supported, and restrict interpretation to the observed range <span class="citation">(<a href="sec-references.html#ref-bauer2005probing">Bauer and Curran 2005</a>)</span>. When several moderators compete, show how estimates change across specifications or use multimodel inference rather than reporting one selected model. Interpret study-level associations as such, and do not translate them into statements about individuals.</p>
+</div>
+<div id="sec-heterogeneity-pitfalls" class="section level2" number="5.10">
+<h2>
+<span class="header-section-number">5.10</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>The pitfalls in this area are well documented. Analysts fit fixed-effect meta-regressions that ignore residual heterogeneity and produce spuriously small <span class="math inline">\(p\)</span>-values. They screen dozens of moderators one at a time and report those that cross <span class="math inline">\(p &lt; .05\)</span>. They interpret a significant subgroup effect in one group and a non-significant effect in another as a subgroup difference. They read a moderator association as causal, forgetting that studies are not randomised to their characteristics. They regress treatment effects on observed baseline risk without accounting for the shared measurement error. They interpret coefficients of study-level means as individual-level effect modification. They report <span class="math inline">\(R^2 = 100\%\)</span> from a model whose residual <span class="math inline">\(\hat\tau^2\)</span> was truncated at zero in a meta-analysis of a dozen studies. And they extrapolate a fitted line, or a Johnson–Neyman region, beyond the range of moderator values that any included study observed.</p>
+</div>
+<div id="sec-heterogeneity-takeaways" class="section level2" number="5.11">
+<h2>
+<span class="header-section-number">5.11</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Heterogeneity statistics quantify variation in true effects; subgroup analysis and meta-regression attempt to explain it with study-level covariates, which makes them observational analyses even when all studies are randomised.</li>
+<li>Subgroup differences are tested with <span class="math inline">\(Q_B\)</span> (separate <span class="math inline">\(\tau^2\)</span>) or the mixed-effects <span class="math inline">\(Q_M\)</span> (pooled <span class="math inline">\(\tau^2\)</span>); a pooled <span class="math inline">\(\tau^2\)</span> is usually preferable with few studies per subgroup.</li>
+<li>Mixed-effects meta-regression with Knapp–Hartung tests is the default; fixed-effect meta-regression and Wald tests are too liberal with few studies, and permutation tests offer a further check.</li>
+<li>Pseudo-<span class="math inline">\(R^2\)</span> is unstable with fewer than about 40 studies; report coefficients, residual heterogeneity, and prediction intervals instead.</li>
+<li>The Johnson–Neyman technique locates the moderator values at which a conditional effect is significant; it requires a continuous moderator, a supported interaction, and interpretation within the observed range.</li>
+<li>Multimodel inference, location-scale models, and MetaForest extend the toolkit, but with typical meta-analytic sample sizes they are exploratory and must be reported as such.</li>
+</ul>
+</div>
+<div id="sec-heterogeneity-reading" class="section level2" number="5.12">
+<h2>
+<span class="header-section-number">5.12</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-heterogeneity-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Thompson and Higgins (<a href="sec-references.html#ref-thompson2002how">2002</a>)</span> remains the best short guide to doing and interpreting meta-regression, and <span class="citation">Higgins and Thompson (<a href="sec-references.html#ref-higgins2004controlling">2004</a>)</span> documents the false-positive problem and the permutation remedy. <span class="citation">Viechtbauer et al. (<a href="sec-references.html#ref-viechtbauer2015comparison">2015</a>)</span> compares moderator tests in mixed-effects models, and <span class="citation">Viechtbauer (<a href="sec-references.html#ref-viechtbauer2007accounting">2007</a>)</span> gives an accessible introduction to random- and mixed-effects models for moderator analysis. <span class="citation">Rubio‐Aparicio et al. (<a href="sec-references.html#ref-rubioaparicio2017analysis">2017</a>)</span> study pooled versus separate heterogeneity estimates for categorical moderators, and <span class="citation">López‐López et al. (<a href="sec-references.html#ref-lopezlopez2013estimation">2013</a>)</span> the precision of <span class="math inline">\(R^2\)</span>. <span class="citation">Bauer and Curran (<a href="sec-references.html#ref-bauer2005probing">2005</a>)</span> develop the Johnson–Neyman technique for single-level and multilevel regression. <span class="citation">Burnham and Anderson (<a href="sec-references.html#ref-burnham2004multimodel">2004</a>)</span> explain the logic of multimodel inference, and <span class="citation">Calcagno and Mazancourt (<a href="sec-references.html#ref-calcagno2010glmulti">2010</a>)</span> describe <code>glmulti</code>. <span class="citation">Viechtbauer and López‐López (<a href="sec-references.html#ref-viechtbauer2022location">2022</a>)</span> introduce location-scale models for meta-analysis, and <span class="citation">Lissa (<a href="sec-references.html#ref-vanlissa2020small">2020</a>)</span> presents MetaForest. The <code>metafor</code> paper <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span> and the package documentation cover the software used throughout.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></div>
+<div class="next"><a href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-heterogeneity"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li>
+<a class="nav-link" href="#sec-heterogeneity-sources"><span class="header-section-number">5.1</span> Where heterogeneity comes from</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec-heterogeneity-bcg"><span class="header-section-number">5.1.1</span> The running example: BCG vaccine trials</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-heterogeneity-subgroups"><span class="header-section-number">5.2</span> Subgroup analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-heterogeneity-tau2-pooled"><span class="header-section-number">5.2.1</span> Separate versus pooled estimates of \(\tau^2\)</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-qbetween"><span class="header-section-number">5.2.2</span> Testing subgroup differences</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-subgroup-forest"><span class="header-section-number">5.2.3</span> A forest plot with subgroups</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-heterogeneity-metareg"><span class="header-section-number">5.3</span> Meta-regression</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-heterogeneity-model"><span class="header-section-number">5.3.1</span> The mixed-effects meta-regression model</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-continuous"><span class="header-section-number">5.3.2</span> A continuous moderator: latitude</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-r2"><span class="header-section-number">5.3.3</span> How much heterogeneity is explained?</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-knha"><span class="header-section-number">5.3.4</span> Categorical moderators and the Knapp–Hartung adjustment</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-multiple"><span class="header-section-number">5.3.5</span> Multiple moderators and collinearity</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-overfitting"><span class="header-section-number">5.3.6</span> Many moderators, few studies</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-ecological"><span class="header-section-number">5.3.7</span> Aggregation bias and the ecological fallacy</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-heterogeneity-jn"><span class="header-section-number">5.4</span> Interactions and the Johnson–Neyman technique</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-heterogeneity-jn-code"><span class="header-section-number">5.4.1</span> Implementation</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-jn-bcg"><span class="header-section-number">5.4.2</span> Latitude × year in the BCG trials</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-heterogeneity-permutation"><span class="header-section-number">5.5</span> Permutation tests</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-mmi"><span class="header-section-number">5.6</span> Multimodel inference</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-location-scale"><span class="header-section-number">5.7</span> Location-scale models</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-metaforest"><span class="header-section-number">5.8</span> Exploratory moderator search with machine learning</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-recommendations"><span class="header-section-number">5.9</span> Practical recommendations</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-pitfalls"><span class="header-section-number">5.10</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-takeaways"><span class="header-section-number">5.11</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-heterogeneity-reading"><span class="header-section-number">5.12</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/05-heterogeneity.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/05-heterogeneity.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

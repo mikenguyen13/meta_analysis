@@ -1,0 +1,128 @@
+---
+title: "Meta-Analysis: A Practical and Modern Guide with R"
+author: "Mike Nguyen"
+date: "2026-11-25"
+documentclass: book
+bibliography: [references.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+description: "An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE."
+github-repo: mikenguyen13/meta_analysis
+url: https\://mikenguyen13.github.io/meta_analysis
+favicon: "favicon.ico"
+cover-image: "images/cover.jpg"
+apple-touch-icon: "logo.png"
+apple-touch-icon-size: 120
+knit: "bookdown::render_book"
+site: bookdown::bookdown_site
+always_allow_html: yes
+---
+
+# Preface {#sec-preface .unnumbered}
+
+
+
+<img src="images/cover.jpg" class="cover" width="250" height="328" alt="Book cover"/>
+
+A single study rarely settles a question. Effects vary from sample to sample, from one
+operationalization to the next, and from one setting to another, and the studies that reach
+print are not a random draw from the studies that were run. Meta-analysis is the set of
+statistical tools for learning from a body of studies as a whole: estimating an average effect,
+describing how much true effects vary, explaining that variation, and judging how far the
+published record can be trusted. A systematic review is the disciplined process that decides
+which studies enter that analysis and how their results are extracted and appraised.
+
+This book covers both. It starts from the logic of research synthesis and the systematic review
+workflow (question, protocol, search, screening, extraction, risk of bias), builds up the core
+statistical machinery (effect sizes, common-effect and random-effects models, heterogeneity,
+meta-regression, dependent effect sizes, publication bias, sensitivity analysis), and then moves
+to methods that have become standard in the last decade: robust variance estimation with
+correlated-and-hierarchical effects working models, selection models and robust Bayesian
+meta-analysis, Bayesian hierarchical models with informative heterogeneity priors, network
+meta-analysis, meta-analytic structural equation modeling, multivariate and dose-response
+models, individual participant data, diagnostic test accuracy, the synthesis of causal
+estimates from quasi-experiments, and certainty-of-evidence ratings with GRADE.
+
+## Who this book is for {#sec-preface-audience .unnumbered}
+
+The book is written for graduate students and researchers in psychology, medicine and public
+health, economics, management, and marketing who need to run a meta-analysis, review one, or
+read one critically. It assumes familiarity with regression and basic statistical inference,
+and some experience with R. Mathematical notation is used where it clarifies what an estimator
+does, and every method is paired with code that runs on publicly available data.
+
+## How the book is organized {#sec-preface-organization .unnumbered}
+
+**Part I, Foundations**, motivates research synthesis (Chapter \@ref(sec-introduction)), walks
+through the systematic review workflow and PRISMA 2020 (Chapter \@ref(sec-systematic-review)),
+and shows how to compute and convert effect sizes (Chapter \@ref(sec-effect-sizes)).
+
+**Part II, Core Methods**, develops common-effect and random-effects models
+(Chapter \@ref(sec-models)), heterogeneity, subgroups, and meta-regression
+(Chapter \@ref(sec-heterogeneity)), dependent effect sizes (Chapter \@ref(sec-dependent-effects)),
+publication bias (Chapter \@ref(sec-publication-bias)), and sensitivity analysis and diagnostics
+(Chapter \@ref(sec-sensitivity)).
+
+**Part III, Advanced Methods**, covers Bayesian meta-analysis (Chapter \@ref(sec-bayesian)),
+network meta-analysis (Chapter \@ref(sec-network)), meta-analytic structural equation modeling
+(Chapter \@ref(sec-masem)), multivariate, dose-response, and individual participant data
+meta-analysis (Chapter \@ref(sec-multivariate-ipd)), diagnostic test accuracy
+(Chapter \@ref(sec-dta)), and the meta-analysis of causal estimates
+(Chapter \@ref(sec-causal-estimates)).
+
+**Part IV, Reporting**, turns to certainty of evidence and reporting standards
+(Chapter \@ref(sec-reporting)) and closes with a workflow checklist
+(Chapter \@ref(sec-conclusion)).
+
+The chapters can be read in order or used as a reference. Each one ends with key takeaways and
+pointers to further reading.
+
+## Software and reproducibility {#sec-preface-software .unnumbered}
+
+All analyses use R. The workhorse is **metafor** [@R-metafor], with **meta** [@R-meta] for
+alternative interfaces, **clubSandwich** [@R-clubSandwich] and **robumeta** [@R-robumeta] for
+robust variance estimation, **netmeta** [@R-netmeta], **multinma** [@R-multinma], and **gemtc**
+[@R-gemtc] for network meta-analysis, **metaSEM** [@R-metaSEM] for structural equation models,
+**bayesmeta** [@R-bayesmeta], **brms** [@R-brms], and **RoBMA** [@R-RoBMA] for Bayesian models,
+and **mada** [@R-mada] for diagnostic accuracy. Example data come from **metadat** [@R-metadat]
+and the datasets bundled with these packages, so every chunk can be rerun as printed.
+
+The book is rebuilt from source on every change, and every code chunk is executed during that
+build; output shown in the text is the output the code produced. To reproduce the environment,
+install the packages listed in the `DESCRIPTION` file of the
+[source repository](https://github.com/mikenguyen13/meta_analysis). The Bayesian chapters
+need a working C++ toolchain for Stan, and the `RoBMA` and `gemtc` examples need
+[JAGS](https://mcmc-jags.sourceforge.io/).
+
+```r
+# Core packages used throughout the book
+install.packages(c(
+  "metafor", "metadat", "meta", "clubSandwich", "robumeta", "netmeta",
+  "metaSEM", "bayesmeta", "brms", "RoBMA", "multinma", "mada", "esc"
+))
+```
+
+## License and citation {#sec-preface-license .unnumbered}
+
+This book is licensed under the
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+(CC BY-NC-SA 4.0). You may share and adapt the material for non-commercial purposes with
+attribution, provided derivatives are released under the same license. To cite the book:
+
+> Nguyen, M. (2026). *Meta-Analysis: A Practical and Modern Guide with R*.
+> https://mikenguyen13.github.io/meta_analysis/
+
+```bibtex
+@book{nguyen2026metaanalysis,
+  title  = {Meta-Analysis: A Practical and Modern Guide with R},
+  author = {Nguyen, Mike},
+  year   = {2026},
+  url    = {https://mikenguyen13.github.io/meta_analysis/}
+}
+```
+
+To cite a specific section, link to its anchor; every section has a stable address, for example
+`https://mikenguyen13.github.io/meta_analysis/sec-models.html`.
+
+Corrections and suggestions are welcome as
+[issues or pull requests](https://github.com/mikenguyen13/meta_analysis/issues).

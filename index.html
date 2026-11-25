@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Preface | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE.">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Preface | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Preface | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="An open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, common- and random-effects models, heterogeneity and meta-regression, dependent effects, publication bias, sensitivity analysis, Bayesian, network, MASEM, multivariate, IPD, diagnostic accuracy, causal estimates, and GRADE.">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Preface | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="active" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><!--bookdown:title:end--><!--bookdown:title:start--><div id="sec-preface" class="section level1 unnumbered">
+<h1>Preface<a class="anchor" aria-label="anchor" href="#sec-preface"><i class="fas fa-link"></i></a>
+</h1>
+<div class="inline-figure"><img src="images/cover.jpg" class="cover" width="250" height="328" alt="Book cover"></div>
+<p>A single study rarely settles a question. Effects vary from sample to sample, from one
+operationalization to the next, and from one setting to another, and the studies that reach
+print are not a random draw from the studies that were run. Meta-analysis is the set of
+statistical tools for learning from a body of studies as a whole: estimating an average effect,
+describing how much true effects vary, explaining that variation, and judging how far the
+published record can be trusted. A systematic review is the disciplined process that decides
+which studies enter that analysis and how their results are extracted and appraised.</p>
+<p>This book covers both. It starts from the logic of research synthesis and the systematic review
+workflow (question, protocol, search, screening, extraction, risk of bias), builds up the core
+statistical machinery (effect sizes, common-effect and random-effects models, heterogeneity,
+meta-regression, dependent effect sizes, publication bias, sensitivity analysis), and then moves
+to methods that have become standard in the last decade: robust variance estimation with
+correlated-and-hierarchical effects working models, selection models and robust Bayesian
+meta-analysis, Bayesian hierarchical models with informative heterogeneity priors, network
+meta-analysis, meta-analytic structural equation modeling, multivariate and dose-response
+models, individual participant data, diagnostic test accuracy, the synthesis of causal
+estimates from quasi-experiments, and certainty-of-evidence ratings with GRADE.</p>
+<div id="sec-preface-audience" class="section level2 unnumbered">
+<h2>Who this book is for<a class="anchor" aria-label="anchor" href="#sec-preface-audience"><i class="fas fa-link"></i></a>
+</h2>
+<p>The book is written for graduate students and researchers in psychology, medicine and public
+health, economics, management, and marketing who need to run a meta-analysis, review one, or
+read one critically. It assumes familiarity with regression and basic statistical inference,
+and some experience with R. Mathematical notation is used where it clarifies what an estimator
+does, and every method is paired with code that runs on publicly available data.</p>
+</div>
+<div id="sec-preface-organization" class="section level2 unnumbered">
+<h2>How the book is organized<a class="anchor" aria-label="anchor" href="#sec-preface-organization"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Part I, Foundations</strong>, motivates research synthesis (Chapter <a href="sec-introduction.html#sec-introduction">1</a>), walks
+through the systematic review workflow and PRISMA 2020 (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>),
+and shows how to compute and convert effect sizes (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>).</p>
+<p><strong>Part II, Core Methods</strong>, develops common-effect and random-effects models
+(Chapter <a href="sec-models.html#sec-models">4</a>), heterogeneity, subgroups, and meta-regression
+(Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>), dependent effect sizes (Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>),
+publication bias (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>), and sensitivity analysis and diagnostics
+(Chapter <a href="sec-sensitivity.html#sec-sensitivity">8</a>).</p>
+<p><strong>Part III, Advanced Methods</strong>, covers Bayesian meta-analysis (Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>),
+network meta-analysis (Chapter <a href="sec-network.html#sec-network">10</a>), meta-analytic structural equation modeling
+(Chapter <a href="sec-masem.html#sec-masem">11</a>), multivariate, dose-response, and individual participant data
+meta-analysis (Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>), diagnostic test accuracy
+(Chapter <a href="sec-dta.html#sec-dta">13</a>), and the meta-analysis of causal estimates
+(Chapter <a href="sec-causal-estimates.html#sec-causal-estimates">14</a>).</p>
+<p><strong>Part IV, Reporting</strong>, turns to certainty of evidence and reporting standards
+(Chapter <a href="sec-reporting.html#sec-reporting">15</a>) and closes with a workflow checklist
+(Chapter <a href="sec-conclusion.html#sec-conclusion">16</a>).</p>
+<p>The chapters can be read in order or used as a reference. Each one ends with key takeaways and
+pointers to further reading.</p>
+</div>
+<div id="sec-preface-software" class="section level2 unnumbered">
+<h2>Software and reproducibility<a class="anchor" aria-label="anchor" href="#sec-preface-software"><i class="fas fa-link"></i></a>
+</h2>
+<p>All analyses use R. The workhorse is <strong>metafor</strong> <span class="citation">(<a href="sec-references.html#ref-R-metafor">Viechtbauer 2026</a>)</span>, with <strong>meta</strong> <span class="citation">(<a href="sec-references.html#ref-R-meta">Schwarzer 2026</a>)</span> for
+alternative interfaces, <strong>clubSandwich</strong> <span class="citation">(<a href="sec-references.html#ref-R-clubSandwich">Pustejovsky 2026</a>)</span> and <strong>robumeta</strong> <span class="citation">(<a href="sec-references.html#ref-R-robumeta">Fisher et al. 2023</a>)</span> for
+robust variance estimation, <strong>netmeta</strong> <span class="citation">(<a href="sec-references.html#ref-R-netmeta">Rücker et al. 2026</a>)</span>, <strong>multinma</strong> <span class="citation">(<a href="sec-references.html#ref-R-multinma">Phillippo 2026</a>)</span>, and <strong>gemtc</strong>
+<span class="citation">(<a href="sec-references.html#ref-R-gemtc"><span class="nocase">van Valkenhoef and Kuiper</span> 2026</a>)</span> for network meta-analysis, <strong>metaSEM</strong> <span class="citation">(<a href="sec-references.html#ref-R-metaSEM">Cheung 2026</a>)</span> for structural equation models,
+<strong>bayesmeta</strong> <span class="citation">(<a href="sec-references.html#ref-R-bayesmeta">Roever 2025</a>)</span>, <strong>brms</strong> <span class="citation">(<a href="sec-references.html#ref-R-brms">Bürkner 2025</a>)</span>, and <strong>RoBMA</strong> <span class="citation">(<a href="sec-references.html#ref-R-RoBMA">Bartoš and Maier 2025</a>)</span> for Bayesian models,
+and <strong>mada</strong> <span class="citation">(<a href="sec-references.html#ref-R-mada">Doebler 2025</a>)</span> for diagnostic accuracy. Example data come from <strong>metadat</strong> <span class="citation">(<a href="sec-references.html#ref-R-metadat">Viechtbauer et al. 2026</a>)</span>
+and the datasets bundled with these packages, so every chunk can be rerun as printed.</p>
+<p>The book is rebuilt from source on every change, and every code chunk is executed during that
+build; output shown in the text is the output the code produced. To reproduce the environment,
+install the packages listed in the <code>DESCRIPTION</code> file of the
+<a href="https://github.com/mikenguyen13/meta_analysis">source repository</a>. The Bayesian chapters
+need a working C++ toolchain for Stan, and the <code>RoBMA</code> and <code>gemtc</code> examples need
+<a href="https://mcmc-jags.sourceforge.io/">JAGS</a>.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Core packages used throughout the book</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"metafor"</span>, <span class="st">"metadat"</span>, <span class="st">"meta"</span>, <span class="st">"clubSandwich"</span>, <span class="st">"robumeta"</span>, <span class="st">"netmeta"</span>,</span>
+<span>  <span class="st">"metaSEM"</span>, <span class="st">"bayesmeta"</span>, <span class="st">"brms"</span>, <span class="st">"RoBMA"</span>, <span class="st">"multinma"</span>, <span class="st">"mada"</span>, <span class="st">"esc"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div id="sec-preface-license" class="section level2 unnumbered">
+<h2>License and citation<a class="anchor" aria-label="anchor" href="#sec-preface-license"><i class="fas fa-link"></i></a>
+</h2>
+<p>This book is licensed under the
+<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>
+(CC BY-NC-SA 4.0). You may share and adapt the material for non-commercial purposes with
+attribution, provided derivatives are released under the same license. To cite the book:</p>
+<blockquote>
+<p>Nguyen, M. (2026). <em>Meta-Analysis: A Practical and Modern Guide with R</em>.
+<a href="https://mikenguyen13.github.io/meta_analysis/" class="uri">https://mikenguyen13.github.io/meta_analysis/</a></p>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb2-1"><a href="index.html#cb2-1" tabindex="-1"></a><span class="va">@book</span>{<span class="ot">nguyen2026metaanalysis</span>,</span>
+<span id="cb2-2"><a href="index.html#cb2-2" tabindex="-1"></a>  <span class="dt">title</span>  = {Meta-Analysis: A Practical and Modern Guide with R},</span>
+<span id="cb2-3"><a href="index.html#cb2-3" tabindex="-1"></a>  <span class="dt">author</span> = {Nguyen, Mike},</span>
+<span id="cb2-4"><a href="index.html#cb2-4" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb2-5"><a href="index.html#cb2-5" tabindex="-1"></a>  <span class="dt">url</span>    = {https://mikenguyen13.github.io/meta_analysis/}</span>
+<span id="cb2-6"><a href="index.html#cb2-6" tabindex="-1"></a>}</span></code></pre></div>
+<p>To cite a specific section, link to its anchor; every section has a stable address, for example
+<code>https://mikenguyen13.github.io/meta_analysis/sec-models.html</code>.</p>
+<p>Corrections and suggestions are welcome as
+<a href="https://github.com/mikenguyen13/meta_analysis/issues">issues or pull requests</a>.</p>
+
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="empty"></div>
+<div class="next"><a href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-preface">Preface</a></li>
+<li><a class="nav-link" href="#sec-preface-audience">Who this book is for</a></li>
+<li><a class="nav-link" href="#sec-preface-organization">How the book is organized</a></li>
+<li><a class="nav-link" href="#sec-preface-software">Software and reproducibility</a></li>
+<li><a class="nav-link" href="#sec-preface-license">License and citation</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/index.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/index.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

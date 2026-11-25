@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 16 A Workflow Checklist | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="The preceding chapters each took one part of a meta-analysis apart. This closing chapter puts the parts back together as a sequence of decisions, flags the mistakes that most often undermine...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 16 A Workflow Checklist | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-conclusion.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="The preceding chapters each took one part of a meta-analysis apart. This closing chapter puts the parts back together as a sequence of decisions, flags the mistakes that most often undermine...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 16 A Workflow Checklist | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="The preceding chapters each took one part of a meta-analysis apart. This closing chapter puts the parts back together as a sequence of decisions, flags the mistakes that most often undermine...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 16 A Workflow Checklist | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="active" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-conclusion" class="section level1" number="16">
+<h1>
+<span class="header-section-number">16</span> A Workflow Checklist<a class="anchor" aria-label="anchor" href="#sec-conclusion"><i class="fas fa-link"></i></a>
+</h1>
+<p>The preceding chapters each took one part of a meta-analysis apart. This closing chapter puts
+the parts back together as a sequence of decisions, flags the mistakes that most often undermine
+published meta-analyses, and ends with a compact analysis template that runs the core steps on
+one dataset. It is meant to be used as a checklist while planning, analyzing, and reviewing.</p>
+<div id="sec-conclusion-before" class="section level2" number="16.1">
+<h2>
+<span class="header-section-number">16.1</span> Before the analysis<a class="anchor" aria-label="anchor" href="#sec-conclusion-before"><i class="fas fa-link"></i></a>
+</h2>
+<p>A meta-analysis inherits every weakness of the review that feeds it. The decisions below should
+be fixed in a protocol and registered before the data are seen (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>).</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Question.</strong> State the population, intervention or exposure, comparator, outcomes, and
+study designs. Decide whether the target is a single common effect or the mean and spread of a
+distribution of effects, because that choice drives the model (Chapter <a href="sec-models.html#sec-models">4</a>).</li>
+<li>
+<strong>Protocol and registration.</strong> Register on PROSPERO or OSF. Specify the primary outcome, the
+effect-size metric, the model and heterogeneity estimator, planned moderators, the handling of
+dependent effects, and the sensitivity analyses. Deviations are allowed; undisclosed deviations
+are not.</li>
+<li>
+<strong>Search and screening.</strong> Search several databases plus registries and grey literature, screen
+in duplicate, and record counts for the PRISMA 2020 flow diagram.</li>
+<li>
+<strong>Extraction.</strong> Pilot the form, extract in duplicate, and keep the raw statistics (means, SDs,
+counts, test statistics) rather than only computed effect sizes, so that every effect size can
+be recomputed (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>).</li>
+<li>
+<strong>Risk of bias.</strong> Rate each study with a design-appropriate tool (RoB 2, ROBINS-I, QUADAS-2) and
+plan how the ratings will enter the synthesis.</li>
+</ol>
+</div>
+<div id="sec-conclusion-model" class="section level2" number="16.2">
+<h2>
+<span class="header-section-number">16.2</span> Choosing the model<a class="anchor" aria-label="anchor" href="#sec-conclusion-model"><i class="fas fa-link"></i></a>
+</h2>
+<p>Table <a href="sec-conclusion.html#tab:conclusion-decisions">16.1</a> maps common data situations to the approach this book
+recommends and the chapter that develops it.</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:conclusion-decisions">Table 16.1: </span>Data situations, recommended approaches, and where they are covered.</caption>
+<colgroup>
+<col width="35%">
+<col width="60%">
+<col width="4%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Situation</th>
+<th align="left">Approach</th>
+<th align="left">Chapter</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">One effect per study, studies differ in design or population</td>
+<td align="left">Random-effects model, REML or Paule-Mandel tau^2, Hartung-Knapp CI, prediction interval</td>
+<td align="left">4</td>
+</tr>
+<tr class="even">
+<td align="left">Very few studies (k &lt; 5)</td>
+<td align="left">Bayesian model with an informative or weakly informative prior on tau; report sensitivity</td>
+<td align="left">9</td>
+</tr>
+<tr class="odd">
+<td align="left">Binary outcome with rare events or zero cells</td>
+<td align="left">Mantel-Haenszel, Peto, or binomial GLMM instead of continuity corrections</td>
+<td align="left">4</td>
+</tr>
+<tr class="even">
+<td align="left">Several effects per study, sampling covariances unknown</td>
+<td align="left">CHE working model with robust variance estimation (CR2, Satterthwaite df)</td>
+<td align="left">6</td>
+</tr>
+<tr class="odd">
+<td align="left">Effects nested in studies nested in labs or papers</td>
+<td align="left">Three-level model; RVE on top if the dependence structure is uncertain</td>
+<td align="left">6</td>
+</tr>
+<tr class="even">
+<td align="left">Moderators of interest</td>
+<td align="left">Mixed-effects meta-regression with Knapp-Hartung tests; permutation tests; few pre-specified moderators</td>
+<td align="left">5</td>
+</tr>
+<tr class="odd">
+<td align="left">Suspected selective publication</td>
+<td align="left">Funnel plot plus a triangulation of PET-PEESE, selection models, and sensitivity analysis</td>
+<td align="left">7</td>
+</tr>
+<tr class="even">
+<td align="left">Influential or outlying studies</td>
+<td align="left">Influence diagnostics, leave-one-out, GOSH; report results with and without</td>
+<td align="left">8</td>
+</tr>
+<tr class="odd">
+<td align="left">Three or more competing interventions</td>
+<td align="left">Network meta-analysis, checking transitivity and consistency</td>
+<td align="left">10</td>
+</tr>
+<tr class="even">
+<td align="left">Correlation matrices and a theoretical path model</td>
+<td align="left">Two-stage or one-stage MASEM</td>
+<td align="left">11</td>
+</tr>
+<tr class="odd">
+<td align="left">Correlated outcomes with known within-study correlations</td>
+<td align="left">Multivariate random-effects model</td>
+<td align="left">12</td>
+</tr>
+<tr class="even">
+<td align="left">Participant-level data available</td>
+<td align="left">One-stage or two-stage IPD meta-analysis separating within- and across-study interactions</td>
+<td align="left">12</td>
+</tr>
+<tr class="odd">
+<td align="left">Sensitivity and specificity of a test</td>
+<td align="left">Bivariate random-effects (Reitsma) or HSROC model</td>
+<td align="left">13</td>
+</tr>
+<tr class="even">
+<td align="left">Estimates from quasi-experiments with different estimands</td>
+<td align="left">Pool only comparable estimands; design as moderator; bias-adjusted or hierarchical models</td>
+<td align="left">14</td>
+</tr>
+</tbody>
+</table></div>
+<p>Two defaults deserve emphasis. First, report the prediction interval alongside the confidence
+interval for the mean whenever a random-effects model is used: the confidence interval describes
+uncertainty about the average effect, while the prediction interval describes where the true
+effect of a new comparable study is likely to fall, and the two can lead to very different
+practical conclusions. Second, prefer methods with honest small-sample behavior: the
+Hartung-Knapp-Sidik-Jonkman adjustment for the mean, and small-sample corrected robust variance
+estimation for dependent effects.</p>
+</div>
+<div id="sec-conclusion-pitfalls" class="section level2" number="16.3">
+<h2>
+<span class="header-section-number">16.3</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-conclusion-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>The following errors recur in published meta-analyses and in manuscripts sent for review.</p>
+<ul>
+<li>
+<strong>Double counting.</strong> Using a shared control group several times, or entering several outcomes
+from the same participants as independent effects, understates standard errors
+(Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>).</li>
+<li>
+<strong>Mixing metrics without conversion.</strong> Pooling standardized mean differences computed from
+change scores with those from post-test scores, or correlations with partial correlations from
+regressions with different control sets, combines quantities that estimate different things.</li>
+<li>
+<strong>Reading I² as the amount of heterogeneity.</strong> I² is a ratio that depends on study precision.
+Report tau and the prediction interval to describe how much effects vary.</li>
+<li>
+<strong>Fishing for moderators.</strong> Testing many moderators on few studies produces false positives.
+Pre-specify, adjust for multiplicity, and treat post hoc findings as hypotheses.</li>
+<li>
+<strong>Ecological inference.</strong> A study-level association between mean age and effect size says
+nothing reliable about whether older individuals benefit more.</li>
+<li>
+<strong>Treating trim-and-fill as a correction.</strong> It is a sensitivity analysis resting on a strong
+assumption about why studies are missing. No single publication-bias method should be read
+as the answer.</li>
+<li>
+<strong>Fixed-effect inference with heterogeneous studies.</strong> A common-effect model applied to
+heterogeneous studies produces confidence intervals that are too narrow for any claim beyond
+the included studies.</li>
+<li>
+<strong>Ignoring risk of bias.</strong> Averaging high- and low-quality studies without examining whether
+results differ by risk of bias can let the weakest evidence dominate.</li>
+</ul>
+</div>
+<div id="sec-conclusion-template" class="section level2" number="16.4">
+<h2>
+<span class="header-section-number">16.4</span> A compact analysis template<a class="anchor" aria-label="anchor" href="#sec-conclusion-template"><i class="fas fa-link"></i></a>
+</h2>
+<p>The code below runs the core steps of a univariate random-effects meta-analysis from raw data to
+diagnostics, using the BCG vaccine trials. Each step corresponds to a chapter, and each would be
+expanded in a real project.</p>
+<div class="sourceCode" id="cb296"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.metafor-project.org">metafor</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 1. Effect sizes: log risk ratios and sampling variances (Chapter 3)</span></span>
+<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">dat.bcg</span>, slab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span>, sep <span class="op">=</span> <span class="st">", "</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># 2. Random-effects model with REML and Hartung-Knapp inference (Chapter 4)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">res</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3132 (SE = 0.1664)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5597</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.22%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.86</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     tval  df    pval    ci.lb    ci.ub     </span></span>
+<span><span class="co">#&gt;  -0.7145  0.1808  -3.9522  12  0.0019  -1.1084  -0.3206  ** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span></span>
+<span><span class="co"># 3. Average effect, confidence interval, and prediction interval on the RR scale</span></span>
+<span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">pred</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.49  0.33  0.73  0.14  1.76</span></span>
+<span></span>
+<span><span class="co"># 4. Confidence interval for tau^2 and tau</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        estimate   ci.lb   ci.ub </span></span>
+<span><span class="co">#&gt; tau^2    0.3132  0.1197  1.1115 </span></span>
+<span><span class="co">#&gt; tau      0.5597  0.3460  1.0543 </span></span>
+<span><span class="co">#&gt; I^2(%)  92.2214 81.9177 97.6781 </span></span>
+<span><span class="co">#&gt; H^2     12.8558  5.5303 43.0680</span></span>
+<span></span>
+<span><span class="co"># 5. Moderator: absolute latitude (Chapter 5)</span></span>
+<span><span class="va">res_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">ablat</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">res_mod</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Mixed-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of residual heterogeneity):     0.0764 (SE = 0.0591)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):             0.2763</span></span>
+<span><span class="co">#&gt; I^2 (residual heterogeneity / unaccounted variability): 68.39%</span></span>
+<span><span class="co">#&gt; H^2 (unaccounted variability / sampling variability):   3.16</span></span>
+<span><span class="co">#&gt; R^2 (amount of heterogeneity accounted for):            75.62%</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 11) = 30.7331, p-val = 0.0012</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficient 2):</span></span>
+<span><span class="co">#&gt; F(df1 = 1, df2 = 11) = 12.5905, p-val = 0.0046</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;          estimate      se     tval  df    pval    ci.lb    ci.ub     </span></span>
+<span><span class="co">#&gt; intrcpt    0.2515  0.2839   0.8857  11  0.3948  -0.3735   0.8764     </span></span>
+<span><span class="co">#&gt; ablat     -0.0291  0.0082  -3.5483  11  0.0046  -0.0472  -0.0111  ** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span></span>
+<span><span class="co"># 6. Influence diagnostics (Chapter 8)</span></span>
+<span><span class="va">inf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.influence.html">influence</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="va">inf</span><span class="op">$</span><span class="va">is.infl</span><span class="op">)</span></span>
+<span><span class="co">#&gt; integer(0)</span></span>
+<span></span>
+<span><span class="co"># 7. Small-study effects: Egger-type test and trim-and-fill (Chapter 7)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/regtest.html">regtest</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Regression Test for Funnel Plot Asymmetry</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model:     mixed-effects meta-regression model</span></span>
+<span><span class="co">#&gt; Predictor: standard error</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Funnel Plot Asymmetry: t = -0.7812, df = 11, p = 0.4512</span></span>
+<span><span class="co">#&gt; Limit Estimate (as sei -&gt; 0):   b = -0.5104 (CI: -1.2123, 0.1915)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/trimfill.html">trimfill</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Estimated number of missing studies on the right side: 1 (SE = 2.4528)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 14; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3313 (SE = 0.1701)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5756</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.14%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.72</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 13) = 154.6750, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.6571  0.1785  -3.6805  0.0002  -1.0070  -0.3072  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The pooled risk ratio printed in step 3 is about 0.49, a substantial
+average protective effect of BCG, but the 95% prediction interval runs from about
+0.14 to 1.76: in a new setting comparable
+to these trials, the vaccine could be highly protective or have no benefit at all. Step 5 shows
+that absolute latitude accounts for about 76% of the between-trial variance
+(the pseudo-R² printed by the model): trials farther from the equator report stronger protection. This is the typical shape of a careful
+answer. The average effect matters less than the question of where and for whom the effect holds,
+and the diagnostics in steps 6 and 7 show how much the conclusion depends on individual studies
+and on assumptions about missing ones.</p>
+</div>
+<div id="sec-conclusion-reporting" class="section level2" number="16.5">
+<h2>
+<span class="header-section-number">16.5</span> Reporting checklist<a class="anchor" aria-label="anchor" href="#sec-conclusion-reporting"><i class="fas fa-link"></i></a>
+</h2>
+<p>Whatever the method, a report should let a reader reproduce the analysis and judge the certainty
+of its conclusions (Chapter <a href="sec-reporting.html#sec-reporting">15</a>). At a minimum it states the registered protocol
+and any deviations; presents the PRISMA 2020 flow diagram; tabulates study characteristics and
+risk-of-bias ratings; names the effect-size metric, model, heterogeneity estimator, and
+confidence-interval method; reports the pooled estimate with its confidence interval, tau, and
+the prediction interval; describes moderator, sensitivity, and publication-bias analyses,
+including those that did not change the conclusion; rates certainty with GRADE; and shares the
+extracted data and analysis code.</p>
+</div>
+<div id="sec-conclusion-reading" class="section level2" number="16.6">
+<h2>
+<span class="header-section-number">16.6</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-conclusion-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p>The <em>Cochrane Handbook for Systematic Reviews of Interventions</em> <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span> remains
+the most complete practical reference for reviews of interventions, and
+<span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2021introduction">2021</a>)</span> is a clear conceptual introduction to the statistics of meta-analysis.
+The documentation and worked examples on the metafor website, and the CRAN Task View on
+Meta-Analysis, track current software. Methodological developments appear in <em>Research Synthesis
+Methods</em>, <em>Psychological Methods</em>, <em>Statistics in Medicine</em>, and the <em>Journal of Economic Surveys</em>.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></div>
+<div class="next"><a href="sec-references.html">References</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-conclusion"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="nav-link" href="#sec-conclusion-before"><span class="header-section-number">16.1</span> Before the analysis</a></li>
+<li><a class="nav-link" href="#sec-conclusion-model"><span class="header-section-number">16.2</span> Choosing the model</a></li>
+<li><a class="nav-link" href="#sec-conclusion-pitfalls"><span class="header-section-number">16.3</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-conclusion-template"><span class="header-section-number">16.4</span> A compact analysis template</a></li>
+<li><a class="nav-link" href="#sec-conclusion-reporting"><span class="header-section-number">16.5</span> Reporting checklist</a></li>
+<li><a class="nav-link" href="#sec-conclusion-reading"><span class="header-section-number">16.6</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/16-conclusion.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/16-conclusion.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

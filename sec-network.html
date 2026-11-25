@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 10 Network Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A pairwise meta-analysis answers a narrow question: how does treatment B compare with treatment A? Clinical and policy decisions rarely look like that. A guideline panel choosing a first-line...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 10 Network Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-network.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A pairwise meta-analysis answers a narrow question: how does treatment B compare with treatment A? Clinical and policy decisions rarely look like that. A guideline panel choosing a first-line...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 10 Network Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A pairwise meta-analysis answers a narrow question: how does treatment B compare with treatment A? Clinical and policy decisions rarely look like that. A guideline panel choosing a first-line...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 10 Network Meta-Analysis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="active" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-network" class="section level1" number="10">
+<h1>
+<span class="header-section-number">10</span> Network Meta-Analysis<a class="anchor" aria-label="anchor" href="#sec-network"><i class="fas fa-link"></i></a>
+</h1>
+<p>A pairwise meta-analysis answers a narrow question: how does treatment B compare with treatment A? Clinical and policy decisions rarely look like that. A guideline panel choosing a first-line antidepressant faces a dozen drugs and several psychotherapies; a marketing team comparing promotional formats faces many alternatives, most of which have never been tested against each other in the same experiment. Trials are designed to answer the sponsor’s question, usually “is our product better than placebo or the current standard?”, so the evidence base is a patchwork of comparisons that rarely contains every pair a decision maker cares about.</p>
+<p>Network meta-analysis (NMA) synthesizes such a patchwork in a single model. It combines <em>direct</em> evidence (trials that compare two treatments head to head) with <em>indirect</em> evidence (comparisons inferred through a common comparator) and returns a coherent set of relative effects for every pair of treatments in a connected network. The method has many names, including mixed treatment comparison and multiple-treatments meta-analysis <span class="citation">(<a href="sec-references.html#ref-salanti2012indirect">Salanti 2012</a>)</span>, but the core idea is the same in every variant: if the trials in the network are similar enough in the ways that matter, then the relative effects they estimate must fit together like the sides of a triangle.</p>
+<p>This chapter develops NMA from the simplest indirect comparison to full frequentist and Bayesian models. It builds on the random-effects machinery of Chapter <a href="sec-models.html#sec-models">4</a>, the heterogeneity concepts of Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>, and the Bayesian workflow of Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>. We work through one network in detail, a classic data set on smoking cessation interventions <span class="citation">(<a href="sec-references.html#ref-hasselblad1998meta">Hasselblad 1998</a>; <a href="sec-references.html#ref-dias2013evidence">Dias et al. 2013</a>)</span>, fitting it with <code>netmeta</code>, <code>multinma</code>, and <code>gemtc</code> so that the reader can see what is common across implementations and where they differ. A component NMA on a large depression network rounds out the frequentist part.</p>
+<div id="sec-network-why" class="section level2" number="10.1">
+<h2>
+<span class="header-section-number">10.1</span> Why network meta-analysis<a class="anchor" aria-label="anchor" href="#sec-network-why"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-network-indirect" class="section level3" number="10.1.1">
+<h3>
+<span class="header-section-number">10.1.1</span> Indirect comparisons<a class="anchor" aria-label="anchor" href="#sec-network-indirect"><i class="fas fa-link"></i></a>
+</h3>
+<p>Suppose a set of trials compares treatment B with A and another set compares C with A, but no trial compares B with C. Write <span class="math inline">\(d_{AB}\)</span> for the true relative effect of B versus A on some additive scale (a log odds ratio, a mean difference, a log hazard ratio). Pooling each set separately gives estimates <span class="math inline">\(\hat d_{AB}\)</span> and <span class="math inline">\(\hat d_{AC}\)</span> with variances <span class="math inline">\(v_{AB}\)</span> and <span class="math inline">\(v_{AC}\)</span>. <span class="citation">Bucher et al. (<a href="sec-references.html#ref-bucher1997results">1997</a>)</span> proposed the <em>adjusted indirect comparison</em></p>
+<p><span class="math display">\[
+\hat d^{\,\text{ind}}_{BC} = \hat d_{AC} - \hat d_{AB}, \qquad
+\operatorname{Var}\!\left(\hat d^{\,\text{ind}}_{BC}\right) = v_{AB} + v_{AC},
+\]</span></p>
+<p>where the variances add because the two sets of trials are independent. The word “adjusted” matters. A <em>naive</em> indirect comparison would contrast the B arms of the AB trials with the C arms of the AC trials as if they came from one big trial, throwing away randomization and inviting confounding by any difference between the trial populations. The adjusted comparison preserves randomization within each trial and only asks that the relative effect of the common comparator transfers between the two sets. In an empirical comparison using 44 published meta-analyses, adjusted indirect estimates usually agreed with direct estimates of the same comparison, but a statistically significant discrepancy appeared in three of the 44, and its direction was not consistent <span class="citation">(<a href="sec-references.html#ref-song2003validity">Song et al. 2003</a>)</span>.</p>
+<p>The price of an indirect comparison is precision. Because the variances add, an indirect estimate built from two comparisons each as precise as a single direct comparison has twice the variance. Indirect evidence is therefore most valuable when direct evidence is absent or sparse, and least valuable when a large body of head-to-head trials already exists.</p>
+</div>
+<div id="sec-network-mixed" class="section level3" number="10.1.2">
+<h3>
+<span class="header-section-number">10.1.2</span> Mixed treatment comparisons<a class="anchor" aria-label="anchor" href="#sec-network-mixed"><i class="fas fa-link"></i></a>
+</h3>
+<p>When both direct and indirect evidence exist for the same comparison, they can be combined. Under the assumption that both estimate the same quantity, the inverse-variance weighted average</p>
+<p><span class="math display">\[
+\hat d^{\,\text{mix}}_{BC} = \frac{w_D \hat d^{\,\text{dir}}_{BC} + w_I \hat d^{\,\text{ind}}_{BC}}{w_D + w_I},
+\qquad w_D = 1/v^{\text{dir}}_{BC},\; w_I = 1/v^{\text{ind}}_{BC},
+\]</span></p>
+<p>is more precise than either component. <span class="citation">Lumley (<a href="sec-references.html#ref-lumley2002network">2002</a>)</span> generalized this to networks with many loops, and <span class="citation">Lu and Ades (<a href="sec-references.html#ref-lu2004combination">2004</a>)</span> formulated the Bayesian hierarchical model that most later work builds on. A <em>network meta-analysis</em> fits all comparisons jointly, so every estimate borrows strength from every path through the network that connects the two treatments. The same model also delivers what pairwise analyses cannot: a single, internally coherent set of relative effects in which <span class="math inline">\(d_{BC} = d_{AC} - d_{AB}\)</span> holds exactly, and from which treatments can be ranked.</p>
+</div>
+</div>
+<div id="sec-network-assumptions" class="section level2" number="10.2">
+<h2>
+<span class="header-section-number">10.2</span> Assumptions: transitivity and consistency<a class="anchor" aria-label="anchor" href="#sec-network-assumptions"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-network-transitivity" class="section level3" number="10.2.1">
+<h3>
+<span class="header-section-number">10.2.1</span> Transitivity<a class="anchor" aria-label="anchor" href="#sec-network-transitivity"><i class="fas fa-link"></i></a>
+</h3>
+<p>The indirect estimate <span class="math inline">\(\hat d_{AC} - \hat d_{AB}\)</span> is an unbiased estimate of <span class="math inline">\(d_{BC}\)</span> only if the AB trials and the AC trials estimate effects that would be transferable to one another. This is the <em>transitivity</em> assumption. A useful way to state it is that A, B and C are jointly randomizable: one could imagine a three-arm trial in which any participant in the network could have been assigned to any of the three treatments. Transitivity fails when the distribution of <em>effect modifiers</em> differs across comparisons <span class="citation">(<a href="sec-references.html#ref-jansen2013network">Jansen and Naci 2013</a>)</span>. If AB trials enrolled patients with mild disease and AC trials enrolled patients with severe disease, and severity modifies the effect of treatment relative to A, then the indirect comparison mixes a mild-disease B effect with a severe-disease C effect.</p>
+<p>Two consequences follow. First, transitivity is a conceptual assumption about the clinical and methodological features of the trials and cannot be tested statistically in a network without closed loops. It is assessed by tabulating potential effect modifiers by comparison (age, severity, dose, follow-up length, risk of bias, year of publication) and asking whether the comparisons look exchangeable. Second, differences in prognostic factors that do <em>not</em> modify relative effects do not threaten transitivity, which is why adjusted indirect comparisons are much more robust than naive ones. The common comparator A also needs to be the same treatment in both sets: “placebo” in a 1990s trial and “placebo” in a trial with a large nocebo-run-in may not be.</p>
+</div>
+<div id="sec-network-consistency" class="section level3" number="10.2.2">
+<h3>
+<span class="header-section-number">10.2.2</span> Consistency<a class="anchor" aria-label="anchor" href="#sec-network-consistency"><i class="fas fa-link"></i></a>
+</h3>
+<p>Transitivity has a statistical manifestation. When a comparison is informed by both direct and indirect evidence, the two sources should agree up to sampling error. This is called <em>consistency</em> (or <em>coherence</em>): for any three treatments,</p>
+<p><span class="math display">\[
+d_{BC} = d_{AC} - d_{AB}.
+\]</span></p>
+<p>In a network with <span class="math inline">\(T\)</span> treatments, the consistency equations mean that all <span class="math inline">\(T(T-1)/2\)</span> pairwise effects are determined by <span class="math inline">\(T-1\)</span> <em>basic parameters</em>, usually the effects of each treatment versus a reference, <span class="math inline">\(d_{1k}\)</span> for <span class="math inline">\(k = 2, \dots, T\)</span>. Every other contrast is a <em>functional parameter</em> <span class="math inline">\(d_{jk} = d_{1k} - d_{1j}\)</span>. Inconsistency is the observed disagreement between direct and indirect evidence. It can only be detected where the network has closed loops, and it can only be detected with low power, because indirect estimates are imprecise. Absence of statistically significant inconsistency is therefore weak evidence that transitivity holds <span class="citation">(<a href="sec-references.html#ref-dias2013evidence">Dias et al. 2013</a>; <a href="sec-references.html#ref-cipriani2013conceptual">Cipriani et al. 2013</a>)</span>.</p>
+</div>
+<div id="sec-network-heterogeneity" class="section level3" number="10.2.3">
+<h3>
+<span class="header-section-number">10.2.3</span> Heterogeneity in a network<a class="anchor" aria-label="anchor" href="#sec-network-heterogeneity"><i class="fas fa-link"></i></a>
+</h3>
+<p>Within each comparison, trials can differ in their true effects just as in a pairwise random-effects model. Most NMA models assume a <em>common</em> between-study variance <span class="math inline">\(\tau^2\)</span> for all comparisons. This is a strong simplification, but it lets comparisons with only one or two trials borrow information about heterogeneity from the rest of the network. Heterogeneity and inconsistency are closely related: heterogeneity is variability in true effects between trials of the <em>same</em> design, inconsistency is variability between trials of <em>different</em> designs. When effect modifiers vary within comparisons we see heterogeneity; when they vary between comparisons we see inconsistency <span class="citation">(<a href="sec-references.html#ref-higgins2012consistency">Higgins et al. 2012</a>)</span>.</p>
+</div>
+</div>
+<div id="sec-network-geometry" class="section level2" number="10.3">
+<h2>
+<span class="header-section-number">10.3</span> Network geometry<a class="anchor" aria-label="anchor" href="#sec-network-geometry"><i class="fas fa-link"></i></a>
+</h2>
+<p>A network is a graph whose <em>nodes</em> are treatments and whose <em>edges</em> connect treatments that have been compared directly in at least one trial. The shape of this graph, its geometry, determines what the NMA can deliver <span class="citation">(<a href="sec-references.html#ref-salanti2011graphical">Salanti et al. 2011</a>; <a href="sec-references.html#ref-chaimani2019undertaking">Chaimani et al. 2019</a>)</span>.</p>
+<p>A <em>star</em> network, in which every active treatment has been compared only with placebo, has no closed loops. Every active-versus-active comparison is purely indirect and consistency cannot be checked. A <em>well-connected</em> network with many closed loops allows direct and indirect evidence to be compared and allows inconsistency to be localized. A <em>disconnected</em> network falls into two or more components that share no treatment; relative effects between components are not identified without additional assumptions (for example, population adjustment or component models). Edge thickness is usually drawn proportional to the number of trials or the precision of the direct evidence, and node size proportional to the number of participants. A network dominated by one heavily studied comparison (a “thick” edge) and a periphery of single-trial edges warns that much of the evidence on peripheral comparisons is indirect.</p>
+<p>A <em>design</em> is the set of treatments compared in a trial. Two-arm trials of A versus C share the design A:C; a three-arm trial of A, C and D has design A:C:D. Multi-arm trials are informative because they contribute internally consistent evidence on several comparisons at once, but they also introduce correlations between the contrasts they contribute, a point we take up in Section <a href="sec-network.html#sec-network-multiarm">10.4.3</a>.</p>
+</div>
+<div id="sec-network-models" class="section level2" number="10.4">
+<h2>
+<span class="header-section-number">10.4</span> Statistical models<a class="anchor" aria-label="anchor" href="#sec-network-models"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-network-contrast" class="section level3" number="10.4.1">
+<h3>
+<span class="header-section-number">10.4.1</span> Contrast-based models<a class="anchor" aria-label="anchor" href="#sec-network-contrast"><i class="fas fa-link"></i></a>
+</h3>
+<p>The standard NMA model is <em>contrast-based</em>: it models relative effects within trials and treats the trial-specific baseline as a nuisance. Let trial <span class="math inline">\(i\)</span> have arms <span class="math inline">\(k = 1, \dots, a_i\)</span> with treatments <span class="math inline">\(t_{ik}\)</span>, and let arm 1 be the trial’s baseline <span class="math inline">\(b_i = t_{i1}\)</span>. With arm-level binary data <span class="math inline">\(r_{ik} \sim \text{Binomial}(n_{ik}, p_{ik})\)</span>, the model of <span class="citation">Lu and Ades (<a href="sec-references.html#ref-lu2004combination">2004</a>)</span> and <span class="citation">Dias et al. (<a href="sec-references.html#ref-dias2012evidence">2012</a>)</span> is</p>
+<p><span class="math display">\[
+\operatorname{logit}(p_{ik}) = \mu_i + \delta_{i, b_i t_{ik}}, \qquad \delta_{i, b_i b_i} = 0,
+\]</span></p>
+<p><span class="math display">\[
+\delta_{i, b_i t_{ik}} \sim N\!\left(d_{1 t_{ik}} - d_{1 b_i},\; \tau^2\right),
+\]</span></p>
+<p>where <span class="math inline">\(\mu_i\)</span> is a study-specific baseline log odds, <span class="math inline">\(d_{1k}\)</span> are the basic parameters with <span class="math inline">\(d_{11}=0\)</span>, and the mean of the random effect is written using the consistency equations. Because the <span class="math inline">\(\mu_i\)</span> are unconstrained study effects, the model uses only within-trial contrasts, respecting randomization. A common-effect (fixed-effect) NMA sets <span class="math inline">\(\tau^2 = 0\)</span>. The same structure works with any generalized linear model likelihood and link <span class="citation">(<a href="sec-references.html#ref-dias2012evidence">Dias et al. 2012</a>)</span>, and with contrast-level data (estimated log odds ratios and standard errors) in place of arm-level counts.</p>
+</div>
+<div id="sec-network-arm" class="section level3" number="10.4.2">
+<h3>
+<span class="header-section-number">10.4.2</span> Arm-based models<a class="anchor" aria-label="anchor" href="#sec-network-arm"><i class="fas fa-link"></i></a>
+</h3>
+<p><em>Arm-based</em> models instead put the random effects on the absolute outcome in each arm, for instance</p>
+<p><span class="math display">\[
+\operatorname{logit}(p_{ik}) = \alpha_{t_{ik}} + \nu_{i t_{ik}}, \qquad
+(\nu_{i1}, \dots, \nu_{iT})^\top \sim N(\mathbf{0}, \boldsymbol{\Sigma}),
+\]</span></p>
+<p>and define relative effects as contrasts of the treatment-specific mean parameters <span class="math inline">\(\alpha_k\)</span> (or of marginal absolute risks). Treatments a trial did not include are treated as missing at random <span class="citation">(<a href="sec-references.html#ref-hong2015bayesian">Hong et al. 2015</a>)</span>. Arm-based models make it easy to report absolute effects and allow treatment-specific heterogeneity, but they draw information from comparisons <em>between</em> trials of the absolute outcome, so they rely on more than randomization. When baseline risk varies across trials for reasons related to the treatments chosen, the two families can give different answers. <span class="citation">White et al. (<a href="sec-references.html#ref-white2019comparison">2019</a>)</span> trace most differences between the two families to whether study intercepts are fixed (only within-study information is used) or random (between-study information is also used, which can cause bias). They conclude that both families are usable but that random study intercepts need a strong rationale. Contrast-based models remain the default in health technology assessment and in the software used below, and we use them throughout. Note that “arm-level data” (counts per arm) is not the same as an “arm-based model”: all the Bayesian models below use arm-level data in a contrast-based model.</p>
+</div>
+<div id="sec-network-multiarm" class="section level3" number="10.4.3">
+<h3>
+<span class="header-section-number">10.4.3</span> Multi-arm trials<a class="anchor" aria-label="anchor" href="#sec-network-multiarm"><i class="fas fa-link"></i></a>
+</h3>
+<p>A trial with <span class="math inline">\(a_i\)</span> arms contributes <span class="math inline">\(a_i - 1\)</span> independent contrasts. If we compute the log odds ratios of C versus A and D versus A from a three-arm trial, they share the A arm, so their sampling errors are positively correlated: <span class="math inline">\(\operatorname{Cov}(\hat\delta_{AC}, \hat\delta_{AD}) = \operatorname{Var}(\log \text{odds}_A)\)</span>. The random effects are also correlated. Under a common <span class="math inline">\(\tau^2\)</span> and consistency within the trial, <span class="math inline">\(\delta_{AD} - \delta_{AC} = \delta_{CD}\)</span> must also have variance <span class="math inline">\(\tau^2\)</span>, which forces</p>
+<p><span class="math display">\[
+\operatorname{Cov}\!\left(\delta_{i,AC}, \delta_{i,AD}\right) = \tau^2 / 2 .
+\]</span></p>
+<p>Bayesian arm-level models build these correlations directly into the likelihood and the multivariate normal random effects. Contrast-level frequentist software must handle them explicitly. Ignoring the correlation by treating each pairwise contrast of a multi-arm trial as an independent study double-counts the shared arm and overstates precision. <code>netmeta</code> takes all <span class="math inline">\(a_i(a_i-1)/2\)</span> pairwise contrasts of a multi-arm trial and inflates their variances so that, taken together, they carry exactly the information of the <span class="math inline">\(a_i - 1\)</span> independent contrasts <span class="citation">(<a href="sec-references.html#ref-rucker2012network">Rücker 2012</a>; <a href="sec-references.html#ref-rucker2014reduce">Rücker and Schwarzer 2014</a>)</span>.</p>
+</div>
+<div id="sec-network-graph" class="section level3" number="10.4.4">
+<h3>
+<span class="header-section-number">10.4.4</span> The graph-theoretical frequentist estimator<a class="anchor" aria-label="anchor" href="#sec-network-graph"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Rücker (<a href="sec-references.html#ref-rucker2012network">2012</a>)</span> showed that frequentist NMA is a weighted least squares problem with an elegant interpretation. Stack all <span class="math inline">\(m\)</span> observed pairwise contrasts in a vector <span class="math inline">\(\mathbf{y}\)</span> with (adjusted) variances collected in a diagonal weight matrix <span class="math inline">\(\mathbf{W}\)</span>, <span class="math inline">\(w_j = 1/(v_j + \hat\tau^2)\)</span>. Let <span class="math inline">\(\mathbf{B}\)</span> be the <span class="math inline">\(m \times T\)</span> edge-vertex incidence matrix, with a <span class="math inline">\(+1\)</span> and a <span class="math inline">\(-1\)</span> in the columns of the two treatments in each contrast. The consistent fitted contrasts are</p>
+<p><span class="math display">\[
+\hat{\boldsymbol\theta} = \mathbf{B}\, \mathbf{L}^{+} \mathbf{B}^\top \mathbf{W} \mathbf{y}, \qquad \mathbf{L} = \mathbf{B}^\top \mathbf{W} \mathbf{B},
+\]</span></p>
+<p>where <span class="math inline">\(\mathbf{L}\)</span> is the weighted Laplacian matrix of the network graph and <span class="math inline">\(\mathbf{L}^{+}\)</span> its Moore-Penrose pseudoinverse. The variance of the estimated contrast between treatments <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span> is the <em>effective resistance</em> between nodes <span class="math inline">\(j\)</span> and <span class="math inline">\(k\)</span> when each edge is a resistor with resistance equal to its variance, so direct and indirect paths combine exactly like resistors in parallel and series. This is the estimator implemented in <code>netmeta</code> <span class="citation">(<a href="sec-references.html#ref-balduzzi2023netmeta">Balduzzi et al. 2023</a>)</span>. Heterogeneity is summarized by the generalized Cochran statistic <span class="math inline">\(Q = (\mathbf{y} - \hat{\boldsymbol\theta})^\top \mathbf{W}_0 (\mathbf{y} - \hat{\boldsymbol\theta})\)</span> computed with common-effect weights <span class="math inline">\(\mathbf{W}_0\)</span>, with degrees of freedom equal to the number of independent contrasts minus <span class="math inline">\(T - 1\)</span>, and <span class="math inline">\(I^2 = \max\{0, (Q - \text{df})/Q\}\)</span>.</p>
+</div>
+</div>
+<div id="sec-network-netmeta" class="section level2" number="10.5">
+<h2>
+<span class="header-section-number">10.5</span> Frequentist NMA with netmeta<a class="anchor" aria-label="anchor" href="#sec-network-netmeta"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-network-smoking-data" class="section level3" number="10.5.1">
+<h3>
+<span class="header-section-number">10.5.1</span> The smoking cessation network<a class="anchor" aria-label="anchor" href="#sec-network-smoking-data"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>smokingcessation</code> data in <code>netmeta</code> contain 24 trials of four interventions to help people stop smoking: no contact (A), self-help material (B), individual counselling (C) and group counselling (D). The outcome is the number of participants who successfully quit, so larger odds ratios are better. Two trials have three arms. The data were first analyzed by <span class="citation">Hasselblad (<a href="sec-references.html#ref-hasselblad1998meta">1998</a>)</span> and are a standard example for inconsistency methods <span class="citation">(<a href="sec-references.html#ref-dias2013evidence">Dias et al. 2013</a>)</span>.</p>
+<div class="sourceCode" id="cb186"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/guido-s/netmeta">netmeta</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">smokingcessation</span><span class="op">)</span></span>
+<span><span class="va">lab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>A <span class="op">=</span> <span class="st">"No contact"</span>, B <span class="op">=</span> <span class="st">"Self-help"</span>, C <span class="op">=</span> <span class="st">"Individual"</span>, D <span class="op">=</span> <span class="st">"Group"</span><span class="op">)</span></span>
+<span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="va">smokingcessation</span></span>
+<span><span class="kw">for</span> <span class="op">(</span><span class="va">v</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"treat1"</span>, <span class="st">"treat2"</span>, <span class="st">"treat3"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">sc</span><span class="op">[[</span><span class="va">v</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">sc</span><span class="op">[[</span><span class="va">v</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">""</span>, <span class="cn">NA</span>, <span class="va">lab</span><span class="op">[</span><span class="va">sc</span><span class="op">[[</span><span class="va">v</span><span class="op">]</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">sc</span><span class="op">$</span><span class="va">study</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">sc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">sc</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   event1  n1 event2  n2 event3  n3     treat1     treat2 treat3 study</span></span>
+<span><span class="co">#&gt; 1      9 140     23 140     10 138 No contact Individual  Group     1</span></span>
+<span><span class="co">#&gt; 2     11  78     12  85     29 170  Self-help Individual  Group     2</span></span>
+<span><span class="co">#&gt; 3     75 731    363 714     NA  NA No contact Individual   &lt;NA&gt;     3</span></span>
+<span><span class="co">#&gt; 4      2 106      9 205     NA  NA No contact Individual   &lt;NA&gt;     4</span></span></code></pre></div>
+<p>The data are in “wide” arm-level format, one row per trial with up to three arms. The function <code><a href="https://rdrr.io/pkg/meta/man/pairwise.html">pairwise()</a></code> converts this to contrast-level format, computing a log odds ratio and its standard error for every pair of arms within each trial. For three-arm trials it returns all three pairwise contrasts.</p>
+<div class="sourceCode" id="cb187"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/meta/man/pairwise.html">pairwise</a></span><span class="op">(</span>treat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">treat1</span>, <span class="va">treat2</span>, <span class="va">treat3</span><span class="op">)</span>,</span>
+<span>               event <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">event1</span>, <span class="va">event2</span>, <span class="va">event3</span><span class="op">)</span>,</span>
+<span>               n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">n1</span>, <span class="va">n2</span>, <span class="va">n3</span><span class="op">)</span>, studlab <span class="op">=</span> <span class="va">study</span>,</span>
+<span>               data <span class="op">=</span> <span class="va">sc</span>, sm <span class="op">=</span> <span class="st">"OR"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">pw</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 28</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">pw</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"studlab"</span>, <span class="st">"treat1"</span>, <span class="st">"treat2"</span>, <span class="st">"TE"</span>, <span class="st">"seTE"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   studlab     treat1     treat2        TE   seTE</span></span>
+<span><span class="co">#&gt; 1       1 No contact Individual -1.051293 0.4132</span></span>
+<span><span class="co">#&gt; 2       1 No contact      Group -0.128528 0.4760</span></span>
+<span><span class="co">#&gt; 3       1 Individual      Group  0.922765 0.3998</span></span>
+<span><span class="co">#&gt; 4       2  Self-help Individual -0.001245 0.4504</span></span>
+<span><span class="co">#&gt; 5       2  Self-help      Group -0.225333 0.3839</span></span>
+<span><span class="co">#&gt; 6       2 Individual      Group -0.224089 0.3723</span></span></code></pre></div>
+<p>The 24 trials yield 28 pairwise contrasts, two times three from the multi-arm trials and one from each of the 22 two-arm trials. The first row says that in trial 1 the log odds of quitting was about 1.05 lower with no contact than with individual counselling. <code><a href="https://rdrr.io/pkg/meta/man/pairwise.html">pairwise()</a></code> adds 0.5 to all cells of a 2-by-2 table containing a zero, which matters for trials with no quitters in an arm.</p>
+</div>
+<div id="sec-network-bucher-example" class="section level3" number="10.5.2">
+<h3>
+<span class="header-section-number">10.5.2</span> An indirect comparison by hand<a class="anchor" aria-label="anchor" href="#sec-network-bucher-example"><i class="fas fa-link"></i></a>
+</h3>
+<p>Before fitting the network, it is instructive to compute one Bucher indirect comparison. We pool the direct evidence on individual counselling versus no contact and on self-help versus no contact separately with <code>metafor</code>, then contrast the two to obtain an indirect estimate of individual counselling versus self-help.</p>
+<div class="sourceCode" id="cb188"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pw_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">pw</span><span class="op">)</span></span>
+<span><span class="co"># orient every contrast as "treat2 versus treat1" with treat1 = No contact</span></span>
+<span><span class="va">get_direct</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">trt</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">pw_df</span>, <span class="op">(</span><span class="va">treat1</span> <span class="op">==</span> <span class="st">"No contact"</span> <span class="op">&amp;</span> <span class="va">treat2</span> <span class="op">==</span> <span class="va">trt</span><span class="op">)</span> <span class="op">|</span></span>
+<span>                     <span class="op">(</span><span class="va">treat2</span> <span class="op">==</span> <span class="st">"No contact"</span> <span class="op">&amp;</span> <span class="va">treat1</span> <span class="op">==</span> <span class="va">trt</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">yi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">treat1</span> <span class="op">==</span> <span class="st">"No contact"</span>, <span class="op">-</span><span class="va">d</span><span class="op">$</span><span class="va">TE</span>, <span class="va">d</span><span class="op">$</span><span class="va">TE</span><span class="op">)</span>  <span class="co"># log OR trt vs No contact</span></span>
+<span>  <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">yi</span>, sei <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">seTE</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">ind_vs_nc</span> <span class="op">&lt;-</span> <span class="fu">get_direct</span><span class="op">(</span><span class="st">"Individual"</span><span class="op">)</span></span>
+<span><span class="va">sh_vs_nc</span>  <span class="op">&lt;-</span> <span class="fu">get_direct</span><span class="op">(</span><span class="st">"Self-help"</span><span class="op">)</span></span>
+<span><span class="va">d_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">ind_vs_nc</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">sh_vs_nc</span><span class="op">)</span></span>
+<span><span class="va">se_ind</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">ind_vs_nc</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/vcov.html">vcov</a></span><span class="op">(</span><span class="va">sh_vs_nc</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>k_IndNC <span class="op">=</span> <span class="va">ind_vs_nc</span><span class="op">$</span><span class="va">k</span>, k_SHNC <span class="op">=</span> <span class="va">sh_vs_nc</span><span class="op">$</span><span class="va">k</span>,</span>
+<span>        logOR_ind <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">d_ind</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">se_ind</span><span class="op">)</span>,</span>
+<span>        OR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">d_ind</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">d_ind</span> <span class="op">-</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">se_ind</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>        upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">d_ind</span> <span class="op">+</span> <span class="fl">1.96</span> <span class="op">*</span> <span class="va">se_ind</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   k_IndNC    k_SHNC logOR_ind        se        OR     lower     upper </span></span>
+<span><span class="co">#&gt;    15.000     3.000     0.526     0.312     1.692     0.917     3.121</span></span></code></pre></div>
+<p>Pooling 15 trials of individual counselling and 3 trials of self-help against no contact, the indirect odds ratio of individual counselling versus self-help is about 1.69 with a 95% confidence interval from 0.92 to 3.12. The interval is wide because it inherits the uncertainty of both pairwise pools, including the large heterogeneity among the 15 individual-counselling trials. The network model below combines this indirect path with the direct evidence from the trials that compared the two treatments and with every other path through group counselling.</p>
+</div>
+<div id="sec-network-fit" class="section level3" number="10.5.3">
+<h3>
+<span class="header-section-number">10.5.3</span> Fitting the network<a class="anchor" aria-label="anchor" href="#sec-network-fit"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://rdrr.io/pkg/netmeta/man/netmeta.html">netmeta()</a></code> accepts the output of <code><a href="https://rdrr.io/pkg/meta/man/pairwise.html">pairwise()</a></code> directly. We request both common-effect and random-effects estimates, use REML for <span class="math inline">\(\tau^2\)</span>, set no contact as the reference, and declare that small odds ratios are undesirable (because the event is quitting).</p>
+<div class="sourceCode" id="cb189"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netmeta.html">netmeta</a></span><span class="op">(</span><span class="va">pw</span>, common <span class="op">=</span> <span class="cn">TRUE</span>, random <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>              reference.group <span class="op">=</span> <span class="st">"No contact"</span>,</span>
+<span>              method.tau <span class="op">=</span> <span class="st">"REML"</span>, small.values <span class="op">=</span> <span class="st">"undesirable"</span><span class="op">)</span></span>
+<span><span class="va">nm</span></span>
+<span><span class="co">#&gt; Number of studies: k = 24</span></span>
+<span><span class="co">#&gt; Number of pairwise comparisons: m = 28</span></span>
+<span><span class="co">#&gt; Number of observations: o = 16740</span></span>
+<span><span class="co">#&gt; Number of treatments: n = 4</span></span>
+<span><span class="co">#&gt; Number of designs: d = 8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Common effects model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Treatment estimate (other treatments vs 'No contact'):</span></span>
+<span><span class="co">#&gt;                OR           95% CI     z  p-value</span></span>
+<span><span class="co">#&gt; Group      2.0479 [1.4170; 2.9598]  3.81   0.0001</span></span>
+<span><span class="co">#&gt; Individual 1.9202 [1.7107; 2.1554] 11.07 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; No contact      .                .     .        .</span></span>
+<span><span class="co">#&gt; Self-help  1.2211 [0.9539; 1.5631]  1.59   0.1128</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random effects model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Treatment estimate (other treatments vs 'No contact'):</span></span>
+<span><span class="co">#&gt;                OR           95% CI    z p-value</span></span>
+<span><span class="co">#&gt; Group      2.3839 [1.1497; 4.9431] 2.33  0.0196</span></span>
+<span><span class="co">#&gt; Individual 2.0320 [1.3859; 2.9793] 3.63  0.0003</span></span>
+<span><span class="co">#&gt; No contact      .                .    .       .</span></span>
+<span><span class="co">#&gt; Self-help  1.4876 [0.7812; 2.8329] 1.21  0.2268</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Quantifying heterogeneity / inconsistency:</span></span>
+<span><span class="co">#&gt; tau^2 = 0.4502; tau = 0.6710; I^2 = 88.6% [84.4%; 91.7%]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Tests of heterogeneity (within designs) and inconsistency (between designs):</span></span>
+<span><span class="co">#&gt;                      Q d.f.  p-value</span></span>
+<span><span class="co">#&gt; Total           202.62   23 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Within designs  187.40   16 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Between designs  15.22    7   0.0333</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Details of network meta-analysis methods:</span></span>
+<span><span class="co">#&gt; - Frequentist graph-theoretical approach</span></span>
+<span><span class="co">#&gt; - Restricted maximum-likelihood estimator for tau^2</span></span>
+<span><span class="co">#&gt; - Calculation of I^2 based on Q</span></span></code></pre></div>
+<p>The header confirms the structure: <span class="math inline">\(k = 24\)</span> studies, <span class="math inline">\(m = 28\)</span> pairwise comparisons, <span class="math inline">\(n = 4\)</span> treatments and <span class="math inline">\(d = 8\)</span> distinct designs, with 16,740 participants. The common-effect model estimates that individual counselling roughly doubles the odds of quitting relative to no contact (OR 1.92, 95% CI 1.71 to 2.16). These intervals are too narrow to believe, because heterogeneity is enormous: the generalized <span class="math inline">\(Q\)</span> is 202.62 on 23 degrees of freedom and <span class="math inline">\(I^2 = 88.6\%\)</span>. The random-effects model, with <span class="math inline">\(\hat\tau^2 = 0.450\)</span> (<span class="math inline">\(\hat\tau = 0.67\)</span> on the log odds ratio scale), gives OR 2.03 (1.39 to 2.98) for individual counselling, 2.38 (1.15 to 4.94) for group counselling and 1.49 (0.78 to 2.83) for self-help, all versus no contact. A between-trial standard deviation of 0.67 means that the true odds ratio for the same intervention can easily vary by a factor of three or more across settings, which is substantively more important than the point estimates.</p>
+<p>The lower part of the output partitions the total <span class="math inline">\(Q\)</span> into heterogeneity <em>within</em> designs (<span class="math inline">\(Q = 187.40\)</span>, 16 df) and inconsistency <em>between</em> designs (<span class="math inline">\(Q = 15.22\)</span>, 7 df, <span class="math inline">\(p = 0.033\)</span>). We return to this decomposition in Section <a href="sec-network.html#sec-network-inconsistency">10.6</a>. The 23 degrees of freedom for the total <span class="math inline">\(Q\)</span> equal the 26 independent contrasts (22 from two-arm trials plus 2 from each three-arm trial) minus the 3 basic parameters.</p>
+</div>
+<div id="sec-network-netgraph" class="section level3" number="10.5.4">
+<h3>
+<span class="header-section-number">10.5.4</span> Network graph<a class="anchor" aria-label="anchor" href="#sec-network-netgraph"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb190"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netgraph.html">netgraph</a></span><span class="op">(</span><span class="va">nm</span>, plastic <span class="op">=</span> <span class="cn">FALSE</span>, thickness <span class="op">=</span> <span class="st">"se.common"</span>,</span>
+<span>         multiarm <span class="op">=</span> <span class="cn">TRUE</span>, points <span class="op">=</span> <span class="cn">TRUE</span>, cex.points <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>         col <span class="op">=</span> <span class="st">"grey30"</span>, number.of.studies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:nma-netgraph"></span>
+<img src="10-network_files/figure-html/nma-netgraph-1.png" alt="Network graph of the smoking cessation data. Edge width is proportional to the inverse standard error of the direct common-effect estimate; shaded triangles mark the two three-arm designs." width="85%"><p class="caption">
+Figure 10.1: Network graph of the smoking cessation data. Edge width is proportional to the inverse standard error of the direct common-effect estimate; shaded triangles mark the two three-arm designs.
+</p>
+</div>
+<p>Figure <a href="sec-network.html#fig:nma-netgraph">10.1</a> shows that every pair of treatments has some direct evidence, so the network is fully connected and contains several closed loops. The edge between no contact and individual counselling dominates, with 15 trials, while each of the other edges rests on two to four trials. This asymmetry is typical: much of the information about comparisons that do not involve the dominant edge is indirect.</p>
+</div>
+<div id="sec-network-forest" class="section level3" number="10.5.5">
+<h3>
+<span class="header-section-number">10.5.5</span> Forest plot and league table<a class="anchor" aria-label="anchor" href="#sec-network-forest"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb191"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/forest.html">forest</a></span><span class="op">(</span><span class="va">nm</span>, pooled <span class="op">=</span> <span class="st">"random"</span>, sortvar <span class="op">=</span> <span class="op">-</span><span class="va">Pscore</span>,</span>
+<span>       smlab <span class="op">=</span> <span class="st">"Random effects model\nOR vs no contact"</span>,</span>
+<span>       leftcols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"studlab"</span>, <span class="st">"k"</span>, <span class="st">"Pscore"</span><span class="op">)</span>,</span>
+<span>       leftlabs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Intervention"</span>, <span class="st">"Direct\ntrials"</span>, <span class="st">"P-score"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:nma-forest"></span>
+<img src="10-network_files/figure-html/nma-forest-1.png" alt="Random-effects network estimates of each intervention versus no contact (odds ratio of quitting), sorted by P-score." width="85%"><p class="caption">
+Figure 10.2: Random-effects network estimates of each intervention versus no contact (odds ratio of quitting), sorted by P-score.
+</p>
+</div>
+<p>Figure <a href="sec-network.html#fig:nma-forest">10.2</a> shows the random-effects relative effects with the reference fixed at 1. A <em>league table</em> reports every pairwise comparison at once. In <code><a href="https://rdrr.io/pkg/netmeta/man/netleague.html">netleague()</a></code> output, the lower triangle holds the network estimates (column treatment versus row treatment) and the upper triangle the direct estimates alone (row versus column), which makes it easy to see how much the network has changed each comparison.</p>
+<div class="sourceCode" id="cb192"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netleague.html">netleague</a></span><span class="op">(</span><span class="va">nm</span>, common <span class="op">=</span> <span class="cn">FALSE</span>, digits <span class="op">=</span> <span class="fl">2</span>, bracket <span class="op">=</span> <span class="st">"("</span><span class="op">)</span></span>
+<span><span class="co">#&gt; League table (random effects model):</span></span>
+<span><span class="co">#&gt;                                                                         </span></span>
+<span><span class="co">#&gt;              Group 0.93 (0.42; 2.06) 2.25 (0.53; 9.51) 1.85 (0.62; 5.53)</span></span>
+<span><span class="co">#&gt;  1.17 (0.59; 2.34)        Individual 2.06 (1.38; 3.08) 0.93 (0.30; 2.82)</span></span>
+<span><span class="co">#&gt;  2.38 (1.15; 4.94) 2.03 (1.39; 2.98)        No contact 0.73 (0.31; 1.69)</span></span>
+<span><span class="co">#&gt;  1.60 (0.72; 3.55) 1.37 (0.70; 2.66) 0.67 (0.35; 1.28)         Self-help</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Lower triangle: results from network meta-analysis (column vs row)</span></span>
+<span><span class="co">#&gt; Upper triangle: results from direct comparisons (row vs column)</span></span></code></pre></div>
+<p>Reading down the first column, the network odds ratio of group counselling versus no contact is 2.38 (1.15 to 4.94); the direct estimate from the two trials that made this comparison, in the upper triangle, is 2.25 with a far wider interval (0.53 to 9.51). The network borrows strength from the indirect paths through individual counselling and self-help and roughly halves the width of the interval on the log scale. Conversely, the direct estimate of individual counselling versus self-help is 0.93 (0.30 to 2.82), favouring self-help slightly, whereas the network estimate of individual counselling versus self-help is 1.37 (0.70 to 2.66). Such reversals between direct and network estimates are exactly what the inconsistency checks are designed to scrutinize.</p>
+</div>
+<div id="sec-network-ranking" class="section level3" number="10.5.6">
+<h3>
+<span class="header-section-number">10.5.6</span> Ranking treatments<a class="anchor" aria-label="anchor" href="#sec-network-ranking"><i class="fas fa-link"></i></a>
+</h3>
+<p>Decision makers often want an ordering. Bayesian NMA traditionally reports the probability that each treatment is best and the <em>surface under the cumulative ranking curve</em> (SUCRA) <span class="citation">(<a href="sec-references.html#ref-salanti2011graphical">Salanti et al. 2011</a>)</span>. If <span class="math inline">\(p_{k,r}\)</span> is the probability that treatment <span class="math inline">\(k\)</span> has rank <span class="math inline">\(r\)</span> and <span class="math inline">\(F_{k,r} = \sum_{s \le r} p_{k,s}\)</span> its cumulative ranking probability, then</p>
+<p><span class="math display">\[
+\text{SUCRA}_k = \frac{1}{T - 1} \sum_{r=1}^{T-1} F_{k,r},
+\]</span></p>
+<p>which is 1 for a treatment certain to be best and 0 for one certain to be worst. <span class="citation">Rücker and Schwarzer (<a href="sec-references.html#ref-rucker2015ranking">2015</a>)</span> introduced the frequentist analogue, the <em>P-score</em>,</p>
+<p><span class="math display">\[
+P_k = \frac{1}{T-1} \sum_{j \ne k} \Phi\!\left( \frac{\hat d_{jk}}{\operatorname{se}(\hat d_{jk})} \right),
+\]</span></p>
+<p>for outcomes where larger is better, with <span class="math inline">\(\hat d_{jk}\)</span> the estimated effect of <span class="math inline">\(k\)</span> versus <span class="math inline">\(j\)</span>. Each term is the one-sided “probability” (in the sense of a one-sided <span class="math inline">\(p\)</span>-value) that <span class="math inline">\(k\)</span> is better than <span class="math inline">\(j\)</span>, and the P-score averages these over competitors. P-scores and SUCRAs are numerically very close when computed from the same model, and P-scores require no resampling.</p>
+<div class="sourceCode" id="cb193"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netrank.html">netrank</a></span><span class="op">(</span><span class="va">nm</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            P-score (common) P-score (random)</span></span>
+<span><span class="co">#&gt; Group                0.8771           0.8474</span></span>
+<span><span class="co">#&gt; Individual           0.7878           0.7155</span></span>
+<span><span class="co">#&gt; Self-help            0.3163           0.3960</span></span>
+<span><span class="co">#&gt; No contact           0.0188           0.0411</span></span></code></pre></div>
+<p>Under the random-effects model the P-scores are 0.85 for group counselling, 0.72 for individual counselling, 0.40 for self-help and 0.04 for no contact. Group counselling is, on average, more certain to outperform its competitors than individual counselling.</p>
+<div class="rmdwarning">
+<p>Rankings are among the most over-interpreted outputs of NMA. A P-score or SUCRA summarizes both the size of an effect and its uncertainty in a single number, so a treatment with a large but imprecise estimate can outrank one with a slightly smaller but well-estimated effect. The ranking says nothing about whether differences are clinically important: group and individual counselling differ by an odds ratio of only 1.17 (0.59 to 2.34) in the league table, so their ordering is essentially a coin flip with a lean. A reanalysis of published networks found that treatment rankings were typically highly uncertain <span class="citation">(<a href="sec-references.html#ref-trinquart2016uncertainty">Trinquart et al. 2016</a>)</span>. Report rankings, if at all, together with the relative effects and their intervals, and define in advance what question the ranking is supposed to answer, for example “which treatment is most likely to beat placebo by a clinically important margin?” <span class="citation">(<a href="sec-references.html#ref-salanti2021introducing">Salanti et al. 2021</a>)</span>.</p>
+</div>
+</div>
+</div>
+<div id="sec-network-inconsistency" class="section level2" number="10.6">
+<h2>
+<span class="header-section-number">10.6</span> Assessing inconsistency<a class="anchor" aria-label="anchor" href="#sec-network-inconsistency"><i class="fas fa-link"></i></a>
+</h2>
+<p>Inconsistency methods divide into <em>global</em> approaches, which ask whether the network as a whole is consistent, and <em>local</em> approaches, which locate the comparisons or loops responsible <span class="citation">(<a href="sec-references.html#ref-dias2013evidence">Dias et al. 2013</a>; <a href="sec-references.html#ref-higgins2012consistency">Higgins et al. 2012</a>; <a href="sec-references.html#ref-white2012consistency">White et al. 2012</a>)</span>.</p>
+<div id="sec-network-decomp" class="section level3" number="10.6.1">
+<h3>
+<span class="header-section-number">10.6.1</span> Global assessment: the design-by-treatment decomposition<a class="anchor" aria-label="anchor" href="#sec-network-decomp"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2012consistency">2012</a>)</span> introduced the <em>design-by-treatment interaction</em> model, which allows the relative effects to differ across designs. It handles multi-arm trials coherently because inconsistency is defined between designs rather than between loops. In the frequentist framework the total <span class="math inline">\(Q\)</span> decomposes into a within-design heterogeneity part and a between-design inconsistency part, <span class="math inline">\(Q_{\text{total}} = Q_{\text{het}} + Q_{\text{inc}}\)</span>. <code><a href="https://rdrr.io/pkg/netmeta/man/decomp.design.html">decomp.design()</a></code> reports this decomposition, the contribution of each design, and two refinements.</p>
+<div class="sourceCode" id="cb194"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/decomp.design.html">decomp.design</a></span><span class="op">(</span><span class="va">nm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Q statistics to assess homogeneity / consistency</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                      Q df  p-value</span></span>
+<span><span class="co">#&gt; Total           202.62 23 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Within designs  187.40 16 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Between designs  15.22  7   0.0333</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Design-specific decomposition of within-designs Q statistic</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                 Design      Q df  p-value</span></span>
+<span><span class="co">#&gt;  No contact:Individual 182.72 13 &lt; 0.0001</span></span>
+<span><span class="co">#&gt;       Group:Individual   1.74  1   0.1868</span></span>
+<span><span class="co">#&gt;   No contact:Self-help   2.94  2   0.2299</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Between-designs Q statistic after detaching of single designs</span></span>
+<span><span class="co">#&gt; (influential designs have p-value markedly different from 0.0333)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              Detached design     Q df p-value</span></span>
+<span><span class="co">#&gt;  No contact:Group:Individual  7.46  5  0.1883</span></span>
+<span><span class="co">#&gt;             No contact:Group 11.65  6  0.0702</span></span>
+<span><span class="co">#&gt;         Individual:Self-help 13.02  6  0.0427</span></span>
+<span><span class="co">#&gt;              Group:Self-help 13.51  6  0.0357</span></span>
+<span><span class="co">#&gt;             Group:Individual 13.90  6  0.0307</span></span>
+<span><span class="co">#&gt;         No contact:Self-help 14.28  6  0.0267</span></span>
+<span><span class="co">#&gt;        No contact:Individual 15.09  6  0.0196</span></span>
+<span><span class="co">#&gt;   Group:Individual:Self-help 14.05  5  0.0153</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Q statistic to assess consistency under the assumption of</span></span>
+<span><span class="co">#&gt; a full design-by-treatment interaction random effects model</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                    Q df p-value tau.within tau2.within</span></span>
+<span><span class="co">#&gt; Between designs 4.66  7  0.7009     0.8131      0.6611</span></span></code></pre></div>
+<p>The within-design heterogeneity comes almost entirely from the no contact versus individual counselling design (<span class="math inline">\(Q = 182.72\)</span> on 13 df); the other two designs with replication are compatible with homogeneity. The between-design statistic <span class="math inline">\(Q = 15.22\)</span> (7 df, <span class="math inline">\(p = 0.033\)</span>) suggests inconsistency, and the “detaching” table shows which design drives it: removing the three-arm no contact/group/individual trial reduces it to <span class="math inline">\(Q = 7.46\)</span> on 5 df (<span class="math inline">\(p = 0.19\)</span>). The last table reruns the test under a full design-by-treatment random-effects model, which allows for heterogeneity <em>within</em> designs when judging differences <em>between</em> designs. Here <span class="math inline">\(Q = 4.66\)</span> on 7 df (<span class="math inline">\(p = 0.70\)</span>). The common-effect test is too liberal in a network this heterogeneous, because it treats every between-design difference as signal. The random-effects version is the more relevant test, and it does not support inconsistency.</p>
+</div>
+<div id="sec-network-netsplit" class="section level3" number="10.6.2">
+<h3>
+<span class="header-section-number">10.6.2</span> Local assessment: node-splitting<a class="anchor" aria-label="anchor" href="#sec-network-netsplit"><i class="fas fa-link"></i></a>
+</h3>
+<p><em>Node-splitting</em> separates, for each comparison, the direct evidence from the indirect evidence contributed by the rest of the network, and tests their agreement <span class="citation">(<a href="sec-references.html#ref-dias2010checking">Dias et al. 2010</a>)</span>. If <span class="math inline">\(\hat d^{\,\text{dir}}\)</span> and <span class="math inline">\(\hat d^{\,\text{ind}}\)</span> are the two estimates on the log scale, the inconsistency factor <span class="math inline">\(\hat\omega = \hat d^{\,\text{dir}} - \hat d^{\,\text{ind}}\)</span> has <span class="math inline">\(z = \hat\omega / \sqrt{v^{\text{dir}} + v^{\text{ind}}}\)</span>. <code><a href="https://rdrr.io/pkg/netmeta/man/netsplit.html">netsplit()</a></code> computes the indirect estimate by back-calculation from the network and direct estimates (the “SIDE” approach), which is fast and closely approximates explicit node-splitting.</p>
+<div class="sourceCode" id="cb195"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netsplit.html">netsplit</a></span><span class="op">(</span><span class="va">nm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Separate indirect from direct evidence (SIDE) using back-calculation method</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Common effects model: </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             comparison  k prop    nma direct indir.    RoR     z p-value</span></span>
+<span><span class="co">#&gt;       Group:Individual  4 0.73 1.0665 0.9594 1.4236 0.6739 -0.95  0.3444</span></span>
+<span><span class="co">#&gt;       Group:No contact  2 0.17 2.0479 1.5529 2.1687 0.7161 -0.67  0.5028</span></span>
+<span><span class="co">#&gt;        Group:Self-help  2 0.47 1.6771 1.7699 1.5991 1.1068  0.25  0.8000</span></span>
+<span><span class="co">#&gt;  Individual:No contact 15 0.96 1.9202 1.9465 1.3534 1.4383  1.17  0.2418</span></span>
+<span><span class="co">#&gt;   Individual:Self-help  2 0.19 1.5725 0.9241 1.7742 0.5208 -1.90  0.0580</span></span>
+<span><span class="co">#&gt;   Self-help:No contact  3 0.78 1.2211 1.1444 1.5372 0.7445 -0.97  0.3320</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random effects model: </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             comparison  k prop    nma direct indir.    RoR     z p-value</span></span>
+<span><span class="co">#&gt;       Group:Individual  4 0.75 1.1732 0.9274 2.3635 0.3924 -1.15  0.2507</span></span>
+<span><span class="co">#&gt;       Group:No contact  2 0.26 2.3839 2.2491 2.4321 0.9248 -0.09  0.9269</span></span>
+<span><span class="co">#&gt;        Group:Self-help  2 0.53 1.6025 1.8528 1.3630 1.3593  0.38  0.7054</span></span>
+<span><span class="co">#&gt;  Individual:No contact 15 0.90 2.0320 2.0577 1.8109 1.1363  0.20  0.8453</span></span>
+<span><span class="co">#&gt;   Individual:Self-help  2 0.36 1.3659 0.9265 1.6950 0.5466 -0.85  0.3933</span></span>
+<span><span class="co">#&gt;   Self-help:No contact  3 0.59 1.4876 1.3742 1.6650 0.8254 -0.29  0.7737</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Legend:</span></span>
+<span><span class="co">#&gt;  comparison - Treatment comparison</span></span>
+<span><span class="co">#&gt;  k          - Number of studies providing direct evidence</span></span>
+<span><span class="co">#&gt;  prop       - Direct evidence proportion</span></span>
+<span><span class="co">#&gt;  nma        - Estimated treatment effect (OR) in network meta-analysis</span></span>
+<span><span class="co">#&gt;  direct     - Estimated treatment effect (OR) derived from direct evidence</span></span>
+<span><span class="co">#&gt;  indir.     - Estimated treatment effect (OR) derived from indirect evidence</span></span>
+<span><span class="co">#&gt;  RoR        - Ratio of Ratios (direct versus indirect)</span></span>
+<span><span class="co">#&gt;  z          - z-value of test for disagreement (direct versus indirect)</span></span>
+<span><span class="co">#&gt;  p-value    - p-value of test for disagreement (direct versus indirect)</span></span></code></pre></div>
+<p>For each comparison the output reports the number of trials with direct evidence (<span class="math inline">\(k\)</span>), the proportion of the network estimate that comes from direct evidence (<code>prop</code>), the network, direct and indirect odds ratios, their ratio (RoR), and a <span class="math inline">\(z\)</span> test. Under the random-effects model, no comparison shows convincing disagreement: the largest discrepancy is for group versus individual counselling, where the direct odds ratio is 0.93 and the indirect 2.36 (ratio of odds ratios 0.39, <span class="math inline">\(p = 0.25\)</span>). The common-effect version flags individual counselling versus self-help (<span class="math inline">\(p = 0.058\)</span>), illustrating again that conclusions about inconsistency depend on how heterogeneity is modelled. With 6 comparisons tested, multiplicity also matters, and the low power of each test means that <span class="math inline">\(p &gt; 0.05\)</span> cannot be read as evidence of consistency.</p>
+</div>
+<div id="sec-network-netheat" class="section level3" number="10.6.3">
+<h3>
+<span class="header-section-number">10.6.3</span> The net heat plot<a class="anchor" aria-label="anchor" href="#sec-network-netheat"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Krahn et al. (<a href="sec-references.html#ref-krahn2013graphical">2013</a>)</span> proposed the <em>net heat plot</em>, a matrix display that shows, for each design (columns), how much detaching it changes the inconsistency attributed to each other design (rows). Warm colours on the off-diagonal indicate designs whose removal reduces inconsistency elsewhere; grey squares show the contribution of each design to each network estimate.</p>
+<div class="sourceCode" id="cb196"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netheat.html">netheat</a></span><span class="op">(</span><span class="va">nm</span>, random <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:nma-netheat"></span>
+<img src="10-network_files/figure-html/nma-netheat-1.png" alt="Net heat plot for the random-effects model. Coloured off-diagonal cells show how detaching the column design changes the inconsistency at the row design." width="100%"><p class="caption">
+Figure 10.3: Net heat plot for the random-effects model. Coloured off-diagonal cells show how detaching the column design changes the inconsistency at the row design.
+</p>
+</div>
+<p>Figure <a href="sec-network.html#fig:nma-netheat">10.3</a> should be read as a pointer for further investigation, not as a test. <span class="citation">Freeman et al. (<a href="sec-references.html#ref-freeman2019identifying">2019</a>)</span> showed that the calculations behind the net heat plot amount to an arbitrary weighting of direct and indirect evidence, and concluded from theory, simulation and two example networks that the plot does not reliably signal inconsistency or identify the designs that cause it. Node-splitting and careful inspection of the trials remain the primary tools.</p>
+<div class="rmdtip">
+<p>When inconsistency is found, the first response is substantive, not statistical. Tabulate the effect modifiers by comparison, check data extraction for the trials in the implicated loop, and consider whether the treatments are really the same across designs (for instance, “group counselling” delivered as a single session versus a multi-week program). Fitting an inconsistency model and reporting the network estimates anyway is not a solution; at a minimum the affected comparisons should be downgraded in the certainty assessment (Section <a href="sec-network.html#sec-network-certainty">10.9</a>).</p>
+</div>
+</div>
+</div>
+<div id="sec-network-cnma" class="section level2" number="10.7">
+<h2>
+<span class="header-section-number">10.7</span> Component network meta-analysis<a class="anchor" aria-label="anchor" href="#sec-network-cnma"><i class="fas fa-link"></i></a>
+</h2>
+<p>Many interventions are combinations of components: psychotherapy plus a drug, a counselling session plus nicotine replacement, an advertisement plus a price promotion. A standard NMA treats each combination as a separate node, which fragments the network and wastes information. <em>Component NMA</em> models the effect of a combination as a function of its components <span class="citation">(<a href="sec-references.html#ref-welton2009mixed">Welton et al. 2009</a>; <a href="sec-references.html#ref-rucker2019network">Rücker et al. 2019</a>)</span>. The simplest version is <em>additive</em>: the effect of “CBT + SSRI” versus placebo equals the effect of CBT plus the effect of SSRI. Formally, with a <span class="math inline">\(T \times C\)</span> matrix <span class="math inline">\(\mathbf{C}\)</span> indicating which of <span class="math inline">\(C\)</span> components each treatment contains, the treatment effects are <span class="math inline">\(\mathbf{d} = \mathbf{C}\boldsymbol\beta\)</span>, and the component effects <span class="math inline">\(\boldsymbol\beta\)</span> are estimated by weighted least squares on the contrasts. Interaction terms can be added for specific combinations, and an additive model can connect a network that is disconnected at the treatment level as long as it is connected at the component level.</p>
+<p>The <code>Linde2016</code> data in <code>netmeta</code> contain 93 trials of 22 treatments for depression in primary care, including three combinations of a psychotherapy with an SSRI. We fit a standard random-effects NMA and then an additive component model with placebo as the inactive component.</p>
+<div class="sourceCode" id="cb197"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">Linde2016</span><span class="op">)</span></span>
+<span><span class="va">nm_dep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netmeta.html">netmeta</a></span><span class="op">(</span><span class="va">lnOR</span>, <span class="va">selnOR</span>, <span class="va">treat1</span>, <span class="va">treat2</span>, <span class="va">id</span>, data <span class="op">=</span> <span class="va">Linde2016</span>,</span>
+<span>                  sm <span class="op">=</span> <span class="st">"OR"</span>, reference.group <span class="op">=</span> <span class="st">"Placebo"</span>,</span>
+<span>                  common <span class="op">=</span> <span class="cn">FALSE</span>, small.values <span class="op">=</span> <span class="st">"undesirable"</span><span class="op">)</span></span>
+<span><span class="va">cnma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/netmeta/man/netcomb.html">netcomb</a></span><span class="op">(</span><span class="va">nm_dep</span>, inactive <span class="op">=</span> <span class="st">"Placebo"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>standard_Q <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">Q.standard</span>, df <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">df.Q.standard</span>,</span>
+<span>  additive_Q <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">Q.additive</span>, df <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">df.Q.additive</span>,</span>
+<span>  diff_Q <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">Q.diff</span>, df <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">df.Q.diff</span>, p_diff <span class="op">=</span> <span class="va">cnma</span><span class="op">$</span><span class="va">pval.Q.diff</span><span class="op">)</span></span>
+<span><span class="co">#&gt; standard_Q         df additive_Q         df     diff_Q         df     p_diff </span></span>
+<span><span class="co">#&gt;  102.44750   87.00000  109.11894   90.00000    6.67145    3.00000    0.08314</span></span></code></pre></div>
+<p>The additive model replaces 21 treatment parameters with 18 component parameters and fits almost as well: the difference in <span class="math inline">\(Q\)</span> between the additive and the standard model is 6.67 on 3 df (<span class="math inline">\(p = 0.08\)</span>), weak evidence against additivity. The combinations are where the two models differ.</p>
+<div class="sourceCode" id="cb198"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">combos</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Face-to-face CBT + SSRI"</span>, <span class="st">"Face-to-face interpsy + SSRI"</span>,</span>
+<span>            <span class="st">"Face-to-face PST + SSRI"</span><span class="op">)</span></span>
+<span><span class="co"># effect matrices are "row treatment versus column treatment"</span></span>
+<span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  standard <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">nm_dep</span><span class="op">$</span><span class="va">TE.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  std_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">nm_dep</span><span class="op">$</span><span class="va">lower.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  std_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">nm_dep</span><span class="op">$</span><span class="va">upper.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  additive <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">cnma</span><span class="op">$</span><span class="va">TE.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  add_lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">cnma</span><span class="op">$</span><span class="va">lower.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  add_upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">cnma</span><span class="op">$</span><span class="va">upper.random</span><span class="op">[</span><span class="va">combos</span>, <span class="st">"Placebo"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">cnma</span><span class="op">$</span><span class="va">Comp.random</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">cnma</span><span class="op">$</span><span class="va">comps</span></span>
+<span><span class="va">cmp</span><span class="op">$</span><span class="va">product</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">cnma</span><span class="op">$</span><span class="va">Comp.random</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Face-to-face CBT"</span>,</span>
+<span>                                      <span class="st">"Face-to-face interpsy"</span>,</span>
+<span>                                      <span class="st">"Face-to-face PST"</span><span class="op">)</span><span class="op">]</span> <span class="op">+</span></span>
+<span>                   <span class="va">cnma</span><span class="op">$</span><span class="va">Comp.random</span><span class="op">[</span><span class="st">"SSRI"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">cmp</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                              standard std_lower std_upper additive add_lower</span></span>
+<span><span class="co">#&gt; Face-to-face CBT + SSRI         30.86      4.94    192.81     3.91      2.32</span></span>
+<span><span class="co">#&gt; Face-to-face interpsy + SSRI     1.75      1.12      2.74     1.86      1.25</span></span>
+<span><span class="co">#&gt; Face-to-face PST + SSRI          1.54      0.66      3.59     2.32      1.52</span></span>
+<span><span class="co">#&gt;                              add_upper product</span></span>
+<span><span class="co">#&gt; Face-to-face CBT + SSRI           6.59    3.91</span></span>
+<span><span class="co">#&gt; Face-to-face interpsy + SSRI      2.78    1.86</span></span>
+<span><span class="co">#&gt; Face-to-face PST + SSRI           3.53    2.32</span></span></code></pre></div>
+<p>The contrast is striking for CBT plus an SSRI. That combination appears in a single trial with 17 participants per arm, in which 12 responded on the combination and only 2 on the SSRI alone. The standard NMA must estimate the combination from that trial alone and returns an odds ratio versus placebo of 30.9 with a 95% confidence interval from 4.9 to 193. The additive model estimates it as the product of the CBT and SSRI component effects, 3.91 (2.32 to 6.59), using every trial in the network that included either component. Under the additive model, the odds ratio for each combination is exactly the product of the component odds ratios (the <code>additive</code> and <code>product</code> columns agree). The additive model is attractive when combinations are numerous and sparsely studied, but additivity is a substantive assumption. Two treatments that act on the same mechanism may be sub-additive, and a model check like the <span class="math inline">\(Q\)</span> difference above has little power. Interaction CNMA models, specified through <code>C.matrix</code> in <code><a href="https://rdrr.io/pkg/netmeta/man/netcomb.html">netcomb()</a></code>, relax additivity where the data permit.</p>
+</div>
+<div id="sec-network-bayesian" class="section level2" number="10.8">
+<h2>
+<span class="header-section-number">10.8</span> Bayesian network meta-analysis<a class="anchor" aria-label="anchor" href="#sec-network-bayesian"><i class="fas fa-link"></i></a>
+</h2>
+<p>Bayesian NMA fits the contrast-based model of Section <a href="sec-network.html#sec-network-contrast">10.4.1</a> with an exact likelihood for arm-level data, propagates uncertainty in <span class="math inline">\(\tau\)</span> into all estimates, and delivers rank probabilities as posterior summaries <span class="citation">(<a href="sec-references.html#ref-lu2004combination">Lu and Ades 2004</a>; <a href="sec-references.html#ref-dias2018network">Dias et al. 2018</a>)</span>. Priors matter in the usual places (see Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>): the heterogeneity standard deviation in sparse networks, and treatment effects when some comparisons rest on very few events. Vague normal priors on the <span class="math inline">\(d_{1k}\)</span> and the study baselines <span class="math inline">\(\mu_i\)</span> are standard; for <span class="math inline">\(\tau\)</span> a half-normal or uniform prior on a plausible range is common, and empirically based informative priors are available for many outcome types.</p>
+<div id="sec-network-multinma" class="section level3" number="10.8.1">
+<h3>
+<span class="header-section-number">10.8.1</span> Bayesian NMA with multinma<a class="anchor" aria-label="anchor" href="#sec-network-multinma"><i class="fas fa-link"></i></a>
+</h3>
+<p><code>multinma</code> fits contrast-based NMA and network meta-regression models in Stan <span class="citation">(<a href="sec-references.html#ref-carpenter2017stan">Carpenter et al. 2017</a>)</span> and also implements multilevel network meta-regression for combining individual and aggregate data <span class="citation">(<a href="sec-references.html#ref-phillippo2020multilevel">Phillippo et al. 2020</a>)</span>. Its models are precompiled, so fitting is fast. The package ships the smoking network as <code>smoking</code>, in long arm-level format with one row per arm.</p>
+<div class="sourceCode" id="cb199"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dmphillippo.github.io/multinma/">multinma</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">smoking</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   studyn trtn                   trtc  r   n</span></span>
+<span><span class="co">#&gt; 1      1    1        No intervention  9 140</span></span>
+<span><span class="co">#&gt; 2      1    3 Individual counselling 23 140</span></span>
+<span><span class="co">#&gt; 3      1    4      Group counselling 10 138</span></span>
+<span><span class="co">#&gt; 4      2    2              Self-help 11  78</span></span>
+<span><span class="co">#&gt; 5      2    3 Individual counselling 12  85</span></span>
+<span><span class="co">#&gt; 6      2    4      Group counselling 29 170</span></span>
+<span><span class="va">sm_net</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/set_agd_arm.html">set_agd_arm</a></span><span class="op">(</span><span class="va">smoking</span>, study <span class="op">=</span> <span class="va">studyn</span>, trt <span class="op">=</span> <span class="va">trtc</span>,</span>
+<span>                      r <span class="op">=</span> <span class="va">r</span>, n <span class="op">=</span> <span class="va">n</span>, trt_ref <span class="op">=</span> <span class="st">"No intervention"</span><span class="op">)</span></span>
+<span><span class="va">sm_net</span></span>
+<span><span class="co">#&gt; A network with 24 AgD studies (arm-based).</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ------------------------------------------------------- AgD studies (arm-based) ---- </span></span>
+<span><span class="co">#&gt;  Study Treatment arms                                                 </span></span>
+<span><span class="co">#&gt;  1     3: No intervention | Group counselling | Individual counselling</span></span>
+<span><span class="co">#&gt;  2     3: Group counselling | Individual counselling | Self-help      </span></span>
+<span><span class="co">#&gt;  3     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  4     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  5     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  6     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  7     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  8     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  9     2: No intervention | Individual counselling                    </span></span>
+<span><span class="co">#&gt;  10    2: No intervention | Self-help                                 </span></span>
+<span><span class="co">#&gt;  ... plus 14 more studies</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Outcome type: count</span></span>
+<span><span class="co">#&gt; ------------------------------------------------------------------------------------</span></span>
+<span><span class="co">#&gt; Total number of treatments: 4</span></span>
+<span><span class="co">#&gt; Total number of studies: 24</span></span>
+<span><span class="co">#&gt; Reference treatment is: No intervention</span></span>
+<span><span class="co">#&gt; Network is connected</span></span></code></pre></div>
+<p><code><a href="https://dmphillippo.github.io/multinma/reference/set_agd_arm.html">set_agd_arm()</a></code> declares arm-level aggregate data with binomial outcomes, and the print method confirms that the network is connected with 24 studies and 4 treatments. We fit a random-effects consistency model with a binomial likelihood and logit link, vague normal priors on study baselines and treatment effects, and a half-normal prior with scale 5 on <span class="math inline">\(\tau\)</span>. Two chains of 2,000 iterations (half warmup) are sufficient here.</p>
+<div class="sourceCode" id="cb200"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_re</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/nma.html">nma</a></span><span class="op">(</span><span class="va">sm_net</span>, trt_effects <span class="op">=</span> <span class="st">"random"</span>,</span>
+<span>              prior_intercept <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
+<span>              prior_trt <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>              prior_het <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">half_normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>              iter <span class="op">=</span> <span class="fl">2000</span>, chains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">2026</span>, refresh <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">fit_re</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"d"</span>, <span class="st">"tau"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; A random effects NMA with a binomial likelihood (logit link).</span></span>
+<span><span class="co">#&gt; Inference for Stan model: binomial_1par.</span></span>
+<span><span class="co">#&gt; 2 chains, each with iter=2000; warmup=1000; thin=1; </span></span>
+<span><span class="co">#&gt; post-warmup draws per chain=1000, total post-warmup draws=2000.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                           mean se_mean   sd  2.5%  25%  50%  75% 97.5% n_eff</span></span>
+<span><span class="co">#&gt; d[Group counselling]      1.11    0.01 0.44  0.30 0.82 1.08 1.39  2.04  1186</span></span>
+<span><span class="co">#&gt; d[Individual counselling] 0.85    0.01 0.24  0.40 0.69 0.84 1.01  1.33   656</span></span>
+<span><span class="co">#&gt; d[Self-help]              0.49    0.01 0.40 -0.27 0.23 0.48 0.74  1.28  1012</span></span>
+<span><span class="co">#&gt; tau                       0.84    0.01 0.18  0.55 0.71 0.81 0.94  1.24   785</span></span>
+<span><span class="co">#&gt;                           Rhat</span></span>
+<span><span class="co">#&gt; d[Group counselling]         1</span></span>
+<span><span class="co">#&gt; d[Individual counselling]    1</span></span>
+<span><span class="co">#&gt; d[Self-help]                 1</span></span>
+<span><span class="co">#&gt; tau                          1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Samples were drawn using NUTS(diag_e) at Wed Nov 25 01:23:40 2026.</span></span>
+<span><span class="co">#&gt; For each parameter, n_eff is a crude measure of effective sample size,</span></span>
+<span><span class="co">#&gt; and Rhat is the potential scale reduction factor on split chains (at </span></span>
+<span><span class="co">#&gt; convergence, Rhat=1).</span></span></code></pre></div>
+<p>All <span class="math inline">\(\hat R\)</span> values are 1.00 and effective sample sizes exceed 600, adequate for the posterior means and 95% intervals reported here. The posterior mean log odds ratios versus no intervention are about 1.09 for group counselling, 0.84 for individual counselling and 0.49 for self-help, corresponding to odds ratios of roughly 3.0, 2.3 and 1.6. These are larger than the frequentist random-effects estimates (2.38, 2.03, 1.49), and the posterior mean of <span class="math inline">\(\tau\)</span> (about 0.85, 95% credible interval roughly 0.54 to 1.32) is larger than the REML estimate of 0.67. Two features explain the difference: the Bayesian model uses the exact binomial likelihood instead of the normal approximation to log odds ratios with continuity corrections, and it averages over the posterior uncertainty in <span class="math inline">\(\tau\)</span> rather than plugging in a point estimate. The broad conclusions are unchanged.</p>
+<p><code><a href="https://dmphillippo.github.io/multinma/reference/relative_effects.html">relative_effects()</a></code> returns all pairwise contrasts, not just those against the reference, and its <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> method draws them.</p>
+<div class="sourceCode" id="cb201"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">re_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/relative_effects.html">relative_effects</a></span><span class="op">(</span><span class="va">fit_re</span>, all_contrasts <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">re_all</span></span>
+<span><span class="co">#&gt;                                                  mean   sd  2.5%   25%   50%</span></span>
+<span><span class="co">#&gt; d[Group counselling vs. No intervention]         1.11 0.44  0.30  0.82  1.08</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. No intervention]    0.85 0.24  0.40  0.69  0.84</span></span>
+<span><span class="co">#&gt; d[Self-help vs. No intervention]                 0.49 0.40 -0.27  0.23  0.48</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. Group counselling] -0.26 0.42 -1.09 -0.52 -0.25</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Group counselling]              -0.61 0.50 -1.59 -0.94 -0.61</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Individual counselling]         -0.35 0.40 -1.20 -0.60 -0.35</span></span>
+<span><span class="co">#&gt;                                                   75% 97.5% Bulk_ESS Tail_ESS</span></span>
+<span><span class="co">#&gt; d[Group counselling vs. No intervention]         1.39  2.04     1241     1279</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. No intervention]    1.01  1.33      658      971</span></span>
+<span><span class="co">#&gt; d[Self-help vs. No intervention]                 0.74  1.28     1045     1027</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. Group counselling]  0.01  0.53     1801     1547</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Group counselling]              -0.28  0.34     1730     1279</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Individual counselling]         -0.09  0.44     1334     1309</span></span>
+<span><span class="co">#&gt;                                                 Rhat</span></span>
+<span><span class="co">#&gt; d[Group counselling vs. No intervention]           1</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. No intervention]      1</span></span>
+<span><span class="co">#&gt; d[Self-help vs. No intervention]                   1</span></span>
+<span><span class="co">#&gt; d[Individual counselling vs. Group counselling]    1</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Group counselling]                 1</span></span>
+<span><span class="co">#&gt; d[Self-help vs. Individual counselling]            1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">re_all</span>, ref_line <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:nma-multinma-releff"></span>
+<img src="10-network_files/figure-html/nma-multinma-releff-1.png" alt="Posterior distributions of all pairwise log odds ratios from the Bayesian random-effects NMA (multinma)." width="85%"><p class="caption">
+Figure 10.4: Posterior distributions of all pairwise log odds ratios from the Bayesian random-effects NMA (multinma).
+</p>
+</div>
+<p>Among the active interventions, the credible intervals for every pairwise contrast include zero (Figure <a href="sec-network.html#fig:nma-multinma-releff">10.4</a>): for example, individual versus group counselling has posterior mean of about <span class="math inline">\(-0.26\)</span> with a 95% interval from about <span class="math inline">\(-1.1\)</span> to <span class="math inline">\(0.6\)</span> on the log odds ratio scale. As in the frequentist analysis, the data support “counselling beats no contact” much more firmly than any ordering among active interventions.</p>
+<p>Rank probabilities come from <code><a href="https://dmphillippo.github.io/multinma/reference/posterior_ranks.html">posterior_rank_probs()</a></code>. Because quitting is a good outcome we set <code>lower_better = FALSE</code>. The cumulative probabilities give SUCRA directly.</p>
+<div class="sourceCode" id="cb202"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/posterior_ranks.html">posterior_rank_probs</a></span><span class="op">(</span><span class="va">fit_re</span>, lower_better <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">rp</span></span>
+<span><span class="co">#&gt;                           p_rank[1] p_rank[2] p_rank[3] p_rank[4]</span></span>
+<span><span class="co">#&gt; d[No intervention]             0.00      0.00      0.10       0.9</span></span>
+<span><span class="co">#&gt; d[Group counselling]           0.72      0.21      0.07       0.0</span></span>
+<span><span class="co">#&gt; d[Individual counselling]      0.23      0.62      0.15       0.0</span></span>
+<span><span class="co">#&gt; d[Self-help]                   0.05      0.17      0.68       0.1</span></span>
+<span><span class="va">crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/posterior_ranks.html">posterior_rank_probs</a></span><span class="op">(</span><span class="va">fit_re</span>, lower_better <span class="op">=</span> <span class="cn">FALSE</span>, cumulative <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">cum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">crp</span><span class="op">$</span><span class="va">summary</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">"p_rank"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">crp</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sucra</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html">rowMeans</a></span><span class="op">(</span><span class="va">cum</span><span class="op">[</span>, <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">cum</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">sucra</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">crp</span><span class="op">$</span><span class="va">summary</span><span class="op">$</span><span class="va">.trt</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">sucra</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      Group counselling Individual counselling              Self-help </span></span>
+<span><span class="co">#&gt;                  0.880                  0.694                  0.392 </span></span>
+<span><span class="co">#&gt;        No intervention </span></span>
+<span><span class="co">#&gt;                  0.035</span></span></code></pre></div>
+<p>Group counselling has the highest probability of being best (about 0.70) and the largest SUCRA (about 0.88), followed by individual counselling (SUCRA about 0.69), self-help (about 0.39) and no intervention (about 0.04). These values sit very close to the frequentist random-effects P-scores, which is expected because P-scores are the frequentist analogue of SUCRA <span class="citation">(<a href="sec-references.html#ref-rucker2015ranking">Rücker and Schwarzer 2015</a>)</span>. The probability that group counselling is the single best option is far from certain, which is the honest message of the analysis.</p>
+</div>
+<div id="sec-network-ume" class="section level3" number="10.8.2">
+<h3>
+<span class="header-section-number">10.8.2</span> Checking consistency in multinma<a class="anchor" aria-label="anchor" href="#sec-network-ume"><i class="fas fa-link"></i></a>
+</h3>
+<p>A Bayesian global check compares the consistency model with an <em>unrelated mean effects</em> (UME) model, which estimates a separate relative effect for every directly observed comparison without imposing the consistency equations <span class="citation">(<a href="sec-references.html#ref-dias2013evidence">Dias et al. 2013</a>)</span>. If the UME model fits markedly better, judged by residual deviance or the deviance information criterion (DIC), the network is inconsistent.</p>
+<div class="sourceCode" id="cb203"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_ume</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/nma.html">nma</a></span><span class="op">(</span><span class="va">sm_net</span>, consistency <span class="op">=</span> <span class="st">"ume"</span>, trt_effects <span class="op">=</span> <span class="st">"random"</span>,</span>
+<span>               prior_intercept <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>,</span>
+<span>               prior_trt <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>               prior_het <span class="op">=</span> <span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/priors.html">half_normal</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>               iter <span class="op">=</span> <span class="fl">2000</span>, chains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">2026</span>, refresh <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/dic.html">dic</a></span><span class="op">(</span><span class="va">fit_re</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Residual deviance: 54.2 (on 50 data points)</span></span>
+<span><span class="co">#&gt;                pD: 44</span></span>
+<span><span class="co">#&gt;               DIC: 98.2</span></span>
+<span><span class="fu"><a href="https://dmphillippo.github.io/multinma/reference/dic.html">dic</a></span><span class="op">(</span><span class="va">fit_ume</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Residual deviance: 54 (on 50 data points)</span></span>
+<span><span class="co">#&gt;                pD: 45.2</span></span>
+<span><span class="co">#&gt;               DIC: 99.2</span></span></code></pre></div>
+<p>The two models are practically indistinguishable: residual deviances are about 54 on 50 data points for both, and the DIC differs by well under the 3 to 5 points usually considered meaningful. The UME model spends extra parameters on unconstrained comparisons without improving fit, so there is no evidence of global inconsistency once heterogeneity is modelled, the same conclusion as the frequentist random-effects design-by-treatment test. <code>multinma</code> also supports node-splitting with <code>consistency = "nodesplit"</code>, which fits one model per split comparison.</p>
+</div>
+<div id="sec-network-gemtc" class="section level3" number="10.8.3">
+<h3>
+<span class="header-section-number">10.8.3</span> Bayesian NMA with gemtc<a class="anchor" aria-label="anchor" href="#sec-network-gemtc"><i class="fas fa-link"></i></a>
+</h3>
+<p><code>gemtc</code> generates and runs NMA models in JAGS <span class="citation">(<a href="sec-references.html#ref-vanvalkenhoef2012automating">Valkenhoef et al. 2012</a>)</span> and automates the construction of node-splitting models <span class="citation">(<a href="sec-references.html#ref-vanvalkenhoef2015automated">Valkenhoef et al. 2015</a>)</span>. It ships the same smoking network as an <code>mtc.network</code> object in arm-level format, with treatments labelled A to D as in the original publication. The code below is evaluated only when JAGS is available.</p>
+<div class="sourceCode" id="cb204"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gertvv/gemtc">gemtc</a></span><span class="op">)</span></span>
+<span><span class="va">gem_env</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html">new.env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"smoking"</span>, package <span class="op">=</span> <span class="st">"gemtc"</span>, envir <span class="op">=</span> <span class="va">gem_env</span><span class="op">)</span></span>
+<span><span class="va">gem_net</span> <span class="op">&lt;-</span> <span class="va">gem_env</span><span class="op">$</span><span class="va">smoking</span></span>
+<span><span class="va">gem_net</span><span class="op">$</span><span class="va">treatments</span></span>
+<span><span class="co">#&gt;   id           description</span></span>
+<span><span class="co">#&gt; A  A            No Contact</span></span>
+<span><span class="co">#&gt; B  B             Self-help</span></span>
+<span><span class="co">#&gt; C  C Individual Counseling</span></span>
+<span><span class="co">#&gt; D  D      Group Counseling</span></span>
+<span></span>
+<span><span class="co"># mtc.model() draws random initial values, so seed before it</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">gem_mod</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gemtc/man/mtc.model.html">mtc.model</a></span><span class="op">(</span><span class="va">gem_net</span>, type <span class="op">=</span> <span class="st">"consistency"</span>,</span>
+<span>                     likelihood <span class="op">=</span> <span class="st">"binom"</span>, link <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>                     linearModel <span class="op">=</span> <span class="st">"random"</span>, n.chain <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co"># reproducible JAGS chains: one RNG and seed per chain</span></span>
+<span><span class="va">gem_seeds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample.int</a></span><span class="op">(</span><span class="va">.Machine</span><span class="op">$</span><span class="va">integer.max</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">gem_mod</span><span class="op">$</span><span class="va">inits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="va">c</span>, <span class="va">gem_mod</span><span class="op">$</span><span class="va">inits</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>.RNG.name <span class="op">=</span> <span class="st">"base::Mersenne-Twister"</span>, .RNG.seed <span class="op">=</span> <span class="va">gem_seeds</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>.RNG.name <span class="op">=</span> <span class="st">"base::Wichmann-Hill"</span>, .RNG.seed <span class="op">=</span> <span class="va">gem_seeds</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  SIMPLIFY <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">gem_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gemtc/man/mtc.run.html">mtc.run</a></span><span class="op">(</span><span class="va">gem_mod</span>, n.adapt <span class="op">=</span> <span class="fl">1000</span>, n.iter <span class="op">=</span> <span class="fl">10000</span>, thin <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Compiling model graph</span></span>
+<span><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span><span class="co">#&gt;    Allocating nodes</span></span>
+<span><span class="co">#&gt; Graph information:</span></span>
+<span><span class="co">#&gt;    Observed stochastic nodes: 50</span></span>
+<span><span class="co">#&gt;    Unobserved stochastic nodes: 54</span></span>
+<span><span class="co">#&gt;    Total graph size: 1075</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Initializing model</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">gem_fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Results on the Log Odds Ratio scale</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Iterations = 1002:11000</span></span>
+<span><span class="co">#&gt; Thinning interval = 2 </span></span>
+<span><span class="co">#&gt; Number of chains = 2 </span></span>
+<span><span class="co">#&gt; Sample size per chain = 5000 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 1. Empirical mean and standard deviation for each variable,</span></span>
+<span><span class="co">#&gt;    plus standard error of the mean:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        Mean    SD Naive SE Time-series SE</span></span>
+<span><span class="co">#&gt; d.A.B 0.488 0.399  0.00399        0.00528</span></span>
+<span><span class="co">#&gt; d.A.C 0.829 0.236  0.00236        0.00407</span></span>
+<span><span class="co">#&gt; d.A.D 1.091 0.439  0.00439        0.00753</span></span>
+<span><span class="co">#&gt; sd.d  0.841 0.183  0.00183        0.00475</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 2. Quantiles for each variable:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         2.5%   25%   50%   75% 97.5%</span></span>
+<span><span class="co">#&gt; d.A.B -0.295 0.231 0.483 0.744  1.27</span></span>
+<span><span class="co">#&gt; d.A.C  0.388 0.672 0.820 0.977  1.32</span></span>
+<span><span class="co">#&gt; d.A.D  0.243 0.804 1.082 1.373  1.99</span></span>
+<span><span class="co">#&gt; sd.d   0.550 0.710 0.816 0.946  1.27</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; -- Model fit (residual deviance):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  Dbar    pD   DIC </span></span>
+<span><span class="co">#&gt; 54.34 44.02 98.35 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 50 data points, ratio 1.087, I^2 = 10%</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/gelman.diag.html">gelman.diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/coda/man/mcmc.list.html">as.mcmc.list</a></span><span class="op">(</span><span class="va">gem_fit</span><span class="op">)</span>, multivariate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Potential scale reduction factors:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       Point est. Upper C.I.</span></span>
+<span><span class="co">#&gt; d.A.B          1          1</span></span>
+<span><span class="co">#&gt; d.A.C          1          1</span></span>
+<span><span class="co">#&gt; d.A.D          1          1</span></span>
+<span><span class="co">#&gt; sd.d           1          1</span></span></code></pre></div>
+<p><code><a href="https://rdrr.io/pkg/gemtc/man/mtc.model.html">mtc.model()</a></code> builds the JAGS model with a binomial likelihood, logit link, and random effects; by default it uses a uniform prior on the heterogeneity standard deviation and vague normal priors whose scale is derived from the data. <code><a href="https://rdrr.io/pkg/gemtc/man/mtc.run.html">mtc.run()</a></code> adapts and samples; the potential scale reduction factors from <code><a href="https://rdrr.io/pkg/coda/man/gelman.diag.html">gelman.diag()</a></code> should be close to 1. The basic parameters <code>d.A.B</code>, <code>d.A.C</code> and <code>d.A.D</code> are log odds ratios versus no contact and <code>sd.d</code> is <span class="math inline">\(\tau\)</span>; they should agree with the <code>multinma</code> estimates above to within Monte Carlo error and the small differences implied by the different default priors.</p>
+<div class="sourceCode" id="cb205"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/gemtc/man/relative.effect.html">relative.effect</a></span><span class="op">(</span><span class="va">gem_fit</span>, t1 <span class="op">=</span> <span class="st">"B"</span>, t2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"C"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Results on the Log Odds Ratio scale</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Iterations = 1002:11000</span></span>
+<span><span class="co">#&gt; Thinning interval = 2 </span></span>
+<span><span class="co">#&gt; Number of chains = 2 </span></span>
+<span><span class="co">#&gt; Sample size per chain = 5000 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 1. Empirical mean and standard deviation for each variable,</span></span>
+<span><span class="co">#&gt;    plus standard error of the mean:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         Mean    SD Naive SE Time-series SE</span></span>
+<span><span class="co">#&gt; d.B.A -0.488 0.399  0.00399        0.00528</span></span>
+<span><span class="co">#&gt; d.B.C  0.342 0.408  0.00408        0.00531</span></span>
+<span><span class="co">#&gt; d.B.D  0.604 0.493  0.00493        0.00712</span></span>
+<span><span class="co">#&gt; sd.d   0.841 0.183  0.00183        0.00475</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; 2. Quantiles for each variable:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;         2.5%     25%    50%    75% 97.5%</span></span>
+<span><span class="co">#&gt; d.B.A -1.272 -0.7442 -0.483 -0.231 0.295</span></span>
+<span><span class="co">#&gt; d.B.C -0.454  0.0748  0.339  0.609 1.168</span></span>
+<span><span class="co">#&gt; d.B.D -0.352  0.2768  0.595  0.923 1.571</span></span>
+<span><span class="co">#&gt; sd.d   0.550  0.7104  0.816  0.946 1.267</span></span>
+<span><span class="va">gem_ranks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/gemtc/man/rank.probability.html">rank.probability</a></span><span class="op">(</span><span class="va">gem_fit</span>, preferredDirection <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">gem_ranks</span></span>
+<span><span class="co">#&gt; Rank probability; preferred direction = 1</span></span>
+<span><span class="co">#&gt;     [,1]   [,2]   [,3]   [,4]</span></span>
+<span><span class="co">#&gt; A 0.0000 0.0021 0.1066 0.8913</span></span>
+<span><span class="co">#&gt; B 0.0560 0.1817 0.6597 0.1026</span></span>
+<span><span class="co">#&gt; C 0.2388 0.5939 0.1670 0.0003</span></span>
+<span><span class="co">#&gt; D 0.7052 0.2223 0.0667 0.0058</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/gemtc/man/rank.probability.html">sucra</a></span><span class="op">(</span><span class="va">gem_ranks</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       A       B       C       D </span></span>
+<span><span class="co">#&gt; 0.03693 0.39703 0.69040 0.87563</span></span></code></pre></div>
+<p><code><a href="https://rdrr.io/pkg/gemtc/man/relative.effect.html">relative.effect()</a></code> re-expresses the posterior relative to any treatment, here self-help (B). <code><a href="https://rdrr.io/pkg/gemtc/man/rank.probability.html">rank.probability()</a></code> with <code>preferredDirection = 1</code> treats larger log odds ratios as better, and <code><a href="https://rdrr.io/pkg/gemtc/man/rank.probability.html">sucra()</a></code> returns the SUCRA values. The same workflow extends to node-splitting with <code><a href="https://rdrr.io/pkg/gemtc/man/mtc.nodesplit.html">mtc.nodesplit()</a></code>, which fits one model per comparison that can be split and is correspondingly slower.</p>
+<div class="rmdnote">
+<p>Which software to choose? <code>netmeta</code> is fast, handles contrast-level data, has excellent tools for inconsistency and component models, and is the natural choice for frequentist work. <code>multinma</code> is the most actively developed Bayesian option, needs no external sampler, and adds population adjustment and network meta-regression with individual data. <code>gemtc</code> is mature and convenient for automated node-splitting but depends on JAGS. For a published analysis, fitting the main model in two frameworks is a cheap and informative sensitivity analysis.</p>
+</div>
+</div>
+</div>
+<div id="sec-network-certainty" class="section level2" number="10.9">
+<h2>
+<span class="header-section-number">10.9</span> Certainty of evidence and reporting<a class="anchor" aria-label="anchor" href="#sec-network-certainty"><i class="fas fa-link"></i></a>
+</h2>
+<p>An NMA produces many estimates whose credibility varies: a comparison supported by large, low-risk-of-bias, head-to-head trials deserves more confidence than one inferred through a long chain of small trials. Two frameworks extend GRADE (Chapter <a href="sec-reporting.html#sec-reporting">15</a>) to networks. The GRADE Working Group approach rates direct and indirect evidence separately and then rates the network estimate <span class="citation">(<a href="sec-references.html#ref-puhan2014grade">Puhan et al. 2014</a>)</span>. <em>CINeMA</em> (Confidence in Network Meta-Analysis) evaluates each network estimate on six domains: within-study bias, reporting bias, indirectness, imprecision, heterogeneity, and incoherence <span class="citation">(<a href="sec-references.html#ref-nikolakopoulou2020cinema">Nikolakopoulou et al. 2020</a>)</span>. Its distinguishing feature is the use of the <em>contribution matrix</em>, which quantifies how much each direct comparison contributes to each network estimate, so that risk-of-bias judgements about individual trials propagate to the network estimates in proportion to their influence. A free web application implements the framework <span class="citation">(<a href="sec-references.html#ref-papakonstantinou2020cinema">Papakonstantinou et al. 2020</a>)</span>. Imprecision and heterogeneity are judged against a pre-specified range of clinical equivalence, so the analyst must state what size of effect matters before looking at the results.</p>
+<p>Reporting follows the PRISMA extension for network meta-analyses <span class="citation">(<a href="sec-references.html#ref-hutton2015prisma">Hutton et al. 2015</a>)</span>, which adds items on the network geometry (a network graph), the assessment of transitivity and inconsistency, the methods used to handle multi-arm trials, and the presentation of rankings. Practical points that reviewers often find missing are: the table of effect modifiers by comparison; the full league table rather than only effects versus placebo; the heterogeneity variance and its prior (in a Bayesian analysis); the results of both global and local inconsistency checks; and sensitivity analyses excluding trials at high risk of bias.</p>
+</div>
+<div id="sec-network-pitfalls" class="section level2" number="10.10">
+<h2>
+<span class="header-section-number">10.10</span> Practical recommendations and common pitfalls<a class="anchor" aria-label="anchor" href="#sec-network-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Define the nodes carefully.</strong> Decide in the protocol which interventions are “the same treatment”. Lumping different doses or delivery formats into one node creates heterogeneity and can create inconsistency; splitting too finely disconnects the network. Component models (Section <a href="sec-network.html#sec-network-cnma">10.7</a>) are one principled compromise.</p>
+<p><strong>Examine transitivity before modelling.</strong> Tabulate the distribution of plausible effect modifiers by comparison. If, for example, the placebo-controlled trials of one drug were done in treatment-resistant patients, no statistical method will rescue the indirect comparisons.</p>
+<p><strong>Handle multi-arm trials correctly.</strong> Never enter the pairwise contrasts of a multi-arm trial as independent studies. Use arm-level data in a Bayesian model or software that accounts for the correlations, as <code>netmeta</code> does.</p>
+<p><strong>Model heterogeneity and report it on the effect scale.</strong> In the smoking network, <span class="math inline">\(\hat\tau = 0.67\)</span> dwarfs most of the differences between active interventions. Prediction intervals (<code>prediction = TRUE</code> in <code>netmeta</code>) are as informative in a network as in pairwise meta-analysis (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>).</p>
+<p><strong>Do not equate “no significant inconsistency” with consistency.</strong> Tests have low power, especially in sparse networks and when heterogeneity is large. Global and local checks should be read together, and their conclusions depend on whether heterogeneity is modelled, as the smoking example showed.</p>
+<p><strong>Use rankings with restraint.</strong> Present relative effects with intervals first. If rankings are reported, show the rank probabilities or rankograms, not only SUCRA or P-scores, and remember that a treatment can rank first merely because it was studied in few, small, optimistic trials.</p>
+<p><strong>Think about small-study effects and missing evidence.</strong> Publication bias (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>) can affect some comparisons in a network more than others, which then propagates through indirect paths. Comparison-adjusted funnel plots and network meta-regression on study size are available but have limited power.</p>
+</div>
+<div id="sec-network-takeaways" class="section level2" number="10.11">
+<h2>
+<span class="header-section-number">10.11</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-network-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Network meta-analysis combines direct and indirect evidence on several treatments in one model and returns a coherent set of relative effects for every pair of treatments in a connected network.</li>
+<li>Its validity rests on transitivity: effect modifiers must be similarly distributed across comparisons. Consistency, the agreement of direct and indirect evidence, is the testable consequence, but tests for inconsistency have low power.</li>
+<li>Contrast-based models preserve within-trial randomization and are the default; arm-based models rely on additional assumptions about absolute outcomes. Multi-arm trials induce correlations that must be modelled.</li>
+<li>
+<code>netmeta</code> implements the frequentist graph-theoretical estimator with tools for league tables, P-scores, design-by-treatment decomposition, node-splitting, net heat plots and component NMA. <code>multinma</code> (Stan) and <code>gemtc</code> (JAGS) provide Bayesian models with exact likelihoods, rank probabilities and SUCRA.</li>
+<li>In the smoking cessation network, all counselling interventions outperform no contact, heterogeneity is large (<span class="math inline">\(\tau \approx 0.7\)</span> to <span class="math inline">\(0.85\)</span> on the log odds ratio scale), and the ordering of the active interventions is uncertain. Inconsistency suggested by a common-effect test disappears once heterogeneity is accounted for.</li>
+<li>Rankings summarize uncertainty and effect size in one number and are easily over-interpreted. Report relative effects first.</li>
+<li>The credibility of each network estimate should be rated (CINeMA or GRADE for NMA) and the analysis reported following PRISMA-NMA.</li>
+</ul>
+</div>
+<div id="sec-network-reading" class="section level2" number="10.12">
+<h2>
+<span class="header-section-number">10.12</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-network-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Dias et al. (<a href="sec-references.html#ref-dias2018network">2018</a>)</span> is the most complete treatment of Bayesian NMA for decision making, building on the NICE Decision Support Unit technical documents <span class="citation">(<a href="sec-references.html#ref-dias2012evidence">Dias et al. 2012</a>, <a href="sec-references.html#ref-dias2013evidence">2013</a>)</span>. The Cochrane Handbook chapter by <span class="citation">Chaimani et al. (<a href="sec-references.html#ref-chaimani2019undertaking">2019</a>)</span> is a concise guide to planning and conducting a network meta-analysis within a systematic review. <span class="citation">Salanti (<a href="sec-references.html#ref-salanti2012indirect">2012</a>)</span> and <span class="citation">Cipriani et al. (<a href="sec-references.html#ref-cipriani2013conceptual">2013</a>)</span> discuss the conceptual assumptions and the main controversies. For the frequentist theory, read <span class="citation">Rücker (<a href="sec-references.html#ref-rucker2012network">2012</a>)</span> and the <code>netmeta</code> software paper by <span class="citation">Balduzzi et al. (<a href="sec-references.html#ref-balduzzi2023netmeta">2023</a>)</span>; for multi-arm trials, <span class="citation">Rücker and Schwarzer (<a href="sec-references.html#ref-rucker2014reduce">2014</a>)</span>. Inconsistency models are covered by <span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2012consistency">2012</a>)</span>, <span class="citation">White et al. (<a href="sec-references.html#ref-white2012consistency">2012</a>)</span> and <span class="citation">Dias et al. (<a href="sec-references.html#ref-dias2010checking">2010</a>)</span>. <span class="citation">White et al. (<a href="sec-references.html#ref-white2019comparison">2019</a>)</span> compares contrast-based and arm-based models. Component NMA is introduced by <span class="citation">Welton et al. (<a href="sec-references.html#ref-welton2009mixed">2009</a>)</span> and <span class="citation">Rücker et al. (<a href="sec-references.html#ref-rucker2019network">2019</a>)</span>. Population-adjusted comparisons with individual data are developed in <span class="citation">Phillippo et al. (<a href="sec-references.html#ref-phillippo2020multilevel">2020</a>)</span>. For certainty of evidence and reporting, see <span class="citation">Nikolakopoulou et al. (<a href="sec-references.html#ref-nikolakopoulou2020cinema">2020</a>)</span>, <span class="citation">Puhan et al. (<a href="sec-references.html#ref-puhan2014grade">2014</a>)</span> and <span class="citation">Hutton et al. (<a href="sec-references.html#ref-hutton2015prisma">2015</a>)</span>.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></div>
+<div class="next"><a href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li>
+<a class="nav-link" href="#sec-network-why"><span class="header-section-number">10.1</span> Why network meta-analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-indirect"><span class="header-section-number">10.1.1</span> Indirect comparisons</a></li>
+<li><a class="nav-link" href="#sec-network-mixed"><span class="header-section-number">10.1.2</span> Mixed treatment comparisons</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-network-assumptions"><span class="header-section-number">10.2</span> Assumptions: transitivity and consistency</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-transitivity"><span class="header-section-number">10.2.1</span> Transitivity</a></li>
+<li><a class="nav-link" href="#sec-network-consistency"><span class="header-section-number">10.2.2</span> Consistency</a></li>
+<li><a class="nav-link" href="#sec-network-heterogeneity"><span class="header-section-number">10.2.3</span> Heterogeneity in a network</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-network-geometry"><span class="header-section-number">10.3</span> Network geometry</a></li>
+<li>
+<a class="nav-link" href="#sec-network-models"><span class="header-section-number">10.4</span> Statistical models</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-contrast"><span class="header-section-number">10.4.1</span> Contrast-based models</a></li>
+<li><a class="nav-link" href="#sec-network-arm"><span class="header-section-number">10.4.2</span> Arm-based models</a></li>
+<li><a class="nav-link" href="#sec-network-multiarm"><span class="header-section-number">10.4.3</span> Multi-arm trials</a></li>
+<li><a class="nav-link" href="#sec-network-graph"><span class="header-section-number">10.4.4</span> The graph-theoretical frequentist estimator</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-network-netmeta"><span class="header-section-number">10.5</span> Frequentist NMA with netmeta</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-smoking-data"><span class="header-section-number">10.5.1</span> The smoking cessation network</a></li>
+<li><a class="nav-link" href="#sec-network-bucher-example"><span class="header-section-number">10.5.2</span> An indirect comparison by hand</a></li>
+<li><a class="nav-link" href="#sec-network-fit"><span class="header-section-number">10.5.3</span> Fitting the network</a></li>
+<li><a class="nav-link" href="#sec-network-netgraph"><span class="header-section-number">10.5.4</span> Network graph</a></li>
+<li><a class="nav-link" href="#sec-network-forest"><span class="header-section-number">10.5.5</span> Forest plot and league table</a></li>
+<li><a class="nav-link" href="#sec-network-ranking"><span class="header-section-number">10.5.6</span> Ranking treatments</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-network-inconsistency"><span class="header-section-number">10.6</span> Assessing inconsistency</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-decomp"><span class="header-section-number">10.6.1</span> Global assessment: the design-by-treatment decomposition</a></li>
+<li><a class="nav-link" href="#sec-network-netsplit"><span class="header-section-number">10.6.2</span> Local assessment: node-splitting</a></li>
+<li><a class="nav-link" href="#sec-network-netheat"><span class="header-section-number">10.6.3</span> The net heat plot</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-network-cnma"><span class="header-section-number">10.7</span> Component network meta-analysis</a></li>
+<li>
+<a class="nav-link" href="#sec-network-bayesian"><span class="header-section-number">10.8</span> Bayesian network meta-analysis</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-network-multinma"><span class="header-section-number">10.8.1</span> Bayesian NMA with multinma</a></li>
+<li><a class="nav-link" href="#sec-network-ume"><span class="header-section-number">10.8.2</span> Checking consistency in multinma</a></li>
+<li><a class="nav-link" href="#sec-network-gemtc"><span class="header-section-number">10.8.3</span> Bayesian NMA with gemtc</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-network-certainty"><span class="header-section-number">10.9</span> Certainty of evidence and reporting</a></li>
+<li><a class="nav-link" href="#sec-network-pitfalls"><span class="header-section-number">10.10</span> Practical recommendations and common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-network-takeaways"><span class="header-section-number">10.11</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-network-reading"><span class="header-section-number">10.12</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/10-network.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/10-network.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 13 Diagnostic Test Accuracy | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="Not every research synthesis asks whether an intervention works. In medicine, psychology and many applied fields, a large share of evidence concerns classification: how well does a screening...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 13 Diagnostic Test Accuracy | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-dta.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="Not every research synthesis asks whether an intervention works. In medicine, psychology and many applied fields, a large share of evidence concerns classification: how well does a screening...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 13 Diagnostic Test Accuracy | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="Not every research synthesis asks whether an intervention works. In medicine, psychology and many applied fields, a large share of evidence concerns classification: how well does a screening...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 13 Diagnostic Test Accuracy | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="active" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-dta" class="section level1" number="13">
+<h1>
+<span class="header-section-number">13</span> Diagnostic Test Accuracy<a class="anchor" aria-label="anchor" href="#sec-dta"><i class="fas fa-link"></i></a>
+</h1>
+<p>Not every research synthesis asks whether an intervention works. In medicine, psychology and many applied fields, a large share of evidence concerns <em>classification</em>: how well does a screening questionnaire detect hazardous drinking, a cognitive test detect dementia, a credit score flag default, or a fraud model flag fraudulent claims? A diagnostic test accuracy (DTA) study applies an <em>index test</em> and a <em>reference standard</em> to the same people and cross-classifies the results. A DTA meta-analysis combines such studies to estimate how accurate the test is and how much that accuracy varies across settings.</p>
+<p>DTA meta-analysis differs from the effect-size meta-analysis of earlier chapters in two fundamental ways. First, test accuracy is intrinsically <em>bivariate</em>. A test is described by two numbers, its sensitivity and its specificity, which trade off against each other as the positivity threshold changes. Collapsing them into a single effect size loses essential information, and analysing them separately ignores their dependence. Second, between-study heterogeneity in DTA is typically large and partly systematic, because studies use different thresholds, populations and reference standards. Methods that work well for treatment effects can therefore mislead here. The modern consensus, reflected in the Cochrane handbook for DTA reviews <span class="citation">(<a href="sec-references.html#ref-deeks2023cochrane">Deeks et al. 2023</a>)</span>, is to use <em>hierarchical</em> models: the bivariate random-effects model <span class="citation">(<a href="sec-references.html#ref-reitsma2005bivariate">Reitsma et al. 2005</a>)</span> or the equivalent hierarchical summary ROC model <span class="citation">(<a href="sec-references.html#ref-rutter2001hierarchical">Rutter and Gatsonis 2001</a>; <a href="sec-references.html#ref-harbord2006unification">R. M. Harbord et al. 2006</a>)</span>.</p>
+<p>This chapter defines the accuracy measures, explains why naive pooling fails, develops the bivariate and HSROC models and their equivalence, and fits them in R in three ways: with <code>mada</code> <span class="citation">(<a href="sec-references.html#ref-doebler2012mixed">Doebler et al. 2012</a>)</span>, as a bivariate binomial generalized linear mixed model with <code>lme4</code> <span class="citation">(<a href="sec-references.html#ref-bates2015fitting">Bates et al. 2015</a>)</span>, and as a bivariate normal model with <code>metafor</code> <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span>. We then turn to meta-regression, heterogeneity, small-study effects, risk of bias, and reporting. The bivariate model is a special case of the multivariate meta-analysis treated in Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>.</p>
+<div id="sec-dta-measures" class="section level2" number="13.1">
+<h2>
+<span class="header-section-number">13.1</span> Measures of test accuracy<a class="anchor" aria-label="anchor" href="#sec-dta-measures"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-dta-2x2" class="section level3" number="13.1.1">
+<h3>
+<span class="header-section-number">13.1.1</span> The two-by-two table<a class="anchor" aria-label="anchor" href="#sec-dta-2x2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Each primary study yields a two-by-two table of index test result against true disease status as determined by the reference standard:</p>
+<div class="inline-table"><table class="table table-sm">
+<colgroup>
+<col width="26%">
+<col width="37%">
+<col width="35%">
+</colgroup>
+<thead><tr class="header">
+<th></th>
+<th align="center">Disease present (<span class="math inline">\(D^+\)</span>)</th>
+<th align="center">Disease absent (<span class="math inline">\(D^-\)</span>)</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Test positive</td>
+<td align="center">TP</td>
+<td align="center">FP</td>
+</tr>
+<tr class="even">
+<td>Test negative</td>
+<td align="center">FN</td>
+<td align="center">TN</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td align="center"><span class="math inline">\(n_1 = \text{TP} + \text{FN}\)</span></td>
+<td align="center"><span class="math inline">\(n_0 = \text{FP} + \text{TN}\)</span></td>
+</tr>
+</tbody>
+</table></div>
+<p>The two basic measures condition on true status:</p>
+<p><span class="math display">\[
+\text{Se} = P(T^+ \mid D^+) = \frac{\text{TP}}{\text{TP} + \text{FN}}, \qquad
+\text{Sp} = P(T^- \mid D^-) = \frac{\text{TN}}{\text{TN} + \text{FP}}.
+\]</span></p>
+<p>Sensitivity (the true positive rate, TPR) is the proportion of diseased people the test detects, and specificity is the proportion of non-diseased people the test correctly clears; <span class="math inline">\(1 - \text{Sp}\)</span> is the false positive rate (FPR). Because TP and FN come from the diseased participants and FP and TN from the non-diseased, the estimates of sensitivity and specificity within a study are based on <em>disjoint</em> samples and are therefore statistically independent. This fact will simplify the within-study part of the models below.</p>
+<p>Several derived measures combine the two. The <em>likelihood ratios</em> are</p>
+<p><span class="math display">\[
+\text{LR}^+ = \frac{\text{Se}}{1 - \text{Sp}}, \qquad \text{LR}^- = \frac{1 - \text{Se}}{\text{Sp}},
+\]</span></p>
+<p>and they update pre-test odds of disease to post-test odds by Bayes’ theorem: post-test odds <span class="math inline">\(=\)</span> pre-test odds <span class="math inline">\(\times\)</span> LR. A positive likelihood ratio above 10 or a negative likelihood ratio below 0.1 is often described as producing a large change in probability. The <em>diagnostic odds ratio</em> (DOR) is</p>
+<p><span class="math display">\[
+\text{DOR} = \frac{\text{LR}^+}{\text{LR}^-} = \frac{\text{Se}/(1 - \text{Se})}{(1 - \text{Sp})/\text{Sp}} = \frac{\text{TP} \times \text{TN}}{\text{FP} \times \text{FN}},
+\]</span></p>
+<p>a single summary of discrimination that equals 1 for a useless test <span class="citation">(<a href="sec-references.html#ref-glas2003diagnostic">Glas et al. 2003</a>)</span>. On the logit scale, <span class="math inline">\(\log \text{DOR} = \operatorname{logit}(\text{Se}) + \operatorname{logit}(\text{Sp})\)</span>. The DOR is convenient for modelling but hard to interpret clinically, because very different combinations of sensitivity and specificity share the same DOR.</p>
+<p><em>Predictive values</em> condition on the test result: <span class="math inline">\(\text{PPV} = P(D^+ \mid T^+)\)</span> and <span class="math inline">\(\text{NPV} = P(D^- \mid T^-)\)</span>. They depend directly on the prevalence <span class="math inline">\(\pi\)</span>,</p>
+<p><span class="math display">\[
+\text{PPV} = \frac{\text{Se}\, \pi}{\text{Se}\, \pi + (1 - \text{Sp})(1 - \pi)},
+\]</span></p>
+<p>so they should not be pooled across studies with different prevalence. They are better computed from the pooled sensitivity and specificity at a prevalence relevant to the intended setting.</p>
+</div>
+<div id="sec-dta-thresholds" class="section level3" number="13.1.2">
+<h3>
+<span class="header-section-number">13.1.2</span> Thresholds and the trade-off between sensitivity and specificity<a class="anchor" aria-label="anchor" href="#sec-dta-thresholds"><i class="fas fa-link"></i></a>
+</h3>
+<p>Most tests dichotomize an underlying continuous quantity: a questionnaire score, a biomarker concentration, a radiologist’s degree of suspicion. Suppose the measurement <span class="math inline">\(Y\)</span> follows one distribution among diseased people and another among non-diseased people, and the test is called positive when <span class="math inline">\(Y &gt; c\)</span>. Lowering the threshold <span class="math inline">\(c\)</span> increases sensitivity and decreases specificity; raising it does the reverse. Tracing all thresholds gives the receiver operating characteristic (ROC) curve, sensitivity plotted against $1 - $specificity.</p>
+<p>Across studies, thresholds differ <em>explicitly</em> (one study uses a score of 3 or more, another 5 or more) and <em>implicitly</em> (different observers, equipment, or populations shift the effective cut-off even when the nominal threshold is the same). This <em>threshold effect</em> induces a negative correlation between sensitivity and specificity across studies, equivalently a positive correlation between sensitivity and FPR. Study results then scatter along a curve in ROC space rather than around a point. A meta-analysis must model this correlation and should report results that respect the trade-off. Sensitivity and specificity are also not fixed properties of a test: they can vary with the spectrum of disease and with prevalence <span class="citation">(<a href="sec-references.html#ref-leeflang2013variation">Leeflang et al. 2013</a>)</span>, which is one reason heterogeneity in DTA meta-analyses is so large.</p>
+</div>
+</div>
+<div id="sec-dta-example" class="section level2" number="13.2">
+<h2>
+<span class="header-section-number">13.2</span> The AUDIT-C example<a class="anchor" aria-label="anchor" href="#sec-dta-example"><i class="fas fa-link"></i></a>
+</h2>
+<p>Our running example is the <code>AuditC</code> data set in <code>mada</code>, from a meta-analysis of the three-item AUDIT-C questionnaire for detecting unhealthy alcohol use <span class="citation">(<a href="sec-references.html#ref-kriston2008meta">Kriston et al. 2008</a>)</span>. Each of the 14 rows is one study’s two-by-two table. <code><a href="https://rdrr.io/pkg/mada/man/madad.html">madad()</a></code> computes study-level descriptive statistics.</p>
+<div class="sourceCode" id="cb252"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://r-forge.r-project.org/projects/mada/">mada</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="va">AuditC</span><span class="op">)</span></span>
+<span><span class="va">AuditC</span></span>
+<span><span class="co">#&gt;     TP FN   FP   TN</span></span>
+<span><span class="co">#&gt; 1   47  9  101  738</span></span>
+<span><span class="co">#&gt; 2  126 51  272 1543</span></span>
+<span><span class="co">#&gt; 3   19 10   12  192</span></span>
+<span><span class="co">#&gt; 4   36  3   78  276</span></span>
+<span><span class="co">#&gt; 5  130 19  211  959</span></span>
+<span><span class="co">#&gt; 6   84  2   68   89</span></span>
+<span><span class="co">#&gt; 7   68  0  112  423</span></span>
+<span><span class="co">#&gt; 8  752  0 3226 2977</span></span>
+<span><span class="co">#&gt; 9   59  5   55  136</span></span>
+<span><span class="co">#&gt; 10 142 50  571 2788</span></span>
+<span><span class="co">#&gt; 11 137 24  107  358</span></span>
+<span><span class="co">#&gt; 12  57  3  103  437</span></span>
+<span><span class="co">#&gt; 13  34  1   21   56</span></span>
+<span><span class="co">#&gt; 14 152 51   88  264</span></span>
+<span><span class="va">md</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/madad.html">madad</a></span><span class="op">(</span><span class="va">AuditC</span><span class="op">)</span></span>
+<span><span class="va">md</span></span>
+<span><span class="co">#&gt; Descriptive summary of AuditC with 14 primary studies.</span></span>
+<span><span class="co">#&gt; Confidence level for all calculations set to 95 %</span></span>
+<span><span class="co">#&gt; Using a continuity correction of 0.5 if applicable </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Diagnostic accuracies </span></span>
+<span><span class="co">#&gt;        sens  2.5% 97.5%  spec  2.5% 97.5%</span></span>
+<span><span class="co">#&gt;  [1,] 0.833 0.716 0.908 0.879 0.855 0.899</span></span>
+<span><span class="co">#&gt;  [2,] 0.711 0.640 0.772 0.850 0.833 0.866</span></span>
+<span><span class="co">#&gt;  [3,] 0.650 0.471 0.795 0.939 0.898 0.964</span></span>
+<span><span class="co">#&gt;  [4,] 0.912 0.785 0.967 0.779 0.733 0.819</span></span>
+<span><span class="co">#&gt;  [5,] 0.870 0.807 0.915 0.819 0.796 0.840</span></span>
+<span><span class="co">#&gt;  [6,] 0.971 0.912 0.991 0.566 0.489 0.641</span></span>
+<span><span class="co">#&gt;  [7,] 0.993 0.934 0.999 0.790 0.754 0.822</span></span>
+<span><span class="co">#&gt;  [8,] 0.999 0.994 1.000 0.480 0.468 0.492</span></span>
+<span><span class="co">#&gt;  [9,] 0.915 0.822 0.962 0.711 0.643 0.770</span></span>
+<span><span class="co">#&gt; [10,] 0.738 0.672 0.795 0.830 0.817 0.842</span></span>
+<span><span class="co">#&gt; [11,] 0.849 0.786 0.896 0.769 0.729 0.805</span></span>
+<span><span class="co">#&gt; [12,] 0.943 0.854 0.979 0.809 0.773 0.840</span></span>
+<span><span class="co">#&gt; [13,] 0.958 0.838 0.990 0.724 0.616 0.811</span></span>
+<span><span class="co">#&gt; [14,] 0.748 0.684 0.802 0.749 0.702 0.792</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for equality of sensitivities: </span></span>
+<span><span class="co">#&gt; X-squared = 272.4, df = 13, p-value = &lt;2e-16</span></span>
+<span><span class="co">#&gt; Test for equality of specificities: </span></span>
+<span><span class="co">#&gt; X-squared = 2205, df = 13, p-value = &lt;2e-16</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Diagnostic OR and likelihood ratios </span></span>
+<span><span class="co">#&gt;           DOR   2.5%    97.5%  posLR  2.5%  97.5% negLR  2.5% 97.5%</span></span>
+<span><span class="co">#&gt;  [1,]   36.38 17.587    75.25  6.897 5.556  8.561 0.190 0.106 0.339</span></span>
+<span><span class="co">#&gt;  [2,]   13.91  9.818    19.72  4.736 4.100  5.470 0.340 0.270 0.429</span></span>
+<span><span class="co">#&gt;  [3,]   28.60 11.133    73.47 10.660 5.862 19.384 0.373 0.229 0.608</span></span>
+<span><span class="co">#&gt;  [4,]   36.73 11.925   113.14  4.127 3.320  5.129 0.112 0.041 0.306</span></span>
+<span><span class="co">#&gt;  [5,]   30.36 18.440    49.99  4.817 4.201  5.523 0.159 0.105 0.240</span></span>
+<span><span class="co">#&gt;  [6,]   44.16 12.077   161.49  2.240 1.868  2.687 0.051 0.015 0.173</span></span>
+<span><span class="co">#&gt;  [7,]  515.73 31.687  8393.75  4.730 4.009  5.581 0.009 0.001 0.145</span></span>
+<span><span class="co">#&gt;  [8,] 1388.85 86.752 22234.71  1.922 1.876  1.968 0.001 0.000 0.022</span></span>
+<span><span class="co">#&gt;  [9,]   26.61 10.523    67.27  3.167 2.506  4.001 0.119 0.053 0.266</span></span>
+<span><span class="co">#&gt; [10,]   13.77  9.865    19.22  4.341 3.879  4.857 0.315 0.249 0.400</span></span>
+<span><span class="co">#&gt; [11,]   18.72 11.572    30.27  3.679 3.079  4.397 0.197 0.136 0.284</span></span>
+<span><span class="co">#&gt; [12,]   69.44 23.113   208.65  4.927 4.099  5.922 0.071 0.026 0.196</span></span>
+<span><span class="co">#&gt; [13,]   60.44 10.948   333.68  3.477 2.411  5.014 0.058 0.012 0.277</span></span>
+<span><span class="co">#&gt; [14,]    8.85  5.949    13.16  2.982 2.448  3.632 0.337 0.264 0.430</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Correlation of sensitivities and false positive rates: </span></span>
+<span><span class="co">#&gt;    rho  2.5 % 97.5 % </span></span>
+<span><span class="co">#&gt;  0.677  0.228  0.888</span></span></code></pre></div>
+<p>Sensitivities range from 0.65 to 0.999 and specificities from 0.48 to 0.94. The chi-square tests for equality reject homogeneity overwhelmingly for both (sensitivities <span class="math inline">\(\chi^2 = 272.4\)</span>, specificities <span class="math inline">\(\chi^2 = 2205\)</span>, 13 df each). Diagnostic odds ratios range from about 9 to over 1,000, and the correlation between sensitivity and FPR across studies is 0.68 (95% CI 0.23 to 0.89). This positive correlation is the signature of a threshold effect: studies that achieved higher sensitivity paid for it with more false positives. Two studies (rows 7 and 8) have no false negatives at all, so their sensitivities, and any measure involving <span class="math inline">\(\log \text{FN}\)</span>, need special handling.</p>
+<div class="sourceCode" id="cb253"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">mada</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mada/man/forest.html">forest</a></span><span class="op">(</span><span class="va">md</span>, type <span class="op">=</span> <span class="st">"sens"</span>, xlab <span class="op">=</span> <span class="st">"Sensitivity"</span>, snames <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span>,</span>
+<span>             main <span class="op">=</span> <span class="st">"Sensitivity"</span>, plotci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">mada</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mada/man/forest.html">forest</a></span><span class="op">(</span><span class="va">md</span>, type <span class="op">=</span> <span class="st">"spec"</span>, xlab <span class="op">=</span> <span class="st">"Specificity"</span>, snames <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span>,</span>
+<span>             main <span class="op">=</span> <span class="st">"Specificity"</span>, plotci <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:dta-forest"></span>
+<img src="13-diagnostic-accuracy_files/figure-html/dta-forest-1.png" alt="Paired forest plots of study-level sensitivity (left) and specificity (right) with 95% confidence intervals for the 14 AUDIT-C studies." width="100%"><p class="caption">
+Figure 13.1: Paired forest plots of study-level sensitivity (left) and specificity (right) with 95% confidence intervals for the 14 AUDIT-C studies.
+</p>
+</div>
+<div class="sourceCode" id="cb254"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
+<p>Paired forest plots (Figure <a href="sec-dta.html#fig:dta-forest">13.1</a>) are the standard way to display DTA data study by study. They show the heterogeneity at a glance, but they hide the correlation between the two measures, which is what the ROC-space plots below make visible.</p>
+</div>
+<div id="sec-dta-univariate" class="section level2" number="13.3">
+<h2>
+<span class="header-section-number">13.3</span> Why separate pooling is misleading<a class="anchor" aria-label="anchor" href="#sec-dta-univariate"><i class="fas fa-link"></i></a>
+</h2>
+<p>The tempting approach is to run two ordinary random-effects meta-analyses, one of logit sensitivities and one of logit specificities, and report the two pooled values. With <code>metafor</code> this takes a few lines.</p>
+<div class="sourceCode" id="cb255"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="va">AuditC</span></span>
+<span><span class="va">d</span><span class="op">$</span><span class="va">study</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">es_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PLO"</span>, xi <span class="op">=</span> <span class="va">TP</span>, ni <span class="op">=</span> <span class="va">TP</span> <span class="op">+</span> <span class="va">FN</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">es_sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PLO"</span>, xi <span class="op">=</span> <span class="va">TN</span>, ni <span class="op">=</span> <span class="va">TN</span> <span class="op">+</span> <span class="va">FP</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span></span>
+<span><span class="va">uni_se</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">es_se</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="va">uni_sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">es_sp</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  sensitivity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_se</span><span class="op">)</span><span class="op">)</span>, lower <span class="op">=</span> <span class="va">uni_se</span><span class="op">$</span><span class="va">ci.lb</span>, upper <span class="op">=</span> <span class="va">uni_se</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  specificity <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_sp</span><span class="op">)</span><span class="op">)</span>, lower <span class="op">=</span> <span class="va">uni_sp</span><span class="op">$</span><span class="va">ci.lb</span>, upper <span class="op">=</span> <span class="va">uni_sp</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               est lower upper</span></span>
+<span><span class="co">#&gt; sensitivity 0.901 0.820 0.948</span></span>
+<span><span class="co">#&gt; specificity 0.782 0.716 0.836</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>tau2_logit_sens <span class="op">=</span> <span class="va">uni_se</span><span class="op">$</span><span class="va">tau2</span>, tau2_logit_spec <span class="op">=</span> <span class="va">uni_sp</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; tau2_logit_sens tau2_logit_spec </span></span>
+<span><span class="co">#&gt;           1.400           0.432</span></span></code></pre></div>
+<p>The separate analyses give a summary sensitivity of 0.90 (0.82 to 0.95) and specificity of 0.78 (0.72 to 0.84), with between-study variances of 1.40 and 0.43 on the logit scale. As we will see, these point estimates are close to those of the bivariate model in this example. The problem is not primarily bias in the two marginal summaries. It is that the separate analyses:</p>
+<ol style="list-style-type: decimal">
+<li>ignore the correlation between sensitivity and specificity, so they cannot produce a joint confidence region or a prediction region for where the accuracy in a new setting will fall;</li>
+<li>say nothing about the trade-off, so they cannot distinguish a test whose studies differ mainly in threshold (points on one curve) from a test whose studies differ in discrimination (different curves);</li>
+<li>when thresholds vary a lot, can produce a summary pair of sensitivity and specificity that corresponds to no realistic operating point, because each margin is averaged over different thresholds.</li>
+</ol>
+<p>Pooling derived measures separately is worse. Pooled likelihood ratios from two univariate analyses can imply a sensitivity or specificity outside <span class="math inline">\([0, 1]\)</span>, and <span class="citation">Zwinderman and Bossuyt (<a href="sec-references.html#ref-zwinderman2007we">2007</a>)</span> advise synthesizing sensitivity and specificity and deriving likelihood ratios from the result, instead of pooling likelihood ratios directly. A univariate meta-analysis of the log DOR is legitimate as a summary of discrimination, but it discards the information needed to say how many false positives and false negatives a clinician should expect.</p>
+<div class="sourceCode" id="cb256"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/mada/man/madauni.html">madauni</a></span><span class="op">(</span><span class="va">AuditC</span>, type <span class="op">=</span> <span class="st">"DOR"</span>, method <span class="op">=</span> <span class="st">"DSL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; madauni(x = AuditC, type = "DOR", method = "DSL")</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    DOR  tau^2 </span></span>
+<span><span class="co">#&gt; 26.337  0.311</span></span></code></pre></div>
+<p>The DerSimonian-Laird pooled DOR is 26.3 with <span class="math inline">\(\hat\tau^2 = 0.31\)</span> on the log scale, a perfectly reasonable summary of discrimination, but it is compatible with sensitivity 0.95 and specificity 0.58 as much as with sensitivity 0.78 and specificity 0.88.</p>
+</div>
+<div id="sec-dta-moses" class="section level2" number="13.4">
+<h2>
+<span class="header-section-number">13.4</span> Historical context: the Moses-Littenberg SROC<a class="anchor" aria-label="anchor" href="#sec-dta-moses"><i class="fas fa-link"></i></a>
+</h2>
+<p>Before hierarchical models became practical, the standard method was the summary ROC (SROC) approach of <span class="citation">Littenberg and Moses (<a href="sec-references.html#ref-littenberg1993estimating">1993</a>)</span> and <span class="citation">Moses et al. (<a href="sec-references.html#ref-moses1993combining">1993</a>)</span>. For each study, define</p>
+<p><span class="math display">\[
+D_i = \operatorname{logit}(\text{TPR}_i) - \operatorname{logit}(\text{FPR}_i) = \log \text{DOR}_i, \qquad
+S_i = \operatorname{logit}(\text{TPR}_i) + \operatorname{logit}(\text{FPR}_i),
+\]</span></p>
+<p>where <span class="math inline">\(S_i\)</span> is a proxy for the positivity threshold. Fit the linear regression <span class="math inline">\(D_i = a + b S_i\)</span> by ordinary or weighted least squares. If <span class="math inline">\(b = 0\)</span>, the DOR is constant across thresholds and the SROC curve is symmetric; <span class="math inline">\(b \ne 0\)</span> allows the DOR to change with threshold. Back-transforming the fitted line gives the SROC curve</p>
+<p><span class="math display">\[
+\operatorname{logit}(\text{TPR}) = \frac{a}{1 - b} + \frac{1 + b}{1 - b}\operatorname{logit}(\text{FPR}).
+\]</span></p>
+<div class="sourceCode" id="cb257"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cc</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"TP"</span>, <span class="st">"FN"</span>, <span class="st">"FP"</span>, <span class="st">"TN"</span><span class="op">)</span><span class="op">]</span> <span class="op">+</span> <span class="fl">0.5</span>   <span class="co"># continuity correction</span></span>
+<span><span class="va">tpr</span> <span class="op">&lt;-</span> <span class="va">cc</span><span class="op">$</span><span class="va">TP</span> <span class="op">/</span> <span class="op">(</span><span class="va">cc</span><span class="op">$</span><span class="va">TP</span> <span class="op">+</span> <span class="va">cc</span><span class="op">$</span><span class="va">FN</span><span class="op">)</span></span>
+<span><span class="va">fpr</span> <span class="op">&lt;-</span> <span class="va">cc</span><span class="op">$</span><span class="va">FP</span> <span class="op">/</span> <span class="op">(</span><span class="va">cc</span><span class="op">$</span><span class="va">FP</span> <span class="op">+</span> <span class="va">cc</span><span class="op">$</span><span class="va">TN</span><span class="op">)</span></span>
+<span><span class="va">D</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">tpr</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">fpr</span><span class="op">)</span></span>
+<span><span class="va">S</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">tpr</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">fpr</span><span class="op">)</span></span>
+<span><span class="va">ml_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">D</span> <span class="op">~</span> <span class="va">S</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">ml_fit</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             Estimate Std. Error t value Pr(&gt;|t|)</span></span>
+<span><span class="co">#&gt; (Intercept)    3.179      0.226  14.089        0</span></span>
+<span><span class="co">#&gt; S              0.502      0.087   5.771        0</span></span></code></pre></div>
+<p>For AUDIT-C, <span class="math inline">\(\hat a = 3.18\)</span> and <span class="math inline">\(\hat b = 0.50\)</span> (<span class="math inline">\(p &lt; 0.001\)</span>), suggesting that the DOR increases with <span class="math inline">\(S\)</span>, that is, in studies operating at more lenient thresholds. The method is simple, but it has serious statistical defects. <span class="math inline">\(S\)</span> and <span class="math inline">\(D\)</span> are both functions of the same noisy data, so <span class="math inline">\(S\)</span> is measured with error and correlated with the residual; there is no proper account of within-study sampling variability or of between-study heterogeneity; the choice of weights is arbitrary; and there is no summary point with a valid standard error. Empirical comparisons found that it gives systematically different results from hierarchical models <span class="citation">(<a href="sec-references.html#ref-harbord2008empirical">Harbord et al. 2008</a>; <a href="sec-references.html#ref-dinnes2016moses">Dinnes et al. 2016</a>)</span>. It survives in older reviews and some software, but should not be used for new analyses.</p>
+</div>
+<div id="sec-dta-bivariate" class="section level2" number="13.5">
+<h2>
+<span class="header-section-number">13.5</span> The bivariate random-effects model<a class="anchor" aria-label="anchor" href="#sec-dta-bivariate"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-dta-bivariate-model" class="section level3" number="13.5.1">
+<h3>
+<span class="header-section-number">13.5.1</span> Model<a class="anchor" aria-label="anchor" href="#sec-dta-bivariate-model"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Reitsma et al. (<a href="sec-references.html#ref-reitsma2005bivariate">2005</a>)</span> proposed modelling the logit sensitivity and logit specificity of each study jointly. Let <span class="math inline">\(\mu_{Ai} = \operatorname{logit}(\text{Se}_i)\)</span> and <span class="math inline">\(\mu_{Bi} = \operatorname{logit}(\text{Sp}_i)\)</span> be the true values in study <span class="math inline">\(i\)</span>. The <em>within-study</em> level uses the observed logits,</p>
+<p><span class="math display">\[
+\hat\mu_{Ai} \sim N\!\left(\mu_{Ai}, s^2_{Ai}\right), \qquad \hat\mu_{Bi} \sim N\!\left(\mu_{Bi}, s^2_{Bi}\right),
+\qquad s^2_{Ai} = \frac{1}{\text{TP}_i} + \frac{1}{\text{FN}_i},\; s^2_{Bi} = \frac{1}{\text{TN}_i} + \frac{1}{\text{FP}_i},
+\]</span></p>
+<p>with zero within-study covariance because the two estimates come from different participants. The <em>between-study</em> level is bivariate normal,</p>
+<p><span class="math display">\[
+\begin{pmatrix} \mu_{Ai} \\ \mu_{Bi} \end{pmatrix} \sim N\!\left( \begin{pmatrix} \mu_A \\ \mu_B \end{pmatrix},\;
+\boldsymbol\Sigma = \begin{pmatrix} \sigma_A^2 &amp; \sigma_{AB} \\ \sigma_{AB} &amp; \sigma_B^2 \end{pmatrix} \right).
+\]</span></p>
+<p>The model has five parameters. The means <span class="math inline">\(\mu_A\)</span> and <span class="math inline">\(\mu_B\)</span> define the <em>summary operating point</em> <span class="math inline">\((\operatorname{logit}^{-1}\mu_A, \operatorname{logit}^{-1}\mu_B)\)</span>, which is the median sensitivity and specificity across studies (not the mean, because the inverse logit is nonlinear). The variances <span class="math inline">\(\sigma_A^2\)</span> and <span class="math inline">\(\sigma_B^2\)</span> quantify heterogeneity, and the correlation <span class="math inline">\(\rho = \sigma_{AB}/(\sigma_A \sigma_B)\)</span> captures the threshold effect; a negative <span class="math inline">\(\rho\)</span> between logit sensitivity and logit specificity is the expected pattern. The model is the bivariate case of the multivariate random-effects meta-analysis model, and it is usually fitted by (restricted) maximum likelihood.</p>
+<p>Three quantities are derived from the fit. A <em>confidence region</em> for the summary point is an ellipse on the logit scale based on <span class="math inline">\(\operatorname{Var}(\hat\mu_A, \hat\mu_B)\)</span>. A <em>prediction region</em>, based on <span class="math inline">\(\hat{\boldsymbol\Sigma} + \operatorname{Var}(\hat\mu_A, \hat\mu_B)\)</span>, shows where the true sensitivity and specificity of a new study are expected to fall, which is the DTA analogue of the prediction interval of Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>. And an SROC curve summarizes the trade-off between sensitivity and specificity. Several SROC curves can be derived from the same bivariate model, depending on which conditional relationship between the two logits is used <span class="citation">(<a href="sec-references.html#ref-arends2008bivariate">Arends et al. 2008</a>)</span>; the one most often reported is the curve implied by the HSROC parameterization discussed in Section <a href="sec-dta.html#sec-dta-hsroc">13.6</a>.</p>
+</div>
+<div id="sec-dta-reitsma" class="section level3" number="13.5.2">
+<h3>
+<span class="header-section-number">13.5.2</span> Fitting with mada<a class="anchor" aria-label="anchor" href="#sec-dta-reitsma"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">mada::reitsma()</a></code> fits the bivariate model by REML. Following the convention of ROC space, it parameterizes the model in terms of logit sensitivity (<code>tsens</code>) and logit false positive rate (<code>tfpr</code>), so the means and correlations have the opposite sign for the specificity part compared with the formulas above.</p>
+<div class="sourceCode" id="cb258"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma</a></span><span class="op">(</span><span class="va">AuditC</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Call:  reitsma.default(data = AuditC)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bivariate diagnostic random-effects meta-analysis</span></span>
+<span><span class="co">#&gt; Estimation method: REML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fixed-effects coefficients</span></span>
+<span><span class="co">#&gt;                   Estimate Std. Error      z Pr(&gt;|z|) 95%ci.lb 95%ci.ub    </span></span>
+<span><span class="co">#&gt; tsens.(Intercept)    2.100      0.338  6.215    0.000    1.438    2.762 ***</span></span>
+<span><span class="co">#&gt; tfpr.(Intercept)    -1.264      0.174 -7.249    0.000   -1.605   -0.922 ***</span></span>
+<span><span class="co">#&gt; sensitivity          0.891          -      -        -    0.808    0.941    </span></span>
+<span><span class="co">#&gt; false pos. rate      0.220          -      -        -    0.167    0.285    </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance components: between-studies Std. Dev and correlation matrix</span></span>
+<span><span class="co">#&gt;       Std. Dev tsens  tfpr</span></span>
+<span><span class="co">#&gt; tsens    1.175 1.000     .</span></span>
+<span><span class="co">#&gt; tfpr     0.638 0.854 1.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  logLik     AIC     BIC </span></span>
+<span><span class="co">#&gt;  31.564 -53.128 -46.467 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; AUC:  0.887</span></span>
+<span><span class="co">#&gt; Partial AUC (restricted to observed FPRs and normalized):  0.861</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I2 estimates </span></span>
+<span><span class="co">#&gt; Zhou and Dendukuri approach:  40.4 % </span></span>
+<span><span class="co">#&gt; Holling sample size unadjusted approaches:  35.6 - 79.3 % </span></span>
+<span><span class="co">#&gt; Holling sample size adjusted approaches:  0.2 - 2.4 %</span></span></code></pre></div>
+<p>The summary sensitivity is 0.891 (95% CI 0.808 to 0.941) and the summary false positive rate 0.220 (0.167 to 0.285), that is, a summary specificity of 0.780. The between-study standard deviations are 1.18 for logit sensitivity and 0.64 for logit FPR, both large: a standard deviation of 1.18 on the logit scale means that the middle 95% of true study sensitivities spans roughly 0.45 to 0.99 around the summary value. The between-study correlation of logit sensitivity and logit FPR is 0.85, a strong threshold effect. The area under the SROC curve is 0.887.</p>
+<p><code><a href="https://rdrr.io/r/base/summary.html">summary()</a></code> also prints several versions of a bivariate <span class="math inline">\(I^2\)</span> statistic. They range from 0.2% to 79% for the same data, depending on the definition. This instability is one reason to report the between-study standard deviations, correlation and prediction region rather than a single <span class="math inline">\(I^2\)</span> in DTA reviews.</p>
+<div class="rmdwarning">
+<p>By default, <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code> adds 0.5 to <em>every</em> cell of <em>every</em> study when any single cell in the data is zero (<code>correction.control = "all"</code>). In AUDIT-C two studies have FN = 0, so all 56 cells are corrected. The correction pulls every sensitivity and specificity toward 0.5 and therefore biases the summary point, most strongly for studies with small cell counts and accuracy near 1. Setting <code>correction.control = "single"</code> corrects only the affected studies. The exact binomial likelihood of Section <a href="sec-dta.html#sec-dta-glmm">13.7</a> avoids continuity corrections entirely.</p>
+</div>
+</div>
+<div id="sec-dta-sroc" class="section level3" number="13.5.3">
+<h3>
+<span class="header-section-number">13.5.3</span> Confidence region, prediction region and SROC curve<a class="anchor" aria-label="anchor" href="#sec-dta-sroc"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb259"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fit</span>, sroclwd <span class="op">=</span> <span class="fl">2</span>, predict <span class="op">=</span> <span class="cn">TRUE</span>, pch <span class="op">=</span> <span class="fl">19</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>     main <span class="op">=</span> <span class="st">"AUDIT-C: bivariate model"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/mada/man/sens.html">fpr</a></span><span class="op">(</span><span class="va">AuditC</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/mada/man/sens.html">sens</a></span><span class="op">(</span><span class="va">AuditC</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"grey40"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/points.html">points</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_sp</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_se</span><span class="op">)</span><span class="op">)</span>, pch <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">1.6</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html">legend</a></span><span class="op">(</span><span class="st">"bottomright"</span>, bty <span class="op">=</span> <span class="st">"n"</span>,</span>
+<span>       legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Studies"</span>, <span class="st">"Summary point"</span>, <span class="st">"SROC curve"</span>, <span class="st">"95% confidence region"</span>,</span>
+<span>                  <span class="st">"95% prediction region"</span>, <span class="st">"Separate univariate"</span><span class="op">)</span>,</span>
+<span>       pch <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">19</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">4</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="cn">NA</span><span class="op">)</span>,</span>
+<span>       lwd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"grey40"</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:dta-sroc-plot"></span>
+<img src="13-diagnostic-accuracy_files/figure-html/dta-sroc-plot-1.png" alt="AUDIT-C studies in ROC space (circles), the bivariate summary point with its 95% confidence region (solid ellipse) and 95% prediction region (dotted), the SROC curve, and the summary point from two separate univariate analyses (cross)." width="70%"><p class="caption">
+Figure 13.2: AUDIT-C studies in ROC space (circles), the bivariate summary point with its 95% confidence region (solid ellipse) and 95% prediction region (dotted), the SROC curve, and the summary point from two separate univariate analyses (cross).
+</p>
+</div>
+<p>Figure <a href="sec-dta.html#fig:dta-sroc-plot">13.2</a> contains the essential results of a DTA meta-analysis. The confidence region around the summary point is small, but the prediction region is very large and elongated along the SROC curve: a new study could plausibly operate anywhere from high sensitivity with modest specificity to moderate sensitivity with high specificity. The elongation is the threshold effect, and it is invisible in two separate univariate analyses, whose summary point (the cross) lies close to the bivariate one here.</p>
+</div>
+<div id="sec-dta-summarypts" class="section level3" number="13.5.4">
+<h3>
+<span class="header-section-number">13.5.4</span> Summary likelihood ratios and predictive values<a class="anchor" aria-label="anchor" href="#sec-dta-summarypts"><i class="fas fa-link"></i></a>
+</h3>
+<p>Likelihood ratios and the DOR should be derived from the bivariate fit, not pooled separately <span class="citation">(<a href="sec-references.html#ref-zwinderman2007we">Zwinderman and Bossuyt 2007</a>)</span>. <code><a href="https://rdrr.io/pkg/mada/man/SummaryPts.html">SummaryPts()</a></code> draws from the approximate sampling distribution of the summary logits and transforms each draw.</p>
+<div class="sourceCode" id="cb260"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">sp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/SummaryPts.html">SummaryPts</a></span><span class="op">(</span><span class="va">fit</span>, n.iter <span class="op">=</span> <span class="fl">1e5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">sp</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            Mean Median    2.5%  97.5%</span></span>
+<span><span class="co">#&gt; posLR     4.050   4.03  3.2600  4.990</span></span>
+<span><span class="co">#&gt; negLR     0.145   0.14  0.0813  0.235</span></span>
+<span><span class="co">#&gt; invnegLR  7.440   7.14  4.2600 12.300</span></span>
+<span><span class="co">#&gt; DOR      29.700  28.90 18.4000 45.400</span></span></code></pre></div>
+<p>The summary positive likelihood ratio is about 4.0 (95% interval 3.3 to 5.0) and the negative likelihood ratio about 0.15 (0.08 to 0.24), with a DOR near 30 (18 to 45). By conventional rules of thumb, a negative AUDIT-C result is fairly informative for ruling out unhealthy alcohol use, whereas a positive result shifts the odds only moderately. Predictive values follow from the summary point at a prevalence chosen for the target setting:</p>
+<div class="sourceCode" id="cb261"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">se_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tsens"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">sp_hat</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tfpr"</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="va">prev</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.15</span>, <span class="fl">0.30</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  prevalence <span class="op">=</span> <span class="va">prev</span>,</span>
+<span>  PPV <span class="op">=</span> <span class="va">se_hat</span> <span class="op">*</span> <span class="va">prev</span> <span class="op">/</span> <span class="op">(</span><span class="va">se_hat</span> <span class="op">*</span> <span class="va">prev</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">sp_hat</span><span class="op">)</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">prev</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  NPV <span class="op">=</span> <span class="va">sp_hat</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">prev</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">sp_hat</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">prev</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">se_hat</span><span class="op">)</span> <span class="op">*</span> <span class="va">prev</span><span class="op">)</span></span>
+<span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   prevalence   PPV   NPV</span></span>
+<span><span class="co">#&gt; 1       0.05 0.175 0.993</span></span>
+<span><span class="co">#&gt; 2       0.15 0.416 0.976</span></span>
+<span><span class="co">#&gt; 3       0.30 0.634 0.943</span></span></code></pre></div>
+<p>At a prevalence of 5%, only about 18% of people who screen positive actually have unhealthy alcohol use, while 99% of those who screen negative do not. At 30% prevalence the positive predictive value rises to about 63%. The same test is a reasonable rule-out tool in primary care and a weak rule-in tool everywhere, which is the kind of statement decision makers need.</p>
+</div>
+</div>
+<div id="sec-dta-hsroc" class="section level2" number="13.6">
+<h2>
+<span class="header-section-number">13.6</span> The HSROC model and its equivalence to the bivariate model<a class="anchor" aria-label="anchor" href="#sec-dta-hsroc"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Rutter and Gatsonis (<a href="sec-references.html#ref-rutter2001hierarchical">2001</a>)</span> proposed a hierarchical model built on the latent-threshold picture of Section <a href="sec-dta.html#sec-dta-thresholds">13.1.2</a>. For study <span class="math inline">\(i\)</span> and disease group <span class="math inline">\(j\)</span>, with <span class="math inline">\(X_{ij} = +\tfrac12\)</span> for diseased and <span class="math inline">\(-\tfrac12\)</span> for non-diseased participants, the probability of a positive test is</p>
+<p><span class="math display">\[
+\operatorname{logit}(\pi_{ij}) = \left(\theta_i + \alpha_i X_{ij}\right) \exp(-\beta X_{ij}),
+\qquad \theta_i \sim N(\Theta, \sigma^2_\theta), \quad \alpha_i \sim N(\Lambda, \sigma^2_\alpha).
+\]</span></p>
+<p>Here <span class="math inline">\(\theta_i\)</span> is the study’s <em>positivity threshold</em> (on the logit scale), <span class="math inline">\(\alpha_i\)</span> its <em>accuracy</em> (a log DOR-type parameter), and <span class="math inline">\(\beta\)</span> a <em>shape</em> parameter that allows accuracy to change with threshold. When <span class="math inline">\(\beta = 0\)</span> the SROC curve is symmetric and the DOR is constant along it. Because <span class="math inline">\(\pi_{i1}\)</span> is the sensitivity and <span class="math inline">\(\pi_{i0}\)</span> the FPR, the HSROC model is another way to describe the same pair of study-level quantities.</p>
+<p><span class="citation">R. M. Harbord et al. (<a href="sec-references.html#ref-harbord2006unification">2006</a>)</span> showed that, without covariates, the HSROC model and the bivariate model are reparameterizations of each other. With <span class="math inline">\(\mu_A, \mu_B\)</span> the logit sensitivity and specificity means and <span class="math inline">\(\sigma_A, \sigma_B, \sigma_{AB}\)</span> the between-study (co)variances,</p>
+<p><span class="math display">\[
+\beta = \log\frac{\sigma_B}{\sigma_A}, \qquad
+\Lambda = \left(\frac{\sigma_B}{\sigma_A}\right)^{1/2}\mu_A + \left(\frac{\sigma_A}{\sigma_B}\right)^{1/2}\mu_B, \qquad
+\Theta = \frac12\left[\left(\frac{\sigma_B}{\sigma_A}\right)^{1/2}\mu_A - \left(\frac{\sigma_A}{\sigma_B}\right)^{1/2}\mu_B\right],
+\]</span></p>
+<p><span class="math display">\[
+\sigma^2_\alpha = 2\left(\sigma_A\sigma_B + \sigma_{AB}\right), \qquad
+\sigma^2_\theta = \tfrac12\left(\sigma_A\sigma_B - \sigma_{AB}\right),
+\]</span></p>
+<p>and the HSROC curve is</p>
+<p><span class="math display">\[
+\operatorname{logit}(\text{TPR}) = \Lambda e^{-\beta/2} + e^{-\beta}\operatorname{logit}(\text{FPR}).
+\]</span></p>
+<p>The two models therefore give identical summary points, likelihoods and SROC curves; they differ only in emphasis. The bivariate model is natural when the summary operating point is the target (a test used at a common threshold), the HSROC model when the curve is the target (studies at many different thresholds). The equivalence breaks down once covariates are added, because a covariate can then act on accuracy, threshold, or shape in the HSROC model, and on sensitivity or specificity in the bivariate model, which are different hypotheses.</p>
+<p>We can verify the equivalence numerically by converting the <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code> estimates. Remember that <code>mada</code> uses logit FPR, so <span class="math inline">\(\mu_B = -\mu_{\text{FPR}}\)</span> and <span class="math inline">\(\sigma_{AB} = -\operatorname{Cov}(\text{logit Se}, \text{logit FPR})\)</span>.</p>
+<div class="sourceCode" id="cb262"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mu_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tsens"</span><span class="op">]</span></span>
+<span><span class="va">mu_B</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tfpr"</span><span class="op">]</span></span>
+<span><span class="va">Psi</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">Psi</span>                     <span class="co"># between-study covariance (tsens, tfpr)</span></span>
+<span><span class="va">s_A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">Psi</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span>; <span class="va">s_B</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">Psi</span><span class="op">[</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>; <span class="va">s_AB</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="va">Psi</span><span class="op">[</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span><span class="va">hsroc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  Lambda  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">s_B</span> <span class="op">/</span> <span class="va">s_A</span><span class="op">)</span> <span class="op">*</span> <span class="va">mu_A</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">s_A</span> <span class="op">/</span> <span class="va">s_B</span><span class="op">)</span> <span class="op">*</span> <span class="va">mu_B</span>,</span>
+<span>  Theta   <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">s_B</span> <span class="op">/</span> <span class="va">s_A</span><span class="op">)</span> <span class="op">*</span> <span class="va">mu_A</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">s_A</span> <span class="op">/</span> <span class="va">s_B</span><span class="op">)</span> <span class="op">*</span> <span class="va">mu_B</span><span class="op">)</span>,</span>
+<span>  beta    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">s_B</span> <span class="op">/</span> <span class="va">s_A</span><span class="op">)</span>,</span>
+<span>  s2alpha <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">s_A</span> <span class="op">*</span> <span class="va">s_B</span> <span class="op">+</span> <span class="va">s_AB</span><span class="op">)</span>,</span>
+<span>  s2theta <span class="op">=</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="op">(</span><span class="va">s_A</span> <span class="op">*</span> <span class="va">s_B</span> <span class="op">-</span> <span class="va">s_AB</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">hsroc</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  Lambda   Theta    beta s2alpha s2theta </span></span>
+<span><span class="co">#&gt;   3.262  -0.083  -0.610   0.218   0.695</span></span>
+<span></span>
+<span><span class="va">fpr_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.10</span>, <span class="fl">0.20</span>, <span class="fl">0.40</span><span class="op">)</span></span>
+<span><span class="va">hsroc_curve</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="va">hsroc</span><span class="op">[[</span><span class="st">"Lambda"</span><span class="op">]</span><span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">hsroc</span><span class="op">[[</span><span class="st">"beta"</span><span class="op">]</span><span class="op">]</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>                      <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="op">-</span><span class="va">hsroc</span><span class="op">[[</span><span class="st">"beta"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">qlogis</a></span><span class="op">(</span><span class="va">fpr_grid</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>fpr <span class="op">=</span> <span class="va">fpr_grid</span>, HSROC_formula <span class="op">=</span> <span class="va">hsroc_curve</span>,</span>
+<span>            mada_sroc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma-class.html">sroc</a></span><span class="op">(</span><span class="va">fit</span>, fpr <span class="op">=</span> <span class="va">fpr_grid</span><span class="op">)</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                 [,1]   [,2]   [,3]   [,4]</span></span>
+<span><span class="co">#&gt; fpr           0.0500 0.1000 0.2000 0.4000</span></span>
+<span><span class="co">#&gt; HSROC_formula 0.2701 0.5942 0.8669 0.9754</span></span>
+<span><span class="co">#&gt; mada_sroc     0.2701 0.5942 0.8669 0.9754</span></span></code></pre></div>
+<p>The mean accuracy is <span class="math inline">\(\hat\Lambda = 3.26\)</span>, the mean threshold <span class="math inline">\(\hat\Theta = -0.08\)</span> (close to a symmetric operating point), and the shape parameter <span class="math inline">\(\hat\beta = -0.61\)</span>. The negative <span class="math inline">\(\beta\)</span> reflects <span class="math inline">\(\hat\sigma_A &gt; \hat\sigma_B\)</span>: sensitivity varies more between studies than specificity, so the curve is asymmetric. Most of the between-study variation is in threshold (<span class="math inline">\(\hat\sigma^2_\theta = 0.70\)</span>) rather than in accuracy (<span class="math inline">\(\hat\sigma^2_\alpha = 0.22\)</span>), the quantitative version of what the ROC plot shows. The SROC curve computed from the HSROC formula matches the curve that <code>mada</code> draws to all printed digits.</p>
+</div>
+<div id="sec-dta-glmm" class="section level2" number="13.7">
+<h2>
+<span class="header-section-number">13.7</span> The bivariate binomial GLMM<a class="anchor" aria-label="anchor" href="#sec-dta-glmm"><i class="fas fa-link"></i></a>
+</h2>
+<p>The bivariate model above approximates the within-study distribution of the observed logits by a normal distribution with a <em>known</em> variance. That approximation is poor when counts are small or when sensitivity or specificity is close to 1, which is common in DTA, and it requires continuity corrections for zero cells. <span class="citation">Chu and Cole (<a href="sec-references.html#ref-chu2006bivariate">2006</a>)</span> replaced the normal within-study model by the exact binomial likelihood,</p>
+<p><span class="math display">\[
+\text{TP}_i \sim \text{Binomial}(n_{1i}, \text{Se}_i), \qquad \text{TN}_i \sim \text{Binomial}(n_{0i}, \text{Sp}_i),
+\]</span></p>
+<p>with the same bivariate normal distribution for <span class="math inline">\((\operatorname{logit} \text{Se}_i, \operatorname{logit} \text{Sp}_i)\)</span>. This is a generalized linear mixed model (GLMM) that can be fitted with standard software; <span class="citation">Hamza et al. (<a href="sec-references.html#ref-hamza2008binomial">2008</a>)</span> found the binomial within-study model preferable to the normal approximation. The trick is to reshape the data to “long” format with two rows per study, one for the diseased group (successes are TP) and one for the non-diseased group (successes are TN), and two indicator variables.</p>
+<div class="sourceCode" id="cb263"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/">lme4</a></span><span class="op">)</span></span>
+<span><span class="va">long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">study</span>, sens <span class="op">=</span> <span class="fl">1</span>, spec <span class="op">=</span> <span class="fl">0</span>, y <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">TP</span>, n <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">TP</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">FN</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">study</span>, sens <span class="op">=</span> <span class="fl">0</span>, spec <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">TN</span>, n <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">TN</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">FP</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/glmer.html">glmer</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">y</span>, <span class="va">n</span> <span class="op">-</span> <span class="va">y</span><span class="op">)</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">sens</span> <span class="op">+</span> <span class="va">spec</span> <span class="op">+</span> <span class="op">(</span><span class="fl">0</span> <span class="op">+</span> <span class="va">sens</span> <span class="op">+</span> <span class="va">spec</span> <span class="op">|</span> <span class="va">study</span><span class="op">)</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">long</span>, family <span class="op">=</span> <span class="va">binomial</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">glmm</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Generalized linear mixed model fit by maximum likelihood (Laplace</span></span>
+<span><span class="co">#&gt;   Approximation) [glmerMod]</span></span>
+<span><span class="co">#&gt;  Family: binomial  ( logit )</span></span>
+<span><span class="co">#&gt; Formula: cbind(y, n - y) ~ 0 + sens + spec + (0 + sens + spec | study)</span></span>
+<span><span class="co">#&gt;    Data: long</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       AIC       BIC    logLik -2*log(L)  df.resid </span></span>
+<span><span class="co">#&gt;     255.6     262.2    -122.8     245.6        23 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Scaled residuals: </span></span>
+<span><span class="co">#&gt;     Min      1Q  Median      3Q     Max </span></span>
+<span><span class="co">#&gt; -0.5646 -0.2183 -0.0235  0.2191  1.2448 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random effects:</span></span>
+<span><span class="co">#&gt;  Groups Name Variance Std.Dev. Corr  </span></span>
+<span><span class="co">#&gt;  study  sens 2.601    1.613          </span></span>
+<span><span class="co">#&gt;         spec 0.381    0.617    -0.82 </span></span>
+<span><span class="co">#&gt; Number of obs: 28, groups:  study, 14</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fixed effects:</span></span>
+<span><span class="co">#&gt;      Estimate Std. Error z value Pr(&gt;|z|)    </span></span>
+<span><span class="co">#&gt; sens    2.511      0.462    5.44  5.4e-08 ***</span></span>
+<span><span class="co">#&gt; spec    1.276      0.169    7.56  4.1e-14 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Correlation of Fixed Effects:</span></span>
+<span><span class="co">#&gt;      sens  </span></span>
+<span><span class="co">#&gt; spec -0.748</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">glmm</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  sens  spec </span></span>
+<span><span class="co">#&gt; 0.925 0.782</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">glmm</span>, parm <span class="op">=</span> <span class="st">"beta_"</span>, method <span class="op">=</span> <span class="st">"Wald"</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      2.5 % 97.5 %</span></span>
+<span><span class="co">#&gt; sens 0.833  0.968</span></span>
+<span><span class="co">#&gt; spec 0.720  0.833</span></span></code></pre></div>
+<p>The formula has no intercept, so the two fixed effects are the mean logit sensitivity and logit specificity directly, and <code>(0 + sens + spec | study)</code> specifies a bivariate random effect with unstructured covariance. The GLMM estimates a summary sensitivity of 0.925 (95% Wald CI 0.834 to 0.968) and specificity of 0.782 (0.720 to 0.833). The between-study standard deviations are 1.61 (logit sensitivity) and 0.62 (logit specificity), with correlation <span class="math inline">\(-0.82\)</span>.</p>
+<p>The specificity agrees with <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code> but the sensitivity is higher (0.925 versus 0.891) and its heterogeneity larger. The difference arises in the studies with sensitivity near 1, especially the two with no false negatives: the normal approximation with continuity correction shrinks them toward 0.5 and assigns them large within-study variances on the logit scale (the <span class="math inline">\(1/\text{FN}\)</span> term becomes <span class="math inline">\(1/0.5 = 2\)</span>), so they carry little weight, whereas the binomial likelihood uses the counts as they are. The GLMM is the preferred model when sparse cells are present. Its costs are that the likelihood involves an intractable integral over the random effects (approximated by the Laplace method in <code><a href="https://rdrr.io/pkg/lme4/man/glmer.html">glmer()</a></code>), which occasionally fails to converge with few studies, and that the between-study correlation is poorly estimated and often lands on the boundary <span class="math inline">\(\pm 1\)</span> when studies are few <span class="citation">(<a href="sec-references.html#ref-riley2007bivariate">Richard D. Riley et al. 2007a</a>; <a href="sec-references.html#ref-takwoingi2015performance">Takwoingi et al. 2015</a>)</span>.</p>
+</div>
+<div id="sec-dta-metafor" class="section level2" number="13.8">
+<h2>
+<span class="header-section-number">13.8</span> The bivariate normal model with metafor<a class="anchor" aria-label="anchor" href="#sec-dta-metafor"><i class="fas fa-link"></i></a>
+</h2>
+<p>The bivariate normal model of Section <a href="sec-dta.html#sec-dta-bivariate-model">13.5.1</a> is also a standard multivariate meta-analysis and can be fitted with <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">metafor::rma.mv()</a></code>. We stack the logit sensitivities and logit specificities in one data frame with a variable identifying the outcome, and supply the within-study sampling variances. Because sensitivity and specificity come from different participants, the within-study covariance matrix of each study is diagonal, so the variance vector fully describes the known within-study structure.</p>
+<div class="sourceCode" id="cb264"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">es_bv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">study</span>, outcome <span class="op">=</span> <span class="st">"sens"</span>, <span class="va">es_se</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">study</span>, outcome <span class="op">=</span> <span class="st">"spec"</span>, <span class="va">es_sp</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">es_bv</span> <span class="op">&lt;-</span> <span class="va">es_bv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">es_bv</span><span class="op">$</span><span class="va">study</span>, <span class="va">es_bv</span><span class="op">$</span><span class="va">outcome</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">V</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">es_bv</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span>    <span class="co"># block diagonal: zero within-study covariance</span></span>
+<span><span class="va">bv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fl">0</span> <span class="op">+</span> <span class="va">outcome</span>,</span>
+<span>             random <span class="op">=</span> <span class="op">~</span> <span class="va">outcome</span> <span class="op">|</span> <span class="va">study</span>, struct <span class="op">=</span> <span class="st">"UN"</span>,</span>
+<span>             data <span class="op">=</span> <span class="va">es_bv</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="va">bv</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Multivariate Meta-Analysis Model (k = 28; method: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance Components:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; outer factor: study   (nlvls = 14)</span></span>
+<span><span class="co">#&gt; inner factor: outcome (nlvls = 2)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             estim    sqrt  k.lvl  fixed  level </span></span>
+<span><span class="co">#&gt; tau^2.1    1.5839  1.2585     14     no   sens </span></span>
+<span><span class="co">#&gt; tau^2.2    0.4109  0.6410     14     no   spec </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       rho.sens  rho.spec    sens  spec </span></span>
+<span><span class="co">#&gt; sens         1                 -    14 </span></span>
+<span><span class="co">#&gt; spec   -0.8473         1      no     - </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Residual Heterogeneity:</span></span>
+<span><span class="co">#&gt; QE(df = 26) = 2096.8074, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of Moderators (coefficients 1:2):</span></span>
+<span><span class="co">#&gt; QM(df = 2) = 388.1308, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt; outcomesens    2.1872  0.3620  6.0420  &lt;.0001  1.4777  2.8967  *** </span></span>
+<span><span class="co">#&gt; outcomespec    1.2677  0.1752  7.2378  &lt;.0001  0.9244  1.6110  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">bv</span><span class="op">)</span>, lower <span class="op">=</span> <span class="va">bv</span><span class="op">$</span><span class="va">ci.lb</span>, upper <span class="op">=</span> <span class="va">bv</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               est lower upper</span></span>
+<span><span class="co">#&gt; outcomesens 0.899 0.814 0.948</span></span>
+<span><span class="co">#&gt; outcomespec 0.780 0.716 0.834</span></span></code></pre></div>
+<p><code>random = ~ outcome | study</code> with <code>struct = "UN"</code> gives each study a pair of correlated random effects with separate variances, exactly the <span class="math inline">\(\boldsymbol\Sigma\)</span> of the bivariate model. The summary sensitivity is 0.899 (0.814 to 0.948) and specificity 0.780 (0.716 to 0.834), with between-study standard deviations 1.26 and 0.64 and correlation <span class="math inline">\(-0.85\)</span>. These match <code>reitsma(AuditC, correction.control = "single")</code>, because <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> adds 0.5 only to the studies with a zero cell; the small difference from the default <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code> fit is the effect of correcting every study. The <code>metafor</code> route is useful because it gives access to the full <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv()</a></code> toolkit: profile likelihood plots for the variance components, likelihood-ratio tests, robust variance estimation, and cluster structures (for instance, several thresholds or several index tests nested within the same study). The QE test of residual heterogeneity (<span class="math inline">\(Q_E = 2096.8\)</span> on 26 df) is overwhelmingly significant, as expected.</p>
+<p>The three implementations, side by side:</p>
+<div class="sourceCode" id="cb265"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fit_single</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma</a></span><span class="op">(</span><span class="va">AuditC</span>, correction.control <span class="op">=</span> <span class="st">"single"</span><span class="op">)</span></span>
+<span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="st">"univariate (metafor)"</span>      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_se</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">uni_sp</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"reitsma, correct all"</span>      <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"reitsma, correct single"</span>   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit_single</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"rma.mv bivariate normal"</span>   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">bv</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"glmer bivariate binomial"</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">glmm</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"sensitivity"</span>, <span class="st">"specificity"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">cmp</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                          sensitivity specificity</span></span>
+<span><span class="co">#&gt; univariate (metafor)           0.901       0.782</span></span>
+<span><span class="co">#&gt; reitsma, correct all           0.891       0.780</span></span>
+<span><span class="co">#&gt; reitsma, correct single        0.899       0.780</span></span>
+<span><span class="co">#&gt; rma.mv bivariate normal        0.899       0.780</span></span>
+<span><span class="co">#&gt; glmer bivariate binomial       0.925       0.782</span></span></code></pre></div>
+<p>Specificity is stable across methods at about 0.78. Sensitivity ranges from 0.891 to 0.925, and the ordering is informative: the more aggressive the continuity correction, the lower the summary sensitivity. In a review whose conclusion hinges on whether sensitivity exceeds 0.90, this choice would matter and should be reported as a sensitivity analysis.</p>
+</div>
+<div id="sec-dta-metaregression" class="section level2" number="13.9">
+<h2>
+<span class="header-section-number">13.9</span> Heterogeneity and meta-regression<a class="anchor" aria-label="anchor" href="#sec-dta-metaregression"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-dta-heterogeneity" class="section level3" number="13.9.1">
+<h3>
+<span class="header-section-number">13.9.1</span> Describing heterogeneity<a class="anchor" aria-label="anchor" href="#sec-dta-heterogeneity"><i class="fas fa-link"></i></a>
+</h3>
+<p>Heterogeneity is the rule in DTA reviews, and its sources are often more interesting than the summary point. The recommended descriptions are the paired forest plots, the ROC-space plot with the prediction region, and the estimated between-study standard deviations and correlation <span class="citation">(<a href="sec-references.html#ref-deeks2023cochrane">Deeks et al. 2023</a>)</span>. A meta-analysis that reports a summary sensitivity of 0.89 without saying that the prediction region in Figure <a href="sec-dta.html#fig:dta-sroc-plot">13.2</a> includes sensitivities from about 0.3 to nearly 1 is misleading. Heterogeneity should then be investigated with pre-specified covariates: the threshold, the reference standard, the spectrum of patients, setting, study design, and the QUADAS-2 risk-of-bias domains (Section <a href="sec-dta.html#sec-dta-rob">13.11</a>). The usual caveats of meta-regression apply (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>): few studies, ecological confounding, and multiple testing.</p>
+</div>
+<div id="sec-dta-reitsma-regression" class="section level3" number="13.9.2">
+<h3>
+<span class="header-section-number">13.9.2</span> Meta-regression in the bivariate model<a class="anchor" aria-label="anchor" href="#sec-dta-reitsma-regression"><i class="fas fa-link"></i></a>
+</h3>
+<p>Covariates can enter the bivariate model separately for logit sensitivity and logit specificity. In <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code> they are specified with a formula whose left-hand side is <code>cbind(tsens, tfpr)</code>. We use the <code>smoking</code> data in <code>mada</code>, from a review of the validity of self-reported smoking against biochemical verification <span class="citation">(<a href="sec-references.html#ref-patrick1994validity">Patrick et al. 1994</a>)</span>. The “test” is self-report and the covariate <code>type</code> records whether the questionnaire was interviewer-administered (IAQ) or self-administered (SAQ). Some studies contribute several two-by-two tables (for different subgroups); to keep the observations independent we use the first table from each of the 26 studies.</p>
+<div class="sourceCode" id="cb266"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"smoking"</span>, package <span class="op">=</span> <span class="st">"mada"</span><span class="op">)</span></span>
+<span><span class="va">smk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">smoking</span>, <span class="va">result_id</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">smk</span><span class="op">$</span><span class="va">type</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; IAQ SAQ </span></span>
+<span><span class="co">#&gt;  10  16</span></span>
+<span><span class="va">mr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma</a></span><span class="op">(</span><span class="va">smk</span>, formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">tsens</span>, <span class="va">tfpr</span><span class="op">)</span> <span class="op">~</span> <span class="va">type</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">mr</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Call:  reitsma.default(data = smk, formula = cbind(tsens, tfpr) ~ type)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bivariate diagnostic random-effects meta-analysis</span></span>
+<span><span class="co">#&gt; Estimation method: REML</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Fixed-effects coefficients</span></span>
+<span><span class="co">#&gt;                   Estimate Std. Error       z Pr(&gt;|z|) 95%ci.lb 95%ci.ub    </span></span>
+<span><span class="co">#&gt; tsens.(Intercept)    2.813      0.491   5.735    0.000    1.852    3.775 ***</span></span>
+<span><span class="co">#&gt; tsens.typeSAQ       -1.166      0.634  -1.838    0.066   -2.409    0.077   .</span></span>
+<span><span class="co">#&gt; tfpr.(Intercept)    -3.337      0.311 -10.733    0.000   -3.946   -2.727 ***</span></span>
+<span><span class="co">#&gt; tfpr.typeSAQ         0.882      0.389   2.269    0.023    0.120    1.645   *</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Variance components: between-studies Std. Dev and correlation matrix</span></span>
+<span><span class="co">#&gt;       Std. Dev tsens  tfpr</span></span>
+<span><span class="co">#&gt; tsens    1.508 1.000     .</span></span>
+<span><span class="co">#&gt; tfpr     0.875 0.551 1.000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   logLik      AIC      BIC </span></span>
+<span><span class="co">#&gt;   70.721 -127.441 -113.783 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I2 estimates </span></span>
+<span><span class="co">#&gt; Zhou and Dendukuri approach:  66 % </span></span>
+<span><span class="co">#&gt; Holling sample size unadjusted approaches:  83.7 - 96.8 % </span></span>
+<span><span class="co">#&gt; Holling sample size adjusted approaches:  5.3 - 12.7 %</span></span></code></pre></div>
+<p>Each covariate gets two coefficients, <code>tsens.typeSAQ</code> for logit sensitivity and <code>tfpr.typeSAQ</code> for logit FPR. Relative to interviewer administration, self-administered questionnaires have lower sensitivity (difference <span class="math inline">\(-1.17\)</span> on the logit scale, 95% CI <span class="math inline">\(-2.41\)</span> to <span class="math inline">\(0.08\)</span>) and a higher false positive rate (<span class="math inline">\(+0.88\)</span>, 0.12 to 1.65). The fitted values are easier to read on the probability scale:</p>
+<div class="sourceCode" id="cb267"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">mr</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  IAQ <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>sens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tsens"</span><span class="op">]</span><span class="op">)</span>, spec <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span><span class="fl">1</span>, <span class="st">"tfpr"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  SAQ <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>sens <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span>, <span class="st">"tsens"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>, spec <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Logistic.html">plogis</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">b</span><span class="op">[</span>, <span class="st">"tfpr"</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      sens  spec</span></span>
+<span><span class="co">#&gt; IAQ 0.943 0.966</span></span>
+<span><span class="co">#&gt; SAQ 0.839 0.921</span></span></code></pre></div>
+<p>Interviewer-administered questionnaires have an estimated sensitivity of 0.94 and specificity of 0.97 for detecting biochemically verified smoking, self-administered questionnaires 0.84 and 0.92. A joint test of the covariate uses a likelihood-ratio test between maximum likelihood fits (REML likelihoods are not comparable across models with different fixed effects).</p>
+<div class="sourceCode" id="cb268"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m0_ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma</a></span><span class="op">(</span><span class="va">smk</span>, method <span class="op">=</span> <span class="st">"ml"</span><span class="op">)</span></span>
+<span><span class="va">m1_ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma</a></span><span class="op">(</span><span class="va">smk</span>, formula <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">tsens</span>, <span class="va">tfpr</span><span class="op">)</span> <span class="op">~</span> <span class="va">type</span>, method <span class="op">=</span> <span class="st">"ml"</span><span class="op">)</span></span>
+<span><span class="va">lr</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">m1_ml</span><span class="op">$</span><span class="va">logLik</span> <span class="op">-</span> <span class="va">m0_ml</span><span class="op">$</span><span class="va">logLik</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>LR <span class="op">=</span> <span class="va">lr</span>, df <span class="op">=</span> <span class="fl">2</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Chisquare.html">pchisq</a></span><span class="op">(</span><span class="va">lr</span>, df <span class="op">=</span> <span class="fl">2</span>, lower.tail <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        LR        df         p </span></span>
+<span><span class="co">#&gt; 13.250963  2.000000  0.001326</span></span></code></pre></div>
+<p>The likelihood-ratio statistic is 13.3 on 2 df (<span class="math inline">\(p = 0.001\)</span>), so the mode of administration is associated with accuracy. This is an observational comparison across studies, and IAQ and SAQ studies may differ in population and setting as well as in mode. The same model can be fitted as a GLMM by adding the covariate and its interactions with <code>sens</code> and <code>spec</code> to the <code><a href="https://rdrr.io/pkg/lme4/man/glmer.html">glmer()</a></code> formula, or with <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv()</a></code> using <code>mods = ~ 0 + outcome + outcome:type</code>.</p>
+</div>
+</div>
+<div id="sec-dta-deeks" class="section level2" number="13.10">
+<h2>
+<span class="header-section-number">13.10</span> Small-study effects: Deeks’ funnel plot test<a class="anchor" aria-label="anchor" href="#sec-dta-deeks"><i class="fas fa-link"></i></a>
+</h2>
+<p>Publication bias in DTA research is poorly understood. Accuracy studies are often not registered, and there is no single “positive” result that would drive selective publication in the way a significant treatment effect does. Standard funnel plot tests (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>) based on the DOR and its standard error have badly inflated type I error in DTA, because the standard error of the log DOR depends on the DOR itself and on the threshold. <span class="citation">Deeks et al. (<a href="sec-references.html#ref-deeks2005performance">2005</a>)</span> proposed instead to regress the log DOR on <span class="math inline">\(1/\sqrt{\text{ESS}}\)</span>, where the <em>effective sample size</em> is</p>
+<p><span class="math display">\[
+\text{ESS}_i = \frac{4\, n_{1i}\, n_{0i}}{n_{1i} + n_{0i}},
+\]</span></p>
+<p>weighting by ESS; a slope different from zero indicates funnel plot asymmetry.</p>
+<div class="sourceCode" id="cb269"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n1</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">$</span><span class="va">TP</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">FN</span></span>
+<span><span class="va">n0</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">$</span><span class="va">FP</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">TN</span></span>
+<span><span class="va">ess</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">*</span> <span class="va">n1</span> <span class="op">*</span> <span class="va">n0</span> <span class="op">/</span> <span class="op">(</span><span class="va">n1</span> <span class="op">+</span> <span class="va">n0</span><span class="op">)</span></span>
+<span><span class="va">lndor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="op">(</span><span class="va">cc</span><span class="op">$</span><span class="va">TP</span> <span class="op">*</span> <span class="va">cc</span><span class="op">$</span><span class="va">TN</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">cc</span><span class="op">$</span><span class="va">FP</span> <span class="op">*</span> <span class="va">cc</span><span class="op">$</span><span class="va">FN</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">deeks</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">lndor</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/AsIs.html">I</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">ess</span><span class="op">)</span><span class="op">)</span>, weights <span class="op">=</span> <span class="va">ess</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">deeks</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                Estimate Std. Error t value Pr(&gt;|t|)</span></span>
+<span><span class="co">#&gt; (Intercept)        7.11      1.043   6.818    0.000</span></span>
+<span><span class="co">#&gt; I(1/sqrt(ess))   -59.61     23.313  -2.557    0.025</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">ess</span><span class="op">)</span>, <span class="va">lndor</span>, xlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">ESS</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>     ylab <span class="op">=</span> <span class="st">"log diagnostic odds ratio"</span>, pch <span class="op">=</span> <span class="fl">19</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html">abline</a></span><span class="op">(</span><span class="va">deeks</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:dta-deeks"></span>
+<img src="13-diagnostic-accuracy_files/figure-html/dta-deeks-1.png" alt="Deeks' funnel plot for the AUDIT-C studies: log diagnostic odds ratio against the inverse square root of the effective sample size, with the weighted regression line." width="70%"><p class="caption">
+Figure 13.3: Deeks’ funnel plot for the AUDIT-C studies: log diagnostic odds ratio against the inverse square root of the effective sample size, with the weighted regression line.
+</p>
+</div>
+<p>The slope is <span class="math inline">\(-59.6\)</span> (<span class="math inline">\(p = 0.025\)</span>): there is statistically significant asymmetry, but in the opposite direction from the usual publication-bias pattern. Larger studies (left of Figure <a href="sec-dta.html#fig:dta-deeks">13.3</a>) have <em>larger</em> DORs, driven by the two large studies with no false negatives. Small-study effects in the classical sense would show small studies with inflated accuracy and a positive slope. The likelier explanation here is heterogeneity in threshold and setting that happens to be associated with study size. This illustrates the general point: Deeks’ test has low power with the number of studies typical of DTA reviews, it tests asymmetry rather than publication bias, and asymmetry can arise from many sources <span class="citation">(<a href="sec-references.html#ref-deeks2005performance">Deeks et al. 2005</a>; <a href="sec-references.html#ref-vanenst2014investigation">Enst et al. 2014</a>)</span>. It should be reported, if at all, as a descriptive check with these caveats.</p>
+</div>
+<div id="sec-dta-rob" class="section level2" number="13.11">
+<h2>
+<span class="header-section-number">13.11</span> Risk of bias and reporting<a class="anchor" aria-label="anchor" href="#sec-dta-rob"><i class="fas fa-link"></i></a>
+</h2>
+<p>The validity of a DTA meta-analysis depends on the validity of its primary studies, and DTA studies are prone to characteristic biases. QUADAS-2 <span class="citation">(<a href="sec-references.html#ref-whiting2011quadas2">Whiting et al. 2011</a>)</span> assesses risk of bias in four domains: <em>patient selection</em> (consecutive or random sampling versus case-control designs that compare severe cases with healthy controls, which inflate accuracy), <em>index test</em> (interpretation blinded to the reference standard, pre-specified threshold), <em>reference standard</em> (whether it classifies the target condition correctly and is interpreted blind to the index test), and <em>flow and timing</em> (whether all participants received the same reference standard, at an appropriate interval, and were all included in the analysis). The first three domains are also rated for applicability to the review question. A revised version, QUADAS-3, has since been published <span class="citation">(<a href="sec-references.html#ref-whiting2026quadas3">Whiting et al. 2026</a>)</span>. Risk-of-bias judgements should be displayed, used in sensitivity analyses that exclude high-risk studies, and examined as covariates in meta-regression. Primary DTA studies should be reported following STARD 2015 <span class="citation">(<a href="sec-references.html#ref-bossuyt2015stard">Bossuyt et al. 2015</a>)</span>, whose items cover much of the information that a QUADAS-2 assessment needs.</p>
+<p>The review itself should be reported according to PRISMA-DTA <span class="citation">(<a href="sec-references.html#ref-mcinnes2018preferred">McInnes et al. 2018</a>)</span>, which adapts PRISMA to the specifics of DTA reviews: the definition of the target condition, index test and reference standard; the handling of thresholds; the statistical model (bivariate or HSROC, with software); presentation of study-level sensitivity and specificity in forest plots or ROC space; and summary estimates with confidence and prediction regions. Certainty of evidence for DTA reviews can be rated with GRADE (Chapter <a href="sec-reporting.html#sec-reporting">15</a>), which considers the consequences of false positive and false negative results in the target setting.</p>
+</div>
+<div id="sec-dta-pitfalls" class="section level2" number="13.12">
+<h2>
+<span class="header-section-number">13.12</span> Practical recommendations and common pitfalls<a class="anchor" aria-label="anchor" href="#sec-dta-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p><strong>Use a hierarchical model.</strong> The bivariate model or the equivalent HSROC model is the default <span class="citation">(<a href="sec-references.html#ref-reitsma2005bivariate">Reitsma et al. 2005</a>; <a href="sec-references.html#ref-harbord2006unification">R. M. Harbord et al. 2006</a>; <a href="sec-references.html#ref-deeks2023cochrane">Deeks et al. 2023</a>)</span>. Separate univariate pooling, pooling of likelihood ratios or predictive values, and the Moses-Littenberg method are not appropriate primary analyses.</p>
+<p><strong>Prefer the binomial likelihood when data are sparse.</strong> With zero cells or accuracy near 1, the bivariate GLMM <span class="citation">(<a href="sec-references.html#ref-chu2006bivariate">Chu and Cole 2006</a>)</span> avoids continuity corrections and their bias. When using normal-approximation software, check the continuity correction rule and report a sensitivity analysis.</p>
+<p><strong>Simplify when the model cannot be fitted.</strong> With few studies, the between-study correlation is often estimated at <span class="math inline">\(\pm 1\)</span> or the model fails to converge. Simulation evidence supports falling back to separate univariate random-effects logistic models for sensitivity and specificity, or to an HSROC model without the shape parameter <span class="citation">(<a href="sec-references.html#ref-takwoingi2015performance">Takwoingi et al. 2015</a>)</span>; report which simplification was used.</p>
+<p><strong>Choose the summary that matches the question.</strong> If studies used a common threshold, report the summary operating point with its confidence and prediction regions. If thresholds vary widely, report the SROC curve and avoid quoting a single sensitivity and specificity as though they applied at every threshold. For studies that report accuracy at several thresholds, use models designed for multiple thresholds <span class="citation">(<a href="sec-references.html#ref-steinhauser2016modelling">Steinhauser et al. 2016</a>)</span> rather than picking one per study, which invites selective reporting.</p>
+<p><strong>Report heterogeneity on the probability scale.</strong> State the prediction region, or the range of sensitivities and specificities it implies, alongside the summary point. Avoid a single <span class="math inline">\(I^2\)</span>, whose bivariate versions disagree.</p>
+<p><strong>Translate accuracy into consequences.</strong> Compute predictive values or numbers of true and false positives per 1,000 people tested at realistic prevalences. These depend on prevalence, so present a range.</p>
+<p><strong>Do not over-interpret funnel plots.</strong> Use Deeks’ test, not effect-size funnel plot tests, and treat it as weak, descriptive evidence.</p>
+<p><strong>Comparative accuracy needs comparative designs.</strong> When two tests are compared, studies that applied both tests to the same participants provide much stronger evidence than indirect comparisons across separate sets of studies, for the same reasons discussed for indirect treatment comparisons in Chapter <a href="sec-network.html#sec-network">10</a>.</p>
+</div>
+<div id="sec-dta-takeaways" class="section level2" number="13.13">
+<h2>
+<span class="header-section-number">13.13</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-dta-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Test accuracy is bivariate: sensitivity and specificity trade off through the positivity threshold, which induces a negative between-study correlation between them.</li>
+<li>Separate univariate pooling ignores that correlation, cannot produce joint confidence or prediction regions, and can give misleading summaries when thresholds vary. Likelihood ratios and predictive values should be derived from a joint model, not pooled directly.</li>
+<li>The bivariate random-effects model (Reitsma) and the HSROC model (Rutter-Gatsonis) are equivalent without covariates; the bivariate parameterization targets a summary point, the HSROC parameterization a summary curve.</li>
+<li>The bivariate model can be fitted with <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">mada::reitsma()</a></code>, as a binomial GLMM with <code><a href="https://rdrr.io/pkg/lme4/man/glmer.html">lme4::glmer()</a></code>, or as a bivariate normal model with <code><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">metafor::rma.mv()</a></code>. The GLMM avoids continuity corrections and is preferable with sparse data; in the AUDIT-C example it gave a summary sensitivity of 0.925 versus 0.891 with the default correction in <code><a href="https://rdrr.io/pkg/mada/man/reitsma.html">reitsma()</a></code>.</li>
+<li>Heterogeneity in DTA is usually large. Report between-study standard deviations, the correlation, and the prediction region, and investigate sources with bivariate meta-regression.</li>
+<li>Deeks’ test is the appropriate funnel plot test for DTA, but it has low power and detects asymmetry, not publication bias.</li>
+<li>Assess risk of bias with QUADAS-2 (now QUADAS-3) and report following PRISMA-DTA.</li>
+</ul>
+</div>
+<div id="sec-dta-reading" class="section level2" number="13.14">
+<h2>
+<span class="header-section-number">13.14</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-dta-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p>The Cochrane Handbook for Systematic Reviews of Diagnostic Test Accuracy <span class="citation">(<a href="sec-references.html#ref-deeks2023cochrane">Deeks et al. 2023</a>)</span> is the authoritative guide to the whole review process, from question formulation to presentation of findings. <span class="citation">Leeflang et al. (<a href="sec-references.html#ref-leeflang2008systematic">2008</a>)</span> give a concise introduction for clinical readers. The foundational modelling papers are <span class="citation">Reitsma et al. (<a href="sec-references.html#ref-reitsma2005bivariate">2005</a>)</span>, <span class="citation">Rutter and Gatsonis (<a href="sec-references.html#ref-rutter2001hierarchical">2001</a>)</span>, <span class="citation">R. M. Harbord et al. (<a href="sec-references.html#ref-harbord2006unification">2006</a>)</span> and <span class="citation">Chu and Cole (<a href="sec-references.html#ref-chu2006bivariate">2006</a>)</span>; <span class="citation">Arends et al. (<a href="sec-references.html#ref-arends2008bivariate">2008</a>)</span> discuss the different SROC curves implied by the bivariate model, and <span class="citation">Richard D. Riley et al. (<a href="sec-references.html#ref-riley2007bivariate">2007a</a>)</span> the estimation of the between-study correlation. <span class="citation">Takwoingi et al. (<a href="sec-references.html#ref-takwoingi2015performance">2015</a>)</span> give practical guidance for few studies and sparse data, and <span class="citation">Harbord et al. (<a href="sec-references.html#ref-harbord2008empirical">2008</a>)</span> and <span class="citation">Dinnes et al. (<a href="sec-references.html#ref-dinnes2016moses">2016</a>)</span> document why the Moses-Littenberg method should be retired. The <code>mada</code> approach and its extension to other transformations are described by <span class="citation">Doebler et al. (<a href="sec-references.html#ref-doebler2012mixed">2012</a>)</span>. For thresholds, see <span class="citation">Steinhauser et al. (<a href="sec-references.html#ref-steinhauser2016modelling">2016</a>)</span>; for publication bias, <span class="citation">Deeks et al. (<a href="sec-references.html#ref-deeks2005performance">2005</a>)</span>. Reporting and quality assessment are covered by <span class="citation">Whiting et al. (<a href="sec-references.html#ref-whiting2011quadas2">2011</a>)</span>, <span class="citation">Bossuyt et al. (<a href="sec-references.html#ref-bossuyt2015stard">2015</a>)</span> and <span class="citation">McInnes et al. (<a href="sec-references.html#ref-mcinnes2018preferred">2018</a>)</span>.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></div>
+<div class="next"><a href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dta"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li>
+<a class="nav-link" href="#sec-dta-measures"><span class="header-section-number">13.1</span> Measures of test accuracy</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dta-2x2"><span class="header-section-number">13.1.1</span> The two-by-two table</a></li>
+<li><a class="nav-link" href="#sec-dta-thresholds"><span class="header-section-number">13.1.2</span> Thresholds and the trade-off between sensitivity and specificity</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-dta-example"><span class="header-section-number">13.2</span> The AUDIT-C example</a></li>
+<li><a class="nav-link" href="#sec-dta-univariate"><span class="header-section-number">13.3</span> Why separate pooling is misleading</a></li>
+<li><a class="nav-link" href="#sec-dta-moses"><span class="header-section-number">13.4</span> Historical context: the Moses-Littenberg SROC</a></li>
+<li>
+<a class="nav-link" href="#sec-dta-bivariate"><span class="header-section-number">13.5</span> The bivariate random-effects model</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dta-bivariate-model"><span class="header-section-number">13.5.1</span> Model</a></li>
+<li><a class="nav-link" href="#sec-dta-reitsma"><span class="header-section-number">13.5.2</span> Fitting with mada</a></li>
+<li><a class="nav-link" href="#sec-dta-sroc"><span class="header-section-number">13.5.3</span> Confidence region, prediction region and SROC curve</a></li>
+<li><a class="nav-link" href="#sec-dta-summarypts"><span class="header-section-number">13.5.4</span> Summary likelihood ratios and predictive values</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-dta-hsroc"><span class="header-section-number">13.6</span> The HSROC model and its equivalence to the bivariate model</a></li>
+<li><a class="nav-link" href="#sec-dta-glmm"><span class="header-section-number">13.7</span> The bivariate binomial GLMM</a></li>
+<li><a class="nav-link" href="#sec-dta-metafor"><span class="header-section-number">13.8</span> The bivariate normal model with metafor</a></li>
+<li>
+<a class="nav-link" href="#sec-dta-metaregression"><span class="header-section-number">13.9</span> Heterogeneity and meta-regression</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-dta-heterogeneity"><span class="header-section-number">13.9.1</span> Describing heterogeneity</a></li>
+<li><a class="nav-link" href="#sec-dta-reitsma-regression"><span class="header-section-number">13.9.2</span> Meta-regression in the bivariate model</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-dta-deeks"><span class="header-section-number">13.10</span> Small-study effects: Deeks’ funnel plot test</a></li>
+<li><a class="nav-link" href="#sec-dta-rob"><span class="header-section-number">13.11</span> Risk of bias and reporting</a></li>
+<li><a class="nav-link" href="#sec-dta-pitfalls"><span class="header-section-number">13.12</span> Practical recommendations and common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-dta-takeaways"><span class="header-section-number">13.13</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-dta-reading"><span class="header-section-number">13.14</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/13-diagnostic-accuracy.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/13-diagnostic-accuracy.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

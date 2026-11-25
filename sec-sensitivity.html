@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 8 Sensitivity Analysis and Diagnostics | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 8 Sensitivity Analysis and Diagnostics | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-sensitivity.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 8 Sensitivity Analysis and Diagnostics | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 8 Sensitivity Analysis and Diagnostics | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="active" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-sensitivity" class="section level1" number="8">
+<h1>
+<span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics<a class="anchor" aria-label="anchor" href="#sec-sensitivity"><i class="fas fa-link"></i></a>
+</h1>
+<p>A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do with studies that look unusual. Each decision is defensible, but several are not uniquely determined by the data or the protocol. Sensitivity analysis asks whether the conclusions survive reasonable changes to those decisions; diagnostics ask whether the fitted model describes the data adequately and whether a few studies drive the result. Both are required by reporting guidelines and by common sense: a pooled estimate that flips sign when one study is removed, or that depends on an arbitrary choice of heterogeneity estimator, is not a finding but a fragile coincidence.</p>
+<p>This chapter covers three layers. The first is <em>study-level diagnostics</em>: outlier and influence statistics, leave-one-out analysis, and graphical tools such as Baujat, GOSH, radial, and normal quantile plots. The second is <em>analysis-level sensitivity</em>: cumulative meta-analysis, bootstrap intervals, and sensitivity to the estimator of <span class="math inline">\(\tau^2\)</span>, to risk-of-bias exclusions, and to the effect-size metric. The third is the <em>multiverse</em> or <em>specification-curve</em> approach, which runs all reasonable combinations of choices at once and displays the distribution of results <span class="citation">(<a href="sec-references.html#ref-voracek2019which">Voracek et al. 2019</a>)</span>. Publication bias, a special and important kind of sensitivity analysis, has its own chapter (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>).</p>
+<div id="sec-sensitivity-concepts" class="section level2" number="8.1">
+<h2>
+<span class="header-section-number">8.1</span> Outliers, leverage, and influence<a class="anchor" aria-label="anchor" href="#sec-sensitivity-concepts"><i class="fas fa-link"></i></a>
+</h2>
+<p>Three concepts from regression diagnostics carry over to meta-analysis <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010outlier">Viechtbauer and Cheung 2010</a>)</span>. An <em>outlier</em> is a study whose effect is far from what the model predicts, given its sampling variance and the estimated heterogeneity. <em>Leverage</em> reflects how much a study’s own observed effect determines its fitted value; in an intercept-only random-effects model it is simply the study’s share of the total weight, so large, precise studies have high leverage. An <em>influential</em> study is one whose removal changes the results materially: the pooled estimate, its precision, or the heterogeneity estimate. Outliers need not be influential (a small outlying study may barely move the estimate), and influential studies need not be outliers (a very large study close to the mean can dominate the estimate and its standard error).</p>
+<p>Let <span class="math inline">\(\hat\mu\)</span>, <span class="math inline">\(\hat\tau^2\)</span> be estimates from all <span class="math inline">\(k\)</span> studies and <span class="math inline">\(\hat\mu_{(-i)}\)</span>, <span class="math inline">\(\hat\tau^2_{(-i)}\)</span> the estimates with study <span class="math inline">\(i\)</span> removed. The main case-deletion statistics are as follows.</p>
+<ul>
+<li>The <em>studentized deleted residual</em>
+<span class="math display">\[
+t_i = \frac{y_i - \hat\mu_{(-i)}}{\sqrt{v_i + \hat\tau^2_{(-i)} + \widehat{\mathrm{Var}}(\hat\mu_{(-i)})}},
+\]</span>
+which is approximately standard normal if the model is correct and study <span class="math inline">\(i\)</span> is not an outlier.</li>
+<li>
+<em>DFFITS</em>, the standardised change in the fitted value of study <span class="math inline">\(i\)</span> when it is deleted, and <em>DFBETAS</em>, the standardised change in each coefficient.</li>
+<li>
+<em>Cook’s distance</em> <span class="math inline">\(D_i = (\hat{\boldsymbol\beta} - \hat{\boldsymbol\beta}_{(-i)})^\top \widehat{\mathrm{Var}}(\hat{\boldsymbol\beta})^{-1} (\hat{\boldsymbol\beta} - \hat{\boldsymbol\beta}_{(-i)})\)</span>, a Mahalanobis distance between the full and leave-one-out estimates.</li>
+<li>The <em>covariance ratio</em> <span class="math inline">\(\det \widehat{\mathrm{Var}}(\hat{\boldsymbol\beta}_{(-i)}) / \det \widehat{\mathrm{Var}}(\hat{\boldsymbol\beta})\)</span>; values below 1 mean that deleting the study <em>improves</em> precision, typically because it inflates <span class="math inline">\(\hat\tau^2\)</span>.</li>
+<li>The leave-one-out heterogeneity estimate <span class="math inline">\(\hat\tau^2_{(-i)}\)</span> and test statistic <span class="math inline">\(Q_{E(-i)}\)</span>, which show how much of the heterogeneity a single study generates.</li>
+<li>The <em>hat value</em> <span class="math inline">\(h_i\)</span> (leverage) and the study’s weight in the analysis.</li>
+</ul>
+<p>These statistics were adapted to random- and mixed-effects meta-analysis by <span class="citation">Viechtbauer and Cheung (<a href="sec-references.html#ref-viechtbauer2010outlier">2010</a>)</span>, and are computed by <code><a href="https://rdrr.io/r/stats/lm.influence.html">influence()</a></code> in <code>metafor</code>. Cook’s distance originates in linear regression <span class="citation">(<a href="sec-references.html#ref-cook1977detection">Cook 1977</a>)</span>.</p>
+</div>
+<div id="sec-sensitivity-influence" class="section level2" number="8.2">
+<h2>
+<span class="header-section-number">8.2</span> Diagnostics in practice: teacher expectancy<a class="anchor" aria-label="anchor" href="#sec-sensitivity-influence"><i class="fas fa-link"></i></a>
+</h2>
+<p>The data in <code>dat.raudenbush1985</code> are 19 experiments on the effect of teacher expectancy on pupil IQ, expressed as standardised mean differences. A key moderator is the number of weeks of contact between teacher and pupils before the expectancy induction (<code>weeks</code>).</p>
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dr</span> <span class="op">&lt;-</span> <span class="va">dat.raudenbush1985</span></span>
+<span><span class="va">dr</span><span class="op">$</span><span class="va">slab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">dr</span><span class="op">$</span><span class="va">author</span>, <span class="st">" ("</span>, <span class="va">dr</span><span class="op">$</span><span class="va">year</span>, <span class="st">")"</span><span class="op">)</span></span>
+<span><span class="va">res_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dr</span>, slab <span class="op">=</span> <span class="va">slab</span><span class="op">)</span></span>
+<span><span class="va">res_te</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 19; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.0188 (SE = 0.0155)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.1372</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   41.86%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  1.72</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 18) = 35.8295, p-val = 0.0074</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval    ci.lb   ci.ub    </span></span>
+<span><span class="co">#&gt;   0.0837  0.0516  1.6208  0.1051  -0.0175  0.1849    </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The random-effects estimate is <span class="math inline">\(\hat\mu =\)</span> 0.084 (95% CI -0.018 to 0.185) with moderate heterogeneity, <span class="math inline">\(\hat\tau^2 =\)</span> 0.0188 and <span class="math inline">\(I^2 =\)</span> 41.9%.</p>
+<div id="sec-sensitivity-casedeletion" class="section level3" number="8.2.1">
+<h3>
+<span class="header-section-number">8.2.1</span> Case-deletion diagnostics<a class="anchor" aria-label="anchor" href="#sec-sensitivity-casedeletion"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">inf_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.influence.html">influence</a></span><span class="op">(</span><span class="va">res_te</span><span class="op">)</span></span>
+<span><span class="va">inf_te</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                             rstudent  dffits cook.d  cov.r tau2.del  QE.del </span></span>
+<span><span class="co">#&gt; Rosenthal et al. (1974)      -0.3027 -0.1996 0.0497 1.2974   0.0274 35.7649 </span></span>
+<span><span class="co">#&gt; Conn et al. (1968)            0.1464 -0.0597 0.0042 1.2449   0.0257 35.6541 </span></span>
+<span><span class="co">#&gt; Jose &amp; Cody (1971)           -1.0529 -0.2897 0.0872 1.1073   0.0207 34.3186 </span></span>
+<span><span class="co">#&gt; Pellegrini &amp; Hicks (1972).1   2.9068  0.5210 0.2528 0.7374   0.0080 26.7305 </span></span>
+<span><span class="co">#&gt; Pellegrini &amp; Hicks (1972).2   0.4480  0.0434 0.0019 1.0428   0.0199 35.5340 </span></span>
+<span><span class="co">#&gt; Evans &amp; Rosenthal (1969)     -0.8344 -0.3228 0.1214 1.2216   0.0237 34.2667 </span></span>
+<span><span class="co">#&gt; Fielder et al. (1971)        -0.5958 -0.2795 0.0984 1.2896   0.0265 35.1328 </span></span>
+<span><span class="co">#&gt; Claiborn (1969)              -1.6114 -0.2699 0.0699 0.9712   0.0161 32.7559 </span></span>
+<span><span class="co">#&gt; Kester (1969)                 0.9124  0.2443 0.0583 1.0354   0.0178 34.1109 </span></span>
+<span><span class="co">#&gt; Maxwell (1970)                2.9033  0.7873 0.4972 0.5927   0.0026 26.9588 </span></span>
+<span><span class="co">#&gt; Carter (1970)                 1.4290  0.2834 0.0774 0.9231   0.0148 33.2697 </span></span>
+<span><span class="co">#&gt; Flowers (1966)                0.3566  0.0230 0.0006 1.1220   0.0221 35.5336 </span></span>
+<span><span class="co">#&gt; Keshock (1970)               -0.3321 -0.1085 0.0121 1.1080   0.0221 35.7509 </span></span>
+<span><span class="co">#&gt; Henrikson (1970)              0.4540  0.0487 0.0024 1.0682   0.0205 35.4819 </span></span>
+<span><span class="co">#&gt; Fine (1972)                  -1.3078 -0.3103 0.0937 1.0333   0.0176 33.4192 </span></span>
+<span><span class="co">#&gt; Grieger (1970)               -0.6690 -0.2429 0.0655 1.1903   0.0240 35.2843 </span></span>
+<span><span class="co">#&gt; Rosenthal &amp; Jacobson (1968)   1.3707  0.5818 0.2583 0.8341   0.0098 32.6340 </span></span>
+<span><span class="co">#&gt; Fleming &amp; Anttonen (1971)    -0.1159 -0.1637 0.0368 1.3590   0.0291 35.8171 </span></span>
+<span><span class="co">#&gt; Ginsburg (1970)              -0.6984 -0.2416 0.0640 1.1779   0.0236 35.2429 </span></span>
+<span><span class="co">#&gt;                                hat weight    dfbs inf </span></span>
+<span><span class="co">#&gt; Rosenthal et al. (1974)     0.0775 7.7478 -0.2035     </span></span>
+<span><span class="co">#&gt; Conn et al. (1968)          0.0660 6.5979 -0.0599     </span></span>
+<span><span class="co">#&gt; Jose &amp; Cody (1971)          0.0571 5.7083 -0.2891     </span></span>
+<span><span class="co">#&gt; Pellegrini &amp; Hicks (1972).1 0.0169 1.6889  0.5895     </span></span>
+<span><span class="co">#&gt; Pellegrini &amp; Hicks (1972).2 0.0172 1.7205  0.0431     </span></span>
+<span><span class="co">#&gt; Evans &amp; Rosenthal (1969)    0.0906 9.0642 -0.3299     </span></span>
+<span><span class="co">#&gt; Fielder et al. (1971)       0.0906 9.0642 -0.2888     </span></span>
+<span><span class="co">#&gt; Claiborn (1969)             0.0397 3.9676 -0.2736     </span></span>
+<span><span class="co">#&gt; Kester (1969)               0.0583 5.8331  0.2446     </span></span>
+<span><span class="co">#&gt; Maxwell (1970)              0.0326 3.2597  0.9268   * </span></span>
+<span><span class="co">#&gt; Carter (1970)               0.0242 2.4242  0.2929     </span></span>
+<span><span class="co">#&gt; Flowers (1966)              0.0389 3.8923  0.0227     </span></span>
+<span><span class="co">#&gt; Keshock (1970)              0.0261 2.6066 -0.1061     </span></span>
+<span><span class="co">#&gt; Henrikson (1970)            0.0259 2.5914  0.0481     </span></span>
+<span><span class="co">#&gt; Fine (1972)                 0.0604 6.0446 -0.3106     </span></span>
+<span><span class="co">#&gt; Grieger (1970)              0.0571 5.7083 -0.2416     </span></span>
+<span><span class="co">#&gt; Rosenthal &amp; Jacobson (1968) 0.0700 6.9959  0.5773     </span></span>
+<span><span class="co">#&gt; Fleming &amp; Anttonen (1971)   0.0965 9.6548 -0.1722     </span></span>
+<span><span class="co">#&gt; Ginsburg (1970)             0.0543 5.4294 -0.2399</span></span></code></pre></div>
+<p><code>metafor</code> marks a study as influential (asterisk in the last column) if at least one of the following holds: <span class="math inline">\(|\text{DFFITS}| &gt; 3\sqrt{p/(k-p)}\)</span>, the Cook’s distance exceeds the median of a <span class="math inline">\(\chi^2_p\)</span> distribution, the hat value exceeds <span class="math inline">\(3p/k\)</span>, or any <span class="math inline">\(|\text{DFBETAS}| &gt; 1\)</span>. These thresholds are heuristics, not tests. Only Maxwell (1970) is flagged. Its studentized deleted residual is 2.90, its Cook’s distance 0.497, and its covariance ratio 0.593, the smallest in the data. Without it, <span class="math inline">\(\hat\tau^2\)</span> would drop from 0.0188 to 0.0026 and <span class="math inline">\(Q_E\)</span> from 35.83 to 26.96. A second study, the first Pellegrini and Hicks (1972) experiment, has a similarly large residual (2.91) but receives so little weight (1.7%) that it is not flagged as influential. Figure <a href="sec-sensitivity.html#fig:sens-influence-plot">8.1</a> displays all statistics at once.</p>
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">inf_te</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-influence-plot"></span>
+<img src="08-sensitivity_files/figure-html/sens-influence-plot-1.png" alt="Outlier and influence diagnostics for the teacher-expectancy meta-analysis: studentized deleted residuals, DFFITS, Cook's distances, covariance ratios, leave-one-out $\tau^2$ and $Q_E$, hat values, and weights. Study 10 (Maxwell, 1970) is highlighted as influential." width="100%"><p class="caption">
+Figure 8.1: Outlier and influence diagnostics for the teacher-expectancy meta-analysis: studentized deleted residuals, DFFITS, Cook’s distances, covariance ratios, leave-one-out <span class="math inline">\(\tau^2\)</span> and <span class="math inline">\(Q_E\)</span>, hat values, and weights. Study 10 (Maxwell, 1970) is highlighted as influential.
+</p>
+</div>
+</div>
+<div id="sec-sensitivity-leave1out" class="section level3" number="8.2.2">
+<h3>
+<span class="header-section-number">8.2.2</span> Leave-one-out analysis<a class="anchor" aria-label="anchor" href="#sec-sensitivity-leave1out"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://wviechtb.github.io/metafor/reference/leave1out.html">leave1out()</a></code> refits the model <span class="math inline">\(k\)</span> times, each time omitting one study, and reports the full set of results. It answers the practical question directly: does any single study change the conclusion?</p>
+<div class="sourceCode" id="cb143"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">l1o</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/leave1out.html">leave1out</a></span><span class="op">(</span><span class="va">res_te</span><span class="op">)</span></span>
+<span><span class="va">l1o</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                              estimate     se   zval   pval   ci.lb  ci.ub </span></span>
+<span><span class="co">#&gt; -Rosenthal et al. (1974)       0.0952 0.0588 1.6187 0.1055 -0.0201 0.2105 </span></span>
+<span><span class="co">#&gt; -Conn et al. (1968)            0.0870 0.0576 1.5105 0.1309 -0.0259 0.2000 </span></span>
+<span><span class="co">#&gt; -Jose &amp; Cody (1971)            0.0990 0.0543 1.8209 0.0686 -0.0076 0.2055 </span></span>
+<span><span class="co">#&gt; -Pellegrini &amp; Hicks (1972).1   0.0577 0.0443 1.3019 0.1929 -0.0292 0.1447 </span></span>
+<span><span class="co">#&gt; -Pellegrini &amp; Hicks (1972).2   0.0815 0.0527 1.5445 0.1225 -0.0219 0.1848 </span></span>
+<span><span class="co">#&gt; -Evans &amp; Rosenthal (1969)      0.1017 0.0571 1.7818 0.0748 -0.0102 0.2136 </span></span>
+<span><span class="co">#&gt; -Fielder et al. (1971)         0.0999 0.0586 1.7035 0.0885 -0.0150 0.2149 </span></span>
+<span><span class="co">#&gt; -Claiborn (1969)               0.0974 0.0509 1.9129 0.0558 -0.0024 0.1971 </span></span>
+<span><span class="co">#&gt; -Kester (1969)                 0.0712 0.0526 1.3555 0.1752 -0.0318 0.1742 </span></span>
+<span><span class="co">#&gt; -Maxwell (1970)                0.0473 0.0398 1.1895 0.2343 -0.0306 0.1252 </span></span>
+<span><span class="co">#&gt; -Carter (1970)                 0.0693 0.0496 1.3974 0.1623 -0.0279 0.1666 </span></span>
+<span><span class="co">#&gt; -Flowers (1966)                0.0825 0.0547 1.5079 0.1316 -0.0247 0.1897 </span></span>
+<span><span class="co">#&gt; -Keshock (1970)                0.0894 0.0544 1.6445 0.1001 -0.0171 0.1959 </span></span>
+<span><span class="co">#&gt; -Henrikson (1970)              0.0812 0.0534 1.5207 0.1283 -0.0234 0.1858 </span></span>
+<span><span class="co">#&gt; -Fine (1972)                   0.0995 0.0525 1.8955 0.0580 -0.0034 0.2024 </span></span>
+<span><span class="co">#&gt; -Grieger (1970)                0.0969 0.0563 1.7202 0.0854 -0.0135 0.2074 </span></span>
+<span><span class="co">#&gt; -Rosenthal &amp; Jacobson (1968)   0.0575 0.0472 1.2183 0.2231 -0.0350 0.1499 </span></span>
+<span><span class="co">#&gt; -Fleming &amp; Anttonen (1971)     0.0936 0.0602 1.5548 0.1200 -0.0244 0.2116 </span></span>
+<span><span class="co">#&gt; -Ginsburg (1970)               0.0968 0.0561 1.7266 0.0842 -0.0131 0.2066 </span></span>
+<span><span class="co">#&gt;                                    Q     Qp   tau2      I2     H2 </span></span>
+<span><span class="co">#&gt; -Rosenthal et al. (1974)     35.7649 0.0049 0.0274 50.1126 2.0045 </span></span>
+<span><span class="co">#&gt; -Conn et al. (1968)          35.6541 0.0051 0.0257 49.2489 1.9704 </span></span>
+<span><span class="co">#&gt; -Jose &amp; Cody (1971)          34.3186 0.0076 0.0207 44.1704 1.7912 </span></span>
+<span><span class="co">#&gt; -Pellegrini &amp; Hicks (1972).1 26.7305 0.0621 0.0080 24.2415 1.3200 </span></span>
+<span><span class="co">#&gt; -Pellegrini &amp; Hicks (1972).2 35.5340 0.0053 0.0199 44.2737 1.7945 </span></span>
+<span><span class="co">#&gt; -Evans &amp; Rosenthal (1969)    34.2667 0.0078 0.0237 45.4746 1.8340 </span></span>
+<span><span class="co">#&gt; -Fielder et al. (1971)       35.1328 0.0060 0.0265 48.2254 1.9315 </span></span>
+<span><span class="co">#&gt; -Claiborn (1969)             32.7559 0.0121 0.0161 38.6888 1.6310 </span></span>
+<span><span class="co">#&gt; -Kester (1969)               34.1109 0.0081 0.0178 40.4821 1.6802 </span></span>
+<span><span class="co">#&gt; -Maxwell (1970)              26.9588 0.0587 0.0026  9.4217 1.1040 </span></span>
+<span><span class="co">#&gt; -Carter (1970)               33.2697 0.0104 0.0148 37.0930 1.5896 </span></span>
+<span><span class="co">#&gt; -Flowers (1966)              35.5336 0.0053 0.0221 46.3956 1.8655 </span></span>
+<span><span class="co">#&gt; -Keshock (1970)              35.7509 0.0050 0.0221 46.7450 1.8778 </span></span>
+<span><span class="co">#&gt; -Henrikson (1970)            35.4819 0.0054 0.0205 44.8840 1.8144 </span></span>
+<span><span class="co">#&gt; -Fine (1972)                 33.4192 0.0100 0.0176 40.1649 1.6713 </span></span>
+<span><span class="co">#&gt; -Grieger (1970)              35.2843 0.0057 0.0240 47.8434 1.9173 </span></span>
+<span><span class="co">#&gt; -Rosenthal &amp; Jacobson (1968) 32.6340 0.0125 0.0098 26.7888 1.3659 </span></span>
+<span><span class="co">#&gt; -Fleming &amp; Anttonen (1971)   35.8171 0.0049 0.0291 49.9547 1.9982 </span></span>
+<span><span class="co">#&gt; -Ginsburg (1970)             35.2429 0.0058 0.0236 47.5656 1.9071</span></span></code></pre></div>
+<p>The pooled estimate ranges from 0.047 (without Maxwell) to 0.102, and none of the leave-one-out confidence intervals excludes zero, so the qualitative conclusion is stable. The heterogeneity is not: without Maxwell, <span class="math inline">\(I^2\)</span> falls to 9.4% and the <span class="math inline">\(Q\)</span> test is no longer significant at the 5% level (<span class="math inline">\(p\)</span> = .059). Removing the first Pellegrini and Hicks experiment instead has a smaller effect in the same direction (<span class="math inline">\(I^2 =\)</span> 24.2%, <span class="math inline">\(p\)</span> = .062). A large share of the apparent heterogeneity in this literature is attributable to one or two small studies.</p>
+</div>
+<div id="sec-sensitivity-baujat" class="section level3" number="8.2.3">
+<h3>
+<span class="header-section-number">8.2.3</span> Baujat plot<a class="anchor" aria-label="anchor" href="#sec-sensitivity-baujat"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Baujat et al. (<a href="sec-references.html#ref-baujat2002graphical">2002</a>)</span> proposed plotting, for each study, its contribution to the overall heterogeneity statistic <span class="math inline">\(Q\)</span> (horizontal axis) against its influence on the pooled result (vertical axis, the squared standardised change in the estimate when the study is removed). Studies in the upper right both create heterogeneity and move the result (Figure <a href="sec-sensitivity.html#fig:sens-baujat">8.2</a>).</p>
+<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/baujat.html">baujat</a></span><span class="op">(</span><span class="va">res_te</span>, symbol <span class="op">=</span> <span class="st">"ids"</span>, bty <span class="op">=</span> <span class="st">"l"</span>, las <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-baujat"></span>
+<img src="08-sensitivity_files/figure-html/sens-baujat-1.png" alt="Baujat plot for the teacher-expectancy data: contribution of each study to the $Q$ statistic against its influence on the pooled estimate. Points are labelled by study number." width="85%"><p class="caption">
+Figure 8.2: Baujat plot for the teacher-expectancy data: contribution of each study to the <span class="math inline">\(Q\)</span> statistic against its influence on the pooled estimate. Points are labelled by study number.
+</p>
+</div>
+<p>Studies 4 (Pellegrini and Hicks, first experiment) and 10 (Maxwell) contribute most to <span class="math inline">\(Q\)</span>, but only study 10 also has a large influence on the overall estimate.</p>
+</div>
+<div id="sec-sensitivity-gosh" class="section level3" number="8.2.4">
+<h3>
+<span class="header-section-number">8.2.4</span> GOSH plot<a class="anchor" aria-label="anchor" href="#sec-sensitivity-gosh"><i class="fas fa-link"></i></a>
+</h3>
+<p>The graphical display of study heterogeneity (GOSH) of <span class="citation">Olkin et al. (<a href="sec-references.html#ref-olkin2012gosh">2012</a>)</span> fits the model to every subset of the studies and plots a summary of heterogeneity (<span class="math inline">\(I^2\)</span>) against the pooled estimate for each subset. Clusters in the plot reveal subsets of studies that are internally homogeneous but differ from each other; a study that splits the cloud into two separate groups depending on whether it is included is a candidate outlier. With <span class="math inline">\(k\)</span> studies there are <span class="math inline">\(2^k - 1\)</span> subsets: <span class="math inline">\(524{,}287\)</span> for <span class="math inline">\(k = 19\)</span>. A random sample of subsets is enough for visualisation, and fitting with the non-iterative DerSimonian–Laird estimator keeps the computation to a second or two.</p>
+<div class="sourceCode" id="cb145"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_te_dl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dr</span>, method <span class="op">=</span> <span class="st">"DL"</span><span class="op">)</span></span>
+<span><span class="va">gosh_te</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/gosh.html">gosh</a></span><span class="op">(</span><span class="va">res_te_dl</span>, subsets <span class="op">=</span> <span class="fl">10000</span>, seed <span class="op">=</span> <span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">gosh_te</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model fits attempted: 10000</span></span>
+<span><span class="co">#&gt; Model fits succeeded: 10000</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;             mean     min      q1  median      q3     max </span></span>
+<span><span class="co">#&gt; k         9.5025  2.0000  8.0000  9.0000 11.0000 16.0000 </span></span>
+<span><span class="co">#&gt; QE       17.2163  0.3000 12.3563 17.2925 22.0525 35.5284 </span></span>
+<span><span class="co">#&gt; I2       44.7322  0.0000 36.0125 50.9390 59.8869 86.2216 </span></span>
+<span><span class="co">#&gt; H2        2.0314  0.0822  1.5628  2.0383  2.4929  7.2578 </span></span>
+<span><span class="co">#&gt; tau2      0.0315  0.0000  0.0147  0.0284  0.0438  0.3312 </span></span>
+<span><span class="co">#&gt;                                                          </span></span>
+<span><span class="co">#&gt; tau       0.1590  0.0000  0.1212  0.1685  0.2094  0.5755 </span></span>
+<span><span class="co">#&gt; estimate  0.1000 -0.1336  0.0522  0.0925  0.1402  0.7537</span></span></code></pre></div>
+<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">gosh_te</span>, out <span class="op">=</span> <span class="fl">10</span>, breaks <span class="op">=</span> <span class="fl">50</span>, cex <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-gosh-plot"></span>
+<img src="08-sensitivity_files/figure-html/sens-gosh-plot-1.png" alt="GOSH plot for the teacher-expectancy data based on 10,000 random subsets. Subsets containing study 10 (Maxwell, 1970) are shown in red and subsets without it in blue; marginal histograms show the distributions of $I^2$ and the pooled estimate." width="85%"><p class="caption">
+Figure 8.3: GOSH plot for the teacher-expectancy data based on 10,000 random subsets. Subsets containing study 10 (Maxwell, 1970) are shown in red and subsets without it in blue; marginal histograms show the distributions of <span class="math inline">\(I^2\)</span> and the pooled estimate.
+</p>
+</div>
+<p>The subsets that include Maxwell (red) form a cloud shifted towards higher estimates and higher heterogeneity: on average, subsets with the study have a pooled estimate of 0.133 and <span class="math inline">\(I^2\)</span> of 56.8%, compared with 0.067 and 32.6% without it. GOSH plots confirm visually what the case-deletion statistics found, and they are especially useful when two or more studies are jointly unusual, a pattern that one-at-a-time deletion can miss.</p>
+</div>
+<div id="sec-sensitivity-radial-qq" class="section level3" number="8.2.5">
+<h3>
+<span class="header-section-number">8.2.5</span> Radial and normal quantile plots<a class="anchor" aria-label="anchor" href="#sec-sensitivity-radial-qq"><i class="fas fa-link"></i></a>
+</h3>
+<p>The radial (Galbraith) plot <span class="citation">(<a href="sec-references.html#ref-galbraith1988note">Galbraith 1988</a>)</span> plots the standardised effect <span class="math inline">\(y_i/\sqrt{v_i + \hat\tau^2}\)</span> against precision <span class="math inline">\(1/\sqrt{v_i + \hat\tau^2}\)</span>. Under the model, points scatter around a line through the origin whose slope is <span class="math inline">\(\hat\mu\)</span>, and about 95% should lie within <span class="math inline">\(\pm 2\)</span> of it. The normal quantile–quantile plot of standardised residuals checks the normality assumption for the random effects and residuals, with a pseudo-confidence envelope obtained by simulation (Figures <a href="sec-sensitivity.html#fig:sens-radial">8.4</a> and <a href="sec-sensitivity.html#fig:sens-qq">8.5</a>).</p>
+<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/radial.html">radial</a></span><span class="op">(</span><span class="va">res_te</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-radial"></span>
+<img src="08-sensitivity_files/figure-html/sens-radial-1.png" alt="Radial (Galbraith) plot for the teacher-expectancy random-effects model. The shaded band marks $\pm 2$ around the line whose slope is the pooled estimate; the arc on the right translates slopes into effect sizes." width="85%"><p class="caption">
+Figure 8.4: Radial (Galbraith) plot for the teacher-expectancy random-effects model. The shaded band marks <span class="math inline">\(\pm 2\)</span> around the line whose slope is the pooled estimate; the arc on the right translates slopes into effect sizes.
+</p>
+</div>
+<div class="sourceCode" id="cb148"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html">qqnorm</a></span><span class="op">(</span><span class="va">res_te</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-qq"></span>
+<img src="08-sensitivity_files/figure-html/sens-qq-1.png" alt="Normal quantile-quantile plot of the standardised residuals of the teacher-expectancy random-effects model with a simulated 95% envelope." width="65%"><p class="caption">
+Figure 8.5: Normal quantile-quantile plot of the standardised residuals of the teacher-expectancy random-effects model with a simulated 95% envelope.
+</p>
+</div>
+<p>In the radial plot, two small studies lie outside the <span class="math inline">\(\pm 2\)</span> band on the upper side; in the QQ plot the largest residuals (Maxwell and Pellegrini and Hicks) lie at or beyond the upper edge of the envelope, a mild right skew that is consistent with the influence diagnostics. With 19 studies, normality checks have little power; their main value is to spot gross departures.</p>
+</div>
+</div>
+<div id="sec-sensitivity-cumulative" class="section level2" number="8.3">
+<h2>
+<span class="header-section-number">8.3</span> Cumulative meta-analysis<a class="anchor" aria-label="anchor" href="#sec-sensitivity-cumulative"><i class="fas fa-link"></i></a>
+</h2>
+<p>A cumulative meta-analysis adds studies one at a time in a meaningful order, usually publication date, and re-estimates the model at each step <span class="citation">(<a href="sec-references.html#ref-lau1992cumulative">Lau et al. 1992</a>)</span>. It shows when the evidence became convincing, whether early studies overstated the effect (a “decline effect”), and whether later, typically larger studies changed the picture. We return to the 13 BCG vaccine trials of Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>, whose effects are known to vary systematically.</p>
+<div class="sourceCode" id="cb149"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>              slab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">author</span>, <span class="st">", "</span>, <span class="va">year</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">cum</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/cumul.html">cumul</a></span><span class="op">(</span><span class="va">res</span>, order <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">year</span><span class="op">)</span></span>
+<span><span class="va">cum</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                             k estimate     se    zval   pval   ci.lb   ci.ub </span></span>
+<span><span class="co">#&gt; Aronson, 1948               1  -0.8893 0.5706 -1.5586 0.1191 -2.0077  0.2290 </span></span>
+<span><span class="co">#&gt; Ferguson &amp; Simes, 1949      2  -1.3250 0.3490 -3.7967 0.0001 -2.0090 -0.6410 </span></span>
+<span><span class="co">#&gt; Stein &amp; Aronson, 1953       3  -0.9721 0.2455 -3.9602 0.0001 -1.4532 -0.4910 </span></span>
+<span><span class="co">#&gt; Rosenthal et al, 1960       4  -1.0011 0.2223 -4.5037 0.0000 -1.4368 -0.5654 </span></span>
+<span><span class="co">#&gt; Rosenthal et al, 1961       5  -1.1014 0.1997 -5.5164 0.0000 -1.4928 -0.7101 </span></span>
+<span><span class="co">#&gt; Coetzee &amp; Berjak, 1968      6  -0.9735 0.1877 -5.1875 0.0000 -1.3413 -0.6057 </span></span>
+<span><span class="co">#&gt; Comstock &amp; Webster, 1969    7  -0.9013 0.1907 -4.7250 0.0000 -1.2751 -0.5274 </span></span>
+<span><span class="co">#&gt; Frimodt-Moller et al, 1973  8  -0.7886 0.1970 -4.0039 0.0001 -1.1746 -0.4025 </span></span>
+<span><span class="co">#&gt; Vandiviere et al, 1973      9  -0.8656 0.1963 -4.4107 0.0000 -1.2503 -0.4810 </span></span>
+<span><span class="co">#&gt; Comstock et al, 1974       10  -0.7852 0.1801 -4.3588 0.0000 -1.1383 -0.4321 </span></span>
+<span><span class="co">#&gt; Comstock et al, 1976       11  -0.7082 0.1784 -3.9701 0.0001 -1.0578 -0.3586 </span></span>
+<span><span class="co">#&gt; Hart &amp; Sutherland, 1977    12  -0.7948 0.1799 -4.4184 0.0000 -1.1473 -0.4422 </span></span>
+<span><span class="co">#&gt; TPT Madras, 1980           13  -0.7145 0.1798 -3.9744 0.0001 -1.0669 -0.3622 </span></span>
+<span><span class="co">#&gt;                                   Q     Qp   tau2      I2      H2 </span></span>
+<span><span class="co">#&gt; Aronson, 1948                0.0000 1.0000 0.0000  0.0000  1.0000 </span></span>
+<span><span class="co">#&gt; Ferguson &amp; Simes, 1949       0.9315 0.3345 0.0000  0.0000  1.0000 </span></span>
+<span><span class="co">#&gt; Stein &amp; Aronson, 1953        3.1879 0.2031 0.0872 40.7090  1.6866 </span></span>
+<span><span class="co">#&gt; Rosenthal et al, 1960        3.8614 0.2768 0.0763 33.9750  1.5146 </span></span>
+<span><span class="co">#&gt; Rosenthal et al, 1961        7.6415 0.1056 0.0858 48.4120  1.9384 </span></span>
+<span><span class="co">#&gt; Coetzee &amp; Berjak, 1968      10.1854 0.0702 0.1046 60.0008  2.5000 </span></span>
+<span><span class="co">#&gt; Comstock &amp; Webster, 1969    13.2116 0.0398 0.1205 59.9982  2.4999 </span></span>
+<span><span class="co">#&gt; Frimodt-Moller et al, 1973  19.5749 0.0066 0.1780 72.3904  3.6219 </span></span>
+<span><span class="co">#&gt; Vandiviere et al, 1973      22.8208 0.0036 0.2023 73.5065  3.7745 </span></span>
+<span><span class="co">#&gt; Comstock et al, 1974        34.1203 0.0001 0.2005 81.4029  5.3772 </span></span>
+<span><span class="co">#&gt; Comstock et al, 1976        39.6122 0.0000 0.2281 83.0110  5.8862 </span></span>
+<span><span class="co">#&gt; Hart &amp; Sutherland, 1977     67.9858 0.0000 0.2732 87.0314  7.7109 </span></span>
+<span><span class="co">#&gt; TPT Madras, 1980           152.2330 0.0000 0.3132 92.2214 12.8558</span></span></code></pre></div>
+<div class="sourceCode" id="cb150"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://fbartos.github.io/RoBMA/reference/forest.html">forest</a></span><span class="op">(</span><span class="va">cum</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">2.5</span><span class="op">)</span>, atransf <span class="op">=</span> <span class="va">exp</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       header <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Trials added (in order of publication)"</span>, <span class="st">"Risk ratio [95% CI]"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-cumul-forest"></span>
+<img src="08-sensitivity_files/figure-html/sens-cumul-forest-1.png" alt="Cumulative meta-analysis of the BCG trials ordered by publication year. Each row shows the random-effects estimate (risk ratio) based on all trials up to and including the one named." width="100%"><p class="caption">
+Figure 8.6: Cumulative meta-analysis of the BCG trials ordered by publication year. Each row shows the random-effects estimate (risk ratio) based on all trials up to and including the one named.
+</p>
+</div>
+<p>By the third trial (1953), the cumulative risk ratio was 0.38 and already clearly below 1. It drifted towards the null as later trials were added, reaching 0.49 after the large 1980 Madras trial, while <span class="math inline">\(\hat\tau^2\)</span> grew from 0.087 to 0.313 and <span class="math inline">\(I^2\)</span> from 41% to 92%. The early trials were not wrong about the existence of a protective effect, but they overstated its size and hid how variable it would prove to be. Ordering by a moderator rather than time (for the BCG trials, absolute latitude) turns the cumulative plot into an informal moderator analysis. Note that cumulative meta-analysis involves repeated looks at accumulating data; if it is used to decide when to stop doing trials, the multiplicity of tests must be handled formally.</p>
+</div>
+<div id="sec-sensitivity-labbe" class="section level2" number="8.4">
+<h2>
+<span class="header-section-number">8.4</span> L’Abbé plot<a class="anchor" aria-label="anchor" href="#sec-sensitivity-labbe"><i class="fas fa-link"></i></a>
+</h2>
+<p>For binary outcomes, the L’Abbé plot <span class="citation">(<a href="sec-references.html#ref-labbe1987meta">L’ABBÉ et al. 1987</a>)</span> plots each study’s event risk in the treatment group against the risk in the control group. Points below the diagonal favour treatment; the dashed line shows the pooled effect translated to the risk scale. Systematic departures from that line suggest that the effect depends on baseline risk or that the chosen metric is not constant across studies (Figure <a href="sec-sensitivity.html#fig:sens-labbe">8.7</a>).</p>
+<div class="sourceCode" id="cb151"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_rr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/labbe.html">labbe</a></span><span class="op">(</span><span class="va">res_rr</span>, bty <span class="op">=</span> <span class="st">"l"</span>, las <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      xlab <span class="op">=</span> <span class="st">"Log risk in control group"</span>, ylab <span class="op">=</span> <span class="st">"Log risk in vaccinated group"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-labbe"></span>
+<img src="08-sensitivity_files/figure-html/sens-labbe-1.png" alt="L'Abbé plot of the BCG trials: tuberculosis risk among vaccinated versus unvaccinated participants, both on the log scale. Point size reflects precision; the solid line is the line of no effect and the dashed line the pooled risk ratio." width="85%"><p class="caption">
+Figure 8.7: L’Abbé plot of the BCG trials: tuberculosis risk among vaccinated versus unvaccinated participants, both on the log scale. Point size reflects precision; the solid line is the line of no effect and the dashed line the pooled risk ratio.
+</p>
+</div>
+<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">risk_c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">dat.bcg</span>, <span class="va">cpos</span> <span class="op">/</span> <span class="op">(</span><span class="va">cpos</span> <span class="op">+</span> <span class="va">cneg</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">risk_c</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0.0013 0.2564</span></span></code></pre></div>
+<p>All but two trials lie below the diagonal, and the spread around the pooled line is large relative to the control risks, which range from 0.1% to 26%. Because the trials differ so much in baseline risk, a constant risk ratio and a constant risk difference make very different predictions, which is why the choice of metric is examined below.</p>
+</div>
+<div id="sec-sensitivity-bootstrap" class="section level2" number="8.5">
+<h2>
+<span class="header-section-number">8.5</span> Bootstrap confidence intervals<a class="anchor" aria-label="anchor" href="#sec-sensitivity-bootstrap"><i class="fas fa-link"></i></a>
+</h2>
+<p>The usual Wald interval for <span class="math inline">\(\mu\)</span> and the Q-profile interval for <span class="math inline">\(\tau^2\)</span> rely on asymptotic approximations. A nonparametric bootstrap resamples whole studies with replacement, refits the model to each resample, and uses the empirical distribution of the estimates <span class="citation">(<a href="sec-references.html#ref-efron1994introduction">Efron and Tibshirani 1994</a>)</span>. It makes fewer assumptions about the distribution of the random effects, although with few studies the bootstrap distribution is itself coarse.</p>
+<div class="sourceCode" id="cb153"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">boot_fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">d</span>, <span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">[</span><span class="va">i</span>, <span class="op">]</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>stepadj <span class="op">=</span> <span class="fl">0.5</span>, maxiter <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, tau2 <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">bt</span> <span class="op">&lt;-</span> <span class="fu">boot</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span>, <span class="va">boot_fun</span>, R <span class="op">=</span> <span class="fl">999</span><span class="op">)</span></span>
+<span><span class="va">bt</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ORDINARY NONPARAMETRIC BOOTSTRAP</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Call:</span></span>
+<span><span class="co">#&gt; boot(data = as.data.frame(dat), statistic = boot_fun, R = 999)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Bootstrap Statistics :</span></span>
+<span><span class="co">#&gt;     original    bias    std. error</span></span>
+<span><span class="co">#&gt; t1*  -0.7145 -0.003878     0.16334</span></span>
+<span><span class="co">#&gt; t2*   0.3133 -0.024856     0.08515</span></span>
+<span><span class="va">ci_mu</span> <span class="op">&lt;-</span> <span class="fu">boot.ci</span><span class="op">(</span><span class="va">bt</span>, index <span class="op">=</span> <span class="fl">1</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"perc"</span>, <span class="st">"bca"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ci_t2</span> <span class="op">&lt;-</span> <span class="fu">boot.ci</span><span class="op">(</span><span class="va">bt</span>, index <span class="op">=</span> <span class="fl">2</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"perc"</span>, <span class="st">"bca"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">ci_mu</span></span>
+<span><span class="co">#&gt; BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS</span></span>
+<span><span class="co">#&gt; Based on 999 bootstrap replicates</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; CALL : </span></span>
+<span><span class="co">#&gt; boot.ci(boot.out = bt, type = c("perc", "bca"), index = 1)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intervals : </span></span>
+<span><span class="co">#&gt; Level     Percentile            BCa          </span></span>
+<span><span class="co">#&gt; 95%   (-1.0357, -0.4275 )   (-1.0507, -0.4315 )  </span></span>
+<span><span class="co">#&gt; Calculations and Intervals on Original Scale</span></span>
+<span><span class="va">ci_t2</span></span>
+<span><span class="co">#&gt; BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS</span></span>
+<span><span class="co">#&gt; Based on 999 bootstrap replicates</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; CALL : </span></span>
+<span><span class="co">#&gt; boot.ci(boot.out = bt, type = c("perc", "bca"), index = 2)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Intervals : </span></span>
+<span><span class="co">#&gt; Level     Percentile            BCa          </span></span>
+<span><span class="co">#&gt; 95%   ( 0.0992,  0.4479 )   ( 0.1438,  0.4614 )  </span></span>
+<span><span class="co">#&gt; Calculations and Intervals on Original Scale</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        estimate   ci.lb   ci.ub </span></span>
+<span><span class="co">#&gt; tau^2    0.3132  0.1197  1.1115 </span></span>
+<span><span class="co">#&gt; tau      0.5597  0.3460  1.0543 </span></span>
+<span><span class="co">#&gt; I^2(%)  92.2214 81.9177 97.6781 </span></span>
+<span><span class="co">#&gt; H^2     12.8558  5.5303 43.0680</span></span></code></pre></div>
+<p>The BCa bootstrap interval for <span class="math inline">\(\mu\)</span>, -1.051 to -0.432, is close to the Wald interval (-1.067 to -0.362). For <span class="math inline">\(\tau^2\)</span> the bootstrap and Q-profile intervals differ: the BCa interval is 0.144 to 0.461, whereas the Q-profile interval is 0.120 to 1.111. Resamples of 13 trials cannot generate much more heterogeneity than the observed trials display, so with few studies the bootstrap upper limit for <span class="math inline">\(\tau^2\)</span> tends to be too low. Neither interval is exact, and the gap between them is itself informative: <span class="math inline">\(\tau^2\)</span> is poorly determined by 13 studies. A parametric bootstrap, which simulates new data from the fitted model, is an alternative that <code>metafor</code> documents for <code>rma</code> models.</p>
+</div>
+<div id="sec-sensitivity-choices" class="section level2" number="8.6">
+<h2>
+<span class="header-section-number">8.6</span> Sensitivity to analytic choices<a class="anchor" aria-label="anchor" href="#sec-sensitivity-choices"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-sensitivity-estimator" class="section level3" number="8.6.1">
+<h3>
+<span class="header-section-number">8.6.1</span> The estimator of <span class="math inline">\(\tau^2\)</span><a class="anchor" aria-label="anchor" href="#sec-sensitivity-estimator"><i class="fas fa-link"></i></a>
+</h3>
+<p>More than a dozen estimators of the between-study variance exist <span class="citation">(<a href="sec-references.html#ref-veroniki2015methods">Veroniki et al. 2015</a>)</span>. Simulation comparisons found that the DerSimonian–Laird estimator is negatively biased with small studies and rare events, that the Paule–Mandel estimator can have considerable positive bias when study sizes differ greatly, and recommended REML <span class="citation">(<a href="sec-references.html#ref-langan2018comparison">Langan et al. 2018</a>)</span>; <span class="citation">Veroniki et al. (<a href="sec-references.html#ref-veroniki2015methods">2015</a>)</span> favoured Paule–Mandel and, for continuous data, REML. Since no estimator is uniformly best, reporting how the results change across estimators is a cheap and informative check.</p>
+<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">methods_tau</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>DL <span class="op">=</span> <span class="st">"DL"</span>, HE <span class="op">=</span> <span class="st">"HE"</span>, HS <span class="op">=</span> <span class="st">"HS"</span>, SJ <span class="op">=</span> <span class="st">"SJ"</span>, ML <span class="op">=</span> <span class="st">"ML"</span>,</span>
+<span>                 REML <span class="op">=</span> <span class="st">"REML"</span>, EB <span class="op">=</span> <span class="st">"EB"</span>, PM <span class="op">=</span> <span class="st">"PM"</span><span class="op">)</span></span>
+<span><span class="va">est_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">methods_tau</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="va">m</span><span class="op">)</span></span>
+<span>  <span class="va">fit_kh</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="va">m</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>RR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>,</span>
+<span>    tau2 <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">tau2</span>, lower_kh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit_kh</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, upper_kh <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit_kh</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">est_tab</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         RR lower upper  tau2 lower_kh upper_kh</span></span>
+<span><span class="co">#&gt; DL   0.490 0.345 0.695 0.309    0.330    0.726</span></span>
+<span><span class="co">#&gt; HE   0.489 0.341 0.700 0.329    0.329    0.725</span></span>
+<span><span class="co">#&gt; HS   0.494 0.362 0.675 0.228    0.335    0.730</span></span>
+<span><span class="co">#&gt; SJ   0.488 0.338 0.704 0.346    0.329    0.725</span></span>
+<span><span class="co">#&gt; ML   0.491 0.351 0.688 0.280    0.332    0.727</span></span>
+<span><span class="co">#&gt; REML 0.489 0.344 0.696 0.313    0.330    0.726</span></span>
+<span><span class="co">#&gt; EB   0.489 0.343 0.697 0.318    0.330    0.726</span></span>
+<span><span class="co">#&gt; PM   0.489 0.343 0.697 0.318    0.330    0.726</span></span></code></pre></div>
+<p>Across eight estimators, <span class="math inline">\(\hat\tau^2\)</span> ranges from 0.228 (Hunter–Schmidt) to 0.346 (Sidik–Jonkman), but the pooled risk ratio barely moves (0.488 to 0.494), and every confidence interval, with or without the Knapp–Hartung adjustment, excludes 1. When heterogeneity is this large, the pooled mean is insensitive to the exact value of <span class="math inline">\(\hat\tau^2\)</span> because all weights are dominated by <span class="math inline">\(\hat\tau^2\)</span> and become nearly equal. The prediction interval, by contrast, depends directly on <span class="math inline">\(\hat\tau\)</span>, so the estimator matters more for statements about the range of effects than for the mean. <span class="citation">Langan et al. (<a href="sec-references.html#ref-langan2018comparison">2018</a>)</span> also found the Hartung–Knapp–Sidik–Jonkman interval for the mean to be more robust to the choice of estimator than the standard interval.</p>
+</div>
+<div id="sec-sensitivity-rob" class="section level3" number="8.6.2">
+<h3>
+<span class="header-section-number">8.6.2</span> Excluding studies at high risk of bias<a class="anchor" aria-label="anchor" href="#sec-sensitivity-rob"><i class="fas fa-link"></i></a>
+</h3>
+<p>A standard sensitivity analysis restricts the meta-analysis to studies at low risk of bias. In the BCG data, alternate and systematic allocation are quasi-random methods vulnerable to selection bias, so we restrict the analysis to the seven trials with random allocation:</p>
+<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_rand</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, subset <span class="op">=</span> <span class="va">alloc</span> <span class="op">==</span> <span class="st">"random"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_rand</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.38  0.22  0.65  0.10  1.45</span></span></code></pre></div>
+<p>Among randomised trials, the risk ratio is 0.38 (95% CI 0.22 to 0.65), a somewhat larger protective effect than in all trials (0.49), with similar heterogeneity (<span class="math inline">\(I^2 =\)</span> 89.9%). Restricting to low-risk studies did not explain the heterogeneity and did not weaken the conclusion. Restriction is not the only option: risk-of-bias domains can enter a meta-regression as moderators (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>), which uses all the data and tests whether bias-prone studies differ, although with the usual low power.</p>
+</div>
+<div id="sec-sensitivity-metric" class="section level3" number="8.6.3">
+<h3>
+<span class="header-section-number">8.6.3</span> The effect-size metric<a class="anchor" aria-label="anchor" href="#sec-sensitivity-metric"><i class="fas fa-link"></i></a>
+</h3>
+<p>Different metrics answer different questions and need not be equally homogeneous. For binary outcomes, the risk ratio, odds ratio, and risk difference are the usual candidates (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>).</p>
+<div class="sourceCode" id="cb156"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">metric_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"RR"</span>, <span class="st">"OR"</span>, <span class="st">"RD"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="va">m</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, lower <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">ci.lb</span>, upper <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">ci.ub</span>, I2 <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">I2</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">metric_tab</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    estimate   lower   upper    I2</span></span>
+<span><span class="co">#&gt; RR  -0.7145 -1.0669 -0.3622 92.22</span></span>
+<span><span class="co">#&gt; OR  -0.7452 -1.1098 -0.3806 92.07</span></span>
+<span><span class="co">#&gt; RD  -0.0252 -0.0464 -0.0039 99.94</span></span></code></pre></div>
+<p>The log risk ratio (-0.715) and log odds ratio (-0.745) are nearly identical because tuberculosis is rare in all trials, and both show <span class="math inline">\(I^2\)</span> around 92%. The risk difference is small in absolute terms (-2.52 percentage points) and almost perfectly heterogeneous (<span class="math inline">\(I^2 =\)</span> 99.9%), because absolute effects scale with baseline risk, which varied widely across settings. Relative measures are usually more stable across populations than absolute ones, which is the standard argument for pooling on a ratio scale and converting to absolute effects for a specified baseline risk afterwards.</p>
+</div>
+</div>
+<div id="sec-sensitivity-outliers" class="section level2" number="8.7">
+<h2>
+<span class="header-section-number">8.7</span> Handling outliers: delete, downweight, or model?<a class="anchor" aria-label="anchor" href="#sec-sensitivity-outliers"><i class="fas fa-link"></i></a>
+</h2>
+<p>Once an outlying or influential study has been identified, there are three broad responses, and none is automatically right.</p>
+<p><em>Deletion</em> is simple and transparent: report the analysis with and without the study. It is justified when the study is demonstrably different in a way that puts it outside the review question or makes it untrustworthy (a data error, a different population, evidence of misconduct). It is not justified merely because the study is inconvenient; deleting every study with <span class="math inline">\(|t_i| &gt; 2\)</span> will make any meta-analysis look homogeneous.</p>
+<p><em>Downweighting</em> keeps the study but limits its influence, for example by using weights from a heavy-tailed random-effects distribution or by robust estimation. It acknowledges that the study carries information while guarding against undue influence. The cost is that the weights become another analytic choice that must be justified.</p>
+<p><em>Modelling</em> treats the outlier as a signal. Either a mean-shift indicator for the study (which reproduces deletion for the estimate of <span class="math inline">\(\mu\)</span> but keeps the study visible in the model) or, more usefully, a substantive moderator that explains why the study differs. In the teacher-expectancy data, the expectancy manipulation should matter only when teachers do not already know their pupils. Maxwell (1970) had one week of prior contact:</p>
+<div class="sourceCode" id="cb157"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_del</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dr</span>, subset <span class="op">=</span> <span class="op">-</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">res_wk</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">weeks</span>, data <span class="op">=</span> <span class="va">dr</span><span class="op">)</span></span>
+<span><span class="va">res_lwk</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">weeks</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">dr</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>all       <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_te</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, tau2 <span class="op">=</span> <span class="va">res_te</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>,</span>
+<span>      without10 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_del</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">res_del</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>,</span>
+<span>      weeks     <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_wk</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">res_wk</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>,</span>
+<span>      logweeks  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_lwk</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">res_lwk</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           estimate     tau2</span></span>
+<span><span class="co">#&gt; all        0.08371 0.018826</span></span>
+<span><span class="co">#&gt; without10  0.04729 0.002634</span></span>
+<span><span class="co">#&gt; weeks      0.19416 0.011177</span></span>
+<span><span class="co">#&gt; logweeks   0.28873 0.003136</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.influence.html">influence</a></span><span class="op">(</span><span class="va">res_wk</span><span class="op">)</span><span class="op">$</span><span class="va">is.infl</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/which.html">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/lm.influence.html">influence</a></span><span class="op">(</span><span class="va">res_lwk</span><span class="op">)</span><span class="op">$</span><span class="va">is.infl</span><span class="op">)</span></span>
+<span><span class="co">#&gt; integer(0)</span></span></code></pre></div>
+<p>Deleting Maxwell reduces the pooled estimate to 0.047 and <span class="math inline">\(\hat\tau^2\)</span> to 0.0026. Modelling prior contact instead keeps all 19 studies and reduces residual heterogeneity to 0.0112 with a linear term in weeks or 0.0031 with <span class="math inline">\(\log(\text{weeks} + 1)\)</span>; under the linear specification Maxwell is still flagged as influential, under the logarithmic one it is not. The outlier is an outlier with respect to a particular model, and which model is reasonable is a substantive question (here: does the effect of expectancy fade quickly or gradually with prior contact?). The intercept now has a different meaning, the expected effect with no prior contact (0.289 under the logarithmic model). A balanced report would present the primary analysis, the analysis without Maxwell, and the moderator model, and would base its conclusions on what they have in common: a small average effect overall, concentrated in studies with little prior contact.</p>
+</div>
+<div id="sec-sensitivity-multilevel" class="section level2" number="8.8">
+<h2>
+<span class="header-section-number">8.8</span> Diagnostics for dependent effect sizes<a class="anchor" aria-label="anchor" href="#sec-sensitivity-multilevel"><i class="fas fa-link"></i></a>
+</h2>
+<p>When studies contribute several effect sizes (Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>), the natural unit for influence diagnostics is the <em>study</em>, not the individual effect size: deleting one of 22 outcomes from a study tells us little, whereas deleting the study tells us whether a single research group drives the result. <code><a href="https://rdrr.io/r/stats/influence.measures.html">cooks.distance()</a></code> and <code><a href="https://rdrr.io/r/stats/influence.measures.html">dfbetas()</a></code> for <code>rma.mv</code> models accept a <code>cluster</code> argument that deletes whole clusters. We apply them to the correlated-and-hierarchical-effects model for the delinquency data of <span class="citation">Assink and Wibbelink (<a href="sec-references.html#ref-assink2016fitting">2016</a>)</span>.</p>
+<div class="sourceCode" id="cb158"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">da</span> <span class="op">&lt;-</span> <span class="va">dat.assink2016</span></span>
+<span><span class="va">V6</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/vcalc.html">vcalc</a></span><span class="op">(</span><span class="va">vi</span>, cluster <span class="op">=</span> <span class="va">study</span>, obs <span class="op">=</span> <span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, rho <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span>
+<span><span class="va">che</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">cd_study</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html">cooks.distance</a></span><span class="op">(</span><span class="va">che</span>, cluster <span class="op">=</span> <span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span></span>
+<span><span class="va">dfb_study</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/influence.measures.html">dfbetas</a></span><span class="op">(</span><span class="va">che</span>, cluster <span class="op">=</span> <span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html">as.vector</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">da</span><span class="op">$</span><span class="va">study</span><span class="op">)</span><span class="op">)</span>, cook <span class="op">=</span> <span class="va">cd_study</span>, dfbetas <span class="op">=</span> <span class="va">dfb_study</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     k  cook dfbetas</span></span>
+<span><span class="co">#&gt; 1   6 0.009  -0.092</span></span>
+<span><span class="co">#&gt; 2   3 0.001   0.021</span></span>
+<span><span class="co">#&gt; 3  10 0.192   0.472</span></span>
+<span><span class="co">#&gt; 4   1 0.027  -0.161</span></span>
+<span><span class="co">#&gt; 5   1 0.110   0.347</span></span>
+<span><span class="co">#&gt; 6   5 0.036  -0.187</span></span>
+<span><span class="co">#&gt; 7   6 0.095   0.316</span></span>
+<span><span class="co">#&gt; 8   1 0.000  -0.015</span></span>
+<span><span class="co">#&gt; 9   2 0.022  -0.144</span></span>
+<span><span class="co">#&gt; 10  5 0.036  -0.183</span></span>
+<span><span class="co">#&gt; 11 22 1.086   1.572</span></span>
+<span><span class="co">#&gt; 12  5 0.017  -0.124</span></span>
+<span><span class="co">#&gt; 13  2 0.004  -0.065</span></span>
+<span><span class="co">#&gt; 14  6 0.099  -0.309</span></span>
+<span><span class="co">#&gt; 15  3 0.010  -0.098</span></span>
+<span><span class="co">#&gt; 16 16 0.020  -0.145</span></span>
+<span><span class="co">#&gt; 17  6 0.092  -0.295</span></span>
+<span><span class="va">che_no11</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mv.html">rma.mv</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">V6</span>, random <span class="op">=</span> <span class="op">~</span> <span class="fl">1</span> <span class="op">|</span> <span class="va">study</span><span class="op">/</span><span class="va">esid</span>, data <span class="op">=</span> <span class="va">da</span>, sparse <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>                   subset <span class="op">=</span> <span class="va">study</span> <span class="op">!=</span> <span class="fl">11</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>all <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">che</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, without_11 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">che_no11</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        all without_11 </span></span>
+<span><span class="co">#&gt;     0.3678     0.2672</span></span></code></pre></div>
+<p>Study 11 stands out, with a Cook’s distance of 1.09 and a DFBETAS of 1.57; it contributes 22 of the 100 effect sizes. Removing it changes the average effect from 0.368 to 0.267. Whether that matters depends on the question, but it should be reported, and it would be hidden by effect-level diagnostics that delete one outcome at a time. Cluster-level deletion refits the multilevel model once per study, which is slow for large models; with many clusters, the <code>parallel</code> argument of these functions helps.</p>
+</div>
+<div id="sec-sensitivity-multiverse" class="section level2" number="8.9">
+<h2>
+<span class="header-section-number">8.9</span> Multiverse and specification-curve meta-analysis<a class="anchor" aria-label="anchor" href="#sec-sensitivity-multiverse"><i class="fas fa-link"></i></a>
+</h2>
+<p>The checks so far vary one choice at a time. In practice several choices interact, and the analyst’s particular combination is only one of many defensible “specifications”. Multiverse analysis <span class="citation">(<a href="sec-references.html#ref-steegen2016increasing">Steegen et al. 2016</a>)</span> and specification-curve analysis <span class="citation">(<a href="sec-references.html#ref-simonsohn2020specification">Simonsohn et al. 2020</a>)</span> address this in primary research by running all reasonable combinations of analytic choices and displaying the full distribution of results. <span class="citation">Voracek et al. (<a href="sec-references.html#ref-voracek2019which">2019</a>)</span> adapted both ideas to meta-analysis, distinguishing choices about <em>which data</em> to meta-analyse (inclusion criteria, subsets of studies) from choices about <em>how</em> to analyse them (metric, model, estimator), and showing how to display and summarise the resulting set of meta-analytic specifications.</p>
+<p>We build a small multiverse for the BCG data from four factors: the metric (risk ratio or odds ratio), the estimator of <span class="math inline">\(\tau^2\)</span> (DL, REML, PM, SJ), the inference method (Wald <span class="math inline">\(z\)</span> or Knapp–Hartung), and the set of trials (all; random allocation only; all except the very large TPT Madras trial, which dominates the heterogeneity statistic). This gives <span class="math inline">\(2 \times 4 \times 2 \times 3 = 48\)</span> specifications.</p>
+<div class="sourceCode" id="cb159"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">specs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span><span class="op">(</span>metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"RR"</span>, <span class="st">"OR"</span><span class="op">)</span>, method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"DL"</span>, <span class="st">"REML"</span>, <span class="st">"PM"</span>, <span class="st">"SJ"</span><span class="op">)</span>,</span>
+<span>                     test <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"z"</span>, <span class="st">"knha"</span><span class="op">)</span>,</span>
+<span>                     trials <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"All trials"</span>, <span class="st">"Random allocation"</span>, <span class="st">"Without TPT Madras"</span><span class="op">)</span>,</span>
+<span>                     stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit_spec</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">metric</span>, <span class="va">method</span>, <span class="va">test</span>, <span class="va">trials</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="va">metric</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span>  <span class="va">keep</span> <span class="op">&lt;-</span> <span class="kw"><a href="https://rdrr.io/r/base/switch.html">switch</a></span><span class="op">(</span><span class="va">trials</span>,</span>
+<span>                 <span class="st">"All trials"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                 <span class="st">"Random allocation"</span> <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">alloc</span> <span class="op">==</span> <span class="st">"random"</span>,</span>
+<span>                 <span class="st">"Without TPT Madras"</span> <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">author</span> <span class="op">!=</span> <span class="st">"TPT Madras"</span><span class="op">)</span></span>
+<span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">d</span>, subset <span class="op">=</span> <span class="va">keep</span>, method <span class="op">=</span> <span class="va">method</span>, test <span class="op">=</span> <span class="va">test</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ratio <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>,</span>
+<span>             upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>, pval <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">pval</span>, k <span class="op">=</span> <span class="va">fit</span><span class="op">$</span><span class="va">k</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">mv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">specs</span>, <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html">Map</a></span><span class="op">(</span><span class="va">fit_spec</span>, <span class="va">specs</span><span class="op">$</span><span class="va">metric</span>, <span class="va">specs</span><span class="op">$</span><span class="va">method</span>,</span>
+<span>                                      <span class="va">specs</span><span class="op">$</span><span class="va">test</span>, <span class="va">specs</span><span class="op">$</span><span class="va">trials</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">mv</span> <span class="op">&lt;-</span> <span class="va">mv</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html">order</a></span><span class="op">(</span><span class="va">mv</span><span class="op">$</span><span class="va">ratio</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">mv</span><span class="op">$</span><span class="va">rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">mv</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">mv</span><span class="op">$</span><span class="va">ratio</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt;   0.357   0.382   0.444   0.433   0.474   0.490</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">mv</span><span class="op">$</span><span class="va">pval</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<p>Across the 48 specifications the pooled ratio ranges from 0.36 to 0.49 with a median of 0.44, and 100% of specifications yield <span class="math inline">\(p &lt; .05\)</span>. The specification curve (Figure <a href="sec-sensitivity.html#fig:sens-spec-curve">8.8</a>) orders the estimates and shows, underneath, which choices produced each one.</p>
+<div class="sourceCode" id="cb160"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">top</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="va">mv</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">rank</span>, y <span class="op">=</span> <span class="va">ratio</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">1</span>, linetype <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_linerange</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">lower</span>, ymax <span class="op">=</span> <span class="va">upper</span><span class="op">)</span>, colour <span class="op">=</span> <span class="st">"grey60"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>shape <span class="op">=</span> <span class="va">pval</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_shape_manual</span><span class="op">(</span>values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>`TRUE` <span class="op">=</span> <span class="fl">16</span>, `FALSE` <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, name <span class="op">=</span> <span class="st">"p &lt; .05"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="st">"Pooled ratio (log scale)"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>axis.text.x <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span>, legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span>
+<span><span class="va">long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>rank <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">rank</span>, factor <span class="op">=</span> <span class="st">"Metric"</span>, choice <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">metric</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>rank <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">rank</span>, factor <span class="op">=</span> <span class="st">"Estimator"</span>, choice <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">method</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>rank <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">rank</span>, factor <span class="op">=</span> <span class="st">"Inference"</span>, choice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">mv</span><span class="op">$</span><span class="va">test</span> <span class="op">==</span> <span class="st">"z"</span>, <span class="st">"Wald z"</span>, <span class="st">"Knapp-Hartung"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>rank <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">rank</span>, factor <span class="op">=</span> <span class="st">"Trials"</span>, choice <span class="op">=</span> <span class="va">mv</span><span class="op">$</span><span class="va">trials</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">long</span><span class="op">$</span><span class="va">factor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">long</span><span class="op">$</span><span class="va">factor</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Trials"</span>, <span class="st">"Metric"</span>, <span class="st">"Estimator"</span>, <span class="st">"Inference"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">bottom</span> <span class="op">&lt;-</span> <span class="fu">ggplot</span><span class="op">(</span><span class="va">long</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">rank</span>, y <span class="op">=</span> <span class="va">choice</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>shape <span class="op">=</span> <span class="fl">15</span>, size <span class="op">=</span> <span class="fl">1.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_grid</span><span class="op">(</span><span class="va">factor</span> <span class="op">~</span> <span class="va">.</span>, scales <span class="op">=</span> <span class="st">"free_y"</span>, space <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Specification (ranked by pooled ratio)"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>strip.text.y <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>angle <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>, panel.grid.minor <span class="op">=</span> <span class="fu">element_blank</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">top</span> <span class="op">/</span> <span class="va">bottom</span> <span class="op">+</span> <span class="fu">plot_layout</span><span class="op">(</span>heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.2</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:sens-spec-curve"></span>
+<img src="08-sensitivity_files/figure-html/sens-spec-curve-1.png" alt="Specification curve for the BCG meta-analysis. Top: pooled ratio (risk ratio or odds ratio) with 95% confidence interval for each of 48 specifications, ordered by size; filled points have $p &lt; .05$. Bottom: the analytic choices that define each specification." width="100%"><p class="caption">
+Figure 8.8: Specification curve for the BCG meta-analysis. Top: pooled ratio (risk ratio or odds ratio) with 95% confidence interval for each of 48 specifications, ordered by size; filled points have <span class="math inline">\(p &lt; .05\)</span>. Bottom: the analytic choices that define each specification.
+</p>
+</div>
+<p>The curve shows that the set of trials is the dominant choice: the median pooled ratio is 0.37 for randomised trials only, 0.48 for all trials, and 0.44 without the Madras trial. Metric and estimator matter little, and the inference method changes the width of the intervals but not the estimates; 48 of the 48 specifications reach <span class="math inline">\(p &lt; .05\)</span> (100% of the Wald and 100% of the Knapp–Hartung specifications). Every specification points to a protective effect; the conclusion that BCG reduces the risk of tuberculosis on average is robust, while its size depends mainly on which trials one considers relevant.</p>
+<p>Three cautions apply. First, a multiverse is only as good as its factors: every specification must be one a reasonable analyst could defend, otherwise the curve mixes good and bad analyses and the summary becomes meaningless. Second, the specifications are not independent samples, so the proportion of significant results is a descriptive summary, not a test; <span class="citation">Voracek et al. (<a href="sec-references.html#ref-voracek2019which">2019</a>)</span> and <span class="citation">Simonsohn et al. (<a href="sec-references.html#ref-simonsohn2020specification">2020</a>)</span> discuss inferential procedures based on permutation or bootstrap. Third, the multiverse complements but does not replace a pre-specified primary analysis.</p>
+</div>
+<div id="sec-sensitivity-reporting" class="section level2" number="8.10">
+<h2>
+<span class="header-section-number">8.10</span> Reporting sensitivity analyses<a class="anchor" aria-label="anchor" href="#sec-sensitivity-reporting"><i class="fas fa-link"></i></a>
+</h2>
+<p>Sensitivity analyses are most useful when they are reported compactly and completely, including those that change the result. A summary table with one row per analysis, the estimate, its interval, and the heterogeneity estimate is usually enough; details go in a supplement. For the BCG meta-analysis, the analyses in this chapter can be collected as follows.</p>
+<div class="sourceCode" id="cb161"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">l1o_bcg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/leave1out.html">leave1out</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">res_kh</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">res_or</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span><span class="va">report</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  analysis <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Primary: REML, Wald CI"</span>, <span class="st">"Knapp-Hartung CI"</span>,</span>
+<span>               <span class="st">"Range over 8 tau^2 estimators"</span>, <span class="st">"Leave-one-out range"</span>,</span>
+<span>               <span class="st">"Random allocation only (k = 7)"</span>, <span class="st">"Odds ratio instead of risk ratio"</span>,</span>
+<span>               <span class="st">"Nonparametric bootstrap (BCa)"</span><span class="op">)</span>,</span>
+<span>  estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_kh</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>               <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_rand</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_or</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_kh</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">est_tab</span><span class="op">[</span>, <span class="st">"RR"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">l1o_bcg</span><span class="op">$</span><span class="va">estimate</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_rand</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_or</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">ci_mu</span><span class="op">$</span><span class="va">bca</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_kh</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">est_tab</span><span class="op">[</span>, <span class="st">"RR"</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">l1o_bcg</span><span class="op">$</span><span class="va">estimate</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_rand</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">res_or</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>,</span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">ci_mu</span><span class="op">$</span><span class="va">bca</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  tau2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">res</span><span class="op">$</span><span class="va">tau2</span>, <span class="va">res_kh</span><span class="op">$</span><span class="va">tau2</span>, <span class="cn">NA</span>, <span class="cn">NA</span>, <span class="va">res_rand</span><span class="op">$</span><span class="va">tau2</span>, <span class="va">res_or</span><span class="op">$</span><span class="va">tau2</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">report</span>, digits <span class="op">=</span> <span class="fl">3</span>, caption <span class="op">=</span> <span class="st">"Summary of sensitivity analyses for the BCG meta-analysis. For the range rows, lower and upper give the smallest and largest pooled ratio."</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:sens-report">Table 8.1: </span>Summary of sensitivity analyses for the BCG meta-analysis. For the range rows, lower and upper give the smallest and largest pooled ratio.</caption>
+<thead><tr class="header">
+<th align="left">analysis</th>
+<th align="right">estimate</th>
+<th align="right">lower</th>
+<th align="right">upper</th>
+<th align="right">tau2</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Primary: REML, Wald CI</td>
+<td align="right">0.489</td>
+<td align="right">0.344</td>
+<td align="right">0.696</td>
+<td align="right">0.313</td>
+</tr>
+<tr class="even">
+<td align="left">Knapp-Hartung CI</td>
+<td align="right">0.489</td>
+<td align="right">0.330</td>
+<td align="right">0.726</td>
+<td align="right">0.313</td>
+</tr>
+<tr class="odd">
+<td align="left">Range over 8 tau^2 estimators</td>
+<td align="right">NA</td>
+<td align="right">0.488</td>
+<td align="right">0.494</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Leave-one-out range</td>
+<td align="right">NA</td>
+<td align="right">0.452</td>
+<td align="right">0.533</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Random allocation only (k = 7)</td>
+<td align="right">0.379</td>
+<td align="right">0.221</td>
+<td align="right">0.650</td>
+<td align="right">0.393</td>
+</tr>
+<tr class="even">
+<td align="left">Odds ratio instead of risk ratio</td>
+<td align="right">0.475</td>
+<td align="right">0.330</td>
+<td align="right">0.683</td>
+<td align="right">0.338</td>
+</tr>
+<tr class="odd">
+<td align="left">Nonparametric bootstrap (BCa)</td>
+<td align="right">0.489</td>
+<td align="right">0.350</td>
+<td align="right">0.650</td>
+<td align="right">NA</td>
+</tr>
+</tbody>
+</table></div>
+<p>The table makes the overall picture easy to read: the point estimates across all analyses lie between 0.38 and 0.53, and the largest upper confidence limit of any interval is 0.73. The only analysis that moves the estimate appreciably is the restriction to randomised trials, which strengthens rather than weakens the conclusion.</p>
+</div>
+<div id="sec-sensitivity-recommendations" class="section level2" number="8.11">
+<h2>
+<span class="header-section-number">8.11</span> Practical recommendations<a class="anchor" aria-label="anchor" href="#sec-sensitivity-recommendations"><i class="fas fa-link"></i></a>
+</h2>
+<p>Pre-specify the primary analysis and the main sensitivity analyses in the protocol: the <span class="math inline">\(\tau^2\)</span> estimator and inference method, the risk-of-bias restriction, the alternative metric, and how outliers will be handled. Run <code><a href="https://rdrr.io/r/stats/lm.influence.html">influence()</a></code> and <code><a href="https://wviechtb.github.io/metafor/reference/leave1out.html">leave1out()</a></code> on every random-effects model and report any study whose removal changes a conclusion. Use Baujat and GOSH plots when heterogeneity is substantial and you need to know where it comes from <span class="citation">(<a href="sec-references.html#ref-baujat2002graphical">Baujat et al. 2002</a>; <a href="sec-references.html#ref-olkin2012gosh">Olkin et al. 2012</a>)</span>. Look for a substantive explanation before deleting an outlier, and present results with and without it rather than silently removing it <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010outlier">Viechtbauer and Cheung 2010</a>)</span>. Use cumulative meta-analysis to show how the evidence evolved, and bootstrap or profile intervals to show how uncertain <span class="math inline">\(\tau^2\)</span> really is. When several defensible choices interact, summarise them with a specification curve <span class="citation">(<a href="sec-references.html#ref-voracek2019which">Voracek et al. 2019</a>)</span>.</p>
+</div>
+<div id="sec-sensitivity-pitfalls" class="section level2" number="8.12">
+<h2>
+<span class="header-section-number">8.12</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-sensitivity-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>Treating influence thresholds as significance tests and deleting every flagged study is the most consequential mistake, because it manufactures homogeneity. Close behind is reporting a sensitivity analysis only when it agrees with the primary result. Others include confusing outliers with influential studies (and so ignoring a large study that dominates the result because it is “not an outlier”), interpreting the absence of flagged studies in a meta-analysis of eight trials as evidence that the model fits, running GOSH on a random-effects model with iterative estimation for all subsets of 20 or more studies (which takes hours; use random subsets and a non-iterative estimator), forgetting that an outlier is defined relative to a model, and building a multiverse that includes indefensible specifications so that its spread looks reassuringly large or alarmingly small.</p>
+</div>
+<div id="sec-sensitivity-takeaways" class="section level2" number="8.13">
+<h2>
+<span class="header-section-number">8.13</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-sensitivity-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Outliers are studies the model fits poorly; influential studies are those whose removal changes the results. Studentized deleted residuals, DFFITS, Cook’s distances, covariance ratios, and leave-one-out <span class="math inline">\(\tau^2\)</span> and <span class="math inline">\(Q_E\)</span> quantify both.</li>
+<li>Leave-one-out, Baujat, GOSH, radial, and QQ plots show whether one or a few studies drive the estimate or the heterogeneity.</li>
+<li>Cumulative meta-analysis shows how the evidence accumulated over time; bootstrap and profile intervals show how weakly <span class="math inline">\(\tau^2\)</span> is determined.</li>
+<li>The pooled mean is often robust to the <span class="math inline">\(\tau^2\)</span> estimator, but conclusions can depend strongly on the set of studies and the effect-size metric.</li>
+<li>Outliers can be deleted, downweighted, or modelled; each is a choice to justify, and reporting several side by side is usually best.</li>
+<li>Specification curves display the results of all defensible combinations of analytic choices and reveal which choices matter.</li>
+</ul>
+</div>
+<div id="sec-sensitivity-reading" class="section level2" number="8.14">
+<h2>
+<span class="header-section-number">8.14</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-sensitivity-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Viechtbauer and Cheung (<a href="sec-references.html#ref-viechtbauer2010outlier">2010</a>)</span> is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. <span class="citation">Baujat et al. (<a href="sec-references.html#ref-baujat2002graphical">2002</a>)</span>, <span class="citation">Olkin et al. (<a href="sec-references.html#ref-olkin2012gosh">2012</a>)</span>, <span class="citation">Galbraith (<a href="sec-references.html#ref-galbraith1988note">1988</a>)</span>, and <span class="citation">L’ABBÉ et al. (<a href="sec-references.html#ref-labbe1987meta">1987</a>)</span> introduced the Baujat, GOSH, radial, and L’Abbé plots, and <span class="citation">Lau et al. (<a href="sec-references.html#ref-lau1992cumulative">1992</a>)</span> showed what cumulative meta-analysis can reveal. <span class="citation">Veroniki et al. (<a href="sec-references.html#ref-veroniki2015methods">2015</a>)</span> review estimators of the between-study variance and <span class="citation">Langan et al. (<a href="sec-references.html#ref-langan2018comparison">2018</a>)</span> compare them by simulation; <span class="citation">Viechtbauer (<a href="sec-references.html#ref-viechtbauer2005bias">2005</a>)</span> studies the bias and efficiency of the main estimators. <span class="citation">Efron and Tibshirani (<a href="sec-references.html#ref-efron1994introduction">1994</a>)</span> is the classic introduction to the bootstrap. <span class="citation">Steegen et al. (<a href="sec-references.html#ref-steegen2016increasing">2016</a>)</span> and <span class="citation">Simonsohn et al. (<a href="sec-references.html#ref-simonsohn2020specification">2020</a>)</span> introduced multiverse and specification-curve analysis, and <span class="citation">Voracek et al. (<a href="sec-references.html#ref-voracek2019which">2019</a>)</span> adapted them to meta-analysis. <span class="citation">Harrer et al. (<a href="sec-references.html#ref-harrer2021doing">2021</a>)</span> give an applied treatment of many of these diagnostics in R.</p>
+
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></div>
+<div class="next"><a href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-sensitivity"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-concepts"><span class="header-section-number">8.1</span> Outliers, leverage, and influence</a></li>
+<li>
+<a class="nav-link" href="#sec-sensitivity-influence"><span class="header-section-number">8.2</span> Diagnostics in practice: teacher expectancy</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-sensitivity-casedeletion"><span class="header-section-number">8.2.1</span> Case-deletion diagnostics</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-leave1out"><span class="header-section-number">8.2.2</span> Leave-one-out analysis</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-baujat"><span class="header-section-number">8.2.3</span> Baujat plot</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-gosh"><span class="header-section-number">8.2.4</span> GOSH plot</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-radial-qq"><span class="header-section-number">8.2.5</span> Radial and normal quantile plots</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-sensitivity-cumulative"><span class="header-section-number">8.3</span> Cumulative meta-analysis</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-labbe"><span class="header-section-number">8.4</span> L’Abbé plot</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-bootstrap"><span class="header-section-number">8.5</span> Bootstrap confidence intervals</a></li>
+<li>
+<a class="nav-link" href="#sec-sensitivity-choices"><span class="header-section-number">8.6</span> Sensitivity to analytic choices</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-sensitivity-estimator"><span class="header-section-number">8.6.1</span> The estimator of \(\tau^2\)</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-rob"><span class="header-section-number">8.6.2</span> Excluding studies at high risk of bias</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-metric"><span class="header-section-number">8.6.3</span> The effect-size metric</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-sensitivity-outliers"><span class="header-section-number">8.7</span> Handling outliers: delete, downweight, or model?</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-multilevel"><span class="header-section-number">8.8</span> Diagnostics for dependent effect sizes</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-multiverse"><span class="header-section-number">8.9</span> Multiverse and specification-curve meta-analysis</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-reporting"><span class="header-section-number">8.10</span> Reporting sensitivity analyses</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-recommendations"><span class="header-section-number">8.11</span> Practical recommendations</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-pitfalls"><span class="header-section-number">8.12</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-takeaways"><span class="header-section-number">8.13</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-sensitivity-reading"><span class="header-section-number">8.14</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/08-sensitivity.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/08-sensitivity.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

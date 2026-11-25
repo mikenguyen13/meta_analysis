@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 1 Introduction to Research Synthesis | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A single study rarely settles a question. Samples are finite, measures are imperfect, and every study is run in one place, at one time, with one population and one version of the intervention....">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 1 Introduction to Research Synthesis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-introduction.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A single study rarely settles a question. Samples are finite, measures are imperfect, and every study is run in one place, at one time, with one population and one version of the intervention....">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 1 Introduction to Research Synthesis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A single study rarely settles a question. Samples are finite, measures are imperfect, and every study is run in one place, at one time, with one population and one version of the intervention....">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 1 Introduction to Research Synthesis | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="active" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-introduction" class="section level1" number="1">
+<h1>
+<span class="header-section-number">1</span> Introduction to Research Synthesis<a class="anchor" aria-label="anchor" href="#sec-introduction"><i class="fas fa-link"></i></a>
+</h1>
+<p>A single study rarely settles a question. Samples are finite, measures are imperfect, and every
+study is run in one place, at one time, with one population and one version of the intervention.
+When a literature contains dozens or hundreds of studies of the same question, the useful
+question is no longer “what did this study find?” but “what does the body of evidence say, how
+certain is it, and how much do the results vary across settings?” Research synthesis is the
+collection of methods that answer that question in a transparent and reproducible way, and
+meta-analysis is its statistical core.</p>
+<p>This chapter sets up the rest of the book. It explains why evidence needs to be synthesized
+formally, sketches how the field developed, distinguishes narrative reviews, systematic reviews,
+and meta-analyses, and defines what a meta-analysis actually estimates. A small simulation shows
+why counting significant results is a poor substitute for pooling estimates, and a second one
+shows why meta-analyses of a single paper’s studies deserve caution. The chapter closes with the
+limits of the method, a tour of the R ecosystem, a complete first analysis, and a roadmap.</p>
+<div id="sec-introduction-why" class="section level2" number="1.1">
+<h2>
+<span class="header-section-number">1.1</span> Why synthesize evidence<a class="anchor" aria-label="anchor" href="#sec-introduction-why"><i class="fas fa-link"></i></a>
+</h2>
+<p>There are three reasons to combine studies rather than read them one at a time. The first is
+precision. Individual studies in psychology, management, marketing, and much of clinical
+medicine are small relative to the effects they try to detect, so their estimates are noisy and
+their significance tests have low power. Pooling the information in many studies gives an
+estimate whose standard error shrinks roughly with the square root of the total sample size.</p>
+<p>The second reason is generalization. Studies differ in populations, settings, dosages, measures,
+and designs. A synthesis can ask whether an effect holds across that variation, how much it
+varies, and which study features are associated with larger or smaller effects. A single study,
+however large, says little about the population of settings in which an intervention might be
+used.</p>
+<p>The third reason is protection against bias in how evidence is read. Informal summaries tend to
+overweight vivid, recent, famous, or congenial studies. A synthesis that specifies its question,
+search, inclusion criteria, and analysis in advance, and reports each step, makes these choices
+visible and open to criticism <span class="citation">(<a href="sec-references.html#ref-cooper2019handbook">Cooper et al. 2019</a>; <a href="sec-references.html#ref-gurevitch2018meta">Gurevitch et al. 2018</a>)</span>. It also makes the
+synthesis updatable: when new studies appear, the analysis can be rerun rather than rewritten.</p>
+</div>
+<div id="sec-introduction-history" class="section level2" number="1.2">
+<h2>
+<span class="header-section-number">1.2</span> A short history<a class="anchor" aria-label="anchor" href="#sec-introduction-history"><i class="fas fa-link"></i></a>
+</h2>
+<p>The idea of combining results is older than the name. In 1904 Karl Pearson collected data from
+several samples of British soldiers on typhoid (enteric fever) inoculation, computed the
+correlation between inoculation and both infection and mortality in each sample, and averaged
+them <span class="citation">(<a href="sec-references.html#ref-pearson1904report">Pearson 1904</a>)</span>. The correlations were modest and irregular across samples, and
+Pearson called for more carefully designed investigation before the procedure was adopted
+routinely. Combining independent estimates had a longer history still in astronomy, and in the
+1930s statisticians working on agricultural experiments developed methods for combining the
+results of several trials <span class="citation">(<a href="sec-references.html#ref-chalmers2002brief">Chalmers et al. 2002</a>)</span>.</p>
+<p>The modern field took shape in the 1970s. <span class="citation">Light and Smith (<a href="sec-references.html#ref-light1971accumulating">1971</a>)</span> examined how reviewers resolve
+contradictory study results and criticized the habit of tallying significant and non-significant
+findings. Gene Glass introduced the term <em>meta-analysis</em> in his 1976 presidential address to the
+American Educational Research Association, defining it as the statistical analysis of a large
+collection of results from individual studies for the purpose of integrating the findings
+<span class="citation">(<a href="sec-references.html#ref-glass1976primary">Glass 1976</a>)</span>. <span class="citation">Smith and Glass (<a href="sec-references.html#ref-smith1977meta">1977</a>)</span> applied the idea to several hundred controlled evaluations of
+psychotherapy and concluded that psychotherapy was, on average, effective. The response was
+sharp: <span class="citation">Eysenck (<a href="sec-references.html#ref-eysenck1978exercise">1978</a>)</span> dismissed the exercise as “mega-silliness”, arguing that pooling
+studies of mixed quality and different therapies produced a meaningless average. Two of the
+standard criticisms of meta-analysis, “garbage in, garbage out” and “apples and oranges”, date
+from this exchange and are discussed in Section <a href="sec-introduction.html#sec-introduction-limits">1.7</a>.</p>
+<p>Statistical foundations followed quickly. <span class="citation">Rosenthal (<a href="sec-references.html#ref-rosenthal1979file">1979</a>)</span> formalized the “file drawer
+problem”, the worry that non-significant studies remain unpublished. <span class="citation">Hedges and Olkin (<a href="sec-references.html#ref-hedges1980vote">1980</a>)</span> showed that
+vote counting can become <em>less</em> likely to detect a true effect as studies accumulate, and
+<span class="citation">Hedges and Olkin (<a href="sec-references.html#ref-hedges1985statistical">1985</a>)</span> laid out the theory of effect sizes, their sampling distributions,
+weighted estimation, and tests of homogeneity that underlies nearly every method in this book.
+In medicine, the push to base clinical practice on systematic summaries of randomized trials led
+to the founding of the Cochrane Collaboration in 1993, named after the epidemiologist Archie
+Cochrane, with the aim of preparing, maintaining, and disseminating systematic reviews of the
+effects of health care <span class="citation">(<a href="sec-references.html#ref-chalmers1993cochrane">Chalmers 1993</a>)</span>. The Campbell Collaboration followed for social
+policy, education, and crime. Today meta-analysis is used across the sciences, from ecology to
+economics <span class="citation">(<a href="sec-references.html#ref-gurevitch2018meta">Gurevitch et al. 2018</a>)</span>, and its volume has grown so fast that redundant and conflicted
+meta-analyses have become a problem in their own right <span class="citation">(<a href="sec-references.html#ref-ioannidis2016mass">Ioannidis 2016</a>)</span>.</p>
+</div>
+<div id="sec-introduction-review-types" class="section level2" number="1.3">
+<h2>
+<span class="header-section-number">1.3</span> Narrative reviews, systematic reviews, and meta-analyses<a class="anchor" aria-label="anchor" href="#sec-introduction-review-types"><i class="fas fa-link"></i></a>
+</h2>
+<p>Three terms are often used interchangeably but mean different things.</p>
+<p>A <strong>narrative review</strong> summarizes a literature in prose, usually written by an expert who
+selects and interprets the studies. Narrative reviews are valuable for framing a field, tracing
+the development of ideas, and building theory. Their weakness is that the search, selection, and
+weighting of studies are implicit. Two experts can read the same literature and reach opposite
+conclusions without either being able to point to where their methods diverged.</p>
+<p>A <strong>systematic review</strong> answers a pre-specified question using explicit, reproducible methods: a
+protocol, a documented search of multiple sources, eligibility criteria applied in duplicate,
+structured data extraction, and an assessment of risk of bias in each included study
+<span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. A systematic review need not contain any statistics. When studies are too
+different to combine, the synthesis may be structured narratively, for example by grouping
+studies and tabulating their results. Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a> covers this workflow
+in detail.</p>
+<p>A <strong>meta-analysis</strong> is the statistical combination of results from two or more studies. It is
+usually, and ideally, embedded in a systematic review, since a pooled estimate is only as
+trustworthy as the process that selected the studies feeding it. Meta-analytic methods are also
+applied outside systematic reviews, for example to combine the studies in a multi-study paper
+(Section <a href="sec-introduction.html#sec-introduction-internal">1.6</a>) or the sites of a multi-lab replication. Throughout
+the book, “meta-analysis” refers to the statistical component and “systematic review” to the
+surrounding process.</p>
+</div>
+<div id="sec-introduction-estimands" class="section level2" number="1.4">
+<h2>
+<span class="header-section-number">1.4</span> What a meta-analysis estimates<a class="anchor" aria-label="anchor" href="#sec-introduction-estimands"><i class="fas fa-link"></i></a>
+</h2>
+<p>Suppose there are <span class="math inline">\(k\)</span> studies, and study <span class="math inline">\(i\)</span> reports an effect size estimate <span class="math inline">\(y_i\)</span> (a log risk
+ratio, a standardized mean difference, a Fisher-<span class="math inline">\(z\)</span> correlation) with sampling variance <span class="math inline">\(v_i\)</span>,
+treated as known. Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a> shows how to compute <span class="math inline">\(y_i\)</span> and <span class="math inline">\(v_i\)</span> from the
+statistics that studies report. What the meta-analysis estimates depends on the model one is
+willing to assume for the true effects <span class="math inline">\(\theta_i\)</span> that the studies estimate.</p>
+<p>In the <strong>common-effect</strong> (also called fixed-effect or equal-effects) model all studies estimate
+the same quantity:</p>
+<p><span class="math display">\[
+y_i = \theta + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i).
+\]</span></p>
+<p>The target is the single parameter <span class="math inline">\(\theta\)</span>, estimated by the inverse-variance weighted mean
+<span class="math inline">\(\hat\theta = \sum_i w_i y_i / \sum_i w_i\)</span> with <span class="math inline">\(w_i = 1/v_i\)</span> and
+<span class="math inline">\(\operatorname{SE}(\hat\theta) = (\sum_i w_i)^{-1/2}\)</span>.</p>
+<p>In the <strong>random-effects</strong> model the true effects themselves vary across studies, because
+populations, interventions, and measures differ:</p>
+<p><span class="math display">\[
+y_i = \mu + u_i + \varepsilon_i, \qquad u_i \sim N(0, \tau^2), \qquad \varepsilon_i \sim N(0, v_i).
+\]</span></p>
+<p>There are now two targets: the mean <span class="math inline">\(\mu\)</span> of the distribution of true effects and its standard
+deviation <span class="math inline">\(\tau\)</span>. The mean alone answers “what is the effect on average across settings like
+these?”, but it does not say what to expect in a new setting. For that the relevant summary is
+the <strong>prediction interval</strong>, which under normality is approximately
+<span class="math inline">\(\hat\mu \pm t_{k-2,\,0.975}\sqrt{\hat\tau^2 + \operatorname{SE}(\hat\mu)^2}\)</span>
+<span class="citation">(<a href="sec-references.html#ref-higgins2009reevaluation">Higgins et al. 2009</a>; <a href="sec-references.html#ref-riley2011interpretation">Riley et al. 2011</a>)</span>. When heterogeneity is substantial, the
+confidence interval for <span class="math inline">\(\mu\)</span> can exclude zero while the prediction interval comfortably includes
+it.</p>
+<p>The choice between these models is a choice of estimand, not only of method. Under the
+common-effect model the question is whether “the” effect exists and how big it is. Under the
+random-effects model the question is about a distribution: its center, its spread, and the
+proportion of settings in which the effect is beneficial or harmful
+<span class="citation">(<a href="sec-references.html#ref-borenstein2010basic">Borenstein et al. 2010</a>)</span>. A third reading, sometimes called the fixed-effects (plural) model,
+treats the <span class="math inline">\(\theta_i\)</span> as fixed but different and interprets the weighted mean as the average
+effect in the particular set of studies at hand, without any claim about other settings
+<span class="citation">(<a href="sec-references.html#ref-rice2017reevaluation">Rice et al. 2017</a>)</span>. Chapter <a href="sec-models.html#sec-models">4</a> develops these models formally, compares
+estimators of <span class="math inline">\(\tau^2\)</span>, and discusses inference with few studies.</p>
+</div>
+<div id="sec-introduction-vote-counting" class="section level2" number="1.5">
+<h2>
+<span class="header-section-number">1.5</span> Why vote counting fails<a class="anchor" aria-label="anchor" href="#sec-introduction-vote-counting"><i class="fas fa-link"></i></a>
+</h2>
+<p>Before meta-analysis, a common way to summarize a literature was to count how many studies found
+a significant effect and declare the effect “established” if most did. This is called <strong>vote
+counting</strong>. It fails for a simple reason: whether a study reaches significance depends on its
+power as much as on the size of the effect. When the typical study is underpowered, most studies
+will be non-significant even when the effect is real, and a vote count will conclude that the
+evidence is mixed or negative <span class="citation">(<a href="sec-references.html#ref-light1971accumulating">Light and Smith 1971</a>; <a href="sec-references.html#ref-hedges1980vote">Hedges and Olkin 1980</a>)</span>.</p>
+<p>A small simulation makes this concrete. Consider twenty two-group studies with 30 participants
+per group, all estimating the same true standardized mean difference of <span class="math inline">\(\delta = 0.3\)</span>, a
+modest effect of the size common in the behavioral sciences.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">1904</span><span class="op">)</span></span>
+<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fl">20</span>; <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">30</span>; <span class="va">delta</span> <span class="op">&lt;-</span> <span class="fl">0.3</span></span>
+<span></span>
+<span><span class="co"># simulate raw data for one two-group study and keep the summary statistics</span></span>
+<span><span class="va">sim_study</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span>, <span class="va">delta</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">x1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, mean <span class="op">=</span> <span class="va">delta</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">x2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>, m2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>, sd1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span>, sd2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span>,</span>
+<span>    p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/t.test.html">t.test</a></span><span class="op">(</span><span class="va">x1</span>, <span class="va">x2</span>, var.equal <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">p.value</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">studies</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span><span class="op">(</span><span class="va">k</span>, <span class="fu">sim_study</span><span class="op">(</span><span class="va">n</span>, <span class="va">delta</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">studies</span><span class="op">$</span><span class="va">n1</span> <span class="op">&lt;-</span> <span class="va">n</span>; <span class="va">studies</span><span class="op">$</span><span class="va">n2</span> <span class="op">&lt;-</span> <span class="va">n</span></span>
+<span></span>
+<span><span class="co"># vote count</span></span>
+<span><span class="va">n_sig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">studies</span><span class="op">$</span><span class="va">p</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="va">n_sig</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span></span>
+<span><span class="co"># meta-analysis of the same studies (Hedges' g, common-effect model)</span></span>
+<span><span class="va">dat_sim</span> <span class="op">&lt;-</span> <span class="fu">escalc</span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMD"</span>, m1i <span class="op">=</span> <span class="va">m1</span>, m2i <span class="op">=</span> <span class="va">m2</span>, sd1i <span class="op">=</span> <span class="va">sd1</span>, sd2i <span class="op">=</span> <span class="va">sd2</span>,</span>
+<span>                  n1i <span class="op">=</span> <span class="va">n1</span>, n2i <span class="op">=</span> <span class="va">n2</span>, data <span class="op">=</span> <span class="va">studies</span><span class="op">)</span></span>
+<span><span class="va">fit_sim</span> <span class="op">&lt;-</span> <span class="fu">rma</span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat_sim</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span></span>
+<span><span class="va">fit_sim</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Equal-Effects Model (k = 20)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   0.00%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  0.74</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 19) = 13.9918, p-val = 0.7842</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.2526  0.0581  4.3458  &lt;.0001  0.1387  0.3666  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>Only 2 of the 20 studies are significant at the 5% level, so a vote count would
+conclude that the effect does not replicate. Yet the pooled estimate is
+<span class="math inline">\(\hat\theta = 0.25\)</span> with 95% CI
+[0.14, 0.37] and <span class="math inline">\(p\)</span> &lt; .001.
+The data are perfectly consistent with a single true effect (the <span class="math inline">\(Q\)</span> test gives
+<span class="math inline">\(p\)</span> = 0.78), and the confidence interval covers the true value of 0.3. The
+studies do not disagree; they are simply too small to detect the effect one at a time. The power
+of each study here is only 0.21.</p>
+<p>The problem gets worse, not better, as evidence accumulates. Suppose a reviewer declares an effect
+established if more than half of <span class="math inline">\(k\)</span> studies are significant. If each study has power <span class="math inline">\(\pi\)</span>, the
+number of significant studies is binomial, and the probability that the vote count finds the
+effect is <span class="math inline">\(P(\text{Bin}(k, \pi) &gt; k/2)\)</span>. When <span class="math inline">\(\pi &lt; 0.5\)</span> this probability goes to zero as <span class="math inline">\(k\)</span>
+grows. The power of the pooled test, in contrast, goes to one, since the standard error of the
+pooled estimate shrinks as <span class="math inline">\(1/\sqrt{k}\)</span>. Figure <a href="sec-introduction.html#fig:intro-vote-plot">1.1</a> shows both curves for
+the design above.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ks</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">60</span></span>
+<span><span class="va">se_pooled</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="fl">2</span> <span class="op">/</span> <span class="va">n</span> <span class="op">+</span> <span class="va">delta</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="fl">4</span> <span class="op">*</span> <span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">ks</span><span class="op">)</span>   <span class="co"># approximate SE of pooled d</span></span>
+<span><span class="va">curves</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">ks</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  prob <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html">pbinom</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">floor</a></span><span class="op">(</span><span class="va">ks</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">ks</span>, <span class="va">pw</span><span class="op">)</span>,</span>
+<span>           <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">delta</span> <span class="op">/</span> <span class="va">se_pooled</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Vote count (majority significant)"</span>, <span class="st">"Meta-analysis (pooled z-test)"</span><span class="op">)</span>,</span>
+<span>               each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">ks</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">curves</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">k</span>, <span class="va">prob</span>, colour <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Number of studies (k)"</span>, y <span class="op">=</span> <span class="st">"Probability of detecting the effect"</span>,</span>
+<span>       colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:intro-vote-plot"></span>
+<img src="01-introduction_files/figure-html/intro-vote-plot-1.png" alt="Probability of concluding that an effect exists, by number of studies, when every study has 30 participants per group and the true standardized mean difference is 0.3. Vote counting (more than half significant) becomes less likely to detect the effect as studies accumulate; the pooled common-effect test becomes more likely." width="85%"><p class="caption">
+Figure 1.1: Probability of concluding that an effect exists, by number of studies, when every study has 30 participants per group and the true standardized mean difference is 0.3. Vote counting (more than half significant) becomes less likely to detect the effect as studies accumulate; the pooled common-effect test becomes more likely.
+</p>
+</div>
+<p>The lesson generalizes beyond this example. Counting significant results discards the
+information in the effect estimates and their precision, confuses “not significant” with “no
+effect”, and is biased toward the null when studies are small. If studies report too little to
+compute effect sizes, better options exist than vote counting on significance: Chapter
+<a href="sec-effect-sizes.html#sec-effect-sizes">3</a> shows how to recover effect sizes from test statistics and <span class="math inline">\(p\)</span>-values,
+and the Cochrane Handbook describes structured alternatives when even that is impossible
+<span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>.</p>
+</div>
+<div id="sec-introduction-internal" class="section level2" number="1.6">
+<h2>
+<span class="header-section-number">1.6</span> Internal meta-analyses and p-hacking<a class="anchor" aria-label="anchor" href="#sec-introduction-internal"><i class="fas fa-link"></i></a>
+</h2>
+<p>Multi-study papers in psychology, consumer research, and management increasingly end with a
+meta-analysis of their own studies, sometimes called an <em>internal</em> or <em>single-paper</em>
+meta-analysis. The appeal is real: individual studies may be small and inconclusive, and a
+pooled estimate summarizes the paper’s evidence and supports cumulative science
+<span class="citation">(<a href="sec-references.html#ref-mcshane2017single">McShane and Böckenholt 2017</a>)</span>. The danger is that a pooled analysis of a small set of studies chosen and
+analyzed by the same authors inherits, and amplifies, every undisclosed choice made along the
+way.</p>
+<p>Two assumptions are needed for an internal meta-analysis to be trustworthy
+<span class="citation">(<a href="sec-references.html#ref-Vosgerau_2019">Vosgerau et al. 2019</a>)</span>. First, none of the individual studies may be even slightly <span class="math inline">\(p\)</span>-hacked, for
+example by choosing among dependent variables, covariates, or exclusion rules after seeing the
+data <span class="citation">(<a href="sec-references.html#ref-Simmons_2011">Simmons et al. 2011</a>)</span>. Because the same lab tends to make the same choices in every study, small
+biases do not average out across studies; they accumulate. Second, the set of studies must be
+complete: the authors must not have left out studies that “did not work”, or run additional
+studies until the pooled result became significant <span class="citation">(<a href="sec-references.html#ref-ueno2016meta">Ueno et al. 2016</a>)</span>. A file drawer of one or two
+studies per paper is enough to distort a five-study internal meta-analysis.</p>
+<p>The following simulation, in the spirit of <span class="citation">Vosgerau et al. (<a href="sec-references.html#ref-Vosgerau_2019">2019</a>)</span>, shows how fast the false-positive
+rate grows. The true effect is zero. Each of five studies has 40 participants per group and
+measures three outcomes that correlate at 0.5. In the honest scenario the authors report the
+pre-specified first outcome. In the hacked scenario they report whichever outcome shows the
+largest effect, which is a mild form of selective reporting. A third scenario runs eight studies
+honestly but reports the five with the largest estimates. Estimates are drawn from their
+large-sample normal distribution, <span class="math inline">\(d \sim N(0, 2/n)\)</span>, which is adequate here.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2019</span><span class="op">)</span></span>
+<span><span class="va">nsim</span> <span class="op">&lt;-</span> <span class="fl">4000</span>; <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">40</span>; <span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">3</span>; <span class="va">rho</span> <span class="op">&lt;-</span> <span class="fl">0.5</span></span>
+<span><span class="va">se_d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">/</span> <span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="va">rho</span>, <span class="va">m</span>, <span class="va">m</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">R</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">U</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/chol.html">chol</a></span><span class="op">(</span><span class="va">R</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># nsim x nstud x m array of estimated effects under the null</span></span>
+<span><span class="va">draw</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">nstud</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">nsim</span> <span class="op">*</span> <span class="va">nstud</span> <span class="op">*</span> <span class="va">m</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="va">m</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span> <span class="va">U</span> <span class="op">*</span> <span class="va">se_d</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/array.html">array</a></span><span class="op">(</span><span class="va">z</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">nsim</span>, <span class="va">nstud</span>, <span class="va">m</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co"># two-sided p-value of a common-effect meta-analysis with equal variances</span></span>
+<span><span class="va">pool_p</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">est</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowMeans</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">se_d</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">ncol</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">d5</span> <span class="op">&lt;-</span> <span class="fu">draw</span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">honest</span> <span class="op">&lt;-</span> <span class="va">d5</span><span class="op">[</span>, , <span class="fl">1</span><span class="op">]</span>                     <span class="co"># pre-specified outcome</span></span>
+<span><span class="va">hacked</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">d5</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="va">max</span><span class="op">)</span>       <span class="co"># best of three outcomes</span></span>
+<span><span class="va">d8</span> <span class="op">&lt;-</span> <span class="fu">draw</span><span class="op">(</span><span class="fl">8</span><span class="op">)</span><span class="op">[</span>, , <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">dropped</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">d8</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="va">x</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fpr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  study_honest   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">honest</span> <span class="op">/</span> <span class="va">se_d</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  study_hacked   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">hacked</span> <span class="op">/</span> <span class="va">se_d</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  meta_honest    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu">pool_p</span><span class="op">(</span><span class="va">honest</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  meta_hacked    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu">pool_p</span><span class="op">(</span><span class="va">hacked</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
+<span>  meta_5_of_8    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu">pool_p</span><span class="op">(</span><span class="va">dropped</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">fpr</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; study_honest study_hacked  meta_honest  meta_hacked  meta_5_of_8 </span></span>
+<span><span class="co">#&gt;        0.052        0.063        0.050        0.223        0.202</span></span></code></pre></div>
+<p>At the level of a single study, choosing the best of three correlated outcomes barely moves the
+two-sided false-positive rate, from 0.052 to
+0.063. That looks harmless. In the internal meta-analysis the same
+habit raises the false-positive rate from 0.05 to
+0.223, because the small upward bias is repeated in every study while
+the standard error of the pooled estimate shrinks. Quietly reporting five of eight null studies
+gives a false-positive rate of 0.202. The more studies a paper
+pools, the more precisely it estimates its own bias.</p>
+<div class="rmdwarning">
+<p>An internal meta-analysis is informative only if every study is reported, each was analyzed as
+pre-registered, and the decision to stop collecting studies did not depend on the results. When
+these conditions cannot be verified, treat a significant pooled estimate from a single paper as
+a summary of that paper’s evidence, not as independent confirmation. Pre-registration of each
+study and of the pooling plan is the most direct safeguard <span class="citation">(<a href="sec-references.html#ref-Vosgerau_2019">Vosgerau et al. 2019</a>; <a href="sec-references.html#ref-mcshane2017single">McShane and Böckenholt 2017</a>)</span>.</p>
+</div>
+<p>The same logic applies to meta-analyses of published literatures, where selective publication
+and selective reporting play the role of the file drawer. Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>
+treats methods to detect and adjust for these biases, including <span class="math inline">\(p\)</span>-curve
+<span class="citation">(<a href="sec-references.html#ref-simonsohn2014p">Simonsohn et al. 2014</a>)</span>, selection models, and regression-based corrections.</p>
+</div>
+<div id="sec-introduction-limits" class="section level2" number="1.7">
+<h2>
+<span class="header-section-number">1.7</span> Limits of meta-analysis<a class="anchor" aria-label="anchor" href="#sec-introduction-limits"><i class="fas fa-link"></i></a>
+</h2>
+<p>Meta-analysis is a tool for combining evidence, not for creating it. Three classic criticisms
+remain relevant, and each has a methodological answer that the later chapters develop
+<span class="citation">(<a href="sec-references.html#ref-sharpe1997apples">Sharpe 1997</a>)</span>.</p>
+<p><strong>Garbage in, garbage out.</strong> Pooling biased studies yields a precise estimate of a biased
+quantity. Precision is not validity. Eysenck’s objection applies with full force to any
+meta-analysis that includes studies without assessing their risk of bias. The answer is not to
+exclude all imperfect studies by fiat, but to assess risk of bias with validated tools, examine
+whether effects differ by risk of bias, and grade the certainty of the pooled evidence
+accordingly (Chapters <a href="sec-systematic-review.html#sec-systematic-review">2</a> and <a href="sec-reporting.html#sec-reporting">15</a>).</p>
+<p><strong>Apples and oranges.</strong> Studies that differ in population, intervention, comparator, and outcome
+may not estimate the same thing. Whether combining them is sensible depends on the question:
+“fruit” is a legitimate category for some purposes and not for others. Random-effects models make
+the heterogeneity explicit rather than assuming it away, and subgroup analysis and
+meta-regression ask whether study characteristics explain it (Chapters <a href="sec-models.html#sec-models">4</a> and
+<a href="sec-heterogeneity.html#sec-heterogeneity">5</a>). A large <span class="math inline">\(\tau\)</span> with a wide prediction interval is itself a finding: the
+average effect is a poor guide to what will happen in any particular setting.</p>
+<p><strong>The file drawer.</strong> If studies with significant or favorable results are more likely to be
+published, found, or fully reported, the studies available to a meta-analysis are a biased
+sample <span class="citation">(<a href="sec-references.html#ref-rosenthal1979file">Rosenthal 1979</a>)</span>. Comprehensive searching, including trial registries and grey
+literature (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>), reduces the problem; small-study and
+selection-model methods (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>) can diagnose and partly correct it,
+but no statistical method fully recovers studies that were never seen.</p>
+<p>Two further limits deserve mention. Associations between study characteristics and effect sizes
+are observational, even when every included study is a randomized trial, because studies were
+not randomized to their characteristics. And meta-analyses can be numerous, overlapping, and
+conflicted: many topics have several published meta-analyses with different inclusion criteria
+and conclusions <span class="citation">(<a href="sec-references.html#ref-ioannidis2016mass">Ioannidis 2016</a>)</span>. Transparent protocols, open data, and reproducible code
+are the best defense, and they are a theme throughout the book.</p>
+</div>
+<div id="sec-introduction-r" class="section level2" number="1.8">
+<h2>
+<span class="header-section-number">1.8</span> The R ecosystem for meta-analysis<a class="anchor" aria-label="anchor" href="#sec-introduction-r"><i class="fas fa-link"></i></a>
+</h2>
+<p>R has the most complete set of meta-analysis tools of any statistical environment. The CRAN Task
+View on meta-analysis (<a href="https://CRAN.R-project.org/view=MetaAnalysis" class="uri">https://CRAN.R-project.org/view=MetaAnalysis</a>) lists well over a hundred
+packages. Table <a href="sec-introduction.html#tab:intro-packages">1.1</a> lists the ones used most in this book.</p>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:intro-packages">Table 1.1: </span>Core R packages used in this book.</caption>
+<colgroup>
+<col width="10%">
+<col width="89%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Package</th>
+<th align="left">Purpose</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">metafor</td>
+<td align="left">General framework: effect sizes, common/random-effects and multilevel models, meta-regression, diagnostics, plots</td>
+</tr>
+<tr class="even">
+<td align="left">meta</td>
+<td align="left">Convenient interfaces for standard pairwise analyses and publication-ready forest plots</td>
+</tr>
+<tr class="odd">
+<td align="left">metadat</td>
+<td align="left">About a hundred published meta-analytic datasets used as examples throughout</td>
+</tr>
+<tr class="even">
+<td align="left">clubSandwich</td>
+<td align="left">Cluster-robust variance estimation with small-sample corrections for dependent effects</td>
+</tr>
+<tr class="odd">
+<td align="left">netmeta</td>
+<td align="left">Frequentist network meta-analysis</td>
+</tr>
+<tr class="even">
+<td align="left">metaSEM</td>
+<td align="left">Meta-analytic structural equation modeling</td>
+</tr>
+<tr class="odd">
+<td align="left">brms</td>
+<td align="left">Bayesian multilevel models via Stan, including meta-analytic models</td>
+</tr>
+<tr class="even">
+<td align="left">bayesmeta</td>
+<td align="left">Bayesian random-effects meta-analysis with exact posterior computation</td>
+</tr>
+<tr class="odd">
+<td align="left">robvis</td>
+<td align="left">Risk-of-bias summary and traffic-light plots</td>
+</tr>
+<tr class="even">
+<td align="left">PRISMA2020</td>
+<td align="left">PRISMA 2020 flow diagrams</td>
+</tr>
+</tbody>
+</table></div>
+<p>The workhorse is <strong>metafor</strong> <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span>, which implements effect size
+computation (<code>escalc()</code>), common-effect, random-effects, and mixed-effects models (<code>rma()</code>),
+multilevel and multivariate models (<code>rma.mv()</code>), and a large set of diagnostics and plots. The
+<strong>meta</strong> package offers a higher-level interface that many applied researchers find convenient
+<span class="citation">(<a href="sec-references.html#ref-balduzzi2019how">Balduzzi et al. 2019</a>)</span>. Datasets come from <strong>metadat</strong>, which is loaded automatically with metafor.
+Dependent effect sizes are handled with <strong>clubSandwich</strong> <span class="citation">(<a href="sec-references.html#ref-pustejovsky2017small">Pustejovsky and Tipton 2017</a>)</span>, network
+meta-analysis with <strong>netmeta</strong> <span class="citation">(<a href="sec-references.html#ref-balduzzi2023netmeta">Balduzzi et al. 2023</a>)</span>, meta-analytic structural equation models
+with <strong>metaSEM</strong> <span class="citation">(<a href="sec-references.html#ref-cheung2015metasem">M. W.-L. Cheung 2015</a>)</span>, and Bayesian models with <strong>brms</strong> <span class="citation">(<a href="sec-references.html#ref-burkner2017brms">Bürkner 2017</a>)</span> and
+<strong>bayesmeta</strong> <span class="citation">(<a href="sec-references.html#ref-rover2020bayesian">Röver 2020</a>)</span>. Each chapter loads the packages it needs explicitly.</p>
+</div>
+<div id="sec-introduction-quickstart" class="section level2" number="1.9">
+<h2>
+<span class="header-section-number">1.9</span> A first meta-analysis in R<a class="anchor" aria-label="anchor" href="#sec-introduction-quickstart"><i class="fas fa-link"></i></a>
+</h2>
+<p>This section runs a complete meta-analysis in four steps, so that the vocabulary of later
+chapters has something concrete to attach to. Each step is explained briefly and revisited in
+depth later.</p>
+<p>The data are 13 trials of the Bacillus Calmette-Guerin (BCG) vaccine against tuberculosis
+<span class="citation">(<a href="sec-references.html#ref-colditz1994efficacy">Colditz et al. 1994</a>)</span>, available as <code>dat.bcg</code> in metadat. For each trial we have the number of
+tuberculosis cases and non-cases in the vaccinated and control groups.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">dat.bcg</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   trial            author year tpos  tneg cpos  cneg ablat  alloc</span></span>
+<span><span class="co">#&gt; 1     1           Aronson 1948    4   119   11   128    44 random</span></span>
+<span><span class="co">#&gt; 2     2  Ferguson &amp; Simes 1949    6   300   29   274    55 random</span></span>
+<span><span class="co">#&gt; 3     3   Rosenthal et al 1960    3   228   11   209    42 random</span></span>
+<span><span class="co">#&gt; 4     4 Hart &amp; Sutherland 1977   62 13536  248 12619    52 random</span></span></code></pre></div>
+<div id="sec-introduction-qs-escalc" class="section level3" number="1.9.1">
+<h3>
+<span class="header-section-number">1.9.1</span> Step 1: compute effect sizes<a class="anchor" aria-label="anchor" href="#sec-introduction-qs-escalc"><i class="fas fa-link"></i></a>
+</h3>
+<p>The natural effect size for a binary outcome in a trial is the risk ratio. Meta-analysis works on
+the log scale, where the sampling distribution is closer to normal and the variance has a simple
+form. <code>escalc()</code> adds the log risk ratio <code>yi</code> and its sampling variance <code>vi</code> to the data.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu">escalc</span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">dat.bcg</span>, slab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"author"</span>, <span class="st">"year"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;              author year      yi     vi </span></span>
+<span><span class="co">#&gt; 1           Aronson 1948 -0.8893 0.3256 </span></span>
+<span><span class="co">#&gt; 2  Ferguson &amp; Simes 1949 -1.5854 0.1946 </span></span>
+<span><span class="co">#&gt; 3   Rosenthal et al 1960 -1.3481 0.4154 </span></span>
+<span><span class="co">#&gt; 4 Hart &amp; Sutherland 1977 -1.4416 0.0200</span></span></code></pre></div>
+<p>The first trial has <span class="math inline">\(y_1\)</span> = -0.889, a risk ratio of
+0.41: vaccinated participants had about 59%
+lower risk of tuberculosis than controls. Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a> covers effect sizes for
+binary, continuous, and correlational data and their variances.</p>
+</div>
+<div id="sec-introduction-qs-rma" class="section level3" number="1.9.2">
+<h3>
+<span class="header-section-number">1.9.2</span> Step 2: fit a random-effects model<a class="anchor" aria-label="anchor" href="#sec-introduction-qs-rma"><i class="fas fa-link"></i></a>
+</h3>
+<p>The trials were run in very different places, from the southern United States to Northern
+Europe, so a common true effect is implausible. <code>rma()</code> fits a random-effects model, estimating
+<span class="math inline">\(\tau^2\)</span> by restricted maximum likelihood (REML) by default.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">rma</span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">res</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3132 (SE = 0.1664)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5597</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.22%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.86</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.7145  0.1798  -3.9744  &lt;.0001  -1.0669  -0.3622  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The estimated mean log risk ratio is <span class="math inline">\(\hat\mu\)</span> = -0.715 (SE =
+0.18), clearly different from zero. Heterogeneity is large: <span class="math inline">\(\hat\tau\)</span> =
+0.56 on the log scale, <span class="math inline">\(I^2\)</span> = 92.2%, and the <span class="math inline">\(Q\)</span> test
+rejects homogeneity (<span class="math inline">\(Q\)</span> = 152.2 on 12 degrees of freedom). The
+estimate of <span class="math inline">\(\tau\)</span> is the more interpretable of these: it is the standard deviation of true log
+risk ratios across settings, on the same scale as the effect. Chapter <a href="sec-models.html#sec-models">4</a> discusses
+the choice of <span class="math inline">\(\tau^2\)</span> estimator and of confidence-interval method (for example Hartung-Knapp),
+and Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a> explains why <span class="math inline">\(I^2\)</span> alone is not a measure of how much
+effects vary.</p>
+</div>
+<div id="sec-introduction-qs-predict" class="section level3" number="1.9.3">
+<h3>
+<span class="header-section-number">1.9.3</span> Step 3: interpret on the risk-ratio scale<a class="anchor" aria-label="anchor" href="#sec-introduction-qs-predict"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://rdrr.io/r/stats/predict.html">predict()</a></code> back-transforms the mean and its intervals to the risk ratio scale and adds the
+prediction interval.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">pred</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.49  0.34  0.70  0.15  1.55</span></span></code></pre></div>
+<p>On average across settings like these, vaccination multiplies the risk of tuberculosis by
+0.49 (95% CI 0.34 to 0.70), roughly
+halving it. The 95% prediction interval, 0.15 to 1.55, is
+far wider: in a new setting comparable to these trials, the true effect could plausibly range
+from a large reduction in risk to no benefit, or even a modest increase in risk. That spread is the most decision-relevant
+feature of this evidence. Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a> shows that much of it is explained by
+the absolute latitude of the trial site.</p>
+</div>
+<div id="sec-introduction-qs-forest" class="section level3" number="1.9.4">
+<h3>
+<span class="header-section-number">1.9.4</span> Step 4: draw a forest plot<a class="anchor" aria-label="anchor" href="#sec-introduction-qs-forest"><i class="fas fa-link"></i></a>
+</h3>
+<p>The forest plot is the standard display of a meta-analysis: each study’s estimate and confidence
+interval, with box size proportional to its weight, and the pooled estimate as a diamond at the
+bottom (Figure <a href="sec-introduction.html#fig:intro-bcg-forest">1.2</a>).</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">forest</span><span class="op">(</span><span class="va">res</span>, atransf <span class="op">=</span> <span class="va">exp</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">10</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span>       header <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Trial"</span>, <span class="st">"Risk ratio [95% CI]"</span><span class="op">)</span>, addpred <span class="op">=</span> <span class="cn">TRUE</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:intro-bcg-forest"></span>
+<img src="01-introduction_files/figure-html/intro-bcg-forest-1.png" alt="Forest plot of 13 BCG vaccine trials (risk ratios, log scale) with the random-effects summary. The dotted line extending from the summary polygon is the 95\% prediction interval." width="85%"><p class="caption">
+Figure 1.2: Forest plot of 13 BCG vaccine trials (risk ratios, log scale) with the random-effects summary. The dotted line extending from the summary polygon is the 95% prediction interval.
+</p>
+</div>
+<p>Several trials favor the vaccine strongly, a few show essentially no effect, and the confidence
+intervals of some trials do not overlap. A reader of the forest plot sees both the average
+benefit and the heterogeneity that the prediction interval quantifies. A complete analysis would
+go further: it would explore moderators (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>), check for
+small-study effects (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>), assess the influence of individual
+trials (Chapter <a href="sec-sensitivity.html#sec-sensitivity">8</a>), rate the certainty of the evidence and report it
+(Chapter <a href="sec-reporting.html#sec-reporting">15</a>). The same four steps, though, are the skeleton of every analysis
+in the book.</p>
+</div>
+</div>
+<div id="sec-introduction-roadmap" class="section level2" number="1.10">
+<h2>
+<span class="header-section-number">1.10</span> Roadmap of the book<a class="anchor" aria-label="anchor" href="#sec-introduction-roadmap"><i class="fas fa-link"></i></a>
+</h2>
+<p>The book is organized in four parts.</p>
+<p><strong>Part I, Foundations</strong>, consists of this chapter, the systematic review workflow from question
+to risk-of-bias assessment (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>), and effect sizes and their
+conversions (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>).</p>
+<p><strong>Part II, Core Methods</strong>, develops the statistical machinery used in nearly every meta-analysis:
+common-effect and random-effects models (Chapter <a href="sec-models.html#sec-models">4</a>); heterogeneity, subgroup
+analysis, and meta-regression (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>); dependent effect sizes from the
+same study, including multilevel models and robust variance estimation
+(Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a>); publication bias and small-study effects
+(Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>); and sensitivity analysis and diagnostics
+(Chapter <a href="sec-sensitivity.html#sec-sensitivity">8</a>).</p>
+<p><strong>Part III, Advanced Methods</strong>, extends the framework: Bayesian meta-analysis
+(Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>), network meta-analysis for comparing several interventions
+(Chapter <a href="sec-network.html#sec-network">10</a>), meta-analytic structural equation modeling
+(Chapter <a href="sec-masem.html#sec-masem">11</a>), multivariate, dose-response, and individual participant data
+meta-analysis (Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>), diagnostic test accuracy
+(Chapter <a href="sec-dta.html#sec-dta">13</a>), and the synthesis of causal estimates from quasi-experimental designs
+(Chapter <a href="sec-causal-estimates.html#sec-causal-estimates">14</a>).</p>
+<p><strong>Part IV, Reporting</strong>, covers rating the certainty of evidence with GRADE and reporting to
+PRISMA 2020 and related standards (Chapter <a href="sec-reporting.html#sec-reporting">15</a>), and ends with a workflow
+checklist (Chapter <a href="sec-conclusion.html#sec-conclusion">16</a>).</p>
+<p>Readers new to meta-analysis should read Chapters <a href="sec-systematic-review.html#sec-systematic-review">2</a> to
+<a href="sec-sensitivity.html#sec-sensitivity">8</a> in order. Readers who know the basics can go directly to the chapter
+for their problem; each chapter states what it assumes.</p>
+</div>
+<div id="sec-introduction-takeaways" class="section level2" number="1.11">
+<h2>
+<span class="header-section-number">1.11</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-introduction-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Research synthesis answers questions that single studies cannot: what the body of evidence
+says, how precisely, and how much effects vary across settings.</li>
+<li>A systematic review is a transparent, reproducible process; a meta-analysis is the statistical
+combination of results, ideally embedded in such a review.</li>
+<li>The common-effect model estimates one parameter; the random-effects model estimates the mean
+and the standard deviation of a distribution of true effects. The prediction interval, not the
+confidence interval, describes what to expect in a new setting.</li>
+<li>Vote counting on statistical significance is biased toward the null when studies are
+underpowered and can become less accurate as studies accumulate. Pool effect estimates instead.</li>
+<li>Internal (single-paper) meta-analyses amplify small, undisclosed analytic choices and selective
+inclusion of studies. They are trustworthy only when every study is reported and analyzed as
+pre-registered.</li>
+<li>Meta-analysis cannot fix biased primary studies, incomparable studies, or missing studies; it
+can make these problems visible and quantify their likely impact.</li>
+</ul>
+</div>
+<div id="sec-introduction-reading" class="section level2" number="1.12">
+<h2>
+<span class="header-section-number">1.12</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-introduction-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2021introduction">2021</a>)</span> is the most accessible full-length introduction to the concepts in
+this chapter, and <span class="citation">Cooper et al. (<a href="sec-references.html#ref-cooper2019handbook">2019</a>)</span> is the standard reference handbook for research synthesis
+in the social and behavioral sciences. <span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2019cochrane">2019</a>)</span> is the authoritative guide for
+systematic reviews of health interventions. <span class="citation">Hedges and Olkin (<a href="sec-references.html#ref-hedges1985statistical">1985</a>)</span> remains the classic statement
+of the statistical theory. For history, <span class="citation">Chalmers et al. (<a href="sec-references.html#ref-chalmers2002brief">2002</a>)</span> is short and readable;
+<span class="citation">Gurevitch et al. (<a href="sec-references.html#ref-gurevitch2018meta">2018</a>)</span> surveys the role of meta-analysis across scientific fields. On internal
+meta-analyses, read <span class="citation">Vosgerau et al. (<a href="sec-references.html#ref-Vosgerau_2019">2019</a>)</span> alongside <span class="citation">McShane and Böckenholt (<a href="sec-references.html#ref-mcshane2017single">2017</a>)</span> for the two sides of the
+argument. <span class="citation">Viechtbauer (<a href="sec-references.html#ref-viechtbauer2010conducting">2010</a>)</span> and <span class="citation">Balduzzi et al. (<a href="sec-references.html#ref-balduzzi2019how">2019</a>)</span> are practical introductions to the two
+main R packages.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="index.html">Preface</a></div>
+<div class="next"><a href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-introduction"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="nav-link" href="#sec-introduction-why"><span class="header-section-number">1.1</span> Why synthesize evidence</a></li>
+<li><a class="nav-link" href="#sec-introduction-history"><span class="header-section-number">1.2</span> A short history</a></li>
+<li><a class="nav-link" href="#sec-introduction-review-types"><span class="header-section-number">1.3</span> Narrative reviews, systematic reviews, and meta-analyses</a></li>
+<li><a class="nav-link" href="#sec-introduction-estimands"><span class="header-section-number">1.4</span> What a meta-analysis estimates</a></li>
+<li><a class="nav-link" href="#sec-introduction-vote-counting"><span class="header-section-number">1.5</span> Why vote counting fails</a></li>
+<li><a class="nav-link" href="#sec-introduction-internal"><span class="header-section-number">1.6</span> Internal meta-analyses and p-hacking</a></li>
+<li><a class="nav-link" href="#sec-introduction-limits"><span class="header-section-number">1.7</span> Limits of meta-analysis</a></li>
+<li><a class="nav-link" href="#sec-introduction-r"><span class="header-section-number">1.8</span> The R ecosystem for meta-analysis</a></li>
+<li>
+<a class="nav-link" href="#sec-introduction-quickstart"><span class="header-section-number">1.9</span> A first meta-analysis in R</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-introduction-qs-escalc"><span class="header-section-number">1.9.1</span> Step 1: compute effect sizes</a></li>
+<li><a class="nav-link" href="#sec-introduction-qs-rma"><span class="header-section-number">1.9.2</span> Step 2: fit a random-effects model</a></li>
+<li><a class="nav-link" href="#sec-introduction-qs-predict"><span class="header-section-number">1.9.3</span> Step 3: interpret on the risk-ratio scale</a></li>
+<li><a class="nav-link" href="#sec-introduction-qs-forest"><span class="header-section-number">1.9.4</span> Step 4: draw a forest plot</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-introduction-roadmap"><span class="header-section-number">1.10</span> Roadmap of the book</a></li>
+<li><a class="nav-link" href="#sec-introduction-takeaways"><span class="header-section-number">1.11</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-introduction-reading"><span class="header-section-number">1.12</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/01-introduction.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/01-introduction.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

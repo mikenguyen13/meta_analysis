@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 15 Certainty of Evidence (GRADE) and Reporting | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A pooled estimate with a confidence interval is not yet a conclusion. Readers of a meta-analysis, whether clinicians, policy makers, managers, or other researchers, need to know how much to trust...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 15 Certainty of Evidence (GRADE) and Reporting | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-reporting.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A pooled estimate with a confidence interval is not yet a conclusion. Readers of a meta-analysis, whether clinicians, policy makers, managers, or other researchers, need to know how much to trust...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 15 Certainty of Evidence (GRADE) and Reporting | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A pooled estimate with a confidence interval is not yet a conclusion. Readers of a meta-analysis, whether clinicians, policy makers, managers, or other researchers, need to know how much to trust...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 15 Certainty of Evidence (GRADE) and Reporting | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="active" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-reporting" class="section level1" number="15">
+<h1>
+<span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting<a class="anchor" aria-label="anchor" href="#sec-reporting"><i class="fas fa-link"></i></a>
+</h1>
+<p>A pooled estimate with a confidence interval is not yet a conclusion. Readers of a meta-analysis,
+whether clinicians, policy makers, managers, or other researchers, need to know how much to trust
+the estimate, and they need the information presented so that they can check it, reuse it, and
+apply it to their own setting. This chapter covers both tasks. The first half introduces the
+GRADE approach to rating the certainty of a body of evidence and builds a Summary of Findings
+table in R from metafor model fits, including absolute effects and certainty ratings. The second
+half turns to reporting: the PRISMA 2020 items that concern the synthesis, the main extensions
+and discipline-specific standards, how to write a results paragraph directly from model output,
+what to report about heterogeneity, and the practices that make a meta-analysis reproducible and
+updatable.</p>
+<div id="sec-reporting-why" class="section level2" number="15.1">
+<h2>
+<span class="header-section-number">15.1</span> From a pooled estimate to a judgment about certainty<a class="anchor" aria-label="anchor" href="#sec-reporting-why"><i class="fas fa-link"></i></a>
+</h2>
+<p>The preceding chapters produced many numbers: a pooled effect, its confidence interval, <span class="math inline">\(\tau\)</span>,
+a prediction interval, subgroup estimates, small-study tests, sensitivity analyses, and
+risk-of-bias assessments. None of these alone says how confident one should be that the true
+effect is close to the estimate. A precise estimate built on trials at high risk of bias, or on
+studies of a different population than the one of interest, can be misleading. An imprecise
+estimate from excellent trials can still support a firm conclusion if every value in its
+confidence interval implies the same decision.</p>
+<p>The <strong>GRADE</strong> approach (Grading of Recommendations Assessment, Development and Evaluation)
+provides a structured and transparent way to combine these considerations into a single rating
+of certainty for each outcome <span class="citation">(<a href="sec-references.html#ref-guyatt2008grade">Guyatt et al. 2008</a>; <a href="sec-references.html#ref-guyatt2011grade1"><span class="nocase">G. Guyatt et al.</span> 2011</a>)</span>. It is used by Cochrane, the
+World Health Organization, and many guideline organizations, and its logic applies well beyond
+medicine: any synthesis that informs a decision benefits from an explicit statement of how much
+the evidence can bear.</p>
+</div>
+<div id="sec-reporting-grade" class="section level2" number="15.2">
+<h2>
+<span class="header-section-number">15.2</span> The GRADE approach<a class="anchor" aria-label="anchor" href="#sec-reporting-grade"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-reporting-grade-certainty" class="section level3" number="15.2.1">
+<h3>
+<span class="header-section-number">15.2.1</span> Certainty and what it means<a class="anchor" aria-label="anchor" href="#sec-reporting-grade-certainty"><i class="fas fa-link"></i></a>
+</h3>
+<p>GRADE rates the certainty (earlier called quality) of evidence for each outcome on four levels
+<span class="citation">(<a href="sec-references.html#ref-balshem2011grade">Balshem et al. 2011</a>)</span>:</p>
+<ul>
+<li>
+<strong>High</strong>: we are very confident that the true effect lies close to the estimate.</li>
+<li>
+<strong>Moderate</strong>: we are moderately confident; the true effect is likely to be close to the
+estimate, but there is a possibility that it is substantially different.</li>
+<li>
+<strong>Low</strong>: our confidence is limited; the true effect may be substantially different from the
+estimate.</li>
+<li>
+<strong>Very low</strong>: we have very little confidence; the true effect is likely to be substantially
+different from the estimate.</li>
+</ul>
+<p>The GRADE Working Group has since clarified that certainty is always certainty <em>about something</em>:
+that the true effect lies on one side of a threshold, or within a specified range
+<span class="citation">(<a href="sec-references.html#ref-hultcrantz2017grade">Hultcrantz et al. 2017</a>)</span>. In a systematic review without a specific decision context, the usual
+target is whether the effect is above or below the null (or a minimal important difference); in
+a guideline, the thresholds are set by what would change a recommendation. Choosing the target
+explicitly is what makes ratings of imprecision and inconsistency reproducible
+<span class="citation">(<a href="sec-references.html#ref-zeng2022grade">Zeng et al. 2022</a>; <a href="sec-references.html#ref-schunemann2022grade">Schünemann et al. 2022</a>)</span>.</p>
+</div>
+<div id="sec-reporting-grade-start" class="section level3" number="15.2.2">
+<h3>
+<span class="header-section-number">15.2.2</span> Starting certainty by study design<a class="anchor" aria-label="anchor" href="#sec-reporting-grade-start"><i class="fas fa-link"></i></a>
+</h3>
+<p>Evidence from randomized trials starts at <strong>high</strong> certainty and evidence from observational
+studies at <strong>low</strong> certainty, reflecting the greater risk of confounding in the latter
+<span class="citation">(<a href="sec-references.html#ref-balshem2011grade">Balshem et al. 2011</a>)</span>. When non-randomized studies are assessed with ROBINS-I, which judges them
+against a target trial (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>), the body of evidence can start at
+high certainty and is then usually rated down for risk of bias, so that the ROBINS-I judgment
+carries the concern about confounding <span class="citation">(<a href="sec-references.html#ref-schunemann2019grade">Schünemann et al. 2019</a>)</span>. From the starting level, certainty
+is rated down for five kinds of concern and, for observational evidence, can be rated up for
+three.</p>
+</div>
+<div id="sec-reporting-grade-down" class="section level3" number="15.2.3">
+<h3>
+<span class="header-section-number">15.2.3</span> Five reasons to rate down<a class="anchor" aria-label="anchor" href="#sec-reporting-grade-down"><i class="fas fa-link"></i></a>
+</h3>
+<p>Each domain can lower certainty by one level (serious concern) or two (very serious concern).</p>
+<p><strong>Risk of bias.</strong> Rate down when the pooled result depends on studies whose limitations are
+likely to bias it, judged from the domain-level assessments of Chapter
+<a href="sec-systematic-review.html#sec-systematic-review">2</a> <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade4">G. H. Guyatt, Oxman, Vist, et al. 2011</a>)</span>. The question is not whether some studies are at
+high risk but whether their influence on the pooled estimate is enough to lower confidence;
+a sensitivity analysis restricted to studies at low risk answers it directly.</p>
+<p><strong>Inconsistency.</strong> Rate down when effects vary across studies more than can be explained, in a way
+that matters for the decision <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade7">G. H. Guyatt, Oxman, Kunz, Woodcock, Brozek, Helfand, Alonso-Coello, Glasziou, et al. 2011</a>)</span>. The signals are point estimates that differ
+widely, confidence intervals that overlap little, a small <span class="math inline">\(p\)</span>-value for the <span class="math inline">\(Q\)</span> test, and a large
+<span class="math inline">\(I^2\)</span>. Because <span class="math inline">\(I^2\)</span> is a relative measure that depends on study precision
+<span class="citation">(<a href="sec-references.html#ref-rucker2008undue">Rücker et al. 2008</a>; <a href="sec-references.html#ref-borenstein2017basics">Borenstein et al. 2017</a>)</span>, the more useful question is whether the prediction
+interval spans values that would lead to different decisions. If the inconsistency is explained
+by a credible moderator (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>), separate estimates should be
+presented instead of rating down.</p>
+<p><strong>Indirectness.</strong> Rate down when the evidence differs from the question in population,
+intervention, comparator, or outcome, for example when trials used a surrogate outcome or an
+older version of the intervention, or when two interventions were compared only indirectly
+<span class="citation">(<a href="sec-references.html#ref-guyatt2011grade8">G. H. Guyatt, Oxman, Kunz, Woodcock, Brozek, Helfand, Alonso-Coello, Falck-Ytter, et al. 2011</a>)</span>. The last case is central to network meta-analysis
+(Chapter <a href="sec-network.html#sec-network">10</a>), for which GRADE has a dedicated approach <span class="citation">(<a href="sec-references.html#ref-puhan2014grade">Puhan et al. 2014</a>)</span>.</p>
+<p><strong>Imprecision.</strong> Rate down when the confidence interval is wide relative to the decision
+threshold <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade6">G. H. Guyatt, Oxman, Kunz, Brozek, et al. 2011</a>)</span>. Under the minimally contextualized approach, the reviewer rates
+down when the confidence interval crosses the threshold of interest, often the null or a minimal
+important difference, and by two or three levels when it is very wide <span class="citation">(<a href="sec-references.html#ref-zeng2022grade">Zeng et al. 2022</a>)</span>. A
+classical default for binary outcomes is to treat a relative risk reduction or increase of 25% as
+appreciable <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade6">G. H. Guyatt, Oxman, Kunz, Brozek, et al. 2011</a>)</span>. Even when the interval does not cross the threshold, certainty can
+be rated down if the total sample size is smaller than the <strong>optimal information size</strong> (OIS),
+the sample size a single adequately powered trial would need. With few events, a pooled estimate
+can be both “significant” and fragile <span class="citation">(<a href="sec-references.html#ref-schunemann2016interpreting">Schünemann 2016</a>)</span>.</p>
+<p><strong>Publication bias.</strong> Rate down when there is reason to suspect that studies are missing
+selectively, for example a literature dominated by small industry-funded trials, an asymmetric
+funnel plot, or registered trials that were never reported <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade5">G. H. Guyatt, Oxman, Montori, et al. 2011</a>)</span>. Funnel-plot
+methods need at least about ten studies (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>); with fewer, the
+judgment rests on the search and the registry evidence. Because publication bias can rarely be
+proven, GRADE describes it as “strongly suspected” or “undetected” rather than present or absent.</p>
+<p>The domains should not double-count. A single problem, such as an outcome measured in a way that
+favors the intervention, should lower certainty once, in the domain where it fits best, with the
+reasoning stated in a footnote.</p>
+</div>
+<div id="sec-reporting-grade-up" class="section level3" number="15.2.4">
+<h3>
+<span class="header-section-number">15.2.4</span> Three reasons to rate up<a class="anchor" aria-label="anchor" href="#sec-reporting-grade-up"><i class="fas fa-link"></i></a>
+</h3>
+<p>For bodies of observational evidence without serious limitations, certainty can be rated up
+<span class="citation">(<a href="sec-references.html#ref-guyatt2011grade9">G. H. Guyatt, Oxman, Sultan, et al. 2011</a>)</span>: for a <strong>large effect</strong> (by one level for a risk ratio above 2 or below 0.5
+from consistent evidence with no plausible confounders, by two levels for a risk ratio above 5 or
+below 0.2); for a <strong>dose-response gradient</strong>; and when <strong>all plausible residual confounding</strong>
+would reduce a demonstrated effect, or would create a spurious effect where none was observed.
+Rating up is uncommon and should be argued explicitly.</p>
+</div>
+<div id="sec-reporting-grade-overall" class="section level3" number="15.2.5">
+<h3>
+<span class="header-section-number">15.2.5</span> Overall certainty<a class="anchor" aria-label="anchor" href="#sec-reporting-grade-overall"><i class="fas fa-link"></i></a>
+</h3>
+<p>Certainty is rated separately for each outcome. When a single overall rating is needed, for
+example to support a recommendation, it is the lowest certainty among the outcomes judged
+critical for the decision <span class="citation">(<a href="sec-references.html#ref-guyatt2013grade11">G. Guyatt et al. 2013</a>)</span>. GRADE does not require a meta-analysis: when
+studies cannot be pooled and the synthesis is narrative, certainty can still be rated using the
+same domains <span class="citation">(<a href="sec-references.html#ref-murad2017rating">Murad et al. 2017</a>)</span>. A useful discipline is to rate certainty before
+looking at whether the conclusions are welcome; GRADE judgments involve subjectivity, and the
+footnotes that justify each judgment are what allow others to disagree productively.</p>
+</div>
+</div>
+<div id="sec-reporting-sof" class="section level2" number="15.3">
+<h2>
+<span class="header-section-number">15.3</span> A Summary of Findings table in R<a class="anchor" aria-label="anchor" href="#sec-reporting-sof"><i class="fas fa-link"></i></a>
+</h2>
+<p>A <strong>Summary of Findings</strong> (SoF) table presents, for each important outcome, the number of studies
+and participants, the relative effect, the absolute effects, and the certainty of the evidence,
+with footnotes explaining every judgment <span class="citation">(<a href="sec-references.html#ref-guyatt2011grade1"><span class="nocase">G. Guyatt et al.</span> 2011</a>; <a href="sec-references.html#ref-guyatt2013grade12">G. H. Guyatt et al. 2013</a>)</span>. This section
+builds one for the trials of diuretics in pregnancy compiled by <span class="citation">Collins et al. (<a href="sec-references.html#ref-collins1985overview">1985</a>)</span>, available as
+<code>dat.collins1985b</code> in metadat. Nine trials compared diuretics with placebo or no treatment and
+reported pre-eclampsia, perinatal death, stillbirth, and neonatal death.</p>
+<div class="rmdnote">
+<p>The certainty ratings in this section are illustrative. They are based on what the dataset
+records and on general features of these trials, not on a formal risk-of-bias assessment of the
+original reports, and they should not be read as a clinical appraisal of diuretics in pregnancy.</p>
+</div>
+<div id="sec-reporting-sof-models" class="section level3" number="15.3.1">
+<h3>
+<span class="header-section-number">15.3.1</span> Fitting the models<a class="anchor" aria-label="anchor" href="#sec-reporting-sof-models"><i class="fas fa-link"></i></a>
+</h3>
+<p>The four outcomes are binary, so each is analyzed as a log risk ratio with a random-effects model.
+The mortality outcomes share the same follow-up denominators; stillbirth and neonatal death are
+missing for one trial.</p>
+<div class="sourceCode" id="cb287"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dat.collins1985b</span></span>
+<span><span class="va">spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Pre-eclampsia"</span>, <span class="st">"Perinatal death"</span>, <span class="st">"Stillbirth"</span>, <span class="st">"Neonatal death"</span><span class="op">)</span>,</span>
+<span>  ai  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pre.xti"</span>, <span class="st">"ped.xti"</span>, <span class="st">"stb.xti"</span>, <span class="st">"ned.xti"</span><span class="op">)</span>,</span>
+<span>  n1i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pre.nti"</span>, <span class="st">"fup.nti"</span>, <span class="st">"fup.nti"</span>, <span class="st">"fup.nti"</span><span class="op">)</span>,</span>
+<span>  ci  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pre.xci"</span>, <span class="st">"ped.xci"</span>, <span class="st">"stb.xci"</span>, <span class="st">"ned.xci"</span><span class="op">)</span>,</span>
+<span>  n2i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pre.nci"</span>, <span class="st">"fup.nci"</span>, <span class="st">"fup.nci"</span>, <span class="st">"fup.nci"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_outcome</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">row</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>ai <span class="op">=</span> <span class="va">dat</span><span class="op">[[</span><span class="va">row</span><span class="op">$</span><span class="va">ai</span><span class="op">]</span><span class="op">]</span>, n1i <span class="op">=</span> <span class="va">dat</span><span class="op">[[</span><span class="va">row</span><span class="op">$</span><span class="va">n1i</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>                  ci <span class="op">=</span> <span class="va">dat</span><span class="op">[[</span><span class="va">row</span><span class="op">$</span><span class="va">ci</span><span class="op">]</span><span class="op">]</span>, n2i <span class="op">=</span> <span class="va">dat</span><span class="op">[[</span><span class="va">row</span><span class="op">$</span><span class="va">n2i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">d</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/stats/complete.cases.html">complete.cases</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>, <span class="op">]</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">d</span>,</span>
+<span>       fit <span class="op">=</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">d</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/split.html">split</a></span><span class="op">(</span><span class="va">spec</span>, <span class="va">spec</span><span class="op">$</span><span class="va">outcome</span><span class="op">)</span><span class="op">[</span><span class="va">spec</span><span class="op">$</span><span class="va">outcome</span><span class="op">]</span>, <span class="va">fit_outcome</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">summ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">fits</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">o</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">m</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="va">o</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">fit</span>; <span class="va">d</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="va">o</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">data</span>; <span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">m</span>, transf <span class="op">=</span> <span class="va">exp</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>outcome <span class="op">=</span> <span class="va">o</span>, k <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">k</span>, N <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">n1i</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">n2i</span><span class="op">)</span>, events <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">ai</span> <span class="op">+</span> <span class="va">d</span><span class="op">$</span><span class="va">ci</span><span class="op">)</span>,</span>
+<span>             RR <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">pred</span>, ci.lb <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">ci.lb</span>, ci.ub <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">ci.ub</span>,</span>
+<span>             pi.lb <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">pi.lb</span>, pi.ub <span class="op">=</span> <span class="va">p</span><span class="op">$</span><span class="va">pi.ub</span>, tau <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">m</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>, I2 <span class="op">=</span> <span class="va">m</span><span class="op">$</span><span class="va">I2</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">summ</span>, digits <span class="op">=</span> <span class="fl">3</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          outcome k    N events    RR ci.lb ci.ub pi.lb pi.ub   tau   I2</span></span>
+<span><span class="co">#&gt;    Pre-eclampsia 9 6942    636 0.645 0.450 0.924 0.250  1.66 0.446 76.7</span></span>
+<span><span class="co">#&gt;  Perinatal death 9 6864    123 0.923 0.648 1.315 0.648  1.31 0.000  0.0</span></span>
+<span><span class="co">#&gt;       Stillbirth 8 4158     37 0.697 0.371 1.308 0.371  1.31 0.000  0.0</span></span>
+<span><span class="co">#&gt;   Neonatal death 8 4158     43 0.887 0.489 1.606 0.489  1.61 0.000  0.0</span></span></code></pre></div>
+<p>Pre-eclampsia is the only outcome with clear heterogeneity: <span class="math inline">\(\hat\tau\)</span> = 0.45,
+<span class="math inline">\(I^2\)</span> = 77%, and a 95% prediction interval of 0.25 to
+1.66 around a pooled risk ratio of 0.64. For the mortality outcomes
+<span class="math inline">\(\hat\tau^2\)</span> is zero, so the prediction intervals coincide with the confidence intervals, and all
+three intervals are wide because deaths are rare: there were only 123 perinatal deaths
+in 6,864 pregnancies. Chapter <a href="sec-models.html#sec-models">4</a> discusses alternatives
+to these defaults, such as the Hartung-Knapp confidence interval and methods that suit rare
+events better than inverse-variance pooling of log risk ratios; the defaults are kept here to
+focus on the presentation.</p>
+</div>
+<div id="sec-reporting-sof-thresholds" class="section level3" number="15.3.2">
+<h3>
+<span class="header-section-number">15.3.2</span> Thresholds, imprecision, and inconsistency<a class="anchor" aria-label="anchor" href="#sec-reporting-sof-thresholds"><i class="fas fa-link"></i></a>
+</h3>
+<p>Imprecision and inconsistency are judged against thresholds. Following the classical GRADE
+default, we treat a relative risk reduction or increase of 25% (risk ratios of 0.75 and 1.25) as
+appreciable, with the null (a risk ratio of 1) as the primary threshold. Figure
+<a href="sec-reporting.html#fig:rep-thresholds">15.1</a> places each outcome’s confidence and prediction intervals against these
+lines.</p>
+<div class="sourceCode" id="cb288"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">summ</span><span class="op">$</span><span class="va">label</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">outcome</span>, <span class="fu"><a href="https://rdrr.io/r/base/rev.html">rev</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">outcome</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">summ</span>, <span class="fu">aes</span><span class="op">(</span>y <span class="op">=</span> <span class="va">label</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.75</span>, <span class="fl">1.25</span><span class="op">)</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, colour <span class="op">=</span> <span class="st">"grey40"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_segment</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">pi.lb</span>, xend <span class="op">=</span> <span class="va">pi.ub</span>, yend <span class="op">=</span> <span class="va">label</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_segment</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">ci.lb</span>, xend <span class="op">=</span> <span class="va">ci.ub</span>, yend <span class="op">=</span> <span class="va">label</span><span class="op">)</span>, linewidth <span class="op">=</span> <span class="fl">1.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">RR</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">scale_x_log10</span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Risk ratio (log scale)"</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:rep-thresholds"></span>
+<img src="15-reporting-grade_files/figure-html/rep-thresholds-1.png" alt="Pooled risk ratios with 95\% confidence intervals (thick) and 95\% prediction intervals (thin) for four outcomes, on a log scale. The solid line marks the null; dashed lines mark the thresholds for an appreciable benefit or harm (risk ratios of 0.75 and 1.25)." width="85%"><p class="caption">
+Figure 15.1: Pooled risk ratios with 95% confidence intervals (thick) and 95% prediction intervals (thin) for four outcomes, on a log scale. The solid line marks the null; dashed lines mark the thresholds for an appreciable benefit or harm (risk ratios of 0.75 and 1.25).
+</p>
+</div>
+<p>Imprecision can be rated mechanically once the thresholds are fixed. The function below applies
+a rule in the spirit of GRADE: rate down one level if the confidence interval crosses the null,
+two levels if it includes both an appreciable benefit and an appreciable harm, and one level if
+the interval excludes the null but the total sample size falls short of the optimal information
+size. The OIS is computed as the total sample size of a two-arm trial with 80% power to detect a
+25% relative risk reduction at the assumed control risk.</p>
+<div class="sourceCode" id="cb289"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ois</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">control_risk</span>, <span class="va">rrr</span> <span class="op">=</span> <span class="fl">0.25</span>, <span class="va">power</span> <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">ceiling</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/power.prop.test.html">power.prop.test</a></span><span class="op">(</span>p1 <span class="op">=</span> <span class="va">control_risk</span>, p2 <span class="op">=</span> <span class="va">control_risk</span> <span class="op">*</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">rrr</span><span class="op">)</span>,</span>
+<span>                              power <span class="op">=</span> <span class="va">power</span><span class="op">)</span><span class="op">$</span><span class="va">n</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">rate_imprecision</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">lb</span>, <span class="va">ub</span>, <span class="va">N</span>, <span class="va">ois_n</span>, <span class="va">benefit</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="va">harm</span> <span class="op">=</span> <span class="fl">1.25</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">lb</span> <span class="op">&lt;</span> <span class="va">benefit</span> <span class="op">&amp;&amp;</span> <span class="va">ub</span> <span class="op">&gt;</span> <span class="va">harm</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">lb</span> <span class="op">&lt;</span> <span class="fl">1</span> <span class="op">&amp;&amp;</span> <span class="va">ub</span> <span class="op">&gt;</span> <span class="fl">1</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">N</span> <span class="op">&lt;</span> <span class="va">ois_n</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="fl">0</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># assumed control risk: median control-group risk across the trials</span></span>
+<span><span class="va">summ</span><span class="op">$</span><span class="va">acr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html">median</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">ci</span> <span class="op">/</span> <span class="va">f</span><span class="op">$</span><span class="va">data</span><span class="op">$</span><span class="va">n2i</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">summ</span><span class="op">$</span><span class="va">ois</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">acr</span>, <span class="va">ois</span><span class="op">)</span></span>
+<span><span class="va">summ</span><span class="op">$</span><span class="va">imprecision</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="va">rate_imprecision</span>, <span class="va">summ</span><span class="op">$</span><span class="va">ci.lb</span>, <span class="va">summ</span><span class="op">$</span><span class="va">ci.ub</span>, <span class="va">summ</span><span class="op">$</span><span class="va">N</span>, <span class="va">summ</span><span class="op">$</span><span class="va">ois</span><span class="op">)</span></span>
+<span><span class="va">summ</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"outcome"</span>, <span class="st">"N"</span>, <span class="st">"acr"</span>, <span class="st">"ois"</span>, <span class="st">"ci.lb"</span>, <span class="st">"ci.ub"</span>, <span class="st">"imprecision"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt;           outcome    N     acr   ois  ci.lb ci.ub imprecision</span></span>
+<span><span class="co">#&gt; 1   Pre-eclampsia 6942 0.12687  3078 0.4498 0.924           0</span></span>
+<span><span class="co">#&gt; 2 Perinatal death 6864 0.02727 15730 0.6480 1.315          -2</span></span>
+<span><span class="co">#&gt; 3      Stillbirth 4158 0.01594 27188 0.3711 1.308          -2</span></span>
+<span><span class="co">#&gt; 4  Neonatal death 4158 0.01194 36418 0.4895 1.606          -2</span></span></code></pre></div>
+<p>For pre-eclampsia, the confidence interval excludes the null and the trials include more
+participants than the OIS of 3,078, so imprecision is not a
+serious concern. For each mortality outcome the interval includes both a 25% reduction and a 25%
+increase in risk, and the total sample size is between
+2 and
+9 times smaller than the OIS, which is large
+because the outcomes are rare. These outcomes are rated down two levels for imprecision.</p>
+<p>The remaining judgments require reading the trials, and they are recorded with their reasons.
+Several of the trials used oedema as one of the diagnostic criteria for pre-eclampsia
+(the <code>oedema</code> variable), and diuretics reduce oedema directly, so the measured outcome is biased
+in favor of diuretics: a serious risk-of-bias concern in the measurement of the outcome. The
+sensitivity analysis below supports the concern.</p>
+<div class="sourceCode" id="cb290"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_pre_no_oedema</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">pre.xti</span>, n1i <span class="op">=</span> <span class="va">pre.nti</span>, ci <span class="op">=</span> <span class="va">pre.xci</span>,</span>
+<span>                         n2i <span class="op">=</span> <span class="va">pre.nci</span>, data <span class="op">=</span> <span class="va">dat</span>, subset <span class="op">=</span> <span class="va">oedema</span> <span class="op">==</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_pre_no_oedema</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.77  0.56  1.06  0.39  1.54</span></span></code></pre></div>
+<p>Restricted to the 7 trials that did not use oedema as a criterion, the risk
+ratio is 0.77 (95% CI 0.56 to 1.06), closer to the null
+and no longer excluding it. The pre-eclampsia evidence is also rated down for inconsistency, since
+the prediction interval extends from a large benefit to an appreciable harm. Mortality outcomes are
+objectively measured and show no heterogeneity. With nine or fewer trials per outcome, funnel-plot
+methods are uninformative, and publication bias is recorded as undetected.</p>
+</div>
+<div id="sec-reporting-sof-table" class="section level3" number="15.3.3">
+<h3>
+<span class="header-section-number">15.3.3</span> Absolute effects and the table<a class="anchor" aria-label="anchor" href="#sec-reporting-sof-table"><i class="fas fa-link"></i></a>
+</h3>
+<p>Relative effects tend to be more stable across populations than absolute effects, but decisions
+depend on absolute effects. GRADE therefore presents the risk in the control group, the
+corresponding risk with the intervention, and their difference, usually per 1,000 people
+<span class="citation">(<a href="sec-references.html#ref-guyatt2013grade12">G. H. Guyatt et al. 2013</a>)</span>. With an assumed control risk <span class="math inline">\(p_C\)</span> and a pooled risk ratio
+<span class="math inline">\(\widehat{RR}\)</span> with confidence limits <span class="math inline">\((L, U)\)</span>,</p>
+<p><span class="math display">\[
+\hat p_I = p_C \cdot \widehat{RR}, \qquad
+\widehat{\Delta} = p_C(\widehat{RR} - 1), \qquad
+\text{95\% CI for } \Delta = \big(p_C(L - 1),\; p_C(U - 1)\big).
+\]</span></p>
+<p>The assumed control risk should reflect the population to which the results will be applied.
+Here it is the median control-group risk across the trials; a guideline would often use risks
+from a representative cohort and might present several baseline risks.</p>
+<div class="sourceCode" id="cb291"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">judgments</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  outcome       <span class="op">=</span> <span class="va">spec</span><span class="op">$</span><span class="va">outcome</span>,</span>
+<span>  risk_of_bias  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  inconsistency <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  indirectness  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  publication   <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">sof</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">summ</span>, <span class="va">judgments</span>, by <span class="op">=</span> <span class="st">"outcome"</span>, sort <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">sof</span><span class="op">$</span><span class="va">score</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">+</span> <span class="va">sof</span><span class="op">$</span><span class="va">risk_of_bias</span> <span class="op">+</span> <span class="va">sof</span><span class="op">$</span><span class="va">inconsistency</span> <span class="op">+</span> <span class="va">sof</span><span class="op">$</span><span class="va">indirectness</span> <span class="op">+</span></span>
+<span>  <span class="va">sof</span><span class="op">$</span><span class="va">imprecision</span> <span class="op">+</span> <span class="va">sof</span><span class="op">$</span><span class="va">publication</span></span>
+<span><span class="va">grade_label</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="fl">4</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"⊕◯◯◯ Very low"</span>, <span class="st">"⊕⊕◯◯ Low"</span>,</span>
+<span>    <span class="st">"⊕⊕⊕◯ Moderate"</span>, <span class="st">"⊕⊕⊕⊕ High"</span><span class="op">)</span><span class="op">[</span><span class="va">s</span><span class="op">]</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">per1000</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fl">1000</span> <span class="op">*</span> <span class="va">x</span><span class="op">)</span></span>
+<span><span class="va">diff_text</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">acr</span>, <span class="va">rr</span>, <span class="va">lb</span>, <span class="va">ub</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">d</span> <span class="op">&lt;-</span> <span class="fu">per1000</span><span class="op">(</span><span class="va">acr</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">rr</span>, <span class="va">lb</span>, <span class="va">ub</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">dir</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">v</span><span class="op">)</span> <span class="kw">if</span> <span class="op">(</span><span class="va">v</span> <span class="op">&lt;</span> <span class="fl">0</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span>, <span class="st">"fewer"</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">v</span>, <span class="st">"more"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%s (%s to %s)"</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.files.html">dir</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.files.html">dir</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.files.html">dir</a></span><span class="op">(</span><span class="va">d</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">sof_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  Outcome <span class="op">=</span> <span class="va">sof</span><span class="op">$</span><span class="va">outcome</span>,</span>
+<span>  `Participants (trials)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%s (%d)"</span>, <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">N</span>, big.mark <span class="op">=</span> <span class="st">","</span><span class="op">)</span>, <span class="va">sof</span><span class="op">$</span><span class="va">k</span><span class="op">)</span>,</span>
+<span>  `Relative effect RR (95% CI)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%.2f (%.2f to %.2f)"</span>, <span class="va">sof</span><span class="op">$</span><span class="va">RR</span>, <span class="va">sof</span><span class="op">$</span><span class="va">ci.lb</span>, <span class="va">sof</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>,</span>
+<span>  `Risk with control` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%d per 1,000"</span>, <span class="fu">per1000</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">acr</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  `Risk with diuretics` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%d per 1,000"</span>, <span class="fu">per1000</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">acr</span> <span class="op">*</span> <span class="va">sof</span><span class="op">$</span><span class="va">RR</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  `Difference per 1,000 (95% CI)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="va">diff_text</span>, <span class="va">sof</span><span class="op">$</span><span class="va">acr</span>, <span class="va">sof</span><span class="op">$</span><span class="va">RR</span>, <span class="va">sof</span><span class="op">$</span><span class="va">ci.lb</span>, <span class="va">sof</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>,</span>
+<span>  Certainty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">score</span>, <span class="va">grade_label</span><span class="op">)</span>,</span>
+<span>  check.names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">sof_tab</span><span class="op">$</span><span class="va">Certainty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">sof_tab</span><span class="op">$</span><span class="va">Certainty</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"^a,b^"</span>, <span class="st">"^c^"</span>, <span class="st">"^c^"</span>, <span class="st">"^c^"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">sof_tab</span>, align <span class="op">=</span> <span class="st">"lcccccl"</span>,</span>
+<span>  caption <span class="op">=</span> <span class="st">"Summary of findings: diuretics compared with placebo or no treatment in pregnancy."</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:rep-sof-table">Table 15.1: </span>Summary of findings: diuretics compared with placebo or no treatment in pregnancy.</caption>
+<colgroup>
+<col width="10%">
+<col width="14%">
+<col width="18%">
+<col width="12%">
+<col width="13%">
+<col width="21%">
+<col width="9%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Outcome</th>
+<th align="center">Participants (trials)</th>
+<th align="center">Relative effect RR (95% CI)</th>
+<th align="center">Risk with control</th>
+<th align="center">Risk with diuretics</th>
+<th align="center">Difference per 1,000 (95% CI)</th>
+<th align="left">Certainty</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Pre-eclampsia</td>
+<td align="center">6,942 (9)</td>
+<td align="center">0.64 (0.45 to 0.92)</td>
+<td align="center">127 per 1,000</td>
+<td align="center">82 per 1,000</td>
+<td align="center">45 fewer (70 fewer to 10 fewer)</td>
+<td align="left">⊕⊕◯◯ Low<sup>a,b</sup>
+</td>
+</tr>
+<tr class="even">
+<td align="left">Perinatal death</td>
+<td align="center">6,864 (9)</td>
+<td align="center">0.92 (0.65 to 1.31)</td>
+<td align="center">27 per 1,000</td>
+<td align="center">25 per 1,000</td>
+<td align="center">2 fewer (10 fewer to 9 more)</td>
+<td align="left">⊕⊕◯◯ Low<sup>c</sup>
+</td>
+</tr>
+<tr class="odd">
+<td align="left">Stillbirth</td>
+<td align="center">4,158 (8)</td>
+<td align="center">0.70 (0.37 to 1.31)</td>
+<td align="center">16 per 1,000</td>
+<td align="center">11 per 1,000</td>
+<td align="center">5 fewer (10 fewer to 5 more)</td>
+<td align="left">⊕⊕◯◯ Low<sup>c</sup>
+</td>
+</tr>
+<tr class="even">
+<td align="left">Neonatal death</td>
+<td align="center">4,158 (8)</td>
+<td align="center">0.89 (0.49 to 1.61)</td>
+<td align="center">12 per 1,000</td>
+<td align="center">11 per 1,000</td>
+<td align="center">1 fewer (6 fewer to 7 more)</td>
+<td align="left">⊕⊕◯◯ Low<sup>c</sup>
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>Footnotes to Table <a href="sec-reporting.html#tab:rep-sof-table">15.1</a>:
+<sup>a</sup> Rated down one level for risk of bias: several trials included oedema, which diuretics reduce
+directly, in the definition of pre-eclampsia; excluding them moves the estimate toward the null.
+<sup>b</sup> Rated down one level for inconsistency: <span class="math inline">\(I^2\)</span> = 77%, and the 95% prediction
+interval (0.25 to 1.66) includes both a large benefit and an appreciable
+harm.
+<sup>c</sup> Rated down two levels for imprecision: the confidence interval includes both a 25% relative
+reduction and a 25% relative increase in risk, few events, and a total sample size well below the
+optimal information size.</p>
+<p>All four outcomes end at low certainty, for different reasons, and the footnotes are what tell a
+reader which. The pre-eclampsia estimate is precise but probably biased and heterogeneous; the
+mortality estimates are unbiased as far as we can tell but too imprecise to exclude either a
+meaningful benefit or a meaningful harm. This distinction matters for what further research would
+help: a new trial would need a clean definition of pre-eclampsia to resolve the first question,
+and a very large size to resolve the second.</p>
+<div class="rmdtip">
+<p>For publication-quality SoF tables, the <code>gt</code> and <code>kableExtra</code> packages offer footnote and styling
+functions, and the GRADEpro tool produces tables in the official format. Generating the table
+from the model objects, as here, guarantees that the numbers in the table match the analysis.</p>
+</div>
+</div>
+<div id="sec-reporting-sof-profile" class="section level3" number="15.3.4">
+<h3>
+<span class="header-section-number">15.3.4</span> The evidence profile<a class="anchor" aria-label="anchor" href="#sec-reporting-sof-profile"><i class="fas fa-link"></i></a>
+</h3>
+<p>A Summary of Findings table is written for decision makers and hides the domain-level judgments
+in footnotes. The <strong>evidence profile</strong> is its companion for reviewers and methodologists: one row
+per outcome and one column per GRADE domain, so that every judgment is visible
+<span class="citation">(<a href="sec-references.html#ref-guyatt2011grade1"><span class="nocase">G. Guyatt et al.</span> 2011</a>)</span>. Because the judgments are already stored in <code>sof</code>, the profile is a
+different view of the same object.</p>
+<div class="sourceCode" id="cb292"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">level_text</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"-2"</span> <span class="op">=</span> <span class="st">"Very serious"</span>, <span class="st">"-1"</span> <span class="op">=</span> <span class="st">"Serious"</span>, <span class="st">"0"</span> <span class="op">=</span> <span class="st">"Not serious"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">profile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
+<span>  Outcome            <span class="op">=</span> <span class="va">sof</span><span class="op">$</span><span class="va">outcome</span>,</span>
+<span>  `Studies (design)` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">k</span>, <span class="st">"RCTs"</span><span class="op">)</span>,</span>
+<span>  `Risk of bias`     <span class="op">=</span> <span class="fu">level_text</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">risk_of_bias</span><span class="op">)</span>,</span>
+<span>  Inconsistency      <span class="op">=</span> <span class="fu">level_text</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">inconsistency</span><span class="op">)</span>,</span>
+<span>  Indirectness       <span class="op">=</span> <span class="fu">level_text</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">indirectness</span><span class="op">)</span>,</span>
+<span>  Imprecision        <span class="op">=</span> <span class="fu">level_text</span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">imprecision</span><span class="op">)</span>,</span>
+<span>  `Publication bias` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">publication</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"Undetected"</span>, <span class="st">"Strongly suspected"</span><span class="op">)</span>,</span>
+<span>  Certainty          <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">sub</a></span><span class="op">(</span><span class="st">"^\\S+ "</span>, <span class="st">""</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">sof</span><span class="op">$</span><span class="va">score</span>, <span class="va">grade_label</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  check.names <span class="op">=</span> <span class="cn">FALSE</span>, row.names <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span><span class="va">profile</span>, caption <span class="op">=</span> <span class="st">"GRADE evidence profile for the diuretics example."</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:rep-evidence-profile">Table 15.2: </span>GRADE evidence profile for the diuretics example.</caption>
+<colgroup>
+<col width="14%">
+<col width="15%">
+<col width="11%">
+<col width="12%">
+<col width="11%">
+<col width="11%">
+<col width="15%">
+<col width="8%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Outcome</th>
+<th align="left">Studies (design)</th>
+<th align="left">Risk of bias</th>
+<th align="left">Inconsistency</th>
+<th align="left">Indirectness</th>
+<th align="left">Imprecision</th>
+<th align="left">Publication bias</th>
+<th align="left">Certainty</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Pre-eclampsia</td>
+<td align="left">9 RCTs</td>
+<td align="left">Serious</td>
+<td align="left">Serious</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Undetected</td>
+<td align="left">Low</td>
+</tr>
+<tr class="even">
+<td align="left">Perinatal death</td>
+<td align="left">9 RCTs</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Very serious</td>
+<td align="left">Undetected</td>
+<td align="left">Low</td>
+</tr>
+<tr class="odd">
+<td align="left">Stillbirth</td>
+<td align="left">8 RCTs</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Very serious</td>
+<td align="left">Undetected</td>
+<td align="left">Low</td>
+</tr>
+<tr class="even">
+<td align="left">Neonatal death</td>
+<td align="left">8 RCTs</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Not serious</td>
+<td align="left">Very serious</td>
+<td align="left">Undetected</td>
+<td align="left">Low</td>
+</tr>
+</tbody>
+</table></div>
+<p>Read across a row, the profile shows how each certainty rating was reached; read down a column, it
+shows which concern dominates the body of evidence. Here imprecision is the binding constraint for
+every mortality outcome, which tells a reader immediately that the problem is too little data, not
+bad data.</p>
+</div>
+<div id="sec-reporting-sof-sensitivity" class="section level3" number="15.3.5">
+<h3>
+<span class="header-section-number">15.3.5</span> How sensitive are the ratings to the thresholds?<a class="anchor" aria-label="anchor" href="#sec-reporting-sof-sensitivity"><i class="fas fa-link"></i></a>
+</h3>
+<p>The imprecision ratings above depend on the choice of a 25% relative change as the threshold for
+an appreciable effect. That choice is a value judgment, and with rare but serious outcomes such as
+perinatal death, many decision makers would regard a much smaller relative change as important.
+Recomputing the ratings for a range of thresholds shows how much the conclusions depend on it.</p>
+<div class="sourceCode" id="cb293"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">thresholds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.10</span>, <span class="fl">0.25</span>, <span class="fl">0.40</span><span class="op">)</span></span>
+<span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">thresholds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">lb</span>, <span class="va">ub</span>, <span class="va">N</span>, <span class="va">acr</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu">rate_imprecision</span><span class="op">(</span><span class="va">lb</span>, <span class="va">ub</span>, <span class="va">N</span>, <span class="fu">ois</span><span class="op">(</span><span class="va">acr</span>, rrr <span class="op">=</span> <span class="va">t</span><span class="op">)</span>, benefit <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">t</span>, harm <span class="op">=</span> <span class="fl">1</span> <span class="op">+</span> <span class="va">t</span><span class="op">)</span></span>
+<span>  <span class="op">}</span>, <span class="va">summ</span><span class="op">$</span><span class="va">ci.lb</span>, <span class="va">summ</span><span class="op">$</span><span class="va">ci.ub</span>, <span class="va">summ</span><span class="op">$</span><span class="va">N</span>, <span class="va">summ</span><span class="op">$</span><span class="va">acr</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dimnames.html">dimnames</a></span><span class="op">(</span><span class="va">sens</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">summ</span><span class="op">$</span><span class="va">outcome</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="st">"RRR/RRI "</span>, <span class="fl">100</span> <span class="op">*</span> <span class="va">thresholds</span>, <span class="st">"%"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sens</span></span>
+<span><span class="co">#&gt;                 RRR/RRI 10% RRR/RRI 25% RRR/RRI 40%</span></span>
+<span><span class="co">#&gt; Pre-eclampsia            -1           0           0</span></span>
+<span><span class="co">#&gt; Perinatal death          -2          -2          -1</span></span>
+<span><span class="co">#&gt; Stillbirth               -2          -2          -1</span></span>
+<span><span class="co">#&gt; Neonatal death           -2          -2          -2</span></span></code></pre></div>
+<p>With a 10% threshold, the pre-eclampsia evidence is rated down for imprecision as well, because
+the trials no longer reach the much larger optimal information size needed to detect a 10%
+relative reduction. With a 40% threshold, perinatal death and stillbirth are still rated down by
+one level, because their confidence intervals cross the null, and neonatal death by two, because
+its interval spans a 40% reduction and a 40% increase. The conclusion that the mortality evidence
+is imprecise is robust to the threshold; the conclusion that the pre-eclampsia evidence is
+precise enough is not. Stating the threshold, and showing how the
+ratings change with it, is what the GRADE guidance on contextualization asks for
+<span class="citation">(<a href="sec-references.html#ref-zeng2022grade">Zeng et al. 2022</a>; <a href="sec-references.html#ref-schunemann2022grade">Schünemann et al. 2022</a>)</span>.</p>
+</div>
+</div>
+<div id="sec-reporting-standards" class="section level2" number="15.4">
+<h2>
+<span class="header-section-number">15.4</span> Reporting standards<a class="anchor" aria-label="anchor" href="#sec-reporting-standards"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-reporting-prisma" class="section level3" number="15.4.1">
+<h3>
+<span class="header-section-number">15.4.1</span> PRISMA 2020<a class="anchor" aria-label="anchor" href="#sec-reporting-prisma"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <strong>PRISMA 2020</strong> statement is the main reporting guideline for systematic reviews and
+meta-analyses <span class="citation">(<a href="sec-references.html#ref-page2021prisma">Page, McKenzie, et al. 2021</a>)</span>, replacing the 2009 statement <span class="citation">(<a href="sec-references.html#ref-moher2009preferred">Moher et al. 2009</a>)</span>. It consists of
+a 27-item checklist, an abstract checklist, and the flow diagram described in Chapter
+<a href="sec-systematic-review.html#sec-systematic-review">2</a>; the explanation and elaboration paper gives the rationale and
+examples for each item <span class="citation">(<a href="sec-references.html#ref-page2021prismaelaboration">Page, Moher, et al. 2021</a>)</span>. The items most directly concerned with the
+statistical synthesis are:</p>
+<ul>
+<li>
+<strong>Item 12, effect measures</strong>: the effect measure used for each outcome (for example risk ratio,
+standardized mean difference).</li>
+<li>
+<strong>Item 13, synthesis methods</strong> (13a to 13f): how studies were grouped for each synthesis, how data
+were prepared (handling of missing statistics, conversions), how results were tabulated and
+displayed, the meta-analysis model and its rationale, the method for estimating and
+identifying heterogeneity and the software used, methods to explore heterogeneity, and
+sensitivity analyses.</li>
+<li>
+<strong>Items 14 and 15</strong>: methods for assessing the risk of bias due to missing results (reporting
+biases) and for assessing certainty.</li>
+<li>
+<strong>Item 20, results of syntheses</strong> (20a to 20d): for each synthesis, the characteristics and risk
+of bias of the contributing studies, the summary estimate with its confidence interval and
+measures of heterogeneity, the results of investigations of heterogeneity, and the results of
+sensitivity analyses.</li>
+<li>
+<strong>Items 21 and 22</strong>: assessments of reporting biases and of certainty for each outcome.</li>
+<li>
+<strong>Items 24 and 27</strong>: registration and protocol, and the availability of data, analytic code,
+and other materials.</li>
+</ul>
+</div>
+<div id="sec-reporting-extensions" class="section level3" number="15.4.2">
+<h3>
+<span class="header-section-number">15.4.2</span> Extensions and other standards<a class="anchor" aria-label="anchor" href="#sec-reporting-extensions"><i class="fas fa-link"></i></a>
+</h3>
+<p>Extensions adapt PRISMA to particular review types. <strong>PRISMA-NMA</strong> covers network meta-analyses,
+adding items on the geometry of the network, the assessment of inconsistency, and the
+presentation of treatment rankings <span class="citation">(<a href="sec-references.html#ref-hutton2015prisma">Hutton et al. 2015</a>)</span> (Chapter <a href="sec-network.html#sec-network">10</a>).
+<strong>PRISMA-IPD</strong> covers meta-analyses of individual participant data, including how data were
+obtained, checked, and analyzed <span class="citation">(<a href="sec-references.html#ref-stewart2015preferred">Stewart et al. 2015</a>)</span> (Chapter <a href="sec-multivariate-ipd.html#sec-multivariate-ipd">12</a>).
+<strong>PRISMA-DTA</strong> covers diagnostic test accuracy reviews <span class="citation">(<a href="sec-references.html#ref-mcinnes2018preferred">McInnes et al. 2018</a>)</span>
+(Chapter <a href="sec-dta.html#sec-dta">13</a>). PRISMA-P and PRISMA-S, for protocols and search reporting, were
+discussed in Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>.</p>
+<p>Two further standards are common in the social sciences and in epidemiology. In psychology, the
+APA Journal Article Reporting Standards for quantitative research (<strong>JARS-Quant</strong>) include the
+Meta-Analysis Reporting Standards (<strong>MARS</strong>), which many psychology and management journals
+require <span class="citation">(<a href="sec-references.html#ref-appelbaum2018journal">Appelbaum et al. 2018</a>)</span>. MARS overlaps substantially with PRISMA and asks for more
+detail on matters that are common in behavioral research, such as how moderators were coded and
+how statistical dependencies among effect sizes were handled. For meta-analyses of
+observational studies, <strong>MOOSE</strong> gives a checklist covering background, search strategy, methods,
+results, discussion, and conclusions <span class="citation">(<a href="sec-references.html#ref-stroup2000metaanalysis">Stroup et al. 2000</a>)</span>. When a journal names one standard,
+follow it, and consider including a completed PRISMA checklist as well; the overlap makes this
+cheap.</p>
+</div>
+</div>
+<div id="sec-reporting-results" class="section level2" number="15.5">
+<h2>
+<span class="header-section-number">15.5</span> Writing the results<a class="anchor" aria-label="anchor" href="#sec-reporting-results"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-reporting-heterogeneity" class="section level3" number="15.5.1">
+<h3>
+<span class="header-section-number">15.5.1</span> What to report about heterogeneity<a class="anchor" aria-label="anchor" href="#sec-reporting-heterogeneity"><i class="fas fa-link"></i></a>
+</h3>
+<p>Heterogeneity is often reported only as <span class="math inline">\(I^2\)</span> with the <span class="math inline">\(p\)</span>-value of the <span class="math inline">\(Q\)</span> test. Both are
+incomplete. <span class="math inline">\(I^2\)</span> is the proportion of observed variance that is not sampling error; it depends on
+the precision of the studies as well as on how much the true effects vary, so the same <span class="math inline">\(\tau\)</span> can
+produce a small <span class="math inline">\(I^2\)</span> in a meta-analysis of small studies and a large one in a meta-analysis of
+large studies <span class="citation">(<a href="sec-references.html#ref-rucker2008undue">Rücker et al. 2008</a>; <a href="sec-references.html#ref-borenstein2017basics">Borenstein et al. 2017</a>)</span>. The <span class="math inline">\(Q\)</span> test has low power with few
+studies and rejects trivial heterogeneity with many.</p>
+<p>A complete report gives:</p>
+<ol style="list-style-type: decimal">
+<li>
+<span class="math inline">\(\hat\tau\)</span> (or <span class="math inline">\(\hat\tau^2\)</span>) with its confidence interval, on the scale of the effect size, and
+the estimator used;</li>
+<li>the <strong>prediction interval</strong>, which translates <span class="math inline">\(\tau\)</span> into the range of true effects to expect in
+a new setting <span class="citation">(<a href="sec-references.html#ref-riley2011interpretation">Riley et al. 2011</a>; <a href="sec-references.html#ref-inthout2016plea">IntHout et al. 2016</a>)</span>;</li>
+<li>
+<span class="math inline">\(Q\)</span> with its degrees of freedom and <span class="math inline">\(p\)</span>-value, and <span class="math inline">\(I^2\)</span> with its confidence interval, as
+secondary descriptors.</li>
+</ol>
+<p>For effects on a log scale, report the prediction interval back-transformed (as a range of risk
+ratios or odds ratios), since few readers can interpret <span class="math inline">\(\tau\)</span> = 0.45 on the log scale
+directly.</p>
+</div>
+<div id="sec-reporting-figures" class="section level3" number="15.5.2">
+<h3>
+<span class="header-section-number">15.5.2</span> Figures and tables<a class="anchor" aria-label="anchor" href="#sec-reporting-figures"><i class="fas fa-link"></i></a>
+</h3>
+<p>A small set of displays covers most meta-analyses. A <strong>table of study characteristics</strong> lists, for
+each included study, the design, sample size, population, intervention and comparator details,
+outcome measures, and risk-of-bias judgments; it is usually the longest table in the review and
+often belongs in the supplement. A <strong>forest plot</strong> for each main synthesis shows the study
+estimates with their confidence intervals and weights, the pooled estimate, and the prediction
+interval (Chapter <a href="sec-introduction.html#sec-introduction">1</a>); when subgroups are analyzed, a forest plot grouped by
+subgroup with subgroup summaries is clearer than a table. A <strong>funnel plot</strong>, with contour
+enhancement, accompanies any assessment of small-study effects (Chapter
+<a href="sec-publication-bias.html#sec-publication-bias">7</a>), and risk-of-bias <strong>summary and traffic-light plots</strong> show the
+domain-level assessments (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>). Finally, the <strong>Summary of
+Findings table</strong> brings the main outcomes together with their certainty. Each display should
+state the effect measure, the model, and the direction of benefit, so that it can be read without
+the text.</p>
+<p>For subgroup analyses and meta-regression, report the number of studies in each subgroup or the
+range of the moderator, the test of the moderator with its degrees of freedom, the residual
+heterogeneity, and whether the analysis was pre-specified. Post hoc moderator analyses are
+legitimate but exploratory, and their findings should be described as hypotheses
+(Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>).</p>
+</div>
+<div id="sec-reporting-methods" class="section level3" number="15.5.3">
+<h3>
+<span class="header-section-number">15.5.3</span> The methods paragraph<a class="anchor" aria-label="anchor" href="#sec-reporting-methods"><i class="fas fa-link"></i></a>
+</h3>
+<p>PRISMA item 13d asks for the model, the method for estimating heterogeneity, and the software. A
+methods description should let a reader refit the model exactly: the effect measure and its scale,
+the model (common-effect or random-effects), the estimator of <span class="math inline">\(\tau^2\)</span>, the method used for
+confidence intervals and tests, how the prediction interval was computed, how zero cells or
+missing statistics were handled, and the software with version numbers. Version numbers can be
+taken from the running session, so that they are always correct:</p>
+<blockquote>
+<p>Risk ratios were analyzed on the log scale. We fitted random-effects models with the restricted
+maximum likelihood estimator of the between-trial variance <span class="math inline">\(\tau^2\)</span>, Wald-type confidence
+intervals, and 95% prediction intervals for the risk ratio in a new trial. Confidence intervals
+for <span class="math inline">\(\tau^2\)</span> were obtained with the Q-profile method. Absolute effects were computed at the
+median control-group risk across trials. Analyses used R 4.6.2
+and the metafor package, version 5.2.1
+<span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span>.</p>
+</blockquote>
+<p>Two details deserve attention. Defaults change between software versions, so naming the estimator
+and interval method explicitly is safer than writing “default settings”. And if the analysis
+deviated from the protocol, for example by switching from a common-effect to a random-effects
+model, the methods section is where to say so and why.</p>
+</div>
+<div id="sec-reporting-paragraph" class="section level3" number="15.5.4">
+<h3>
+<span class="header-section-number">15.5.4</span> A results paragraph generated from model output<a class="anchor" aria-label="anchor" href="#sec-reporting-paragraph"><i class="fas fa-link"></i></a>
+</h3>
+<p>Results paragraphs are a common source of errors: numbers copied from output into a manuscript
+drift out of date when the analysis changes. Writing the paragraph with inline R code, so that
+every number is computed when the document is rendered, removes this source of error. The
+following paragraph is generated this way from the pre-eclampsia model; the R Markdown source
+shows the inline code.</p>
+<div class="sourceCode" id="cb294"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_pre</span> <span class="op">&lt;-</span> <span class="va">fits</span><span class="op">[[</span><span class="st">"Pre-eclampsia"</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">fit</span></span>
+<span><span class="va">ci_tau</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">res_pre</span><span class="op">)</span><span class="op">$</span><span class="va">random</span></span>
+<span><span class="va">p_pre</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_pre</span>, transf <span class="op">=</span> <span class="va">exp</span><span class="op">)</span></span></code></pre></div>
+<blockquote>
+<p>In total, 9 randomized trials (6,942 participants,
+636 events) compared diuretics with placebo or no treatment for the prevention
+of pre-eclampsia. In a random-effects model with the REML estimator of between-trial variance,
+the average risk ratio was 0.64 (95% CI 0.45 to
+0.92; <span class="math inline">\(z\)</span> = -2.39, <span class="math inline">\(p\)</span> = 0.017). Effects varied
+substantially across trials (<span class="math inline">\(\hat\tau\)</span> = 0.45, 95% CI
+0.22 to 1.26;
+<span class="math inline">\(Q\)</span>(8) = 28.6, <span class="math inline">\(p\)</span> &lt; .001;
+<span class="math inline">\(I^2\)</span> = 77%), and the 95% prediction interval for the risk ratio in a new
+trial ranged from 0.25 to 1.66. Restricting the analysis to the
+7 trials that did not include oedema in the diagnosis of pre-eclampsia gave
+a risk ratio of 0.77 (95% CI 0.56 to 1.06). Diuretics
+may reduce the risk of pre-eclampsia, but the evidence is of low certainty because of bias in
+the outcome definition and unexplained inconsistency.</p>
+</blockquote>
+<p>The last sentence follows the GRADE guidance on informative statements, which links the wording
+to the certainty rating: an unqualified verb (“reduces”) for high certainty, “probably reduces”
+for moderate, “may reduce” for low, and “the evidence is very uncertain” for very low
+<span class="citation">(<a href="sec-references.html#ref-santesso2020grade">Santesso et al. 2020</a>)</span>. Using these phrases consistently lets readers infer the certainty from
+the sentence alone.</p>
+</div>
+<div id="sec-reporting-reporter" class="section level3" number="15.5.5">
+<h3>
+<span class="header-section-number">15.5.5</span> Automated reports with reporter()<a class="anchor" aria-label="anchor" href="#sec-reporting-reporter"><i class="fas fa-link"></i></a>
+</h3>
+<p>metafor’s <code><a href="https://wviechtb.github.io/metafor/reference/reporter.html">reporter()</a></code> function writes a complete methods-and-results report for a fitted model,
+with citations, a forest plot, and a funnel plot, as an HTML, PDF, or Word document. It is useful
+as a checklist of what to report and as a starting draft. The call below writes the report for
+the pre-eclampsia model into a temporary directory without opening it, and prints the text of its
+results section.</p>
+<div class="sourceCode" id="cb295"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">report_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"metafor-report"</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span>,</span>
+<span>                            mustWork <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/files2.html">dir.create</a></span><span class="op">(</span><span class="va">report_dir</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/reporter.html">reporter</a></span><span class="op">(</span><span class="va">res_pre</span>, dir <span class="op">=</span> <span class="va">report_dir</span>, filename <span class="op">=</span> <span class="st">"report_pre"</span>, open <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>         format <span class="op">=</span> <span class="st">"html_document"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">html</span> <span class="op">&lt;-</span> <span class="fu">xml2</span><span class="fu">::</span><span class="fu"><a href="http://xml2.r-lib.org/reference/read_xml.html">read_html</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html">file.path</a></span><span class="op">(</span><span class="va">report_dir</span>, <span class="st">"report_pre.html"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="fu">xml2</span><span class="fu">::</span><span class="fu"><a href="http://xml2.r-lib.org/reference/xml_text.html">xml_text</a></span><span class="op">(</span><span class="fu">xml2</span><span class="fu">::</span><span class="fu"><a href="http://xml2.r-lib.org/reference/xml_find_all.html">xml_find_all</a></span><span class="op">(</span><span class="va">html</span>, <span class="st">"//div[@id='results']/p"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># turn the LaTeX math of the HTML report into plain text</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"\\\\hat\\{\\\\(\\w+)\\}"</span>, <span class="st">"\\1"</span>, <span class="va">txt</span><span class="op">)</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"\\\\pm"</span>, <span class="st">"+/-"</span>, <span class="va">txt</span><span class="op">)</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"\\\\\\(|\\\\\\)|\\\\"</span>, <span class="st">""</span>, <span class="va">txt</span><span class="op">)</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span><span class="op">(</span><span class="st">"\\s+"</span>, <span class="st">" "</span>, <span class="va">txt</span><span class="op">)</span></span>
+<span><span class="va">txt</span>  <span class="op">&lt;-</span> <span class="va">txt</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/nchar.html">nchar</a></span><span class="op">(</span><span class="va">txt</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span><span class="op">(</span><span class="va">txt</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/strwrap.html">strwrap</a></span><span class="op">(</span><span class="va">p</span>, width <span class="op">=</span> <span class="fl">90</span><span class="op">)</span>, collapse <span class="op">=</span> <span class="st">"\n"</span><span class="op">)</span>, <span class="st">""</span><span class="op">)</span>,</span>
+<span>    sep <span class="op">=</span> <span class="st">"\n\n"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; A total of k=9 studies were included in the analysis. The observed log risk ratios ranged</span></span>
+<span><span class="co">#&gt; from -1.3558 to 1.0512, with the majority of estimates being negative (67%). The</span></span>
+<span><span class="co">#&gt; estimated average log risk ratio based on the random-effects model was mu = -0.4390 (95%</span></span>
+<span><span class="co">#&gt; CI: -0.7990 to -0.0790). Therefore, the average outcome differed significantly from zero</span></span>
+<span><span class="co">#&gt; (z = -2.3903, p = 0.0168). A forest plot showing the observed outcomes and the estimate</span></span>
+<span><span class="co">#&gt; based on the random-effects model is shown in Figure 1.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; According to the Q-test, the true outcomes appear to be heterogeneous (Q(8) = 28.6221, p</span></span>
+<span><span class="co">#&gt; = 0.0004, tau^2 = 0.1992, I^2 = 76.7422%). A 95% prediction interval for the true</span></span>
+<span><span class="co">#&gt; outcomes is given by -1.3849 to 0.5069. Hence, although the average outcome is estimated</span></span>
+<span><span class="co">#&gt; to be negative, in some studies the true outcome may in fact be positive.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; An examination of the studentized residuals revealed that none of the studies had a value</span></span>
+<span><span class="co">#&gt; larger than +/- 2.7729 and hence there was no indication of outliers in the context of</span></span>
+<span><span class="co">#&gt; this model. According to the Cook’s distances, none of the studies could be considered to</span></span>
+<span><span class="co">#&gt; be overly influential.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; A funnel plot of the estimates is shown in Figure 2. Neither the rank correlation nor the</span></span>
+<span><span class="co">#&gt; regression test indicated any funnel plot asymmetry (p = 0.9195 and p = 0.6765,</span></span>
+<span><span class="co">#&gt; respectively).</span></span></code></pre></div>
+<p>The generated text is accurate and complete, but generic: it reports the <span class="math inline">\(Q\)</span> test and <span class="math inline">\(I^2\)</span> in the
+same sentence as <span class="math inline">\(\hat\tau^2\)</span>, does not interpret the effect on the risk-ratio scale, and knows
+nothing about the oedema problem or the certainty of the evidence. Treat it as scaffolding, not as
+the final text.</p>
+</div>
+</div>
+<div id="sec-reporting-reproducibility" class="section level2" number="15.6">
+<h2>
+<span class="header-section-number">15.6</span> Reproducibility and open data<a class="anchor" aria-label="anchor" href="#sec-reporting-reproducibility"><i class="fas fa-link"></i></a>
+</h2>
+<p>A meta-analysis is, in principle, among the most reproducible kinds of research: its data are
+published studies, and anyone can redo the search and the analysis. In practice, reproducing a
+published meta-analysis is often hard. Data extraction errors are common <span class="citation">(<a href="sec-references.html#ref-gotzsche2007data">Gøtzsche et al. 2007</a>)</span>, and
+surveys of published reviews have found that sharing of extracted data and analysis code is the
+exception rather than the rule <span class="citation">(<a href="sec-references.html#ref-page2018reproducible">Page et al. 2018</a>; <a href="sec-references.html#ref-polanin2020transparency">Polanin et al. 2020</a>)</span>.
+<span class="citation">Lakens et al. (<a href="sec-references.html#ref-lakens2016reproducibility">2016</a>)</span> give six practical recommendations, among them disclosing all extracted
+data, specifying how each effect size was computed, preregistering, and following reporting
+guidelines.</p>
+<p>A reproducible meta-analysis shares, at minimum:</p>
+<ul>
+<li>the full search strategies for every source, with dates;</li>
+<li>the screening decisions, or at least the list of full-text exclusions with reasons;</li>
+<li>the extracted dataset with the <strong>raw</strong> statistics from each study, the computed effect sizes and
+variances, the codebook, and a note of every conversion or imputation;</li>
+<li>the risk-of-bias assessments at domain level;</li>
+<li>the analysis code, with package versions (<code><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo()</a></code>, or a lockfile from <code>renv</code>).</li>
+</ul>
+<p>Sharing these in a public repository with a persistent identifier (OSF, Zenodo, or a journal’s
+supplementary materials) satisfies PRISMA item 27, allows errors to be found and corrected, and
+makes the next update or reanalysis far cheaper. Literate formats such as R Markdown and Quarto,
+in which the report is generated from the code, extend this to the manuscript itself.</p>
+</div>
+<div id="sec-reporting-living" class="section level2" number="15.7">
+<h2>
+<span class="header-section-number">15.7</span> Living, dynamic, and community-augmented meta-analyses<a class="anchor" aria-label="anchor" href="#sec-reporting-living"><i class="fas fa-link"></i></a>
+</h2>
+<p>A published meta-analysis is a snapshot. Several models aim to keep syntheses current.
+<strong>Living systematic reviews</strong> (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>) are updated as new studies
+appear, with versioned results and certainty ratings that can change between versions.
+<strong>Community-augmented meta-analyses</strong> (CAMAs) go further, combining an open repository of
+extracted effect sizes with an online interface that lets anyone rerun, extend, and update the
+analysis, and lets researchers add their own studies <span class="citation">(<a href="sec-references.html#ref-tsuji2014community">Tsuji et al. 2014</a>)</span>. In psychology,
+PsychOpen CAMA provides a platform for publishing such meta-analyses <span class="citation">(<a href="sec-references.html#ref-burgard2021psychopen">Burgard et al. 2021</a>)</span>.</p>
+<p>These formats raise their own reporting questions. The data and code must be versioned so that
+any published result can be tied to the data that produced it; the certainty rating must be
+revisited when the evidence changes; and repeated updating raises the same multiplicity issues as
+interim analyses in trials. The reproducible workflow described in the previous section is a
+prerequisite for all of them.</p>
+</div>
+<div id="sec-reporting-pitfalls" class="section level2" number="15.8">
+<h2>
+<span class="header-section-number">15.8</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-reporting-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>Several reporting failures recur. Reporting <span class="math inline">\(I^2\)</span> as if it measured the size of the variation in
+effects, and omitting <span class="math inline">\(\tau\)</span> and the prediction interval, leaves readers unable to judge how much
+effects vary. Presenting only relative effects for binary outcomes hides the absolute benefit,
+which may be tiny when baseline risk is low. Rating certainty without footnotes makes the ratings
+uncheckable, and rating down twice for one problem (for example for both risk of bias and
+indirectness when the issue is a biased outcome definition) understates certainty. Describing
+low-certainty evidence with the language of high certainty (“diuretics prevent pre-eclampsia”)
+misleads, as does using GRADE language without having done a GRADE assessment. Finally, results
+copied by hand from output into a manuscript, and data or code that are not shared, make errors
+both more likely and harder to detect.</p>
+</div>
+<div id="sec-reporting-takeaways" class="section level2" number="15.9">
+<h2>
+<span class="header-section-number">15.9</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-reporting-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>GRADE rates certainty for each outcome on four levels. Randomized evidence starts high and
+observational evidence low (or high when assessed with ROBINS-I); certainty is rated down for
+risk of bias, inconsistency, indirectness, imprecision, and publication bias, and observational
+evidence can be rated up for large effects, dose-response gradients, and plausible residual
+confounding that would have worked against the observed effect.</li>
+<li>Certainty is about a target: the true effect being on one side of a threshold. Judge
+imprecision from the confidence interval against that threshold and the optimal information
+size, and inconsistency from the prediction interval against it, not from <span class="math inline">\(I^2\)</span> alone.</li>
+<li>A Summary of Findings table reports, per outcome, participants and studies, the relative effect,
+absolute risks and differences at a stated control risk, and the certainty with footnotes.
+Build it from the model objects.</li>
+<li>Follow PRISMA 2020 and the relevant extension (NMA, IPD, DTA), or MARS and MOOSE where journals
+require them.</li>
+<li>Report <span class="math inline">\(\hat\tau\)</span> with its confidence interval and the prediction interval, not only <span class="math inline">\(I^2\)</span>, and
+phrase conclusions with wording that matches the certainty.</li>
+<li>Generate results text from the analysis, and share the data, codebook, and code so that the
+meta-analysis can be reproduced, corrected, and updated.</li>
+</ul>
+</div>
+<div id="sec-reporting-reading" class="section level2" number="15.10">
+<h2>
+<span class="header-section-number">15.10</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-reporting-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p>The GRADE series in the <em>Journal of Clinical Epidemiology</em>, beginning with <span class="citation"><span class="nocase">G. Guyatt et al.</span> (<a href="sec-references.html#ref-guyatt2011grade1">2011</a>)</span>, is
+the primary source; <span class="citation">Balshem et al. (<a href="sec-references.html#ref-balshem2011grade">2011</a>)</span> on rating certainty, the domain papers
+<span class="citation">(<a href="sec-references.html#ref-guyatt2011grade4">G. H. Guyatt, Oxman, Vist, et al. 2011</a>; <a href="sec-references.html#ref-guyatt2011grade5">G. H. Guyatt, Oxman, Montori, et al. 2011</a>; <a href="sec-references.html#ref-guyatt2011grade6">G. H. Guyatt, Oxman, Kunz, Brozek, et al. 2011</a>; <a href="sec-references.html#ref-guyatt2011grade7">G. H. Guyatt, Oxman, Kunz, Woodcock, Brozek, Helfand, Alonso-Coello, Glasziou, et al. 2011</a>; <a href="sec-references.html#ref-guyatt2011grade8">G. H. Guyatt, Oxman, Kunz, Woodcock, Brozek, Helfand, Alonso-Coello, Falck-Ytter, et al. 2011</a>; <a href="sec-references.html#ref-guyatt2011grade9">G. H. Guyatt, Oxman, Sultan, et al. 2011</a>)</span>, and <span class="citation">G. H. Guyatt et al. (<a href="sec-references.html#ref-guyatt2013grade12">2013</a>)</span> on Summary of Findings tables are the most useful for
+analysts. The updated guidance on imprecision <span class="citation">(<a href="sec-references.html#ref-zeng2022grade">Zeng et al. 2022</a>; <a href="sec-references.html#ref-schunemann2022grade">Schünemann et al. 2022</a>)</span> and on the
+construct of certainty <span class="citation">(<a href="sec-references.html#ref-hultcrantz2017grade">Hultcrantz et al. 2017</a>)</span> reflects current practice. For reporting, read the
+PRISMA 2020 statement and its explanation and elaboration <span class="citation">(<a href="sec-references.html#ref-page2021prisma">Page, McKenzie, et al. 2021</a>; <a href="sec-references.html#ref-page2021prismaelaboration">Page, Moher, et al. 2021</a>)</span> and, in psychology, <span class="citation">Appelbaum et al. (<a href="sec-references.html#ref-appelbaum2018journal">2018</a>)</span>. <span class="citation">Riley et al. (<a href="sec-references.html#ref-riley2011interpretation">2011</a>)</span>
+and <span class="citation">IntHout et al. (<a href="sec-references.html#ref-inthout2016plea">2016</a>)</span> make the case for prediction intervals, and <span class="citation">Lakens et al. (<a href="sec-references.html#ref-lakens2016reproducibility">2016</a>)</span> and
+<span class="citation">Polanin et al. (<a href="sec-references.html#ref-polanin2020transparency">2020</a>)</span> discuss reproducibility. The Cochrane Handbook <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>
+has chapters on Summary of Findings tables and on interpreting results that complement this
+chapter.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></div>
+<div class="next"><a href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-reporting"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="nav-link" href="#sec-reporting-why"><span class="header-section-number">15.1</span> From a pooled estimate to a judgment about certainty</a></li>
+<li>
+<a class="nav-link" href="#sec-reporting-grade"><span class="header-section-number">15.2</span> The GRADE approach</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-reporting-grade-certainty"><span class="header-section-number">15.2.1</span> Certainty and what it means</a></li>
+<li><a class="nav-link" href="#sec-reporting-grade-start"><span class="header-section-number">15.2.2</span> Starting certainty by study design</a></li>
+<li><a class="nav-link" href="#sec-reporting-grade-down"><span class="header-section-number">15.2.3</span> Five reasons to rate down</a></li>
+<li><a class="nav-link" href="#sec-reporting-grade-up"><span class="header-section-number">15.2.4</span> Three reasons to rate up</a></li>
+<li><a class="nav-link" href="#sec-reporting-grade-overall"><span class="header-section-number">15.2.5</span> Overall certainty</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-reporting-sof"><span class="header-section-number">15.3</span> A Summary of Findings table in R</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-reporting-sof-models"><span class="header-section-number">15.3.1</span> Fitting the models</a></li>
+<li><a class="nav-link" href="#sec-reporting-sof-thresholds"><span class="header-section-number">15.3.2</span> Thresholds, imprecision, and inconsistency</a></li>
+<li><a class="nav-link" href="#sec-reporting-sof-table"><span class="header-section-number">15.3.3</span> Absolute effects and the table</a></li>
+<li><a class="nav-link" href="#sec-reporting-sof-profile"><span class="header-section-number">15.3.4</span> The evidence profile</a></li>
+<li><a class="nav-link" href="#sec-reporting-sof-sensitivity"><span class="header-section-number">15.3.5</span> How sensitive are the ratings to the thresholds?</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-reporting-standards"><span class="header-section-number">15.4</span> Reporting standards</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-reporting-prisma"><span class="header-section-number">15.4.1</span> PRISMA 2020</a></li>
+<li><a class="nav-link" href="#sec-reporting-extensions"><span class="header-section-number">15.4.2</span> Extensions and other standards</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-reporting-results"><span class="header-section-number">15.5</span> Writing the results</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-reporting-heterogeneity"><span class="header-section-number">15.5.1</span> What to report about heterogeneity</a></li>
+<li><a class="nav-link" href="#sec-reporting-figures"><span class="header-section-number">15.5.2</span> Figures and tables</a></li>
+<li><a class="nav-link" href="#sec-reporting-methods"><span class="header-section-number">15.5.3</span> The methods paragraph</a></li>
+<li><a class="nav-link" href="#sec-reporting-paragraph"><span class="header-section-number">15.5.4</span> A results paragraph generated from model output</a></li>
+<li><a class="nav-link" href="#sec-reporting-reporter"><span class="header-section-number">15.5.5</span> Automated reports with reporter()</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-reporting-reproducibility"><span class="header-section-number">15.6</span> Reproducibility and open data</a></li>
+<li><a class="nav-link" href="#sec-reporting-living"><span class="header-section-number">15.7</span> Living, dynamic, and community-augmented meta-analyses</a></li>
+<li><a class="nav-link" href="#sec-reporting-pitfalls"><span class="header-section-number">15.8</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-reporting-takeaways"><span class="header-section-number">15.9</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-reporting-reading"><span class="header-section-number">15.10</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/15-reporting-grade.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/15-reporting-grade.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

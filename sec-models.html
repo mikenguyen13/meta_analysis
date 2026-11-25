@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 4 Common-Effect and Random-Effects Models | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="With effect sizes \(y_i\) and sampling variances \(v_i\) in hand (Chapter 3), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 4 Common-Effect and Random-Effects Models | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-models.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="With effect sizes \(y_i\) and sampling variances \(v_i\) in hand (Chapter 3), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 4 Common-Effect and Random-Effects Models | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="With effect sizes \(y_i\) and sampling variances \(v_i\) in hand (Chapter 3), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 4 Common-Effect and Random-Effects Models | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="active" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-models" class="section level1" number="4">
+<h1>
+<span class="header-section-number">4</span> Common-Effect and Random-Effects Models<a class="anchor" aria-label="anchor" href="#sec-models"><i class="fas fa-link"></i></a>
+</h1>
+<p>With effect sizes <span class="math inline">\(y_i\)</span> and sampling variances <span class="math inline">\(v_i\)</span> in hand (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>), the next step is to combine them. This chapter develops the two workhorse models of meta-analysis, the common-effect model and the random-effects model, together with a third model, the fixed-effects model, that gives the same numbers as the common-effect model but answers a different question. Most of the methodological disagreement in applied meta-analysis is not about how to compute a weighted average but about what that average estimates, how uncertain it is, and how much the true effects vary around it. Those three questions organize the chapter: estimands, heterogeneity, and inference.</p>
+<p>The chapter then turns to the practical tools: estimators of the between-study variance <span class="math inline">\(\tau^2\)</span> and how they compare, confidence intervals for <span class="math inline">\(\tau^2\)</span>, the Hartung-Knapp-Sidik-Jonkman (HKSJ) adjustment for inference on the mean, prediction intervals, forest plots, the same analysis in the <code>meta</code> package, and the special methods for binary outcomes with rare events (Mantel-Haenszel, Peto, and generalized linear mixed models). Moderator analyses and subgroup comparisons, which try to <em>explain</em> heterogeneity rather than merely quantify it, are the subject of Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>.</p>
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.metafor-project.org">metafor</a></span><span class="op">)</span>   <span class="co"># loaded by _common.R as well; repeated for clarity</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/guido-s/meta/">meta</a></span><span class="op">)</span></span></code></pre></div>
+<div id="sec-models-inverse-variance" class="section level2" number="4.1">
+<h2>
+<span class="header-section-number">4.1</span> Inverse-variance weighting<a class="anchor" aria-label="anchor" href="#sec-models-inverse-variance"><i class="fas fa-link"></i></a>
+</h2>
+<p>Suppose <span class="math inline">\(k\)</span> studies each estimate the same quantity <span class="math inline">\(\theta\)</span> with independent, unbiased estimates <span class="math inline">\(y_i\)</span> whose variances <span class="math inline">\(v_i\)</span> are known. Among all weighted averages <span class="math inline">\(\sum_i w_i y_i / \sum_i w_i\)</span>, the one with the smallest variance uses weights proportional to the inverse variances, <span class="math inline">\(w_i = 1/v_i\)</span>:</p>
+<p><span class="math display">\[
+\hat\theta = \frac{\sum_{i=1}^k w_i y_i}{\sum_{i=1}^k w_i}, \qquad
+\operatorname{Var}(\hat\theta) = \frac{1}{\sum_{i=1}^k w_i}, \qquad w_i = \frac{1}{v_i}.
+\]</span></p>
+<p>This is a standard result for combining independent estimates and the reason inverse-variance weighting underlies almost every meta-analytic model. Two features deserve emphasis. First, the variance of the pooled estimate is the reciprocal of the total weight: information adds up across studies. Second, the derivation treats the <span class="math inline">\(v_i\)</span> as known constants. In practice they are estimates, and for some effect sizes (SMDs, log odds ratios) they depend on <span class="math inline">\(y_i\)</span> itself, which introduces small biases in the weights. The models below inherit this assumption; it is usually harmless when studies are not very small.</p>
+<p>Throughout the chapter we use the BCG vaccine trials <span class="citation">(<a href="sec-references.html#ref-colditz1994efficacy">Colditz et al. 1994</a>)</span>, with the log risk ratio of tuberculosis in vaccinated versus unvaccinated participants as the effect size. Negative values favour the vaccine.</p>
+<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">dat.bcg</span>, slab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"author"</span>, <span class="st">"year"</span>, <span class="st">"tpos"</span>, <span class="st">"tneg"</span>, <span class="st">"cpos"</span>, <span class="st">"cneg"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                  author year tpos  tneg cpos  cneg      yi     vi </span></span>
+<span><span class="co">#&gt; 1               Aronson 1948    4   119   11   128 -0.8893 0.3256 </span></span>
+<span><span class="co">#&gt; 2      Ferguson &amp; Simes 1949    6   300   29   274 -1.5854 0.1946 </span></span>
+<span><span class="co">#&gt; 3       Rosenthal et al 1960    3   228   11   209 -1.3481 0.4154 </span></span>
+<span><span class="co">#&gt; 4     Hart &amp; Sutherland 1977   62 13536  248 12619 -1.4416 0.0200 </span></span>
+<span><span class="co">#&gt; 5  Frimodt-Moller et al 1973   33  5036   47  5761 -0.2175 0.0512 </span></span>
+<span><span class="co">#&gt; 6       Stein &amp; Aronson 1953  180  1361  372  1079 -0.7861 0.0069 </span></span>
+<span><span class="co">#&gt; 7      Vandiviere et al 1973    8  2537   10   619 -1.6209 0.2230 </span></span>
+<span><span class="co">#&gt; 8            TPT Madras 1980  505 87886  499 87892  0.0120 0.0040 </span></span>
+<span><span class="co">#&gt; 9      Coetzee &amp; Berjak 1968   29  7470   45  7232 -0.4694 0.0564 </span></span>
+<span><span class="co">#&gt; 10      Rosenthal et al 1961   17  1699   65  1600 -1.3713 0.0730 </span></span>
+<span><span class="co">#&gt; 11       Comstock et al 1974  186 50448  141 27197 -0.3394 0.0124 </span></span>
+<span><span class="co">#&gt; 12   Comstock &amp; Webster 1969    5  2493    3  2338  0.4459 0.5325 </span></span>
+<span><span class="co">#&gt; 13       Comstock et al 1976   27 16886   29 17825 -0.0173 0.0714</span></span></code></pre></div>
+</div>
+<div id="sec-models-estimands" class="section level2" number="4.2">
+<h2>
+<span class="header-section-number">4.2</span> Three models, three estimands<a class="anchor" aria-label="anchor" href="#sec-models-estimands"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-models-common" class="section level3" number="4.2.1">
+<h3>
+<span class="header-section-number">4.2.1</span> The common-effect model<a class="anchor" aria-label="anchor" href="#sec-models-common"><i class="fas fa-link"></i></a>
+</h3>
+<p>The common-effect model (often called the “fixed-effect” model, in the singular, or the equal-effects model) assumes that every study estimates the same true effect:</p>
+<p><span class="math display">\[
+y_i = \theta + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i).
+\]</span></p>
+<p>Under this model all variation among the <span class="math inline">\(y_i\)</span> is sampling error, the inverse-variance weighted average is the maximum likelihood estimate of <span class="math inline">\(\theta\)</span>, and its standard error is <span class="math inline">\(1/\sqrt{\sum w_i}\)</span>. The model is coherent when the studies are close replications: same intervention, same population, same outcome definition. In most applied fields that assumption is implausible on its face.</p>
+</div>
+<div id="sec-models-fixed" class="section level3" number="4.2.2">
+<h3>
+<span class="header-section-number">4.2.2</span> The fixed-effects model<a class="anchor" aria-label="anchor" href="#sec-models-fixed"><i class="fas fa-link"></i></a>
+</h3>
+<p>There is a second reading of the same computation that does not require the true effects to be equal. Let each study have its own true effect <span class="math inline">\(\theta_i\)</span>, treated as fixed (not random) quantities:</p>
+<p><span class="math display">\[
+y_i = \theta_i + \varepsilon_i, \qquad \varepsilon_i \sim N(0, v_i).
+\]</span></p>
+<p>The inverse-variance weighted average is then an unbiased estimate of the weighted average of the study-specific true effects,</p>
+<p><span class="math display">\[
+\bar\theta_w = \frac{\sum_i w_i \theta_i}{\sum_i w_i},
+\]</span></p>
+<p>and its standard error is again <span class="math inline">\(1/\sqrt{\sum w_i}\)</span>. <span class="citation">Hedges and Vevea (<a href="sec-references.html#ref-hedges1998fixed">1998</a>)</span> distinguished this conditional inference about the included studies from the unconditional inference of the random-effects model, and <span class="citation">Rice et al. (<a href="sec-references.html#ref-rice2017reevaluation">2017</a>)</span> argued that it is a legitimate and useful analysis: it answers the question “what was the average effect in the studies we have, weighted by their precision?” without assuming homogeneity. The price is that inference is <em>conditional on the included studies</em>. The estimand is defined by these particular <span class="math inline">\(k\)</span> studies and their particular weights; it says nothing directly about the effect in a new setting, and its value would change if a large study were added or removed. Because the numbers are identical, the distinction between the common-effect and the fixed-effects model lies entirely in the interpretation, and the reporting should make clear which is intended.</p>
+</div>
+<div id="sec-models-random" class="section level3" number="4.2.3">
+<h3>
+<span class="header-section-number">4.2.3</span> The random-effects model<a class="anchor" aria-label="anchor" href="#sec-models-random"><i class="fas fa-link"></i></a>
+</h3>
+<p>The random-effects model treats the true effects as a random sample from a distribution of effects:</p>
+<p><span class="math display">\[
+y_i = \theta_i + \varepsilon_i, \qquad \theta_i = \mu + u_i, \qquad u_i \sim N(0, \tau^2), \qquad \varepsilon_i \sim N(0, v_i),
+\]</span></p>
+<p>so that marginally <span class="math inline">\(y_i \sim N(\mu, v_i + \tau^2)\)</span> <span class="citation">(<a href="sec-references.html#ref-dersimonian1986metaanalysis">DerSimonian and Laird 1986</a>; <a href="sec-references.html#ref-hedges1998fixed">Hedges and Vevea 1998</a>)</span>. There are now two parameters of interest: the mean <span class="math inline">\(\mu\)</span> of the distribution of true effects and its standard deviation <span class="math inline">\(\tau\)</span>, the between-study heterogeneity. Given an estimate <span class="math inline">\(\hat\tau^2\)</span>, the mean is estimated with weights <span class="math inline">\(w_i^* = 1/(v_i + \hat\tau^2)\)</span>:</p>
+<p><span class="math display">\[
+\hat\mu = \frac{\sum_i w_i^* y_i}{\sum_i w_i^*}, \qquad \widehat{\operatorname{Var}}(\hat\mu) = \frac{1}{\sum_i w_i^*}.
+\]</span></p>
+<p>Adding <span class="math inline">\(\tau^2\)</span> to every study’s variance makes the weights more equal than under the common-effect model: large studies lose relative weight, small studies gain it. When <span class="math inline">\(\hat\tau^2 = 0\)</span> the two models coincide.</p>
+<p>The random-effects estimand <span class="math inline">\(\mu\)</span> refers to a (usually hypothetical) population of studies or settings from which the included ones are regarded as a sample, and inference therefore generalizes beyond the included studies, to the extent that the sampling story is credible <span class="citation">(<a href="sec-references.html#ref-higgins2009reevaluation">Higgins et al. 2009</a>)</span>. The normality of the <span class="math inline">\(u_i\)</span> is a working assumption. It matters little for the estimate of <span class="math inline">\(\mu\)</span>, more for its confidence interval when <span class="math inline">\(k\)</span> is small, and a great deal for prediction intervals.</p>
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span></span>
+<span><span class="va">fe</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"FE"</span><span class="op">)</span></span>
+<span><span class="va">re</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="va">ce</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Equal-Effects Model (k = 13)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.12%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.69</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se      zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.4303  0.0405  -10.6247  &lt;.0001  -0.5097  -0.3509  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="va">re</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3132 (SE = 0.1664)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5597</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.22%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.86</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -0.7145  0.1798  -3.9744  &lt;.0001  -1.0669  -0.3622  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>EE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">ce</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">ce</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>, FE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fe</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">fe</span><span class="op">$</span><span class="va">se</span><span class="op">)</span>,</span>
+<span>      RE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">re</span><span class="op">)</span>, se <span class="op">=</span> <span class="va">re</span><span class="op">$</span><span class="va">se</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    intrcpt     se</span></span>
+<span><span class="co">#&gt; EE -0.4303 0.0405</span></span>
+<span><span class="co">#&gt; FE -0.4303 0.0405</span></span>
+<span><span class="co">#&gt; RE -0.7145 0.1798</span></span></code></pre></div>
+<p><code>metafor</code> labels the first model “Equal-Effects” (<code>method = "EE"</code>) and the second “Fixed-Effects” (<code>method = "FE"</code>), and as expected they give identical results: <span class="math inline">\(\hat\theta = -0.430\)</span> with standard error 0.041, a pooled risk ratio of <span class="math inline">\(\exp(-0.430) = 0.65\)</span>. The random-effects estimate is <span class="math inline">\(\hat\mu = -0.715\)</span> (SE 0.180), a risk ratio of 0.49. The difference is not a technicality. The common-effect analysis is dominated by the two most precise trials (Stein &amp; Aronson 1953 and the TPT Madras trial, which together carry about 65% of the common-effect weight), and the Madras trial found no benefit at all. The random-effects weights are much more even, and the estimate moves toward the larger benefits seen in the smaller trials. The standard error is more than four times larger, because <span class="math inline">\(\hat\tau^2 = 0.313\)</span> is large relative to most within-study variances.</p>
+</div>
+<div id="sec-models-choice" class="section level3" number="4.2.4">
+<h3>
+<span class="header-section-number">4.2.4</span> Which model?<a class="anchor" aria-label="anchor" href="#sec-models-choice"><i class="fas fa-link"></i></a>
+</h3>
+<p>The choice between models should be driven by the inferential goal and by what is known about the studies, not by a test for heterogeneity. If the aim is to make a statement about an intervention’s effect across the range of settings represented by (and similar to) the studies, the random-effects model is the natural choice, and in most reviews in psychology, medicine, economics and management, where studies differ in populations, implementations and measures, it is the default <span class="citation">(<a href="sec-references.html#ref-borenstein2021introduction">Borenstein et al. 2021</a>; <a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. A common-effect analysis is appropriate for genuine replications (for example, multi-site trials run under one protocol). The fixed-effects interpretation is appropriate when the question is explicitly about the included studies, for example when summarizing a closed set of trials submitted for a regulatory decision <span class="citation">(<a href="sec-references.html#ref-rice2017reevaluation">Rice et al. 2017</a>)</span>.</p>
+<p>Two practical arguments cut in the other direction. With very few studies <span class="math inline">\(\tau^2\)</span> is estimated so imprecisely that random-effects inference can be unstable (Section <a href="sec-models.html#sec-models-small-k">4.10</a>). And because the random-effects model upweights small studies, it is more sensitive to small-study effects such as publication bias (Chapter <a href="sec-publication-bias.html#sec-publication-bias">7</a>); a large difference between common-effect and random-effects estimates, as in the BCG data, is itself a signal worth investigating.</p>
+</div>
+</div>
+<div id="sec-models-heterogeneity" class="section level2" number="4.3">
+<h2>
+<span class="header-section-number">4.3</span> Quantifying heterogeneity<a class="anchor" aria-label="anchor" href="#sec-models-heterogeneity"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-models-q" class="section level3" number="4.3.1">
+<h3>
+<span class="header-section-number">4.3.1</span> Cochran’s Q<a class="anchor" aria-label="anchor" href="#sec-models-q"><i class="fas fa-link"></i></a>
+</h3>
+<p>The classical test of homogeneity uses Cochran’s <span class="math inline">\(Q\)</span> statistic <span class="citation">(<a href="sec-references.html#ref-cochran1954combination">Cochran 1954</a>)</span>, the weighted sum of squared deviations from the common-effect estimate,</p>
+<p><span class="math display">\[
+Q = \sum_{i=1}^k w_i (y_i - \hat\theta)^2, \qquad w_i = 1/v_i.
+\]</span></p>
+<p>Under the null hypothesis <span class="math inline">\(\tau^2 = 0\)</span>, <span class="math inline">\(Q\)</span> follows approximately a <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(k - 1\)</span> degrees of freedom. For the BCG trials <span class="math inline">\(Q = 152.2\)</span> on 12 degrees of freedom (<span class="math inline">\(p &lt; .0001\)</span>). The test has low power when <span class="math inline">\(k\)</span> is small and high power when studies are large, so a non-significant <span class="math inline">\(Q\)</span> is weak evidence of homogeneity and a significant <span class="math inline">\(Q\)</span> says nothing about whether the heterogeneity matters. The test is best viewed as a building block for the statistics below rather than as a decision rule for model selection.</p>
+</div>
+<div id="sec-models-tau-i2" class="section level3" number="4.3.2">
+<h3>
+<span class="header-section-number">4.3.2</span> tau, I-squared and H-squared<a class="anchor" aria-label="anchor" href="#sec-models-tau-i2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Three descriptive measures are reported by every meta-analysis program.</p>
+<p>The between-study variance <span class="math inline">\(\tau^2\)</span>, and its square root <span class="math inline">\(\tau\)</span>, describe heterogeneity on the scale of the effect size. They are the only one of the three that is an absolute measure: <span class="math inline">\(\tau = 0.56\)</span> on the log risk ratio scale means that the true risk ratios across settings have a standard deviation of 0.56 log units, so that roughly 95% of them lie within a factor of <span class="math inline">\(\exp(1.96 \times 0.56) \approx 3\)</span> of the mean.</p>
+<p><span class="math inline">\(H^2\)</span> and <span class="math inline">\(I^2\)</span> <span class="citation">(<a href="sec-references.html#ref-higgins2002quantifying">Higgins and Thompson 2002</a>)</span> are relative measures. In their original form, based on <span class="math inline">\(Q\)</span>,</p>
+<p><span class="math display">\[
+H^2 = \frac{Q}{k - 1}, \qquad I^2 = \frac{Q - (k - 1)}{Q} \times 100\%,
+\]</span></p>
+<p>with <span class="math inline">\(I^2\)</span> truncated at zero. <span class="math inline">\(I^2\)</span> estimates the proportion of the total variability in the observed effects that is due to between-study heterogeneity rather than sampling error. Equivalently, with the “typical” within-study variance</p>
+<p><span class="math display">\[
+\tilde v = \frac{(k - 1) \sum_i w_i}{\left(\sum_i w_i\right)^2 - \sum_i w_i^2},
+\]</span></p>
+<p>one can write <span class="math inline">\(I^2 = \hat\tau^2 / (\hat\tau^2 + \tilde v)\)</span> and <span class="math inline">\(H^2 = (\hat\tau^2 + \tilde v)/\tilde v\)</span>; these model-based versions are what <code>metafor</code> reports, and they coincide with the <span class="math inline">\(Q\)</span>-based formulas when <span class="math inline">\(\tau^2\)</span> is estimated by the DerSimonian-Laird method. Rough benchmarks of 25%, 50% and 75% for low, moderate and high heterogeneity were suggested by <span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2003measuring">2003</a>)</span>.</p>
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">dat</span><span class="op">$</span><span class="va">vi</span></span>
+<span><span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">theta_ce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="va">dat</span><span class="op">$</span><span class="va">yi</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span></span>
+<span><span class="va">Q</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">yi</span> <span class="op">-</span> <span class="va">theta_ce</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">C</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span></span>
+<span><span class="va">tau2_DL</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">(</span><span class="va">Q</span> <span class="op">-</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">C</span><span class="op">)</span></span>
+<span><span class="va">v_typ</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Q <span class="op">=</span> <span class="va">Q</span>, df <span class="op">=</span> <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span>, H2 <span class="op">=</span> <span class="va">Q</span> <span class="op">/</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, I2 <span class="op">=</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="va">Q</span> <span class="op">-</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">Q</span>,</span>
+<span>  tau2_DL <span class="op">=</span> <span class="va">tau2_DL</span>, typical_v <span class="op">=</span> <span class="va">v_typ</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         Q        df        H2        I2   tau2_DL typical_v </span></span>
+<span><span class="co">#&gt; 152.23301  12.00000  12.68608  92.11735   0.30876   0.02642</span></span></code></pre></div>
+</div>
+<div id="sec-models-i2" class="section level3" number="4.3.3">
+<h3>
+<span class="header-section-number">4.3.3</span> Why I-squared is not an absolute measure of heterogeneity<a class="anchor" aria-label="anchor" href="#sec-models-i2"><i class="fas fa-link"></i></a>
+</h3>
+<p>Because <span class="math inline">\(I^2 = \tau^2/(\tau^2 + \tilde v)\)</span>, it depends on the within-study variances as much as on <span class="math inline">\(\tau^2\)</span>. The same dispersion of true effects produces a small <span class="math inline">\(I^2\)</span> in a meta-analysis of small studies and a large <span class="math inline">\(I^2\)</span> in a meta-analysis of large studies. <span class="math inline">\(I^2\)</span> therefore cannot tell a reader how much the effects vary: <span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2017basics">2017</a>)</span> show that a meta-analysis with <span class="math inline">\(I^2 = 50\%\)</span> is compatible with true effects that span a narrow and substantively unimportant range or a wide and clinically decisive one, and recommend reporting the predicted range of true effects (the prediction interval of Section <a href="sec-models.html#sec-models-prediction">4.6</a>) instead of relying on <span class="math inline">\(I^2\)</span> for that purpose.</p>
+<p>The point is easy to demonstrate: holding <span class="math inline">\(\hat\tau^2\)</span> fixed at its BCG value and making every study ten times larger (dividing each <span class="math inline">\(v_i\)</span> by 10), <span class="math inline">\(I^2\)</span> rises toward 100% although the distribution of true effects is unchanged.</p>
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">i2_for</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">vi</span>, <span class="va">tau2</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">w</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span></span>
+<span>  <span class="va">v_typ</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">vi</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fl">100</span> <span class="op">*</span> <span class="va">tau2</span> <span class="op">/</span> <span class="op">(</span><span class="va">tau2</span> <span class="op">+</span> <span class="va">v_typ</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>original <span class="op">=</span> <span class="fl">1</span>, ten_times_larger <span class="op">=</span> <span class="fl">10</span>, ten_times_smaller <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>       <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span> <span class="fu">i2_for</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">vi</span> <span class="op">/</span> <span class="va">f</span>, tau2 <span class="op">=</span> <span class="va">re</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          original  ten_times_larger ten_times_smaller </span></span>
+<span><span class="co">#&gt;             92.22             99.16             54.25</span></span></code></pre></div>
+<p>With the actual study sizes <span class="math inline">\(I^2 = 92\%\)</span>; with studies ten times smaller it would be 54%, with the same <span class="math inline">\(\tau = 0.56\)</span>. Report <span class="math inline">\(\tau\)</span> (with a confidence interval) and the prediction interval as the primary descriptions of heterogeneity, and <span class="math inline">\(I^2\)</span> as a secondary, relative one.</p>
+</div>
+</div>
+<div id="sec-models-tau2" class="section level2" number="4.4">
+<h2>
+<span class="header-section-number">4.4</span> Estimating the between-study variance<a class="anchor" aria-label="anchor" href="#sec-models-tau2"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-models-tau2-estimators" class="section level3" number="4.4.1">
+<h3>
+<span class="header-section-number">4.4.1</span> The estimators<a class="anchor" aria-label="anchor" href="#sec-models-tau2-estimators"><i class="fas fa-link"></i></a>
+</h3>
+<p>Many estimators of <span class="math inline">\(\tau^2\)</span> have been proposed. They fall into three families <span class="citation">(<a href="sec-references.html#ref-veroniki2015methods">Veroniki et al. 2015</a>)</span>.</p>
+<p><em>Method-of-moments estimators</em> equate a weighted sum of squares to its expected value and solve for <span class="math inline">\(\tau^2\)</span>, truncating negative solutions at zero. The DerSimonian-Laird estimator <span class="citation">(<a href="sec-references.html#ref-dersimonian1986metaanalysis">DerSimonian and Laird 1986</a>)</span> uses the inverse-variance weighted <span class="math inline">\(Q\)</span>,</p>
+<p><span class="math display">\[
+\hat\tau^2_{\text{DL}} = \max\!\left(0, \frac{Q - (k - 1)}{\sum_i w_i - \sum_i w_i^2 / \sum_i w_i}\right).
+\]</span></p>
+<p>The Hedges (HE) estimator is the unweighted analogue, <span class="math inline">\(\hat\tau^2_{\text{HE}} = \max\{0, \sum_i (y_i - \bar y)^2/(k - 1) - \sum_i v_i / k\}\)</span>. The generalized <span class="math inline">\(Q\)</span> (GENQ) estimator of <span class="citation">DerSimonian and Kacker (<a href="sec-references.html#ref-dersimonian2007randomeffects">2007</a>)</span> allows arbitrary weights <span class="math inline">\(a_i\)</span> and contains DL (<span class="math inline">\(a_i = 1/v_i\)</span>) and HE (<span class="math inline">\(a_i = 1\)</span>) as special cases. The Hunter-Schmidt (HS) estimator, <span class="math inline">\(\max\{0, (Q - k)/\sum_i w_i\}\)</span>, comes from the psychometric tradition (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>); compared with DL it subtracts <span class="math inline">\(k\)</span> rather than <span class="math inline">\(k - 1\)</span> (ignoring the degree of freedom used to estimate the mean) and divides by the larger <span class="math inline">\(\sum_i w_i\)</span>, so it is negatively biased <span class="citation">(<a href="sec-references.html#ref-viechtbauer2005bias">Viechtbauer 2005</a>)</span>.</p>
+<p>The Paule-Mandel (PM) estimator <span class="citation">(<a href="sec-references.html#ref-paule1982consensus">Paule and Mandel 1982</a>)</span> iterates instead: it finds the value of <span class="math inline">\(\tau^2\)</span> for which the generalized <span class="math inline">\(Q\)</span> statistic computed with random-effects weights equals its expected value,</p>
+<p><span class="math display">\[
+\sum_{i=1}^k \frac{(y_i - \hat\mu(\tau^2))^2}{v_i + \tau^2} = k - 1.
+\]</span></p>
+<p>The empirical Bayes (EB) estimator of <span class="citation">Morris (<a href="sec-references.html#ref-morris1983parametric">1983</a>)</span> turns out to be identical to PM, as the <code>metafor</code> documentation notes. The median-unbiased variant (PMM) sets the same statistic equal to the median rather than the mean of the <span class="math inline">\(\chi^2_{k-1}\)</span> distribution, which reduces the tendency of PM to return zero in small meta-analyses. The Sidik-Jonkman (SJ) estimator <span class="citation">(<a href="sec-references.html#ref-sidik2005simple">Sidik and Jonkman 2005</a>)</span> starts from a crude initial value and re-estimates <span class="math inline">\(\tau^2\)</span> once from weighted residuals; it never returns exactly zero and tends to overestimate <span class="math inline">\(\tau^2\)</span> when heterogeneity is small.</p>
+<p><em>Likelihood-based estimators</em> maximize the marginal likelihood implied by <span class="math inline">\(y_i \sim N(\mu, v_i + \tau^2)\)</span>. Maximum likelihood (ML) is negatively biased because it ignores the degree of freedom used to estimate <span class="math inline">\(\mu\)</span>; restricted maximum likelihood (REML) corrects this and is approximately unbiased, with good efficiency <span class="citation">(<a href="sec-references.html#ref-viechtbauer2005bias">Viechtbauer 2005</a>)</span>.</p>
+<p><em>Bayesian estimators</em> place a prior on <span class="math inline">\(\tau\)</span> and are discussed in Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>.</p>
+</div>
+<div id="sec-models-tau2-bcg" class="section level3" number="4.4.2">
+<h3>
+<span class="header-section-number">4.4.2</span> Comparing the estimators on the BCG data<a class="anchor" aria-label="anchor" href="#sec-models-tau2-bcg"><i class="fas fa-link"></i></a>
+</h3>
+<p><code><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma()</a></code> fits all of these through the <code>method</code> argument. GENQ needs user-supplied weights; here we use the total sample size of each trial.</p>
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">methods_tau2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"DL"</span>, <span class="st">"HE"</span>, <span class="st">"HS"</span>, <span class="st">"SJ"</span>, <span class="st">"ML"</span>, <span class="st">"REML"</span>, <span class="st">"EB"</span>, <span class="st">"PM"</span>, <span class="st">"PMM"</span>, <span class="st">"GENQ"</span><span class="op">)</span></span>
+<span><span class="va">fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">methods_tau2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">m</span> <span class="op">==</span> <span class="st">"GENQ"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="va">m</span>, weights <span class="op">=</span> <span class="va">tpos</span> <span class="op">+</span> <span class="va">tneg</span> <span class="op">+</span> <span class="va">cpos</span> <span class="op">+</span> <span class="va">cneg</span><span class="op">)</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="va">m</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="va">tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">fits</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>tau2 <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">tau2</span>, tau <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span>, I2 <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">I2</span>, mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>    se <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">se</span>, ci.lb <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">ci.lb</span>, ci.ub <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">ci.ub</span>, RR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">tab</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">methods_tau2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">tab</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       tau2   tau    I2     mu    se  ci.lb  ci.ub    RR</span></span>
+<span><span class="co">#&gt; DL   0.309 0.556 92.12 -0.714 0.179 -1.064 -0.364 0.490</span></span>
+<span><span class="co">#&gt; HE   0.329 0.573 92.56 -0.716 0.183 -1.075 -0.357 0.489</span></span>
+<span><span class="co">#&gt; HS   0.228 0.478 89.63 -0.705 0.159 -1.015 -0.394 0.494</span></span>
+<span><span class="co">#&gt; SJ   0.346 0.588 92.90 -0.717 0.187 -1.084 -0.351 0.488</span></span>
+<span><span class="co">#&gt; ML   0.280 0.529 91.38 -0.711 0.172 -1.048 -0.374 0.491</span></span>
+<span><span class="co">#&gt; REML 0.313 0.560 92.22 -0.715 0.180 -1.067 -0.362 0.489</span></span>
+<span><span class="co">#&gt; EB   0.318 0.564 92.33 -0.715 0.181 -1.070 -0.360 0.489</span></span>
+<span><span class="co">#&gt; PM   0.318 0.564 92.33 -0.715 0.181 -1.070 -0.360 0.489</span></span>
+<span><span class="co">#&gt; PMM  0.343 0.586 92.86 -0.717 0.187 -1.083 -0.351 0.488</span></span>
+<span><span class="co">#&gt; GENQ 0.239 0.489 90.05 -0.236 0.277 -0.779  0.308 0.790</span></span></code></pre></div>
+<p>Across the nine estimators that use inverse-variance-type weights, <span class="math inline">\(\hat\tau^2\)</span> ranges from 0.228 (HS) to 0.346 (SJ), with REML at 0.313, DL at 0.309 and PM/EB at 0.318. As expected, HS and ML are at the low end. Yet the pooled log risk ratio barely moves, from <span class="math inline">\(-0.705\)</span> to <span class="math inline">\(-0.717\)</span>, and its standard error from 0.159 to 0.187: with 13 studies and this much heterogeneity, the choice of estimator matters more for the description of heterogeneity than for the mean. The GENQ row is a warning about a different issue. With sample-size weights, <code><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma()</a></code> uses the same weights to estimate <span class="math inline">\(\mu\)</span>, so the TPT Madras trial (about 177,000 participants and a null result) dominates and the pooled risk ratio becomes <span class="math inline">\(\exp(-0.236) = 0.79\)</span>. User-supplied weights change the estimand, not just the variance estimate.</p>
+</div>
+<div id="sec-models-tau2-recommend" class="section level3" number="4.4.3">
+<h3>
+<span class="header-section-number">4.4.3</span> Recommendations<a class="anchor" aria-label="anchor" href="#sec-models-tau2-recommend"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Veroniki et al. (<a href="sec-references.html#ref-veroniki2015methods">2015</a>)</span> reviewed the estimators and recommended the Paule-Mandel estimator for both dichotomous and continuous outcomes, with REML as an alternative for continuous outcomes. In a large simulation study, <span class="citation">Langan et al. (<a href="sec-references.html#ref-langan2018comparison">2018</a>)</span> recommended REML over the other estimators, noted that with the small numbers of studies typical in health research no estimator gives a reliable gauge of heterogeneity, and found that HKSJ confidence intervals for the mean were much less sensitive to the choice of <span class="math inline">\(\tau^2\)</span> estimator than Wald intervals. The DerSimonian-Laird estimator, long the default in many programs, is negatively biased when heterogeneity is substantial and is no longer recommended as a default. REML (the default in <code>metafor</code> and <code>meta</code>) or PM are sensible defaults; reporting a sensitivity analysis with a second estimator is good practice when the conclusions hinge on <span class="math inline">\(\tau^2\)</span>.</p>
+</div>
+<div id="sec-models-tau2-ci" class="section level3" number="4.4.4">
+<h3>
+<span class="header-section-number">4.4.4</span> Confidence intervals for tau-squared<a class="anchor" aria-label="anchor" href="#sec-models-tau2-ci"><i class="fas fa-link"></i></a>
+</h3>
+<p>A point estimate of <span class="math inline">\(\tau^2\)</span> from a handful of studies is very imprecise, and it should always be reported with a confidence interval. The Q-profile method <span class="citation">(<a href="sec-references.html#ref-viechtbauer2006confidence">Viechtbauer 2006</a>)</span> inverts the generalized <span class="math inline">\(Q\)</span> statistic: the interval contains all values <span class="math inline">\(\tau^2\)</span> for which</p>
+<p><span class="math display">\[
+\chi^2_{k-1,\, 0.025} \le \sum_{i=1}^k \frac{(y_i - \hat\mu(\tau^2))^2}{v_i + \tau^2} \le \chi^2_{k-1,\, 0.975}.
+\]</span></p>
+<p>Because the statistic, evaluated at the true <span class="math inline">\(\tau^2\)</span>, follows a <span class="math inline">\(\chi^2_{k-1}\)</span> distribution exactly when the effects are normal and the <span class="math inline">\(v_i\)</span> are known (estimating <span class="math inline">\(\mu\)</span> costs the one degree of freedom), the interval is exact under the model assumptions. It is the default of <code><a href="https://rdrr.io/r/stats/confint.html">confint()</a></code> for <code>rma</code> objects. Intervals for <span class="math inline">\(\tau\)</span>, <span class="math inline">\(I^2\)</span> and <span class="math inline">\(H^2\)</span> follow by transformation.</p>
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">re</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;        estimate   ci.lb   ci.ub </span></span>
+<span><span class="co">#&gt; tau^2    0.3132  0.1197  1.1115 </span></span>
+<span><span class="co">#&gt; tau      0.5597  0.3460  1.0543 </span></span>
+<span><span class="co">#&gt; I^2(%)  92.2214 81.9177 97.6781 </span></span>
+<span><span class="co">#&gt; H^2     12.8558  5.5303 43.0680</span></span></code></pre></div>
+<p>The 95% CI for <span class="math inline">\(\tau^2\)</span> runs from 0.120 to 1.112, so <span class="math inline">\(\tau\)</span> is somewhere between 0.35 and 1.05: the heterogeneity is certainly substantial, but its size is uncertain by a factor of three. The interval for <span class="math inline">\(I^2\)</span> (82% to 98%) is correspondingly wide. Note that the Q-profile interval does not depend on which point estimator was used; <code><a href="https://rdrr.io/r/stats/confint.html">confint()</a></code> on a DL fit returns the same limits.</p>
+</div>
+</div>
+<div id="sec-models-inference" class="section level2" number="4.5">
+<h2>
+<span class="header-section-number">4.5</span> Inference on the mean effect<a class="anchor" aria-label="anchor" href="#sec-models-inference"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-models-wald" class="section level3" number="4.5.1">
+<h3>
+<span class="header-section-number">4.5.1</span> Wald-type intervals<a class="anchor" aria-label="anchor" href="#sec-models-wald"><i class="fas fa-link"></i></a>
+</h3>
+<p>The standard random-effects confidence interval is <span class="math inline">\(\hat\mu \pm z_{0.975} / \sqrt{\sum w_i^*}\)</span>. It treats <span class="math inline">\(\hat\tau^2\)</span> as if it were the true <span class="math inline">\(\tau^2\)</span> and uses the normal distribution, ignoring the uncertainty in <span class="math inline">\(\hat\tau^2\)</span>. When <span class="math inline">\(k\)</span> is small, <span class="math inline">\(\hat\tau^2\)</span> is very uncertain, and the Wald interval is too narrow: simulation studies consistently show coverage well below the nominal 95% when there are few studies and moderate or large heterogeneity <span class="citation">(<a href="sec-references.html#ref-inthout2014hartung">IntHout et al. 2014</a>)</span>.</p>
+</div>
+<div id="sec-models-hksj" class="section level3" number="4.5.2">
+<h3>
+<span class="header-section-number">4.5.2</span> The Hartung-Knapp-Sidik-Jonkman method<a class="anchor" aria-label="anchor" href="#sec-models-hksj"><i class="fas fa-link"></i></a>
+</h3>
+<p><span class="citation">Hartung and Knapp (<a href="sec-references.html#ref-hartung2001refined">2001</a>)</span> and <span class="citation">Sidik and Jonkman (<a href="sec-references.html#ref-sidik2002simple">2002</a>)</span> independently proposed a simple correction. The variance of <span class="math inline">\(\hat\mu\)</span> is re-estimated from the weighted residuals,</p>
+<p><span class="math display">\[
+\widehat{\operatorname{Var}}_{\text{HK}}(\hat\mu) = \frac{q}{\sum_i w_i^*}, \qquad q = \frac{1}{k - 1} \sum_{i=1}^k w_i^* (y_i - \hat\mu)^2,
+\]</span></p>
+<p>and the interval uses the <span class="math inline">\(t\)</span> distribution with <span class="math inline">\(k - 1\)</span> degrees of freedom, <span class="math inline">\(\hat\mu \pm t_{k-1,\, 0.975} \sqrt{q / \sum_i w_i^*}\)</span>. The scaling factor <span class="math inline">\(q\)</span> captures how much the residuals actually scatter relative to what the model assumes; the <span class="math inline">\(t\)</span> quantile reflects that this scatter is itself estimated from <span class="math inline">\(k\)</span> observations. In <code>metafor</code> the method is requested with <code>test = "knha"</code> (the same adjustment applies to meta-regression models; <span class="citation">Knapp and Hartung (<a href="sec-references.html#ref-knapp2003improved">2003</a>)</span>), and in <code>meta</code> with <code>method.random.ci = "HK"</code>. <span class="citation">IntHout et al. (<a href="sec-references.html#ref-inthout2014hartung">2014</a>)</span> showed in simulations that HKSJ intervals keep close to nominal coverage in situations where DerSimonian-Laird Wald intervals fail badly, and <span class="citation">Langan et al. (<a href="sec-references.html#ref-langan2018comparison">2018</a>)</span> found the same across estimators.</p>
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">re_hk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span></span>
+<span><span class="va">re_hk</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 13; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.3132 (SE = 0.1664)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.5597</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   92.22%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  12.86</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 12) = 152.2330, p-val &lt; .0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     tval  df    pval    ci.lb    ci.ub     </span></span>
+<span><span class="co">#&gt;  -0.7145  0.1808  -3.9522  12  0.0019  -1.1084  -0.3206  ** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>For the BCG data, <span class="math inline">\(q\)</span> is close to 1, so the HKSJ standard error (0.181) is almost the Wald one (0.180), and the widening of the interval, from <span class="math inline">\((-1.067, -0.362)\)</span> to <span class="math inline">\((-1.108, -0.321)\)</span>, comes mainly from the <span class="math inline">\(t_{12}\)</span> quantile.</p>
+</div>
+<div id="sec-models-adhoc" class="section level3" number="4.5.3">
+<h3>
+<span class="header-section-number">4.5.3</span> The ad hoc variance correction<a class="anchor" aria-label="anchor" href="#sec-models-adhoc"><i class="fas fa-link"></i></a>
+</h3>
+<p>HKSJ has one known weakness. When the observed effects are <em>more</em> homogeneous than the model expects, <span class="math inline">\(q &lt; 1\)</span> and the HKSJ standard error is <em>smaller</em> than the Wald one; with moderate <span class="math inline">\(k\)</span> the <span class="math inline">\(t\)</span> quantile may not compensate, and the HKSJ interval can then be narrower than the DerSimonian-Laird interval <span class="citation">(<a href="sec-references.html#ref-jackson2017hartung">Jackson et al. 2017</a>)</span>. An ad hoc modification replaces <span class="math inline">\(q\)</span> by <span class="math inline">\(\max(1, q)\)</span>, so that the adjustment can only widen the interval <span class="citation">(<a href="sec-references.html#ref-rover2015hartung">Röver et al. 2015</a>; <a href="sec-references.html#ref-jackson2017hartung">Jackson et al. 2017</a>)</span>. <code>metafor</code> 4.8 implements this as <code>test = "adhoc"</code>, and <code>meta</code> as <code>adhoc.hakn.ci = "se"</code>.</p>
+<p>The six warfarin trials of Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a> are a case with <span class="math inline">\(q &lt; 1\)</span>: they are more similar than sampling error alone would predict.</p>
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">irr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"IRR"</span>, x1i <span class="op">=</span> <span class="va">x1i</span>, t1i <span class="op">=</span> <span class="va">t1i</span>, x2i <span class="op">=</span> <span class="va">x2i</span>, t2i <span class="op">=</span> <span class="va">t2i</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">dat.hart1999</span>, slab <span class="op">=</span> <span class="va">study</span><span class="op">)</span></span>
+<span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Wald <span class="op">=</span> <span class="st">"z"</span>, HKSJ <span class="op">=</span> <span class="st">"knha"</span>, adhoc <span class="op">=</span> <span class="st">"adhoc"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">tt</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">irr</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="va">tt</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Q <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">QE</span>, tau2 <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">tau2</span>, est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, se <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">se</span>,</span>
+<span>    ci.lb <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">ci.lb</span>, ci.ub <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">cmp</span>, <span class="fl">4</span><span class="op">)</span></span>
+<span><span class="co">#&gt;          Wald    HKSJ   adhoc</span></span>
+<span><span class="co">#&gt; Q      2.9625  2.9625  2.9625</span></span>
+<span><span class="co">#&gt; tau2   0.0000  0.0000  0.0000</span></span>
+<span><span class="co">#&gt; est   -1.0168 -1.0168 -1.0168</span></span>
+<span><span class="co">#&gt; se     0.1635  0.1258  0.1635</span></span>
+<span><span class="co">#&gt; ci.lb -1.3372 -1.3402 -1.4370</span></span>
+<span><span class="co">#&gt; ci.ub -0.6964 -0.6934 -0.5966</span></span></code></pre></div>
+<p>Here <span class="math inline">\(Q = 2.96\)</span> on 5 degrees of freedom and <span class="math inline">\(\hat\tau^2 = 0\)</span>. The HKSJ standard error (0.126) is smaller than the Wald one (0.163), and the HKSJ interval ends up almost identical to the Wald interval; the ad hoc version keeps the Wald standard error and combines it with the <span class="math inline">\(t_5\)</span> quantile, giving a noticeably wider interval. Which is “right” cannot be settled from one dataset; the ad hoc version is the conservative choice when <span class="math inline">\(k\)</span> is small and the studies look suspiciously homogeneous.</p>
+</div>
+<div id="sec-models-simulation" class="section level3" number="4.5.4">
+<h3>
+<span class="header-section-number">4.5.4</span> A small simulation<a class="anchor" aria-label="anchor" href="#sec-models-simulation"><i class="fas fa-link"></i></a>
+</h3>
+<p>To see why the HKSJ adjustment has become the recommended default, we simulate meta-analyses with <span class="math inline">\(k = 5\)</span> or <span class="math inline">\(k = 10\)</span> studies of SMD-like effects (<span class="math inline">\(v_i \approx 4/n_i\)</span> with total sample sizes between 20 and 200) and true heterogeneity <span class="math inline">\(\tau^2 \in \{0, 0.05, 0.2\}\)</span>, and record how often each 95% interval contains the true mean <span class="math inline">\(\mu = 0.3\)</span>. To keep the simulation fast, the DerSimonian-Laird estimator and the three intervals are computed directly from the formulas above; the first lines check them against <code><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma()</a></code> on the BCG data.</p>
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ci_dl</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, <span class="va">level</span> <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">yi</span><span class="op">)</span>; <span class="va">w</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span></span>
+<span>  <span class="va">Q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="op">(</span><span class="va">yi</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span> <span class="op">*</span> <span class="va">yi</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">tau2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fl">0</span>, <span class="op">(</span><span class="va">Q</span> <span class="op">-</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">w</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">ws</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="op">(</span><span class="va">vi</span> <span class="op">+</span> <span class="va">tau2</span><span class="op">)</span></span>
+<span>  <span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span> <span class="op">*</span> <span class="va">yi</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span><span class="op">)</span></span>
+<span>  <span class="va">q</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span> <span class="op">*</span> <span class="op">(</span><span class="va">yi</span> <span class="op">-</span> <span class="va">mu</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="va">se_w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">se_h</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">q</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">se_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">q</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">ws</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">zc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">level</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>; <span class="va">tc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">level</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span>, <span class="va">k</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>wald_lb <span class="op">=</span> <span class="va">mu</span> <span class="op">-</span> <span class="va">zc</span> <span class="op">*</span> <span class="va">se_w</span>, wald_ub <span class="op">=</span> <span class="va">mu</span> <span class="op">+</span> <span class="va">zc</span> <span class="op">*</span> <span class="va">se_w</span>,</span>
+<span>    hksj_lb <span class="op">=</span> <span class="va">mu</span> <span class="op">-</span> <span class="va">tc</span> <span class="op">*</span> <span class="va">se_h</span>, hksj_ub <span class="op">=</span> <span class="va">mu</span> <span class="op">+</span> <span class="va">tc</span> <span class="op">*</span> <span class="va">se_h</span>,</span>
+<span>    adhoc_lb <span class="op">=</span> <span class="va">mu</span> <span class="op">-</span> <span class="va">tc</span> <span class="op">*</span> <span class="va">se_a</span>, adhoc_ub <span class="op">=</span> <span class="va">mu</span> <span class="op">+</span> <span class="va">tc</span> <span class="op">*</span> <span class="va">se_a</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">chk</span> <span class="op">&lt;-</span> <span class="fu">ci_dl</span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">yi</span>, <span class="va">dat</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>by_hand <span class="op">=</span> <span class="va">chk</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"wald_lb"</span>, <span class="st">"wald_ub"</span>, <span class="st">"hksj_lb"</span>, <span class="st">"hksj_ub"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>      rma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"DL"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ci.lb"</span>, <span class="st">"ci.ub"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>              <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">dat</span>, method <span class="op">=</span> <span class="st">"DL"</span>, test <span class="op">=</span> <span class="st">"knha"</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"ci.lb"</span>, <span class="st">"ci.ub"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         wald_lb wald_ub hksj_lb hksj_ub</span></span>
+<span><span class="co">#&gt; by_hand  -1.064 -0.3638  -1.108 -0.3204</span></span>
+<span><span class="co">#&gt; rma      -1.064 -0.3638  -1.108 -0.3204</span></span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">sim_coverage</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">k</span>, <span class="va">tau2</span>, <span class="va">nrep</span> <span class="op">=</span> <span class="fl">1000</span>, <span class="va">mu</span> <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">replicate</a></span><span class="op">(</span><span class="va">nrep</span>, <span class="op">{</span></span>
+<span>    <span class="va">ni</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html">sample</a></span><span class="op">(</span><span class="fl">20</span><span class="op">:</span><span class="fl">200</span>, <span class="va">k</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="va">vi</span> <span class="op">&lt;-</span> <span class="fl">4</span> <span class="op">/</span> <span class="va">ni</span></span>
+<span>    <span class="va">yi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">k</span>, <span class="va">mu</span>, <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">tau2</span> <span class="op">+</span> <span class="va">vi</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="va">ci</span> <span class="op">&lt;-</span> <span class="fu">ci_dl</span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Wald <span class="op">=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"wald_lb"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">mu</span> <span class="op">&amp;</span> <span class="va">mu</span> <span class="op">&lt;=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"wald_ub"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>      HKSJ <span class="op">=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"hksj_lb"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">mu</span> <span class="op">&amp;</span> <span class="va">mu</span> <span class="op">&lt;=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"hksj_ub"</span><span class="op">]</span><span class="op">]</span>,</span>
+<span>      adhoc <span class="op">=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"adhoc_lb"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;=</span> <span class="va">mu</span> <span class="op">&amp;</span> <span class="va">mu</span> <span class="op">&lt;=</span> <span class="va">ci</span><span class="op">[[</span><span class="st">"adhoc_ub"</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/colSums-methods.html">rowMeans</a></span><span class="op">(</span><span class="va">hits</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html">expand.grid</a></span><span class="op">(</span>k <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>, tau2 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.05</span>, <span class="fl">0.2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cov_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">grid</span>, <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="va">sim_coverage</span>, <span class="va">grid</span><span class="op">$</span><span class="va">k</span>, <span class="va">grid</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cov_res</span></span>
+<span><span class="co">#&gt;    k tau2  Wald  HKSJ adhoc</span></span>
+<span><span class="co">#&gt; 1  5 0.00 0.962 0.944 0.996</span></span>
+<span><span class="co">#&gt; 2 10 0.00 0.964 0.949 0.987</span></span>
+<span><span class="co">#&gt; 3  5 0.05 0.900 0.948 0.972</span></span>
+<span><span class="co">#&gt; 4 10 0.05 0.929 0.959 0.968</span></span>
+<span><span class="co">#&gt; 5  5 0.20 0.884 0.953 0.965</span></span>
+<span><span class="co">#&gt; 6 10 0.20 0.929 0.955 0.961</span></span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cov_long</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/reshape.html">reshape</a></span><span class="op">(</span><span class="va">cov_res</span>, direction <span class="op">=</span> <span class="st">"long"</span>,</span>
+<span>                    varying <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Wald"</span>, <span class="st">"HKSJ"</span>, <span class="st">"adhoc"</span><span class="op">)</span>, v.names <span class="op">=</span> <span class="st">"coverage"</span>,</span>
+<span>                    timevar <span class="op">=</span> <span class="st">"method"</span>, times <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Wald"</span>, <span class="st">"HKSJ"</span>, <span class="st">"adhoc"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">cov_long</span>, <span class="fu">aes</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">tau2</span><span class="op">)</span>, <span class="va">coverage</span>, colour <span class="op">=</span> <span class="va">method</span>, group <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_line</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.95</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span> <span class="va">k</span>, labeller <span class="op">=</span> <span class="va">label_both</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">coord_cartesian</span><span class="op">(</span>ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html">expression</a></span><span class="op">(</span><span class="va">tau</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, y <span class="op">=</span> <span class="st">"Coverage of 95% CI"</span>, colour <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:models-sim-fig"></span>
+<img src="04-models_files/figure-html/models-sim-fig-1.png" alt="Simulated coverage of nominal 95% confidence intervals for the random-effects mean (1000 replications per condition), using the DerSimonian-Laird estimate of tau-squared with Wald, HKSJ, and ad hoc HKSJ intervals. The dashed line marks 95%." width="85%"><p class="caption">
+Figure 4.1: Simulated coverage of nominal 95% confidence intervals for the random-effects mean (1000 replications per condition), using the DerSimonian-Laird estimate of tau-squared with Wald, HKSJ, and ad hoc HKSJ intervals. The dashed line marks 95%.
+</p>
+</div>
+<p>The pattern in Figure <a href="sec-models.html#fig:models-sim-fig">4.1</a> is the one reported in the literature. Without heterogeneity, the Wald interval (then the correct common-effect interval) and the HKSJ interval cover close to the nominal rate, while the ad hoc interval is conservative (99.6% with five studies). As heterogeneity grows, the Wald interval undercovers, most severely with <span class="math inline">\(k = 5\)</span>: at <span class="math inline">\(\tau^2 = 0.2\)</span> its coverage is 88.4% with five studies and 92.9% with ten. The HKSJ interval stays close to 95% throughout (95.3% and 95.5% in the same conditions). The ad hoc version is never below the HKSJ coverage and is conservative when <span class="math inline">\(\tau^2\)</span> is small. With 1000 replications the Monte Carlo standard error of a coverage near 95% is about 0.7 percentage points, so differences of one point are noise.</p>
+</div>
+</div>
+<div id="sec-models-prediction" class="section level2" number="4.6">
+<h2>
+<span class="header-section-number">4.6</span> Prediction intervals<a class="anchor" aria-label="anchor" href="#sec-models-prediction"><i class="fas fa-link"></i></a>
+</h2>
+<p>The confidence interval for <span class="math inline">\(\mu\)</span> describes uncertainty about the <em>average</em> effect. It does not describe where the effect in a particular setting is likely to lie, and with many studies it shrinks toward a point even when the true effects are widely dispersed. A prediction interval answers the question “in a new study (or setting) comparable to those included, where is the true effect likely to be?” <span class="citation">(<a href="sec-references.html#ref-higgins2009reevaluation">Higgins et al. 2009</a>; <a href="sec-references.html#ref-riley2011interpretation">Riley et al. 2011</a>)</span>. Accounting for both the spread of true effects and the uncertainty in <span class="math inline">\(\hat\mu\)</span>, and for the estimation of <span class="math inline">\(\tau^2\)</span> by using a <span class="math inline">\(t\)</span> distribution with <span class="math inline">\(k - 2\)</span> degrees of freedom, the approximate 95% prediction interval is</p>
+<p><span class="math display">\[
+\hat\mu \pm t_{k-2,\, 0.975} \sqrt{\hat\tau^2 + \widehat{\operatorname{Var}}(\hat\mu)}.
+\]</span></p>
+<p><span class="citation">IntHout et al. (<a href="sec-references.html#ref-inthout2016plea">2016</a>)</span> argue that prediction intervals should be routinely presented, because they frequently reveal that the effect in a new setting could be null or even harmful when the confidence interval for the mean excludes the null. <code><a href="https://rdrr.io/r/stats/predict.html">predict()</a></code> returns the prediction interval along with the confidence interval; <code>transf = exp</code> back-transforms both to the risk ratio scale. By default <code>metafor</code> uses the normal quantile for Wald-type fits and <span class="math inline">\(t_{k-1}\)</span> for HKSJ fits, and <code>pi.type = "Riley"</code> gives the <span class="math inline">\(t_{k-2}\)</span> version above.</p>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">re</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.489 0.344 0.696 0.155 1.549</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">re</span>, transf <span class="op">=</span> <span class="va">exp</span>, digits <span class="op">=</span> <span class="fl">3</span>, pi.type <span class="op">=</span> <span class="st">"Riley"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   pred ci.lb ci.ub pi.lb pi.ub </span></span>
+<span><span class="co">#&gt;  0.489 0.344 0.696 0.134 1.785</span></span></code></pre></div>
+<p>The pooled risk ratio is 0.49 (95% CI 0.34 to 0.70), but the 95% prediction interval runs from 0.13 to 1.78 with the <span class="math inline">\(t_{11}\)</span> quantile: in some settings the vaccine might reduce tuberculosis risk by nearly 90%, in others it might have no effect at all or even increase the risk. This is exactly what the trials show (the TPT Madras trial found a risk ratio of 1.01), and it is the most important message of this meta-analysis for decision makers. Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a> shows that much of this heterogeneity is explained by the latitude of the trial site.</p>
+<p>A prediction interval should be reported as “the true effect in a new setting is expected to lie between … in 95% of cases”, alongside the estimate of <span class="math inline">\(\tau\)</span>. It relies heavily on the normality assumption for the true effects and is poorly estimated when <span class="math inline">\(k\)</span> is small; with fewer than about five studies it is usually too wide to be useful, which is itself informative.</p>
+</div>
+<div id="sec-models-forest" class="section level2" number="4.7">
+<h2>
+<span class="header-section-number">4.7</span> Forest plots<a class="anchor" aria-label="anchor" href="#sec-models-forest"><i class="fas fa-link"></i></a>
+</h2>
+<p>The forest plot is the standard display of a meta-analysis: one row per study with its estimate and confidence interval, a summary diamond for the pooled estimate, and enough numeric detail for a reader to check the inputs. A good forest plot shows the raw data (or at least the sample sizes) next to each study, labels the direction of effect, uses the effect size’s natural scale for the axis (risk ratios on a log axis, not log risk ratios), and shows the prediction interval.</p>
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/forest.html">forest</a></span><span class="op">(</span><span class="va">re</span>, atransf <span class="op">=</span> <span class="va">exp</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>, xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">16</span>, <span class="fl">4.6</span><span class="op">)</span>,</span>
+<span>       ilab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">dat</span><span class="op">$</span><span class="va">tpos</span>, <span class="va">dat</span><span class="op">$</span><span class="va">tneg</span>, <span class="va">dat</span><span class="op">$</span><span class="va">cpos</span>, <span class="va">dat</span><span class="op">$</span><span class="va">cneg</span><span class="op">)</span>,</span>
+<span>       ilab.xpos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9.5</span>, <span class="op">-</span><span class="fl">8</span>, <span class="op">-</span><span class="fl">6</span>, <span class="op">-</span><span class="fl">4.5</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.75</span>,</span>
+<span>       header <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Author(s) and Year"</span>, <span class="st">"Risk Ratio [95% CI]"</span><span class="op">)</span>,</span>
+<span>       addpred <span class="op">=</span> <span class="cn">TRUE</span>, order <span class="op">=</span> <span class="st">"obs"</span>,</span>
+<span>       mlab <span class="op">=</span> <span class="st">"Random-effects model (REML)"</span>,</span>
+<span>       xlab <span class="op">=</span> <span class="st">"Risk ratio (log scale)"</span><span class="op">)</span></span>
+<span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.75</span>, font <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9.5</span>, <span class="op">-</span><span class="fl">8</span>, <span class="op">-</span><span class="fl">6</span>, <span class="op">-</span><span class="fl">4.5</span><span class="op">)</span>, <span class="va">re</span><span class="op">$</span><span class="va">k</span> <span class="op">+</span> <span class="fl">2</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"TB+"</span>, <span class="st">"TB-"</span>, <span class="st">"TB+"</span>, <span class="st">"TB-"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html">text</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">8.75</span>, <span class="op">-</span><span class="fl">5.25</span><span class="op">)</span>, <span class="va">re</span><span class="op">$</span><span class="va">k</span> <span class="op">+</span> <span class="fl">3</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Vaccinated"</span>, <span class="st">"Control"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:models-forest"></span>
+<img src="04-models_files/figure-html/models-forest-1.png" alt="Forest plot of the 13 BCG vaccine trials (risk ratio of tuberculosis, vaccinated versus control) with the REML random-effects estimate. The dotted line through the summary diamond is the 95% prediction interval." width="100%"><p class="caption">
+Figure 4.2: Forest plot of the 13 BCG vaccine trials (risk ratio of tuberculosis, vaccinated versus control) with the REML random-effects estimate. The dotted line through the summary diamond is the 95% prediction interval.
+</p>
+</div>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
+<p>Figure <a href="sec-models.html#fig:models-forest">4.2</a> uses several options worth knowing. <code>atransf = exp</code> labels the axis on the risk ratio scale while plotting on the log scale; <code>ilab</code> and <code>ilab.xpos</code> add the <span class="math inline">\(2 \times 2\)</span> counts; <code>header</code> labels the columns; <code>order = "obs"</code> sorts the studies by effect size, which makes the spread easier to see (sorting by a moderator or by precision are common alternatives); and <code>addpred = TRUE</code> draws the prediction interval through the summary diamond. Square sizes are proportional to the random-effects weights. With many studies, <code>showweights = TRUE</code> adds the weights as a column, and <code><a href="https://wviechtb.github.io/metafor/reference/forest.html">forest()</a></code> can also display subgroups (Chapter <a href="sec-heterogeneity.html#sec-heterogeneity">5</a>).</p>
+</div>
+<div id="sec-models-meta" class="section level2" number="4.8">
+<h2>
+<span class="header-section-number">4.8</span> The same analysis with the meta package<a class="anchor" aria-label="anchor" href="#sec-models-meta"><i class="fas fa-link"></i></a>
+</h2>
+<p>The <code>meta</code> package <span class="citation">(<a href="sec-references.html#ref-balduzzi2019how">Balduzzi et al. 2019</a>)</span> organizes the same models around functions for each data type (<code><a href="https://rdrr.io/pkg/meta/man/metabin.html">metabin()</a></code> for <span class="math inline">\(2 \times 2\)</span> tables, <code><a href="https://rdrr.io/pkg/meta/man/metacont.html">metacont()</a></code> for means, <code><a href="https://rdrr.io/pkg/meta/man/metacor.html">metacor()</a></code> for correlations, <code><a href="https://rdrr.io/pkg/meta/man/metaprop.html">metaprop()</a></code> for proportions, <code><a href="https://rdrr.io/pkg/meta/man/metagen.html">metagen()</a></code> for generic effect sizes with standard errors). Its printed output is designed for reporting, and its defaults have changed over versions, so the relevant options should always be set explicitly. In <code>meta</code> 8.x, the arguments are <code>method.tau</code> for the <span class="math inline">\(\tau^2\)</span> estimator, <code>method.random.ci</code> for the confidence interval of the random-effects mean (<code>"classic"</code> for Wald, <code>"HK"</code> for Hartung-Knapp), <code>method.predict</code> for the prediction interval, and <code>prediction = TRUE</code> to print it.</p>
+<div class="sourceCode" id="cb61"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m_bin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/meta/man/metabin.html">metabin</a></span><span class="op">(</span>event.e <span class="op">=</span> <span class="va">tpos</span>, n.e <span class="op">=</span> <span class="va">tpos</span> <span class="op">+</span> <span class="va">tneg</span>, event.c <span class="op">=</span> <span class="va">cpos</span>, n.c <span class="op">=</span> <span class="va">cpos</span> <span class="op">+</span> <span class="va">cneg</span>,</span>
+<span>                 studlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">dat.bcg</span>, sm <span class="op">=</span> <span class="st">"RR"</span>,</span>
+<span>                 method <span class="op">=</span> <span class="st">"Inverse"</span>, method.tau <span class="op">=</span> <span class="st">"REML"</span>, method.random.ci <span class="op">=</span> <span class="st">"HK"</span>,</span>
+<span>                 prediction <span class="op">=</span> <span class="cn">TRUE</span>, method.predict <span class="op">=</span> <span class="st">"HTS"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">m_bin</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                               RR           95% CI %W(common) %W(random)</span></span>
+<span><span class="co">#&gt; Aronson 1948              0.4109 [0.1343; 1.2574]        0.5        5.1</span></span>
+<span><span class="co">#&gt; Ferguson &amp; Simes 1949     0.2049 [0.0863; 0.4864]        0.8        6.4</span></span>
+<span><span class="co">#&gt; Rosenthal et al 1960      0.2597 [0.0734; 0.9186]        0.4        4.4</span></span>
+<span><span class="co">#&gt; Hart &amp; Sutherland 1977    0.2366 [0.1793; 0.3121]        8.2        9.7</span></span>
+<span><span class="co">#&gt; Frimodt-Moller et al 1973 0.8045 [0.5163; 1.2536]        3.2        8.9</span></span>
+<span><span class="co">#&gt; Stein &amp; Aronson 1953      0.4556 [0.3871; 0.5362]       23.8       10.1</span></span>
+<span><span class="co">#&gt; Vandiviere et al 1973     0.1977 [0.0784; 0.4989]        0.7        6.0</span></span>
+<span><span class="co">#&gt; TPT Madras 1980           1.0120 [0.8946; 1.1449]       41.4       10.2</span></span>
+<span><span class="co">#&gt; Coetzee &amp; Berjak 1968     0.6254 [0.3926; 0.9962]        2.9        8.7</span></span>
+<span><span class="co">#&gt; Rosenthal et al 1961      0.2538 [0.1494; 0.4310]        2.2        8.4</span></span>
+<span><span class="co">#&gt; Comstock et al 1974       0.7122 [0.5725; 0.8860]       13.2        9.9</span></span>
+<span><span class="co">#&gt; Comstock &amp; Webster 1969   1.5619 [0.3737; 6.5284]        0.3        3.8</span></span>
+<span><span class="co">#&gt; Comstock et al 1976       0.9828 [0.5821; 1.6593]        2.3        8.4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Number of studies: k = 13</span></span>
+<span><span class="co">#&gt; Number of observations: o = 357347 (o.e = 191064, o.c = 166283)</span></span>
+<span><span class="co">#&gt; Number of events: e = 2575</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                          RR           95% CI    z|t  p-value</span></span>
+<span><span class="co">#&gt; Common effect model  0.6503 [0.6007; 0.7040] -10.62 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Random effects model 0.4894 [0.3301; 0.7257]  -3.95   0.0019</span></span>
+<span><span class="co">#&gt; Prediction interval         [0.1342; 1.7848]                </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Quantifying heterogeneity (with 95% CIs):</span></span>
+<span><span class="co">#&gt;  tau^2 = 0.3132 [0.1197; 1.1115]; tau = 0.5597 [0.3460; 1.0543]</span></span>
+<span><span class="co">#&gt;  I^2 = 92.1% [88.3%; 94.7%]; H = 3.56 [2.93; 4.34]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of heterogeneity:</span></span>
+<span><span class="co">#&gt;       Q d.f.  p-value</span></span>
+<span><span class="co">#&gt;  152.23   12 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Details of meta-analysis methods:</span></span>
+<span><span class="co">#&gt; - Meta-analysis comparing two groups with binary outcomes</span></span>
+<span><span class="co">#&gt; - Inverse variance method</span></span>
+<span><span class="co">#&gt; - Restricted maximum-likelihood estimator for tau^2</span></span>
+<span><span class="co">#&gt; - Q-Profile method for confidence interval of tau^2 and tau</span></span>
+<span><span class="co">#&gt; - Calculation of I^2 based on Q</span></span>
+<span><span class="co">#&gt; - Hartung-Knapp adjustment for random effects model (df = 12)</span></span>
+<span><span class="co">#&gt; - Prediction interval based on t-distribution (df = 11)</span></span>
+<span><span class="co">#&gt; - Null hypothesis: RR = 1</span></span></code></pre></div>
+<p>The results reproduce the <code>metafor</code> analysis: the HK random-effects risk ratio is 0.489 (95% CI 0.330 to 0.726), <span class="math inline">\(\hat\tau^2 = 0.313\)</span> with the same Q-profile interval, and with <code>method.predict = "HTS"</code> (the Higgins-Thompson-Spiegelhalter interval with <span class="math inline">\(k - 2\)</span> degrees of freedom) the prediction interval matches <code>pi.type = "Riley"</code> in <code>metafor</code>. The <span class="math inline">\(I^2\)</span> interval differs from the one reported by <code><a href="https://rdrr.io/r/stats/confint.html">confint()</a></code> because <code>meta</code> by default computes it from the confidence interval for <span class="math inline">\(H\)</span> <span class="citation">(<a href="sec-references.html#ref-higgins2002quantifying">Higgins and Thompson 2002</a>)</span> rather than from the Q-profile interval for <span class="math inline">\(\tau^2\)</span>. <code><a href="https://rdrr.io/pkg/meta/man/metagen.html">metagen()</a></code> does the same for precomputed effect sizes:</p>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">m_gen</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/meta/man/metagen.html">metagen</a></span><span class="op">(</span>TE <span class="op">=</span> <span class="va">yi</span>, seTE <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">vi</span><span class="op">)</span>, studlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span><span class="op">)</span>,</span>
+<span>                 data <span class="op">=</span> <span class="va">dat</span>, sm <span class="op">=</span> <span class="st">"RR"</span>, common <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                 method.tau <span class="op">=</span> <span class="st">"REML"</span>, method.random.ci <span class="op">=</span> <span class="st">"HK"</span>,</span>
+<span>                 prediction <span class="op">=</span> <span class="cn">TRUE</span>, method.predict <span class="op">=</span> <span class="st">"HTS"</span><span class="op">)</span></span>
+<span><span class="va">m_gen</span></span>
+<span><span class="co">#&gt; Number of studies: k = 13</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                               RR           95% CI     t p-value</span></span>
+<span><span class="co">#&gt; Random effects model (HK) 0.4894 [0.3301; 0.7257] -3.95  0.0019</span></span>
+<span><span class="co">#&gt; Prediction interval              [0.1342; 1.7848]              </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Quantifying heterogeneity (with 95% CIs):</span></span>
+<span><span class="co">#&gt;  tau^2 = 0.3132 [0.1197; 1.1115]; tau = 0.5597 [0.3460; 1.0543]</span></span>
+<span><span class="co">#&gt;  I^2 = 92.1% [88.3%; 94.7%]; H = 3.56 [2.93; 4.34]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test of heterogeneity:</span></span>
+<span><span class="co">#&gt;       Q d.f.  p-value</span></span>
+<span><span class="co">#&gt;  152.23   12 &lt; 0.0001</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Details of meta-analysis methods:</span></span>
+<span><span class="co">#&gt; - Meta-analysis using the generic inverse variance method</span></span>
+<span><span class="co">#&gt; - Inverse variance method</span></span>
+<span><span class="co">#&gt; - Restricted maximum-likelihood estimator for tau^2</span></span>
+<span><span class="co">#&gt; - Q-Profile method for confidence interval of tau^2 and tau</span></span>
+<span><span class="co">#&gt; - Calculation of I^2 based on Q</span></span>
+<span><span class="co">#&gt; - Hartung-Knapp adjustment for random effects model (df = 12)</span></span>
+<span><span class="co">#&gt; - Prediction interval based on t-distribution (df = 11)</span></span>
+<span><span class="co">#&gt; - Null hypothesis: RR = 1</span></span></code></pre></div>
+<p>The <code><a href="https://wviechtb.github.io/metafor/reference/forest.html">forest()</a></code> method for <code>meta</code> objects produces a publication-style forest plot with weights, heterogeneity statistics and the prediction interval in one call.</p>
+</div>
+<div id="sec-models-binary" class="section level2" number="4.9">
+<h2>
+<span class="header-section-number">4.9</span> Binary outcomes and rare events<a class="anchor" aria-label="anchor" href="#sec-models-binary"><i class="fas fa-link"></i></a>
+</h2>
+<p>Inverse-variance pooling of log odds ratios works well when events are common, but it relies on large-sample approximations that break down when cells are small. When events are rare, the per-study variances <span class="math inline">\(1/a + 1/b + 1/c + 1/d\)</span> are dominated by the smallest cell and are poorly estimated, and zero cells require continuity corrections that bias the result (Chapter <a href="sec-effect-sizes.html#sec-effect-sizes">3</a>). Three alternatives work with the <span class="math inline">\(2 \times 2\)</span> tables directly.</p>
+<div id="sec-models-mh-peto" class="section level3" number="4.9.1">
+<h3>
+<span class="header-section-number">4.9.1</span> Mantel-Haenszel and Peto methods<a class="anchor" aria-label="anchor" href="#sec-models-mh-peto"><i class="fas fa-link"></i></a>
+</h3>
+<p>The Mantel-Haenszel estimator of a common odds ratio is</p>
+<p><span class="math display">\[
+\widehat{\text{OR}}_{\text{MH}} = \frac{\sum_i a_i d_i / N_i}{\sum_i b_i c_i / N_i},
+\]</span></p>
+<p>with <span class="math inline">\(N_i\)</span> the total sample size of study <span class="math inline">\(i\)</span>; analogous forms exist for the risk ratio and risk difference. It needs no continuity correction for single-zero studies, is consistent both when there are few large strata and when there are many sparse ones, and its variance can be estimated with the estimator of <span class="citation">Robins et al. (<a href="sec-references.html#ref-robins1986estimators">1986</a>)</span>. Double-zero studies contribute nothing to either sum and so drop out.</p>
+<p>Peto’s one-step method <span class="citation">(<a href="sec-references.html#ref-yusuf1985beta">Yusuf et al. 1985</a>)</span> pools the differences between observed and expected events in the treatment group,</p>
+<p><span class="math display">\[
+\ln \widehat{\text{OR}}_{\text{Peto}} = \frac{\sum_i (O_i - E_i)}{\sum_i V_i}, \qquad \widehat{\operatorname{Var}} = \frac{1}{\sum_i V_i},
+\]</span></p>
+<p>where <span class="math inline">\(E_i\)</span> and <span class="math inline">\(V_i\)</span> are the hypergeometric mean and variance of <span class="math inline">\(a_i\)</span> given the margins of the table. It performs well when events are rare, groups are of similar size and effects are not large, but it is biased when these conditions fail <span class="citation">(<a href="sec-references.html#ref-bradburn2006much">Bradburn et al. 2006</a>)</span>.</p>
+<p>Both are common-effect methods. In <code>metafor</code> they are <code><a href="https://wviechtb.github.io/metafor/reference/rma.mh.html">rma.mh()</a></code> and <code><a href="https://wviechtb.github.io/metafor/reference/rma.peto.html">rma.peto()</a></code>; in <code>meta</code>, <code>metabin(method = "MH")</code> and <code>metabin(method = "Peto")</code>.</p>
+</div>
+<div id="sec-models-glmm" class="section level3" number="4.9.2">
+<h3>
+<span class="header-section-number">4.9.2</span> Generalized linear mixed models<a class="anchor" aria-label="anchor" href="#sec-models-glmm"><i class="fas fa-link"></i></a>
+</h3>
+<p>A more general approach models the event counts as binomial and fits a logistic regression with random treatment effects <span class="citation">(<a href="sec-references.html#ref-stijnen2010random">Stijnen et al. 2010</a>)</span>. In the unconditional model with fixed study effects (<code>model = "UM.FS"</code> in <code><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm()</a></code>), the log odds of an event for arm <span class="math inline">\(j\)</span> of study <span class="math inline">\(i\)</span> is</p>
+<p><span class="math display">\[
+\operatorname{logit}(\pi_{ij}) = \alpha_i + \theta_i x_{ij}, \qquad \theta_i \sim N(\mu, \tau^2),
+\]</span></p>
+<p>with <span class="math inline">\(x_{ij}\)</span> a treatment indicator and <span class="math inline">\(\alpha_i\)</span> a fixed study-specific baseline. The conditional model with exact likelihood (<code>model = "CM.EL"</code>) conditions on the total number of events in each study, which eliminates the <span class="math inline">\(\alpha_i\)</span>; each study then contributes a non-central hypergeometric likelihood, the exact distribution underlying the Mantel-Haenszel and Peto approaches. Both avoid continuity corrections and handle zero cells naturally. <span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2018comparison">2018</a>)</span> compared seven such random-effects models for the odds ratio and found that their performance differs and that no single model dominates, so the choice should be stated and, when results are sensitive, reported as a sensitivity analysis.</p>
+</div>
+<div id="sec-models-rare-example" class="section level3" number="4.9.3">
+<h3>
+<span class="header-section-number">4.9.3</span> Example: anti-infective catheters<a class="anchor" aria-label="anchor" href="#sec-models-rare-example"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>dat.nielweise2007</code> data contain 18 trials comparing catheter-related bloodstream infections with anti-infective-treated versus standard catheters. Events are rare, six trials have a zero cell, and the Yucel 2004 trial has no events in either arm.</p>
+<div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nw</span> <span class="op">&lt;-</span> <span class="va">dat.nielweise2007</span></span>
+<span><span class="va">nw</span><span class="op">$</span><span class="va">zero</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">nw</span>, <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">ai</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">&amp;</span> <span class="va">ci</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"double zero"</span>,</span>
+<span>                    <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">ai</span> <span class="op">==</span> <span class="fl">0</span> <span class="op">|</span> <span class="va">ci</span> <span class="op">==</span> <span class="fl">0</span>, <span class="st">"single zero"</span>, <span class="st">""</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">nw</span></span>
+<span><span class="co">#&gt;    study         author year ai n1i ci n2i        zero</span></span>
+<span><span class="co">#&gt; 1      1           Bach 1996  0 116  3 117 single zero</span></span>
+<span><span class="co">#&gt; 2      2         George 1997  1  44  3  35            </span></span>
+<span><span class="co">#&gt; 3      3           Maki 1997  2 208  9 195            </span></span>
+<span><span class="co">#&gt; 4      4           Raad 1997  0 130  7 136 single zero</span></span>
+<span><span class="co">#&gt; 5      5          Heard 1998  5 151  6 157            </span></span>
+<span><span class="co">#&gt; 6      6         Collin 1999  1  98  4 139            </span></span>
+<span><span class="co">#&gt; 7      7         Hannan 1999  1 174  3 177            </span></span>
+<span><span class="co">#&gt; 8      8          Marik 1999  1  74  2  39            </span></span>
+<span><span class="co">#&gt; 9      9         Pierce 2000  1  97 19 103            </span></span>
+<span><span class="co">#&gt; 10    10          Sheng 2000  1 113  2 122            </span></span>
+<span><span class="co">#&gt; 11    11 Chatzinikolaou 2003  0  66  7  64 single zero</span></span>
+<span><span class="co">#&gt; 12    12         Corral 2003  0  70  1  58 single zero</span></span>
+<span><span class="co">#&gt; 13    13   Brun-Buisson 2004  3 188  5 175            </span></span>
+<span><span class="co">#&gt; 14    14           Leon 2004  6 187 11 180            </span></span>
+<span><span class="co">#&gt; 15    15          Yucel 2004  0 118  0 105 double zero</span></span>
+<span><span class="co">#&gt; 16    16        Moretti 2005  0 252  1 262 single zero</span></span>
+<span><span class="co">#&gt; 17    17           Rupp 2005  1 345  3 362            </span></span>
+<span><span class="co">#&gt; 18    18           Osma 2006  4  64  1  69</span></span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">iv_ee</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">nw</span>, method <span class="op">=</span> <span class="st">"EE"</span><span class="op">)</span>      <span class="co"># 0.5 added to tables with a zero</span></span>
+<span><span class="va">iv_re</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>,</span>
+<span>              data <span class="op">=</span> <span class="va">nw</span>, method <span class="op">=</span> <span class="st">"REML"</span><span class="op">)</span></span>
+<span><span class="va">mh</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.mh.html">rma.mh</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">nw</span><span class="op">)</span></span>
+<span><span class="va">peto</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.peto.html">rma.peto</a></span><span class="op">(</span>ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">nw</span><span class="op">)</span></span>
+<span><span class="va">mh</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Equal-Effects Model (k = 18)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):  5.12%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability): 1.05</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity: </span></span>
+<span><span class="co">#&gt; Q(df = 16) = 16.8637, p-val = 0.3945</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results (log scale):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub </span></span>
+<span><span class="co">#&gt;  -1.2087  0.2224  -5.4337  &lt;.0001  -1.6447  -0.7727 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results (OR scale):</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate   ci.lb   ci.ub </span></span>
+<span><span class="co">#&gt;   0.2986  0.1931  0.4618 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cochran-Mantel-Haenszel Test:    CMH = 32.2136, df = 1,  p-val &lt; 0.0001</span></span>
+<span><span class="co">#&gt; Tarone's Test for Heterogeneity: X^2 = 25.6795, df = 16, p-val = 0.0587</span></span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">glmm_fs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>,</span>
+<span>                    data <span class="op">=</span> <span class="va">nw</span>, model <span class="op">=</span> <span class="st">"UM.FS"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: 1 study with NAs omitted from model fitting.</span></span>
+<span><span class="co">#&gt; Warning: Some yi/vi values are NA.</span></span>
+<span><span class="co">#&gt; Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, : Model failed to converge with max|grad| = 0.0087148 (tol = 0.002, component 1)</span></span>
+<span><span class="co">#&gt;   See ?lme4::convergence and ?lme4::troubleshooting.</span></span>
+<span><span class="va">glmm_el</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">ai</span>, n1i <span class="op">=</span> <span class="va">n1i</span>, ci <span class="op">=</span> <span class="va">ci</span>, n2i <span class="op">=</span> <span class="va">n2i</span>,</span>
+<span>                    data <span class="op">=</span> <span class="va">nw</span>, model <span class="op">=</span> <span class="st">"CM.EL"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: 1 study with NAs omitted from model fitting.</span></span>
+<span><span class="co">#&gt; Warning: Some yi/vi values are NA.</span></span>
+<span><span class="va">glmm_el</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 17; tau^2 estimator: ML)</span></span>
+<span><span class="co">#&gt; Model Type: Conditional Model with Exact Likelihood</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.6935 (SE = 0.6402)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.8327</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   41.13%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  1.70</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Tests for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Wld(df = 16) = 11.8790, p-val = 0.7523</span></span>
+<span><span class="co">#&gt; LRT(df = 16) = 28.6093, p-val = 0.0267</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se     zval    pval    ci.lb    ci.ub      </span></span>
+<span><span class="co">#&gt;  -1.3532  0.3511  -3.8544  0.0001  -2.0412  -0.6651  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rare</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="st">"Inverse variance, EE (0.5 cc)"</span> <span class="op">=</span> <span class="va">iv_ee</span>,</span>
+<span>             <span class="st">"Inverse variance, RE (0.5 cc)"</span> <span class="op">=</span> <span class="va">iv_re</span>,</span>
+<span>             <span class="st">"Mantel-Haenszel"</span> <span class="op">=</span> <span class="va">mh</span>, <span class="st">"Peto"</span> <span class="op">=</span> <span class="va">peto</span>,</span>
+<span>             <span class="st">"GLMM UM.FS"</span> <span class="op">=</span> <span class="va">glmm_fs</span>, <span class="st">"GLMM CM.EL"</span> <span class="op">=</span> <span class="va">glmm_el</span><span class="op">)</span></span>
+<span><span class="va">rare_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">rare</span>, <span class="kw">function</span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>k <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">k</span>, OR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, ci.lb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, ci.ub <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span>,</span>
+<span>    tau2 <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html">is.null</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span> <span class="cn">NA</span> <span class="kw">else</span> <span class="va">f</span><span class="op">$</span><span class="va">tau2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">rare_tab</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                k    OR ci.lb ci.ub  tau2</span></span>
+<span><span class="co">#&gt; Inverse variance, EE (0.5 cc) 18 0.385 0.243 0.610 0.000</span></span>
+<span><span class="co">#&gt; Inverse variance, RE (0.5 cc) 18 0.383 0.240 0.610 0.014</span></span>
+<span><span class="co">#&gt; Mantel-Haenszel               18 0.299 0.193 0.462 0.000</span></span>
+<span><span class="co">#&gt; Peto                          18 0.331 0.227 0.482 0.000</span></span>
+<span><span class="co">#&gt; GLMM UM.FS                    17 0.290 0.168 0.503 0.319</span></span>
+<span><span class="co">#&gt; GLMM CM.EL                    17 0.258 0.130 0.514 0.693</span></span></code></pre></div>
+<p>The methods agree that anti-infective catheters reduce infections, but not on how much. The inverse-variance analyses, which add 0.5 to every cell of the six tables containing a zero and keep the double-zero trial, give the smallest effect, an odds ratio of 0.385. The Mantel-Haenszel (0.299) and Peto (0.331) estimates and the two GLMMs (0.290 and 0.258) are further from the null, consistent with the known bias of continuity corrections toward the null <span class="citation">(<a href="sec-references.html#ref-sweeting2004what">J. Sweeting et al. 2004</a>)</span>. The GLMMs drop the double-zero trial (hence <span class="math inline">\(k = 17\)</span>), and it contributes nothing to the Mantel-Haenszel and Peto sums either (their heterogeneity tests have 16 degrees of freedom): under the conditional model it contains no information about the odds ratio. The two GLMMs also estimate more heterogeneity (<span class="math inline">\(\hat\tau^2 = 0.32\)</span> and <span class="math inline">\(0.69\)</span>) than the inverse-variance REML model (0.014), whose study variances are distorted by the corrections; on the log scale, these <span class="math inline">\(\tau^2\)</span> values imply that the odds ratio could differ substantially between settings, although the evidence is mixed: in the conditional model the Wald-type test for heterogeneity is far from significant (p = 0.75) while the likelihood ratio test gives p = 0.03. The unconditional model printed a convergence warning from the <code>lme4</code> optimizer (a gradient slightly above tolerance), which is common with sparse data; it is worth checking that the estimates are stable under a different optimizer, or preferring the conditional model, which here converged without complaint. The conditional model takes noticeably longer to fit.</p>
+<div class="rmdtip">
+<p>For rare events, a defensible analysis plan pre-specifies one primary method that avoids continuity corrections (Mantel-Haenszel for a common-effect analysis, a binomial GLMM for a random-effects analysis), states how double-zero studies are handled, and reports the alternatives as sensitivity analyses <span class="citation">(<a href="sec-references.html#ref-efthimiou2018practical">Efthimiou 2018</a>)</span>. For risk differences, double-zero studies do carry information (an estimated difference of zero) and should not be dropped automatically.</p>
+</div>
+</div>
+</div>
+<div id="sec-models-small-k" class="section level2" number="4.10">
+<h2>
+<span class="header-section-number">4.10</span> When the number of studies is very small<a class="anchor" aria-label="anchor" href="#sec-models-small-k"><i class="fas fa-link"></i></a>
+</h2>
+<p>Many meta-analyses in medicine and the social sciences contain fewer than five studies. With so few studies, <span class="math inline">\(\tau^2\)</span> is essentially not estimable: its confidence interval typically spans from zero to values implying enormous heterogeneity, and point estimates are often exactly zero. Every random-effects method then struggles. Wald intervals are too narrow; HKSJ intervals, based on a <span class="math inline">\(t\)</span> distribution with one to three degrees of freedom, can be so wide as to be uninformative, or (when the few studies happen to agree closely) too narrow without the ad hoc correction. <span class="citation">Bender et al. (<a href="sec-references.html#ref-bender2018methods">2018</a>)</span> review the options and conclude that no single frequentist method is satisfactory for very few studies.</p>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sub4</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span>, <span class="fl">12</span><span class="op">)</span>, <span class="op">]</span>   <span class="co"># four trials with very different results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>Wald <span class="op">=</span> <span class="st">"z"</span>, HKSJ <span class="op">=</span> <span class="st">"knha"</span>, adhoc <span class="op">=</span> <span class="st">"adhoc"</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">tt</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">sub4</span>, method <span class="op">=</span> <span class="st">"REML"</span>, test <span class="op">=</span> <span class="va">tt</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>tau2 <span class="op">=</span> <span class="va">f</span><span class="op">$</span><span class="va">tau2</span>, RR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>, lb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>,</span>
+<span>          ub <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       Wald  HKSJ adhoc</span></span>
+<span><span class="co">#&gt; tau2 0.532 0.532 0.532</span></span>
+<span><span class="co">#&gt; RR   0.571 0.571 0.571</span></span>
+<span><span class="co">#&gt; lb   0.264 0.161 0.161</span></span>
+<span><span class="co">#&gt; ub   1.233 2.021 2.021</span></span></code></pre></div>
+<p>With four heterogeneous trials, the Wald interval for the risk ratio is already wide, and the HKSJ interval based on <span class="math inline">\(t_3\)</span> is considerably wider. Neither is wrong in its own terms: the Wald interval ignores the uncertainty in <span class="math inline">\(\hat\tau^2\)</span>, and the HKSJ interval reports it honestly. Options when <span class="math inline">\(k\)</span> is very small include reporting the studies individually with a descriptive synthesis, presenting a common-effect (or fixed-effects) analysis explicitly interpreted as conditional on the included studies, using the HKSJ interval with the ad hoc correction, and using a Bayesian random-effects model with a weakly informative or empirically based prior for <span class="math inline">\(\tau\)</span>, which stabilizes inference by bringing in external information about plausible heterogeneity (Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>). Whatever is chosen, the reasons should be stated in the protocol before the results are known.</p>
+</div>
+<div id="sec-models-recommendations" class="section level2" number="4.11">
+<h2>
+<span class="header-section-number">4.11</span> Practical recommendations<a class="anchor" aria-label="anchor" href="#sec-models-recommendations"><i class="fas fa-link"></i></a>
+</h2>
+<p>Decide on the model and its estimand at the protocol stage. In most reviews the random-effects model is the appropriate default, with REML (or Paule-Mandel) for <span class="math inline">\(\tau^2\)</span> and the HKSJ method for the confidence interval of <span class="math inline">\(\mu\)</span>, preferably with the ad hoc correction when the number of studies is small. Report <span class="math inline">\(\hat\mu\)</span> with its confidence interval, <span class="math inline">\(\hat\tau\)</span> with its Q-profile confidence interval, the prediction interval, and <span class="math inline">\(I^2\)</span> as a secondary relative measure; state the software, version and options used, because defaults differ between packages and versions. For binary outcomes with rare events, avoid continuity corrections by using Mantel-Haenszel or GLMM methods, and state how double-zero studies are handled. When the common-effect and random-effects estimates differ substantially, investigate why (small-study effects, a dominant large study, moderators) rather than simply choosing one. Present a forest plot on the natural scale of the effect size with the prediction interval.</p>
+</div>
+<div id="sec-models-pitfalls" class="section level2" number="4.12">
+<h2>
+<span class="header-section-number">4.12</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-models-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>Several errors recur in published meta-analyses. Choosing between common-effect and random-effects models on the basis of the <span class="math inline">\(Q\)</span> test or of <span class="math inline">\(I^2\)</span> confuses a modelling decision with a significance test, and the test has little power with few studies. Reporting <span class="math inline">\(I^2\)</span> as if it measured how much effects vary, or labelling heterogeneity “low” because <span class="math inline">\(I^2\)</span> is small in a meta-analysis of small studies, ignores that <span class="math inline">\(I^2\)</span> is a relative measure. Interpreting the random-effects confidence interval as the range of effects in different settings confuses the uncertainty of the mean with the dispersion of true effects; the prediction interval answers that question. Relying on DerSimonian-Laird Wald intervals with few studies produces overconfident conclusions. Using user-defined weights without realizing that they also change the estimate of the mean, as the GENQ example showed, changes the estimand. Finally, applying 0.5 continuity corrections by default in sparse binary data biases odds ratios toward the null.</p>
+</div>
+<div id="sec-models-takeaways" class="section level2" number="4.13">
+<h2>
+<span class="header-section-number">4.13</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-models-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Inverse-variance weighting is the backbone of all three models; the common-effect, fixed-effects and random-effects models differ in what the weighted average estimates.</li>
+<li>The common-effect and fixed-effects models give identical numbers; the former assumes one true effect, the latter estimates the precision-weighted average of the included studies’ true effects and supports only conditional inference. The random-effects model estimates the mean <span class="math inline">\(\mu\)</span> of a distribution of true effects with variance <span class="math inline">\(\tau^2\)</span> and supports inference about settings like those studied.</li>
+<li>
+<span class="math inline">\(\tau\)</span> is an absolute measure of heterogeneity on the effect size scale; <span class="math inline">\(I^2\)</span> is relative and depends on study precision. Report <span class="math inline">\(\tau\)</span> with a Q-profile confidence interval and a prediction interval.</li>
+<li>REML and Paule-Mandel are recommended estimators of <span class="math inline">\(\tau^2\)</span>; DerSimonian-Laird is negatively biased when heterogeneity is large. With moderate <span class="math inline">\(k\)</span> the choice of estimator matters more for <span class="math inline">\(\tau^2\)</span> than for <span class="math inline">\(\hat\mu\)</span>.</li>
+<li>Wald intervals for <span class="math inline">\(\mu\)</span> undercover when <span class="math inline">\(k\)</span> is small and heterogeneity is present; HKSJ intervals (<code>test = "knha"</code>, <code>method.random.ci = "HK"</code>) keep close to nominal coverage, and the ad hoc correction (<code>test = "adhoc"</code>) prevents them from being narrower than the Wald interval.</li>
+<li>For rare events, Mantel-Haenszel, Peto and binomial GLMMs (<code><a href="https://wviechtb.github.io/metafor/reference/rma.mh.html">rma.mh()</a></code>, <code><a href="https://wviechtb.github.io/metafor/reference/rma.peto.html">rma.peto()</a></code>, <code><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm()</a></code>) avoid the bias of continuity corrections.</li>
+<li>With very few studies, random-effects inference is fragile; state a strategy in advance (ad hoc HKSJ, a conditional fixed-effects interpretation, or a Bayesian model with an informative prior for <span class="math inline">\(\tau\)</span>).</li>
+</ul>
+</div>
+<div id="sec-models-reading" class="section level2" number="4.14">
+<h2>
+<span class="header-section-number">4.14</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-models-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2021introduction">2021</a>)</span> give a conceptual introduction to the common-effect and random-effects models and to heterogeneity statistics, and <span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2017basics">2017</a>)</span> explain concisely why <span class="math inline">\(I^2\)</span> should not be used to describe the dispersion of effects. <span class="citation">Higgins et al. (<a href="sec-references.html#ref-higgins2009reevaluation">2009</a>)</span> and <span class="citation">Rice et al. (<a href="sec-references.html#ref-rice2017reevaluation">2017</a>)</span> are complementary re-evaluations of the random-effects and fixed-effects models from the perspective of what is being estimated. <span class="citation">Veroniki et al. (<a href="sec-references.html#ref-veroniki2015methods">2015</a>)</span> review estimators of <span class="math inline">\(\tau^2\)</span> and their confidence intervals, and <span class="citation">Langan et al. (<a href="sec-references.html#ref-langan2018comparison">2018</a>)</span> report the most extensive simulation comparison. <span class="citation">IntHout et al. (<a href="sec-references.html#ref-inthout2014hartung">2014</a>)</span> and <span class="citation">Jackson et al. (<a href="sec-references.html#ref-jackson2017hartung">2017</a>)</span> cover the HKSJ method and its limitations, <span class="citation">Riley et al. (<a href="sec-references.html#ref-riley2011interpretation">2011</a>)</span> and <span class="citation">IntHout et al. (<a href="sec-references.html#ref-inthout2016plea">2016</a>)</span> make the case for prediction intervals, and <span class="citation">Bender et al. (<a href="sec-references.html#ref-bender2018methods">2018</a>)</span> discuss the case of very few studies. For rare events, <span class="citation">Stijnen et al. (<a href="sec-references.html#ref-stijnen2010random">2010</a>)</span> introduce the GLMMs implemented in <code><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm()</a></code> and <span class="citation">Efthimiou (<a href="sec-references.html#ref-efthimiou2018practical">2018</a>)</span> give a practical guide. <span class="citation">Viechtbauer (<a href="sec-references.html#ref-viechtbauer2010conducting">2010</a>)</span> and <span class="citation">Balduzzi et al. (<a href="sec-references.html#ref-balduzzi2019how">2019</a>)</span> document the <code>metafor</code> and <code>meta</code> packages used in this chapter.</p>
+
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></div>
+<div class="next"><a href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="nav-link" href="#sec-models-inverse-variance"><span class="header-section-number">4.1</span> Inverse-variance weighting</a></li>
+<li>
+<a class="nav-link" href="#sec-models-estimands"><span class="header-section-number">4.2</span> Three models, three estimands</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models-common"><span class="header-section-number">4.2.1</span> The common-effect model</a></li>
+<li><a class="nav-link" href="#sec-models-fixed"><span class="header-section-number">4.2.2</span> The fixed-effects model</a></li>
+<li><a class="nav-link" href="#sec-models-random"><span class="header-section-number">4.2.3</span> The random-effects model</a></li>
+<li><a class="nav-link" href="#sec-models-choice"><span class="header-section-number">4.2.4</span> Which model?</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-models-heterogeneity"><span class="header-section-number">4.3</span> Quantifying heterogeneity</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models-q"><span class="header-section-number">4.3.1</span> Cochran’s Q</a></li>
+<li><a class="nav-link" href="#sec-models-tau-i2"><span class="header-section-number">4.3.2</span> tau, I-squared and H-squared</a></li>
+<li><a class="nav-link" href="#sec-models-i2"><span class="header-section-number">4.3.3</span> Why I-squared is not an absolute measure of heterogeneity</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-models-tau2"><span class="header-section-number">4.4</span> Estimating the between-study variance</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models-tau2-estimators"><span class="header-section-number">4.4.1</span> The estimators</a></li>
+<li><a class="nav-link" href="#sec-models-tau2-bcg"><span class="header-section-number">4.4.2</span> Comparing the estimators on the BCG data</a></li>
+<li><a class="nav-link" href="#sec-models-tau2-recommend"><span class="header-section-number">4.4.3</span> Recommendations</a></li>
+<li><a class="nav-link" href="#sec-models-tau2-ci"><span class="header-section-number">4.4.4</span> Confidence intervals for tau-squared</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-models-inference"><span class="header-section-number">4.5</span> Inference on the mean effect</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models-wald"><span class="header-section-number">4.5.1</span> Wald-type intervals</a></li>
+<li><a class="nav-link" href="#sec-models-hksj"><span class="header-section-number">4.5.2</span> The Hartung-Knapp-Sidik-Jonkman method</a></li>
+<li><a class="nav-link" href="#sec-models-adhoc"><span class="header-section-number">4.5.3</span> The ad hoc variance correction</a></li>
+<li><a class="nav-link" href="#sec-models-simulation"><span class="header-section-number">4.5.4</span> A small simulation</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-models-prediction"><span class="header-section-number">4.6</span> Prediction intervals</a></li>
+<li><a class="nav-link" href="#sec-models-forest"><span class="header-section-number">4.7</span> Forest plots</a></li>
+<li><a class="nav-link" href="#sec-models-meta"><span class="header-section-number">4.8</span> The same analysis with the meta package</a></li>
+<li>
+<a class="nav-link" href="#sec-models-binary"><span class="header-section-number">4.9</span> Binary outcomes and rare events</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-models-mh-peto"><span class="header-section-number">4.9.1</span> Mantel-Haenszel and Peto methods</a></li>
+<li><a class="nav-link" href="#sec-models-glmm"><span class="header-section-number">4.9.2</span> Generalized linear mixed models</a></li>
+<li><a class="nav-link" href="#sec-models-rare-example"><span class="header-section-number">4.9.3</span> Example: anti-infective catheters</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-models-small-k"><span class="header-section-number">4.10</span> When the number of studies is very small</a></li>
+<li><a class="nav-link" href="#sec-models-recommendations"><span class="header-section-number">4.11</span> Practical recommendations</a></li>
+<li><a class="nav-link" href="#sec-models-pitfalls"><span class="header-section-number">4.12</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-models-takeaways"><span class="header-section-number">4.13</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-models-reading"><span class="header-section-number">4.14</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/04-models.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/04-models.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

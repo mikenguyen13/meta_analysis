@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 3 Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R</title>
+<meta name="author" content="Mike Nguyen">
+<meta name="description" content="A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, \(t\) and \(F\) statistics, \(2 \times 2\) tables,...">
+<meta name="generator" content="bookdown 0.48 with bs4_book()">
+<meta property="og:title" content="Chapter 3 Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta property="og:type" content="book">
+<meta property="og:url" content="https://mikenguyen13.github.io/meta_analysis/sec-effect-sizes.html">
+<meta property="og:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<meta property="og:description" content="A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, \(t\) and \(F\) statistics, \(2 \times 2\) tables,...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 3 Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="twitter:description" content="A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, \(t\) and \(F\) statistics, \(2 \times 2\) tables,...">
+<meta name="twitter:image" content="https://mikenguyen13.github.io/meta_analysis/images/cover.jpg">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.12.0/transition.js"></script><script src="libs/bs3compat-0.12.0/tabs.js"></script><script src="libs/bs3compat-0.12.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><link href="libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/viz-1.8.2/viz.js"></script><link href="libs/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+<script src="libs/grViz-binding-1.0.12/grViz.js"></script><!-- ============================================================
+         Google Analytics (gtag.js), citation metadata, and structured data.
+         Injected into <head> of every page via _output.yml in_header.
+         ============================================================ --><script async src="https://www.googletagmanager.com/gtag/js?id=G-9S5ZG1XCWF"></script><script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9S5ZG1XCWF');
+    </script><!-- Highwire Press tags read by Google Scholar and reference managers
+         (Zotero, Mendeley) to build a citation for the page. --><meta name="citation_title" content="Chapter 3 Effect Sizes | Meta-Analysis: A Practical and Modern Guide with R">
+<meta name="citation_author" content="Nguyen, Mike">
+<meta name="citation_publication_date" content="2026">
+<meta name="citation_language" content="en">
+<meta name="citation_public_url" content="https://mikenguyen13.github.io/meta_analysis/">
+<meta name="keywords" content="meta-analysis, systematic review, research synthesis, R, metafor, random-effects model, publication bias, network meta-analysis, MASEM, Bayesian meta-analysis, robust variance estimation, GRADE, PRISMA 2020">
+<!-- schema.org structured data for search engines. --><script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Book",
+      "name": "Meta-Analysis: A Practical and Modern Guide with R",
+      "url": "https://mikenguyen13.github.io/meta_analysis/",
+      "license": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "bookFormat": "https://schema.org/EBook",
+      "image": "https://mikenguyen13.github.io/meta_analysis/images/cover.jpg",
+      "description": "Open textbook on systematic reviews and meta-analysis with runnable R code: effect sizes, random-effects models, meta-regression, dependent effects, publication bias, Bayesian and network meta-analysis, MASEM, IPD, diagnostic accuracy, causal estimates, and GRADE.",
+      "keywords": "meta-analysis, systematic review, research synthesis, R, metafor",
+      "author": {
+        "@type": "Person",
+        "name": "Mike Nguyen",
+        "sameAs": ["https://orcid.org/0000-0002-3432-8595", "https://github.com/mikenguyen13"]
+      },
+      "publisher": { "@type": "Person", "name": "Mike Nguyen" }
+    }
+    </script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<style type="text/css">
+    /* Used with Pandoc 2.11+ new --citeproc when CSL is used */
+    div.csl-bib-body { }
+    div.csl-entry {
+      clear: both;
+        }
+    .hanging div.csl-entry {
+      margin-left:2em;
+      text-indent:-2em;
+    }
+    div.csl-left-margin {
+      min-width:2em;
+      float:left;
+    }
+    div.csl-right-inline {
+      margin-left:2em;
+      padding-left:1em;
+    }
+    div.csl-indent {
+      margin-left: 2em;
+    }
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Meta-Analysis: A Practical and Modern Guide with R</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html">Preface</a></li>
+<li class="book-part">Foundations</li>
+<li><a class="" href="sec-introduction.html"><span class="header-section-number">1</span> Introduction to Research Synthesis</a></li>
+<li><a class="" href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></li>
+<li><a class="active" href="sec-effect-sizes.html"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li class="book-part">Core Methods</li>
+<li><a class="" href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></li>
+<li><a class="" href="sec-heterogeneity.html"><span class="header-section-number">5</span> Heterogeneity, Subgroups, and Meta-Regression</a></li>
+<li><a class="" href="sec-dependent-effects.html"><span class="header-section-number">6</span> Dependent Effect Sizes</a></li>
+<li><a class="" href="sec-publication-bias.html"><span class="header-section-number">7</span> Publication Bias and Small-Study Effects</a></li>
+<li><a class="" href="sec-sensitivity.html"><span class="header-section-number">8</span> Sensitivity Analysis and Diagnostics</a></li>
+<li class="book-part">Advanced Methods</li>
+<li><a class="" href="sec-bayesian.html"><span class="header-section-number">9</span> Bayesian Meta-Analysis</a></li>
+<li><a class="" href="sec-network.html"><span class="header-section-number">10</span> Network Meta-Analysis</a></li>
+<li><a class="" href="sec-masem.html"><span class="header-section-number">11</span> Meta-Analytic Structural Equation Modeling</a></li>
+<li><a class="" href="sec-multivariate-ipd.html"><span class="header-section-number">12</span> Multivariate, Dose-Response, and IPD Meta-Analysis</a></li>
+<li><a class="" href="sec-dta.html"><span class="header-section-number">13</span> Diagnostic Test Accuracy</a></li>
+<li><a class="" href="sec-causal-estimates.html"><span class="header-section-number">14</span> Meta-Analysis of Causal Estimates</a></li>
+<li class="book-part">Reporting</li>
+<li><a class="" href="sec-reporting.html"><span class="header-section-number">15</span> Certainty of Evidence (GRADE) and Reporting</a></li>
+<li><a class="" href="sec-conclusion.html"><span class="header-section-number">16</span> A Workflow Checklist</a></li>
+<li><a class="" href="sec-references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/mikenguyen13/meta_analysis">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="sec-effect-sizes" class="section level1" number="3">
+<h1>
+<span class="header-section-number">3</span> Effect Sizes<a class="anchor" aria-label="anchor" href="#sec-effect-sizes"><i class="fas fa-link"></i></a>
+</h1>
+<p>A meta-analysis can only combine what is commensurable. Primary studies report their results in many forms: means and standard deviations, <span class="math inline">\(t\)</span> and <span class="math inline">\(F\)</span> statistics, <span class="math inline">\(2 \times 2\)</span> tables, correlation matrices, regression coefficients, medians with interquartile ranges, hazard ratios read from survival curves. Before any pooling model can be fitted, each result has to be expressed on a common scale, together with an estimate of its sampling variance. That common scale is the <em>effect size</em>, and the decisions made at this stage (which metric, which sign convention, which formula for the variance, how to handle a study that reports only a <span class="math inline">\(p\)</span>-value) shape every downstream result. Errors made here cannot be repaired by a sophisticated model later: a random-effects model fitted to effect sizes with the wrong sign or the wrong variance is precisely wrong.</p>
+<p>This chapter covers the effect size families that account for the bulk of applied meta-analyses in psychology, medicine, economics, management and marketing: mean differences for continuous outcomes, including pre-post designs; odds ratios, risk ratios and risk differences for binary outcomes; correlation coefficients, including partial and semi-partial correlations from regression models; single proportions and incidence rates. It then turns to the practical problem of extracting effect sizes from whatever a paper happens to report, to conversions between metrics, to cluster-randomized trials, and to the psychometric corrections for measurement error and range restriction associated with Hunter and Schmidt. Throughout, effect sizes are computed with <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">metafor::escalc()</a></code> <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span> on public datasets from the <code>metadat</code> package. How these effect sizes are then pooled is the subject of Chapter <a href="sec-models.html#sec-models">4</a>.</p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://www.metafor-project.org">metafor</a></span><span class="op">)</span>   <span class="co"># loaded by _common.R as well; repeated for clarity</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://strengejacke.github.io/esc">esc</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://easystats.github.io/effectsize/">effectsize</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">psychmeta</span><span class="op">)</span></span></code></pre></div>
+<div id="sec-effect-sizes-what" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> What an effect size is<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-what"><i class="fas fa-link"></i></a>
+</h2>
+<p>An effect size is a quantitative index of the magnitude, and usually the direction, of a relationship or difference in a population. In meta-analysis we work with an <em>estimate</em> <span class="math inline">\(y_i\)</span> of a study-specific parameter <span class="math inline">\(\theta_i\)</span>, computed from study <span class="math inline">\(i\)</span>’s data, together with an estimate <span class="math inline">\(v_i\)</span> of its sampling variance. The pair <span class="math inline">\((y_i, v_i)\)</span> is the unit of analysis for nearly every model in this book. The pooling models in Chapter <a href="sec-models.html#sec-models">4</a> treat <span class="math inline">\(v_i\)</span> as known, so two properties of the metric matter a great deal: the sampling distribution of <span class="math inline">\(y_i\)</span> should be close to normal, and <span class="math inline">\(v_i\)</span> should be estimated accurately and should not depend strongly on <span class="math inline">\(y_i\)</span> itself. Several transformations used below (the logarithm for ratios, Fisher’s <span class="math inline">\(z\)</span> for correlations, the logit for proportions) exist precisely to achieve these two properties.</p>
+<p>A useful effect size has three further properties. It should be <em>comparable</em> across studies that used different instruments or units. It should be <em>interpretable</em>, either in natural units (days of hospital stay, mmHg, percentage points) or by reference to a well-understood scale. And it should be <em>computable</em> from the information that studies actually report. These goals conflict. The raw mean difference is the most interpretable metric for a continuous outcome but is only comparable when every study used the same scale. The standardized mean difference is comparable across scales but its interpretation depends on the population standard deviation used as the yardstick.</p>
+<div id="sec-effect-sizes-choosing" class="section level3" number="3.1.1">
+<h3>
+<span class="header-section-number">3.1.1</span> Choosing a metric<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-choosing"><i class="fas fa-link"></i></a>
+</h3>
+<p>The choice of metric should be made at the protocol stage (Chapter <a href="sec-systematic-review.html#sec-systematic-review">2</a>) and should follow from the research question and the design of the primary studies, not from which metric gives the most attractive result. A few principles cover most cases.</p>
+<p>For continuous outcomes measured on the <em>same</em> scale in all studies (blood pressure in mmHg, length of stay in days, revenue in a common currency), the raw mean difference is preferable because it is directly interpretable and does not import between-study differences in sample variability into the effect size. When studies used different instruments for the same construct (different depression inventories, different job satisfaction scales), a standardized mean difference is needed. When the outcome is a ratio-scale quantity and effects are plausibly multiplicative (biomass, costs, reaction times), the log ratio of means is often the most natural metric.</p>
+<p>For binary outcomes, the odds ratio has the best mathematical properties (it is symmetric in the definition of the event, unbounded on the log scale, and estimable from case-control designs), the risk ratio is easier to communicate, and the risk difference is the most directly relevant for decisions but is usually the least homogeneous across studies with different baseline risks <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. For associations between two continuous variables the correlation coefficient is the default, typically analyzed on Fisher’s <span class="math inline">\(z\)</span> scale. Proportions from single-arm studies and incidence rates from studies with person-time denominators have their own metrics, discussed below.</p>
+<div class="rmdtip">
+<p>When different studies report different designs (some two-group comparisons, some correlations, some <span class="math inline">\(2 \times 2\)</span> tables), choose the metric that most studies report naturally and convert the minority. Every conversion rests on assumptions, so record which studies were converted and examine whether they differ systematically from the rest (a moderator analysis or a sensitivity analysis; Chapters <a href="sec-heterogeneity.html#sec-heterogeneity">5</a> and <a href="sec-sensitivity.html#sec-sensitivity">8</a>).</p>
+</div>
+</div>
+<div id="sec-effect-sizes-direction" class="section level3" number="3.1.2">
+<h3>
+<span class="header-section-number">3.1.2</span> Direction and sign conventions<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-direction"><i class="fas fa-link"></i></a>
+</h3>
+<p>Every effect size needs an explicit sign convention, stated in the protocol and in the methods section. For two-group comparisons the usual convention is experimental (or exposed) minus control, so that a positive mean difference means a higher outcome in the experimental group. Whether a higher outcome is good depends on the outcome: a positive difference in depression scores is harmful, a positive difference in quality of life is beneficial. When a meta-analysis combines outcomes in which “higher” means different things, the effect sizes must be reflected so that a common direction (for example “positive = favours the intervention”) holds for all of them. In <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> this can be done after computing effect sizes by multiplying <code>yi</code> by <span class="math inline">\(-1\)</span> for the relevant rows; the variance is unchanged. For ratio measures the same reflection is achieved by inverting the ratio, which on the log scale is again a sign change.</p>
+<p>Two errors are common in practice. The first is mixing conventions silently, for example taking some studies’ differences as treatment minus control and others’ as control minus treatment because that is how they were printed. The second is reflecting a scale but forgetting that the study’s own analysis used a change score, so that “improvement” is a negative number in some studies and a positive number in others. Both errors inflate heterogeneity and bias the pooled estimate toward zero. A simple safeguard is to tabulate, for each study, the group means (or event rates) alongside the computed effect size and check that the sign agrees with what the paper’s text says about which group did better.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-continuous" class="section level2" number="3.2">
+<h2>
+<span class="header-section-number">3.2</span> Continuous outcomes from two independent groups<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-continuous"><i class="fas fa-link"></i></a>
+</h2>
+<p>Let group 1 (experimental) have sample mean <span class="math inline">\(\bar X_1\)</span>, standard deviation <span class="math inline">\(S_1\)</span> and size <span class="math inline">\(n_1\)</span>, and group 2 (control) have <span class="math inline">\(\bar X_2\)</span>, <span class="math inline">\(S_2\)</span>, <span class="math inline">\(n_2\)</span>. Four effect sizes are in common use.</p>
+<div id="sec-effect-sizes-md" class="section level3" number="3.2.1">
+<h3>
+<span class="header-section-number">3.2.1</span> Raw mean difference<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-md"><i class="fas fa-link"></i></a>
+</h3>
+<p>The raw (unstandardized) mean difference is</p>
+<p><span class="math display">\[
+\text{MD} = \bar X_1 - \bar X_2, \qquad \widehat{\operatorname{Var}}(\text{MD}) = \frac{S_1^2}{n_1} + \frac{S_2^2}{n_2}.
+\]</span></p>
+<p>The variance formula above does not assume equal population variances. If homoscedasticity is plausible one can instead use <span class="math inline">\(S_p^2 (1/n_1 + 1/n_2)\)</span>, with the pooled variance <span class="math inline">\(S_p^2 = [(n_1 - 1)S_1^2 + (n_2 - 1)S_2^2]/(n_1 + n_2 - 2)\)</span>; <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> uses the heteroscedastic form by default (<code>vtype = "LS"</code>) and the pooled form with <code>vtype = "HO"</code>. The MD is approximately normal for moderate group sizes even when the raw data are not, by the central limit theorem.</p>
+</div>
+<div id="sec-effect-sizes-smd" class="section level3" number="3.2.2">
+<h3>
+<span class="header-section-number">3.2.2</span> Standardized mean difference: Cohen’s d and Hedges’ g<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-smd"><i class="fas fa-link"></i></a>
+</h3>
+<p>When studies measure the outcome on different scales, the mean difference is divided by a standard deviation. With the pooled within-group SD this gives</p>
+<p><span class="math display">\[
+d = \frac{\bar X_1 - \bar X_2}{S_p}.
+\]</span></p>
+<p>The quantity <span class="math inline">\(d\)</span> is commonly called Cohen’s <span class="math inline">\(d\)</span>, after <span class="citation">Cohen (<a href="sec-references.html#ref-cohen1988statistical">1988</a>)</span>, who popularized benchmarks of 0.2, 0.5 and 0.8 for small, medium and large effects. Those benchmarks were offered as a fallback for when nothing better is known and are a poor substitute for substantive interpretation in a specific field.</p>
+<p><span class="citation">Hedges (<a href="sec-references.html#ref-hedges1981distribution">1981</a>)</span> showed that <span class="math inline">\(d\)</span> is biased upward in small samples: <span class="math inline">\(E(d) \approx \delta / J(m)\)</span>, where <span class="math inline">\(\delta\)</span> is the population SMD and <span class="math inline">\(m = n_1 + n_2 - 2\)</span> the degrees of freedom. Multiplying by the exact correction factor</p>
+<p><span class="math display">\[
+J(m) = \frac{\Gamma(m/2)}{\sqrt{m/2}\; \Gamma\!\left((m-1)/2\right)}
+\]</span></p>
+<p>yields the unbiased estimator <span class="math inline">\(g = J(m)\, d\)</span>, usually called Hedges’ <span class="math inline">\(g\)</span>. The widely used approximation <span class="math inline">\(J(m) \approx 1 - 3/(4m - 1)\)</span> is accurate to three or four decimal places once <span class="math inline">\(m\)</span> exceeds about 10. The large-sample sampling variance of <span class="math inline">\(g\)</span> is</p>
+<p><span class="math display">\[
+\widehat{\operatorname{Var}}(g) = \frac{1}{n_1} + \frac{1}{n_2} + \frac{g^2}{2(n_1 + n_2)}.
+\]</span></p>
+<p>The second term shows that the variance of an SMD depends on the effect size itself. This is a mild violation of the “known variance” assumption: studies with larger <span class="math inline">\(|g|\)</span> receive slightly smaller weights than their sample sizes alone would imply. Variants of this formula exist (some use <span class="math inline">\(d\)</span> instead of <span class="math inline">\(g\)</span>, or <span class="math inline">\(n_1 + n_2 - 2\)</span> in the denominator); <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> provides an unbiased variance estimator with <code>vtype = "UB"</code>. The differences matter only for very small studies.</p>
+<p>In <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code>, <code>measure = "SMD"</code> returns Hedges’ <span class="math inline">\(g\)</span> with the exact correction.</p>
+</div>
+<div id="sec-effect-sizes-glass" class="section level3" number="3.2.3">
+<h3>
+<span class="header-section-number">3.2.3</span> Glass’s delta<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-glass"><i class="fas fa-link"></i></a>
+</h3>
+<p>If the intervention is expected to change the variability of the outcome as well as its mean, the pooled SD mixes a treatment effect into the denominator. <span class="citation">Glass (<a href="sec-references.html#ref-glass1976primary">1976</a>)</span> proposed standardizing by the control group SD only,</p>
+<p><span class="math display">\[
+\Delta = \frac{\bar X_1 - \bar X_2}{S_2},
+\]</span></p>
+<p>with a small-sample correction based on <span class="math inline">\(m = n_2 - 1\)</span> degrees of freedom. Glass’s <span class="math inline">\(\Delta\)</span> is less efficient than <span class="math inline">\(g\)</span> because <span class="math inline">\(S_2\)</span> is estimated from one group only, so it is best reserved for settings in which unequal variances are substantively expected. In <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> it is <code>measure = "SMD1"</code>, which divides by the SD of the second group.</p>
+</div>
+<div id="sec-effect-sizes-rom" class="section level3" number="3.2.4">
+<h3>
+<span class="header-section-number">3.2.4</span> Ratio of means<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-rom"><i class="fas fa-link"></i></a>
+</h3>
+<p>For outcomes measured on a ratio scale (strictly positive, with a meaningful zero), the log-transformed ratio of means, also called the log response ratio, is</p>
+<p><span class="math display">\[
+\text{lnROM} = \ln\!\left(\frac{\bar X_1}{\bar X_2}\right), \qquad
+\widehat{\operatorname{Var}}(\text{lnROM}) = \frac{S_1^2}{n_1 \bar X_1^2} + \frac{S_2^2}{n_2 \bar X_2^2}
+\]</span></p>
+<p><span class="citation">(<a href="sec-references.html#ref-hedges1999meta">Hedges et al. 1999</a>)</span>. Back-transformed, <span class="math inline">\(\exp(\text{lnROM})\)</span> is the proportional change in the mean, which is often how clinicians and ecologists think about effects (“specialist care shortened stays by 30%”). The delta-method variance assumes that the means are well away from zero relative to their standard errors; <span class="citation">Hedges et al. (<a href="sec-references.html#ref-hedges1999meta">1999</a>)</span> suggest checking that <span class="math inline">\(\bar X / (S/\sqrt{n})\)</span> exceeds about 3 in each group.</p>
+</div>
+<div id="sec-effect-sizes-normand" class="section level3" number="3.2.5">
+<h3>
+<span class="header-section-number">3.2.5</span> Worked example: specialist stroke care<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-normand"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>dat.normand1999</code> dataset contains nine studies comparing the length of hospital stay (in days) of stroke patients under specialist care (group 1) and routine care (group 2) <span class="citation">(<a href="sec-references.html#ref-normand1999metaanalysis">Normand 1999</a>)</span>. All studies measure the outcome in days, so the raw MD is available, but the example also computes the SMD and the log ROM for comparison.</p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">dat.normand1999</span></span>
+<span><span class="va">md</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"MD"</span>,  m1i <span class="op">=</span> <span class="va">m1i</span>, sd1i <span class="op">=</span> <span class="va">sd1i</span>, n1i <span class="op">=</span> <span class="va">n1i</span>,</span>
+<span>              m2i <span class="op">=</span> <span class="va">m2i</span>, sd2i <span class="op">=</span> <span class="va">sd2i</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">smd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMD"</span>, m1i <span class="op">=</span> <span class="va">m1i</span>, sd1i <span class="op">=</span> <span class="va">sd1i</span>, n1i <span class="op">=</span> <span class="va">n1i</span>,</span>
+<span>              m2i <span class="op">=</span> <span class="va">m2i</span>, sd2i <span class="op">=</span> <span class="va">sd2i</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="va">rom</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"ROM"</span>, m1i <span class="op">=</span> <span class="va">m1i</span>, sd1i <span class="op">=</span> <span class="va">sd1i</span>, n1i <span class="op">=</span> <span class="va">n1i</span>,</span>
+<span>              m2i <span class="op">=</span> <span class="va">m2i</span>, sd2i <span class="op">=</span> <span class="va">sd2i</span>, n2i <span class="op">=</span> <span class="va">n2i</span>, data <span class="op">=</span> <span class="va">dat</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>source <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">source</span>, n1 <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">n1i</span>, n2 <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">n2i</span>,</span>
+<span>           MD <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">yi</span>, var_MD <span class="op">=</span> <span class="va">md</span><span class="op">$</span><span class="va">vi</span>,</span>
+<span>           g <span class="op">=</span> <span class="va">smd</span><span class="op">$</span><span class="va">yi</span>, var_g <span class="op">=</span> <span class="va">smd</span><span class="op">$</span><span class="va">vi</span>,</span>
+<span>           lnROM <span class="op">=</span> <span class="va">rom</span><span class="op">$</span><span class="va">yi</span>, var_lnROM <span class="op">=</span> <span class="va">rom</span><span class="op">$</span><span class="va">vi</span><span class="op">)</span></span>
+<span><span class="co">#&gt;               source  n1  n2  MD  var_MD       g   var_g    lnROM var_lnROM</span></span>
+<span><span class="co">#&gt; 1          Edinburgh 155 156 -20  40.508 -0.3552 0.01306 -0.31013  0.009379</span></span>
+<span><span class="co">#&gt; 2     Orpington-Mild  31  32  -2   2.081 -0.3479 0.06447 -0.07067  0.002763</span></span>
+<span><span class="co">#&gt; 3 Orpington-Moderate  75  71 -55  15.698 -2.3176 0.04581 -0.62019  0.001777</span></span>
+<span><span class="co">#&gt; 4   Orpington-Severe  18  18 -71 150.222 -1.8880 0.16062 -0.73119  0.011921</span></span>
+<span><span class="co">#&gt; 5      Montreal-Home   8  13  -4  17.308 -0.3840 0.20543 -0.24527  0.069544</span></span>
+<span><span class="co">#&gt; 6  Montreal-Transfer  57  52   1   1.167  0.1721 0.03691  0.05478  0.003331</span></span>
+<span><span class="co">#&gt; 7          Newcastle  34  33  11  94.589  0.2721 0.06027  0.23827  0.042865</span></span>
+<span><span class="co">#&gt; 8               Umea 110 183 -10   6.311 -0.4246 0.01486 -0.38890  0.009423</span></span>
+<span><span class="co">#&gt; 9            Uppsala  60  52   7  19.842  0.2896 0.03627  0.26518  0.028041</span></span></code></pre></div>
+<p>All three metrics agree on the sign in every study: negative values mean shorter stays under specialist care. The magnitudes tell different stories, however. The Orpington-Mild study has a trivial raw difference of <span class="math inline">\(-2\)</span> days but an SMD of <span class="math inline">\(-0.35\)</span>, because its SDs are small (7 and 4 days); the Edinburgh study has a ten times larger raw difference (<span class="math inline">\(-20\)</span> days) and essentially the same SMD (<span class="math inline">\(-0.36\)</span>), because its SDs are large. Whether these two studies show “the same” effect depends on whether one thinks in days or in standard deviation units. When all studies share a scale, the MD avoids letting differences in patient heterogeneity across sites masquerade as differences in effectiveness.</p>
+<p>The exact and approximate correction factors are easy to check by hand for the first study:</p>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">dat</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span>, <span class="op">{</span></span>
+<span>  <span class="va">sp</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="op">(</span><span class="op">(</span><span class="va">n1i</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">sd1i</span><span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="va">n2i</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">sd2i</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="va">n1i</span> <span class="op">+</span> <span class="va">n2i</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">d</span>   <span class="op">&lt;-</span> <span class="op">(</span><span class="va">m1i</span> <span class="op">-</span> <span class="va">m2i</span><span class="op">)</span> <span class="op">/</span> <span class="va">sp</span></span>
+<span>  <span class="va">m</span>   <span class="op">&lt;-</span> <span class="va">n1i</span> <span class="op">+</span> <span class="va">n2i</span> <span class="op">-</span> <span class="fl">2</span></span>
+<span>  <span class="va">J_exact</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Special.html">lgamma</a></span><span class="op">(</span><span class="va">m</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fl">0.5</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">m</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Special.html">lgamma</a></span><span class="op">(</span><span class="op">(</span><span class="va">m</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">J_approx</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">/</span> <span class="op">(</span><span class="fl">4</span> <span class="op">*</span> <span class="va">m</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>d <span class="op">=</span> <span class="va">d</span>, J_exact <span class="op">=</span> <span class="va">J_exact</span>, J_approx <span class="op">=</span> <span class="va">J_approx</span>, g <span class="op">=</span> <span class="va">J_exact</span> <span class="op">*</span> <span class="va">d</span>,</span>
+<span>    var_g <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">n1i</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">n2i</span> <span class="op">+</span> <span class="op">(</span><span class="va">J_exact</span> <span class="op">*</span> <span class="va">d</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="op">(</span><span class="va">n1i</span> <span class="op">+</span> <span class="va">n2i</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt;        d  J_exact J_approx        g    var_g </span></span>
+<span><span class="co">#&gt; -0.35603  0.99757  0.99757 -0.35517  0.01306</span></span></code></pre></div>
+<p>With 309 degrees of freedom the correction is negligible (<span class="math inline">\(J = 0.9976\)</span> by both formulas) and <span class="math inline">\(g = -0.3552\)</span> reproduces the <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> output. For the Montreal-Home study (<span class="math inline">\(n_1 = 8\)</span>, <span class="math inline">\(n_2 = 13\)</span>) the correction shrinks <span class="math inline">\(d\)</span> by about 4%, which is why reporting <span class="math inline">\(g\)</span> rather than <span class="math inline">\(d\)</span> is the default for meta-analysis.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-prepost" class="section level2" number="3.3">
+<h2>
+<span class="header-section-number">3.3</span> Pre-post and change-score designs<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-prepost"><i class="fas fa-link"></i></a>
+</h2>
+<p>Many studies measure the same participants before and after an intervention, sometimes without a control group. Let <span class="math inline">\(\bar X_{\text{pre}}\)</span> and <span class="math inline">\(\bar X_{\text{post}}\)</span> be the means at the two occasions, <span class="math inline">\(S_{\text{pre}}\)</span> and <span class="math inline">\(S_{\text{post}}\)</span> the SDs, <span class="math inline">\(n\)</span> the number of participants and <span class="math inline">\(r\)</span> the pre-post correlation. Two standardized mean changes are in use, and they estimate <em>different parameters</em> <span class="citation">(<a href="sec-references.html#ref-morris2002combining">Morris and DeShon 2002</a>)</span>.</p>
+<p>The standardized mean change using <em>change-score</em> standardization (SMCC) divides by the SD of the change scores,</p>
+<p><span class="math display">\[
+\text{SMCC} = J(n-1)\,\frac{\bar X_{\text{post}} - \bar X_{\text{pre}}}{S_D}, \qquad S_D = \sqrt{S_{\text{pre}}^2 + S_{\text{post}}^2 - 2 r S_{\text{pre}} S_{\text{post}}},
+\]</span></p>
+<p>with sampling variance approximately <span class="math inline">\(1/n + \text{SMCC}^2/(2n)\)</span>. The SMCC is the effect size that a paired <span class="math inline">\(t\)</span> test sees: <span class="math inline">\(\text{SMCC} \approx t/\sqrt{n}\)</span>.</p>
+<p>The standardized mean change using <em>raw-score</em> standardization (SMCR) divides by the pretest SD <span class="citation">(<a href="sec-references.html#ref-becker1988synthesizing">Becker 1988</a>)</span>,</p>
+<p><span class="math display">\[
+\text{SMCR} = J(n-1)\,\frac{\bar X_{\text{post}} - \bar X_{\text{pre}}}{S_{\text{pre}}}, \qquad
+\widehat{\operatorname{Var}}(\text{SMCR}) = \frac{2(1 - r)}{n} + \frac{\text{SMCR}^2}{2n}.
+\]</span></p>
+<p>The SMCR is on the same metric as an independent-groups SMD: it expresses the change in units of the between-person SD of the outcome. If the two occasions have equal SDs, <span class="math inline">\(\text{SMCC} = \text{SMCR}/\sqrt{2(1-r)}\)</span>, so with <span class="math inline">\(r = 0.8\)</span> the SMCC is about 1.6 times the SMCR. Mixing SMCC values from repeated-measures studies with SMD values from between-subjects studies therefore produces apples-and-oranges pooling; <span class="citation">Morris and DeShon (<a href="sec-references.html#ref-morris2002combining">2002</a>)</span> recommend converting everything to the raw-score metric when designs are mixed.</p>
+<p>Note that <span class="math inline">\(r\)</span> enters both metrics. For the SMCC it enters the point estimate; for the SMCR only the sampling variance. A higher pre-post correlation makes the SMCR more precise and the SMCC larger.</p>
+<div id="sec-effect-sizes-prepost-r" class="section level3" number="3.3.1">
+<h3>
+<span class="header-section-number">3.3.1</span> The missing pre-post correlation<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-prepost-r"><i class="fas fa-link"></i></a>
+</h3>
+<p>Primary studies rarely report <span class="math inline">\(r\)</span>. It can sometimes be recovered: if the paper reports the SD of the change scores, <span class="math inline">\(r = (S_{\text{pre}}^2 + S_{\text{post}}^2 - S_D^2)/(2 S_{\text{pre}} S_{\text{post}})\)</span>; if it reports a paired <span class="math inline">\(t\)</span> statistic, <span class="math inline">\(S_D = (\bar X_{\text{post}} - \bar X_{\text{pre}})\sqrt{n}/t\)</span> and the same identity applies. Otherwise the value has to be imputed, for example from other studies in the review that report it, from test-retest reliabilities of the instrument over a comparable interval, or from external data. The Cochrane Handbook describes these imputation strategies and recommends a sensitivity analysis over a plausible range of values <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>.</p>
+<p>The simulated example below generates six pre-post studies with known true correlations, computes both metrics with the observed correlations, and then recomputes the pooled estimates assuming a common <span class="math inline">\(r\)</span> of 0.3, 0.5 or 0.7.</p>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
+<span><span class="va">sim_prepost</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">n</span>, <span class="va">rho</span>, <span class="va">delta</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="va">sd</span> <span class="op">=</span> <span class="fl">10</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">pre</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">50</span>, <span class="va">sd</span><span class="op">)</span></span>
+<span>  <span class="va">post</span> <span class="op">&lt;-</span> <span class="fl">50</span> <span class="op">+</span> <span class="va">delta</span> <span class="op">*</span> <span class="va">sd</span> <span class="op">+</span> <span class="va">rho</span> <span class="op">*</span> <span class="op">(</span><span class="va">pre</span> <span class="op">-</span> <span class="fl">50</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">rho</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="va">n</span>, <span class="fl">0</span>, <span class="va">sd</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>m_pre <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">pre</span><span class="op">)</span>, m_post <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span>, sd_pre <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">pre</span><span class="op">)</span>,</span>
+<span>    sd_post <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">post</span><span class="op">)</span>, ri <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">pre</span>, <span class="va">post</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, ni <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">24</span>, <span class="fl">40</span>, <span class="fl">18</span>, <span class="fl">60</span>, <span class="fl">32</span>, <span class="fl">45</span><span class="op">)</span>,</span>
+<span>                 rho <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.7</span>, <span class="fl">0.6</span>, <span class="fl">0.8</span>, <span class="fl">0.4</span>, <span class="fl">0.65</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">pp</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mapply.html">mapply</a></span><span class="op">(</span><span class="va">sim_prepost</span>, <span class="va">pp</span><span class="op">$</span><span class="va">ni</span>, <span class="va">pp</span><span class="op">$</span><span class="va">rho</span><span class="op">)</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">pp</span></span>
+<span><span class="co">#&gt;   study ni  rho m_pre m_post sd_pre sd_post   ri</span></span>
+<span><span class="co">#&gt; 1     1 24 0.50 46.55  55.53   9.80    7.36 0.21</span></span>
+<span><span class="co">#&gt; 2     2 40 0.70 48.22  53.74   9.22   11.64 0.69</span></span>
+<span><span class="co">#&gt; 3     3 18 0.60 53.33  58.24   9.12    6.91 0.49</span></span>
+<span><span class="co">#&gt; 4     4 60 0.80 50.54  56.18   9.74    8.32 0.81</span></span>
+<span><span class="co">#&gt; 5     5 32 0.40 49.44  56.07  10.31    9.05 0.38</span></span>
+<span><span class="co">#&gt; 6     6 45 0.65 48.35  54.30  11.02   10.97 0.67</span></span>
+<span></span>
+<span><span class="va">smcr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMCR"</span>, m1i <span class="op">=</span> <span class="va">m_post</span>, m2i <span class="op">=</span> <span class="va">m_pre</span>, sd1i <span class="op">=</span> <span class="va">sd_pre</span>,</span>
+<span>               ni <span class="op">=</span> <span class="va">ni</span>, ri <span class="op">=</span> <span class="va">ri</span>, data <span class="op">=</span> <span class="va">pp</span><span class="op">)</span></span>
+<span><span class="va">smcc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMCC"</span>, m1i <span class="op">=</span> <span class="va">m_post</span>, m2i <span class="op">=</span> <span class="va">m_pre</span>, sd1i <span class="op">=</span> <span class="va">sd_post</span>,</span>
+<span>               sd2i <span class="op">=</span> <span class="va">sd_pre</span>, ni <span class="op">=</span> <span class="va">ni</span>, ri <span class="op">=</span> <span class="va">ri</span>, data <span class="op">=</span> <span class="va">pp</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>study <span class="op">=</span> <span class="va">pp</span><span class="op">$</span><span class="va">study</span>, ri <span class="op">=</span> <span class="va">pp</span><span class="op">$</span><span class="va">ri</span>, SMCR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">smcr</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>      SMCC <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">smcc</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      study   ri  SMCR  SMCC</span></span>
+<span><span class="co">#&gt; [1,]     1 0.21 0.886 0.793</span></span>
+<span><span class="co">#&gt; [2,]     2 0.69 0.587 0.636</span></span>
+<span><span class="co">#&gt; [3,]     3 0.49 0.514 0.564</span></span>
+<span><span class="co">#&gt; [4,]     4 0.81 0.572 0.972</span></span>
+<span><span class="co">#&gt; [5,]     5 0.38 0.627 0.597</span></span>
+<span><span class="co">#&gt; [6,]     6 0.67 0.531 0.655</span></span></code></pre></div>
+<p>The true raw-score standardized change is <span class="math inline">\(\delta = 0.5\)</span> in every study, and the SMCR values scatter around it (from 0.51 to 0.89 in these small samples). The SMCC values tend to exceed the SMCR values when the observed correlation is above 0.5 and to fall below them when it is lower, as the identity above predicts. The largest discrepancy is in study 4, with <span class="math inline">\(r = 0.81\)</span>, where the SMCC of 0.97 is 1.7 times the SMCR of 0.57. (In <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code>, the <code>sd1i</code> argument supplies the standardizer for SMCR; passing the pretest SD while <code>m1i</code> is the posttest mean gives the Becker metric with a positive sign for improvement.)</p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span>, by <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">r_grid</span>, <span class="kw">function</span><span class="op">(</span><span class="va">r</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMCR"</span>, m1i <span class="op">=</span> <span class="va">m_post</span>, m2i <span class="op">=</span> <span class="va">m_pre</span>, sd1i <span class="op">=</span> <span class="va">sd_pre</span>,</span>
+<span>              ni <span class="op">=</span> <span class="va">ni</span>, ri <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">6</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">pp</span><span class="op">)</span></span>
+<span>  <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMCC"</span>, m1i <span class="op">=</span> <span class="va">m_post</span>, m2i <span class="op">=</span> <span class="va">m_pre</span>, sd1i <span class="op">=</span> <span class="va">sd_post</span>,</span>
+<span>              sd2i <span class="op">=</span> <span class="va">sd_pre</span>, ni <span class="op">=</span> <span class="va">ni</span>, ri <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="va">r</span>, <span class="fl">6</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">pp</span><span class="op">)</span></span>
+<span>  <span class="va">fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">a</span><span class="op">)</span>; <span class="va">fb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">b</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>r <span class="op">=</span> <span class="va">r</span>, metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"SMCR"</span>, <span class="st">"SMCC"</span><span class="op">)</span>,</span>
+<span>             est <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fa</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">fb</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>             lb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fa</span><span class="op">$</span><span class="va">ci.lb</span>, <span class="va">fb</span><span class="op">$</span><span class="va">ci.lb</span><span class="op">)</span>, ub <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">fa</span><span class="op">$</span><span class="va">ci.ub</span>, <span class="va">fb</span><span class="op">$</span><span class="va">ci.ub</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">sens</span>, <span class="va">r</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.3</span>, <span class="fl">0.5</span>, <span class="fl">0.7</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;      r metric    est     lb     ub</span></span>
+<span><span class="co">#&gt; 5  0.3   SMCR 0.5995 0.4328 0.7662</span></span>
+<span><span class="co">#&gt; 6  0.3   SMCC 0.5208 0.3793 0.6623</span></span>
+<span><span class="co">#&gt; 9  0.5   SMCR 0.5982 0.4541 0.7423</span></span>
+<span><span class="co">#&gt; 10 0.5   SMCC 0.6111 0.4663 0.7559</span></span>
+<span><span class="co">#&gt; 13 0.7   SMCR 0.5957 0.4786 0.7128</span></span>
+<span><span class="co">#&gt; 14 0.7   SMCC 0.7758 0.6241 0.9275</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">sens</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">r</span>, <span class="va">est</span>, colour <span class="op">=</span> <span class="va">metric</span>, fill <span class="op">=</span> <span class="va">metric</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_ribbon</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>ymin <span class="op">=</span> <span class="va">lb</span>, ymax <span class="op">=</span> <span class="va">ub</span><span class="op">)</span>, alpha <span class="op">=</span> <span class="fl">0.15</span>, colour <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_line</span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">geom_hline</span><span class="op">(</span>yintercept <span class="op">=</span> <span class="fl">0.5</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Assumed pre-post correlation r"</span>, y <span class="op">=</span> <span class="st">"Pooled estimate"</span>,</span>
+<span>       colour <span class="op">=</span> <span class="cn">NULL</span>, fill <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"top"</span><span class="op">)</span></span></code></pre></div>
+<div class="figure" style="text-align: center">
+<span style="display:block;" id="fig:es-prepost-fig"></span>
+<img src="03-effect-sizes_files/figure-html/es-prepost-fig-1.png" alt="Pooled standardized mean change (with 95% CI) as a function of the assumed pre-post correlation, for raw-score (SMCR) and change-score (SMCC) standardization. Six simulated studies with a true raw-score effect of 0.5 (dashed line)." width="85%"><p class="caption">
+Figure 3.1: Pooled standardized mean change (with 95% CI) as a function of the assumed pre-post correlation, for raw-score (SMCR) and change-score (SMCC) standardization. Six simulated studies with a true raw-score effect of 0.5 (dashed line).
+</p>
+</div>
+<p>Figure <a href="sec-effect-sizes.html#fig:es-prepost-fig">3.1</a> makes the practical lesson visible. The pooled SMCR is essentially flat in the assumed <span class="math inline">\(r\)</span> (only the weights and the width of the interval change), while the pooled SMCC rises steeply, from 0.52 at <span class="math inline">\(r = 0.3\)</span> to 0.78 at <span class="math inline">\(r = 0.7\)</span>. When <span class="math inline">\(r\)</span> must be imputed, the raw-score metric is far more robust to the imputation.</p>
+</div>
+<div id="sec-effect-sizes-ppc" class="section level3" number="3.3.2">
+<h3>
+<span class="header-section-number">3.3.2</span> Designs with a control group<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-ppc"><i class="fas fa-link"></i></a>
+</h3>
+<p>When both an intervention and a control group are measured before and after, the effect of interest is the difference in change. A simple and widely used approach computes the SMCR within each group and takes the difference, with the variance equal to the sum of the two within-group variances (the groups are independent). <span class="citation">Morris (<a href="sec-references.html#ref-morris2007estimating">2007</a>)</span> compared several estimators for this pretest-posttest-control design and recommended standardizing the difference in mean changes by the pooled pretest SD, with a small-sample correction; this estimator is unbiased and has a known variance that again depends on the pre-post correlation. Both approaches yield values on the same metric as a posttest-only SMD, which allows combining randomized trials with and without baseline measurements.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-binary" class="section level2" number="3.4">
+<h2>
+<span class="header-section-number">3.4</span> Binary outcomes<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-binary"><i class="fas fa-link"></i></a>
+</h2>
+<p>Consider a <span class="math inline">\(2 \times 2\)</span> table with <span class="math inline">\(a\)</span> events and <span class="math inline">\(b\)</span> non-events among <span class="math inline">\(n_1 = a + b\)</span> treated participants, and <span class="math inline">\(c\)</span> events and <span class="math inline">\(d\)</span> non-events among <span class="math inline">\(n_2 = c + d\)</span> controls. Write <span class="math inline">\(p_1 = a/n_1\)</span> and <span class="math inline">\(p_2 = c/n_2\)</span>.</p>
+<p>The log odds ratio and its large-sample (Woolf) variance are</p>
+<p><span class="math display">\[
+\ln \text{OR} = \ln\!\left(\frac{a d}{b c}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{OR}) = \frac{1}{a} + \frac{1}{b} + \frac{1}{c} + \frac{1}{d}.
+\]</span></p>
+<p>The log risk ratio and its variance are</p>
+<p><span class="math display">\[
+\ln \text{RR} = \ln\!\left(\frac{p_1}{p_2}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{RR}) = \frac{1}{a} - \frac{1}{n_1} + \frac{1}{c} - \frac{1}{n_2},
+\]</span></p>
+<p>and the risk difference and its variance are</p>
+<p><span class="math display">\[
+\text{RD} = p_1 - p_2, \qquad \widehat{\operatorname{Var}}(\text{RD}) = \frac{p_1(1 - p_1)}{n_1} + \frac{p_2(1 - p_2)}{n_2}.
+\]</span></p>
+<p>Ratio measures are always analyzed on the log scale, where their sampling distributions are closer to normal and where a ratio and its reciprocal are symmetric around zero. Results are back-transformed for reporting.</p>
+<p>The BCG vaccine trials (<code>dat.bcg</code>) record tuberculosis cases among vaccinated and unvaccinated participants <span class="citation">(<a href="sec-references.html#ref-colditz1994efficacy">Colditz et al. 1994</a>)</span>. The three binary metrics for the first five trials are:</p>
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bcg</span> <span class="op">&lt;-</span> <span class="va">dat.bcg</span></span>
+<span><span class="va">lor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">bcg</span><span class="op">)</span></span>
+<span><span class="va">lrr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RR"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">bcg</span><span class="op">)</span></span>
+<span><span class="va">rd</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"RD"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>, data <span class="op">=</span> <span class="va">bcg</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>trial <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">bcg</span><span class="op">$</span><span class="va">author</span>, <span class="va">bcg</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
+<span>                p_vacc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">bcg</span><span class="op">$</span><span class="va">tpos</span> <span class="op">/</span> <span class="op">(</span><span class="va">bcg</span><span class="op">$</span><span class="va">tpos</span> <span class="op">+</span> <span class="va">bcg</span><span class="op">$</span><span class="va">tneg</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>                p_ctrl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">bcg</span><span class="op">$</span><span class="va">cpos</span> <span class="op">/</span> <span class="op">(</span><span class="va">bcg</span><span class="op">$</span><span class="va">cpos</span> <span class="op">+</span> <span class="va">bcg</span><span class="op">$</span><span class="va">cneg</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>                lnOR <span class="op">=</span> <span class="va">lor</span><span class="op">$</span><span class="va">yi</span>, lnRR <span class="op">=</span> <span class="va">lrr</span><span class="op">$</span><span class="va">yi</span>, RD <span class="op">=</span> <span class="va">rd</span><span class="op">$</span><span class="va">yi</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                       trial p_vacc p_ctrl    lnOR    lnRR        RD</span></span>
+<span><span class="co">#&gt; 1              Aronson 1948 0.0325 0.0791 -0.9387 -0.8893 -0.046616</span></span>
+<span><span class="co">#&gt; 2     Ferguson &amp; Simes 1949 0.0196 0.0957 -1.6662 -1.5854 -0.076102</span></span>
+<span><span class="co">#&gt; 3      Rosenthal et al 1960 0.0130 0.0500 -1.3863 -1.3481 -0.037013</span></span>
+<span><span class="co">#&gt; 4    Hart &amp; Sutherland 1977 0.0046 0.0193 -1.4564 -1.4416 -0.014715</span></span>
+<span><span class="co">#&gt; 5 Frimodt-Moller et al 1973 0.0065 0.0081 -0.2191 -0.2175 -0.001582</span></span></code></pre></div>
+<p>Because tuberculosis was rare in these cohorts (the control risks are all below 10%), the log odds ratios and log risk ratios are nearly identical: in the Hart &amp; Sutherland trial, <span class="math inline">\(\ln\text{OR} = -1.456\)</span> and <span class="math inline">\(\ln\text{RR} = -1.442\)</span>. The risk differences, by contrast, are tiny in absolute terms (<span class="math inline">\(-0.015\)</span> for the same trial) and vary mainly with the baseline risk. This illustrates the general pattern: relative measures tend to be more stable across populations with different baseline risks, absolute measures are what matter for a decision in a specific population. A common reporting strategy pools on a relative scale and then converts the pooled ratio to an absolute effect at one or more assumed baseline risks <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>.</p>
+<div id="sec-effect-sizes-zero" class="section level3" number="3.4.1">
+<h3>
+<span class="header-section-number">3.4.1</span> Zero cells and continuity corrections<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-zero"><i class="fas fa-link"></i></a>
+</h3>
+<p>If any cell of the table is zero, <span class="math inline">\(\ln \text{OR}\)</span> and its variance are undefined. The traditional remedy adds a constant, usually 0.5, to every cell of tables with a zero; this is what <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> does by default (<code>add = 1/2, to = "only0"</code>). Tables in which <em>both</em> arms have zero events (double-zero studies) are kept with the correction unless <code>drop00 = TRUE</code>. The correction is a pragmatic fix, not a principled one. <span class="citation">J. Sweeting et al. (<a href="sec-references.html#ref-sweeting2004what">2004</a>)</span> showed that the constant 0.5 can bias pooled odds ratios considerably, particularly when group sizes are unbalanced, and proposed alternatives such as treatment-arm continuity corrections. For sparse data the better solution is to avoid the correction altogether by using methods that work with the <span class="math inline">\(2 \times 2\)</span> counts directly: the Mantel-Haenszel and Peto methods, or generalized linear mixed models (GLMMs) that model the event counts as binomial <span class="citation">(<a href="sec-references.html#ref-stijnen2010random">Stijnen et al. 2010</a>; <a href="sec-references.html#ref-bradburn2006much">Bradburn et al. 2006</a>)</span>. These are covered in Chapter <a href="sec-models.html#sec-models">4</a>, which also compares them on a rare-event dataset.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-correlations" class="section level2" number="3.5">
+<h2>
+<span class="header-section-number">3.5</span> Correlations<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-correlations"><i class="fas fa-link"></i></a>
+</h2>
+<p>For two continuous variables measured on the same <span class="math inline">\(n\)</span> participants, the Pearson correlation <span class="math inline">\(r\)</span> is the natural effect size. Its large-sample variance is</p>
+<p><span class="math display">\[
+\widehat{\operatorname{Var}}(r) = \frac{(1 - r^2)^2}{n - 1},
+\]</span></p>
+<p>which depends strongly on <span class="math inline">\(r\)</span>: correlations near <span class="math inline">\(\pm 1\)</span> are estimated much more precisely than correlations near zero. The sampling distribution of <span class="math inline">\(r\)</span> is also skewed when <span class="math inline">\(|\rho|\)</span> is large. Both problems are addressed by Fisher’s variance-stabilizing transformation,</p>
+<p><span class="math display">\[
+z = \tfrac{1}{2} \ln\!\left(\frac{1 + r}{1 - r}\right) = \operatorname{artanh}(r), \qquad \widehat{\operatorname{Var}}(z) = \frac{1}{n - 3},
+\]</span></p>
+<p>whose sampling distribution is close to normal and whose variance depends only on the sample size. Pooled estimates and confidence limits are computed on the <span class="math inline">\(z\)</span> scale and back-transformed with <span class="math inline">\(r = \tanh(z)\)</span>.</p>
+<p>The sample correlation is also slightly biased toward zero. <span class="citation">Olkin and Pratt (<a href="sec-references.html#ref-olkin1958a">1958</a>)</span> derived the unbiased estimator, closely approximated by</p>
+<p><span class="math display">\[
+r_u \approx r \left[ 1 + \frac{1 - r^2}{2(n - 3)} \right],
+\]</span></p>
+<p>which <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> computes (with the exact hypergeometric form) as <code>measure = "UCOR"</code>. The bias is of order <span class="math inline">\(1/n\)</span> and is negligible for the sample sizes typical in correlational research, but it can matter when many small studies are combined.</p>
+<p>The <code>dat.molloy2014</code> dataset contains 16 studies of the correlation between conscientiousness and medication adherence <span class="citation">(<a href="sec-references.html#ref-molloy2013conscientiousness">Molloy et al. 2013</a>)</span>.</p>
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mol</span> <span class="op">&lt;-</span> <span class="va">dat.molloy2014</span></span>
+<span><span class="va">zc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"ZCOR"</span>, ri <span class="op">=</span> <span class="va">ri</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">mol</span><span class="op">)</span></span>
+<span><span class="va">uc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"UCOR"</span>, ri <span class="op">=</span> <span class="va">ri</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">mol</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">mol</span><span class="op">$</span><span class="va">authors</span>, <span class="va">mol</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>, n <span class="op">=</span> <span class="va">mol</span><span class="op">$</span><span class="va">ni</span>, r <span class="op">=</span> <span class="va">mol</span><span class="op">$</span><span class="va">ri</span>,</span>
+<span>                r_unbiased <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">uc</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">4</span><span class="op">)</span>, z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">zc</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>                var_z <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">zc</span><span class="op">$</span><span class="va">vi</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                      study   n     r r_unbiased      z   var_z</span></span>
+<span><span class="co">#&gt; 1     Axelsson et al. 2009 109 0.187     0.1879 0.1892 0.00943</span></span>
+<span><span class="co">#&gt; 2     Axelsson et al. 2011 749 0.162     0.1621 0.1634 0.00134</span></span>
+<span><span class="co">#&gt; 3        Bruce et al. 2010  55 0.340     0.3429 0.3541 0.01923</span></span>
+<span><span class="co">#&gt; 4  Christensen et al. 1999 107 0.320     0.3214 0.3316 0.00962</span></span>
+<span><span class="co">#&gt; 5 Christensen &amp; Smith 1995  72 0.270     0.2718 0.2769 0.01449</span></span>
+<span></span>
+<span><span class="va">res_z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">zc</span><span class="op">)</span></span>
+<span><span class="va">res_z</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 16; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0.0081 (SE = 0.0055)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0.0901</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   61.73%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  2.61</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 15) = 38.1595, p-val = 0.0009</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.1499  0.0316  4.7501  &lt;.0001  0.0881  0.2118  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">res_z</span>, transf <span class="op">=</span> <span class="va">transf.ztor</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    pred  ci.lb  ci.ub   pi.lb  pi.ub </span></span>
+<span><span class="co">#&gt;  0.1488 0.0878 0.2087 -0.0371 0.3248</span></span>
+<span></span>
+<span><span class="co"># for comparison: untransformed r with inverse-variance weights,</span></span>
+<span><span class="co"># and the sample-size weighted mean of r (Hunter-Schmidt bare-bones)</span></span>
+<span><span class="va">res_r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"COR"</span>, ri <span class="op">=</span> <span class="va">ri</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">mol</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>z_based <span class="op">=</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/transf.html">transf.ztor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_z</span><span class="op">)</span><span class="op">)</span>, r_based <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html">coef</a></span><span class="op">(</span><span class="va">res_r</span><span class="op">)</span>,</span>
+<span>  n_weighted <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span><span class="op">(</span><span class="va">mol</span><span class="op">$</span><span class="va">ri</span>, <span class="va">mol</span><span class="op">$</span><span class="va">ni</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; z_based.intrcpt r_based.intrcpt      n_weighted </span></span>
+<span><span class="co">#&gt;          0.1488          0.1524          0.1235</span></span></code></pre></div>
+<p>On the <span class="math inline">\(z\)</span> scale the REML estimate is 0.1499, which back-transforms to a mean correlation of 0.149 (95% CI 0.088 to 0.209). The prediction interval, <span class="math inline">\(-0.037\)</span> to 0.325, shows that in some settings the association may be essentially absent. Note that <code><a href="https://rdrr.io/r/stats/predict.html">predict()</a></code> back-transforms each quantity separately; <span class="math inline">\(\tanh\)</span> of the mean <span class="math inline">\(z\)</span> is not the mean of the correlation distribution but approximately its median, a point we return to under psychometric meta-analysis below.</p>
+<p>Why not pool <span class="math inline">\(r\)</span> directly? Pooling raw correlations with inverse-variance weights <span class="math inline">\(1/\widehat{\operatorname{Var}}(r)\)</span> gives more weight to studies with larger <span class="math inline">\(|r|\)</span>, because their estimated variances are smaller, which introduces a correlation between effect sizes and weights. Pooling on <span class="math inline">\(z\)</span> avoids that, and its confidence intervals have better coverage. The Hunter-Schmidt tradition pools <span class="math inline">\(r\)</span> with sample-size weights instead, which avoids the dependence of weights on <span class="math inline">\(r\)</span> by construction; we discuss this choice in Section <a href="sec-effect-sizes.html#sec-effect-sizes-artifacts">3.10</a>.</p>
+<div id="sec-effect-sizes-partial" class="section level3" number="3.5.1">
+<h3>
+<span class="header-section-number">3.5.1</span> Partial and semi-partial correlations<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-partial"><i class="fas fa-link"></i></a>
+</h3>
+<p>In economics, management and the social sciences, the association of interest is often reported only as a coefficient in a multiple regression. A coefficient’s <span class="math inline">\(t\)</span> statistic can be converted to a partial correlation,</p>
+<p><span class="math display">\[
+r_p = \frac{t}{\sqrt{t^2 + \nu}}, \qquad \nu = n - p - 1, \qquad \widehat{\operatorname{Var}}(r_p) = \frac{(1 - r_p^2)^2}{\nu},
+\]</span></p>
+<p>where <span class="math inline">\(p\)</span> is the number of predictors in the model, and, if the model’s <span class="math inline">\(R^2\)</span> is reported, to a semi-partial correlation <span class="math inline">\(r_{sp} = t \sqrt{1 - R^2} / \sqrt{\nu}\)</span> with the sampling variance given by <span class="citation">Aloe and Becker (<a href="sec-references.html#ref-aloe2012effect">2012</a>)</span>. The partial correlation measures the association between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> after removing the other predictors from both; the semi-partial correlation removes them from <span class="math inline">\(X\)</span> only and is on the same metric as the zero-order correlation with <span class="math inline">\(Y\)</span> in its original variance. Neither is directly comparable to a zero-order correlation, and both depend on <em>which</em> covariates were included, which typically varies from study to study. Meta-analyses of partial correlations should therefore code the covariate set and examine it as a moderator.</p>
+<p>The <code>dat.aloe2013</code> data contain <span class="math inline">\(t\)</span> statistics for the association between perceived supervision quality and work outcomes from five regression models:</p>
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">al</span>   <span class="op">&lt;-</span> <span class="va">dat.aloe2013</span></span>
+<span><span class="va">pcor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PCOR"</span>,  ti <span class="op">=</span> <span class="va">tval</span>, ni <span class="op">=</span> <span class="va">n</span>, mi <span class="op">=</span> <span class="va">preds</span>, data <span class="op">=</span> <span class="va">al</span><span class="op">)</span></span>
+<span><span class="va">spc</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SPCOR"</span>, ti <span class="op">=</span> <span class="va">tval</span>, ni <span class="op">=</span> <span class="va">n</span>, mi <span class="op">=</span> <span class="va">preds</span>, r2i <span class="op">=</span> <span class="va">R2</span>, data <span class="op">=</span> <span class="va">al</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">al</span>, pcor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">pcor</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">4</span><span class="op">)</span>, spcor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">spc</span><span class="op">$</span><span class="va">yi</span>, <span class="fl">4</span><span class="op">)</span>,</span>
+<span>           var_spcor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">spc</span><span class="op">$</span><span class="va">vi</span>, <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                      study   n  tval preds    R2    pcor   spcor var_spcor</span></span>
+<span><span class="co">#&gt; 1         Abu-Bader (2000) 218  4.61     4 0.240  0.3012  0.2754   0.00328</span></span>
+<span><span class="co">#&gt; 2       Cole et al. (2004) 232  6.19     7 0.455  0.3822  0.3053   0.00228</span></span>
+<span><span class="co">#&gt; 3 Wallach &amp; Mueller (2006) 156  4.07     6 0.500  0.3163  0.2358   0.00319</span></span>
+<span><span class="co">#&gt; 4     Weaver et al. (2007) 382 -0.77    19 0.327 -0.0404 -0.0332   0.00176</span></span>
+<span><span class="co">#&gt; 5             Acker (2004) 259  1.16    15 0.117  0.0742  0.0699   0.00339</span></span></code></pre></div>
+<p>For the first study, <span class="math inline">\(t = 4.61\)</span> with <span class="math inline">\(\nu = 218 - 4 - 1 = 213\)</span> gives <span class="math inline">\(r_p = 4.61/\sqrt{4.61^2 + 213} = 0.301\)</span>; the semi-partial correlation, <span class="math inline">\(0.275\)</span>, is smaller because it scales by <span class="math inline">\(\sqrt{1 - R^2} = \sqrt{0.76}\)</span>.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-proportions" class="section level2" number="3.6">
+<h2>
+<span class="header-section-number">3.6</span> Proportions and rates<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-proportions"><i class="fas fa-link"></i></a>
+</h2>
+<div id="sec-effect-sizes-single-prop" class="section level3" number="3.6.1">
+<h3>
+<span class="header-section-number">3.6.1</span> Single proportions<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-single-prop"><i class="fas fa-link"></i></a>
+</h3>
+<p>Prevalence studies and single-arm trials report <span class="math inline">\(x_i\)</span> events out of <span class="math inline">\(n_i\)</span> participants. The raw proportion <span class="math inline">\(p_i = x_i / n_i\)</span> has variance <span class="math inline">\(p_i(1 - p_i)/n_i\)</span>, which shrinks to zero as <span class="math inline">\(p_i\)</span> approaches 0 or 1 and so gives extreme studies extreme weights. Three transformations are used:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{logit:} &amp;\quad \ln\!\left(\frac{x}{n - x}\right), &amp; \widehat{\operatorname{Var}} &amp;= \frac{1}{x} + \frac{1}{n - x},\\
+\text{arcsine:} &amp;\quad \arcsin\sqrt{x/n}, &amp; \widehat{\operatorname{Var}} &amp;= \frac{1}{4n},\\
+\text{Freeman-Tukey:} &amp;\quad \tfrac12\left[\arcsin\sqrt{\tfrac{x}{n+1}} + \arcsin\sqrt{\tfrac{x+1}{n+1}}\right], &amp; \widehat{\operatorname{Var}} &amp;= \frac{1}{4n + 2}.
+\end{aligned}
+\]</span></p>
+<p>The logit is the canonical link for binomial data and back-transforms cleanly, but it needs a continuity correction when <span class="math inline">\(x = 0\)</span> or <span class="math inline">\(x = n\)</span>. The arcsine and the Freeman-Tukey double-arcsine transformation <span class="citation">(<a href="sec-references.html#ref-freeman1950transformations">Freeman and Tukey 1950</a>)</span> stabilize the variance and handle 0 and <span class="math inline">\(n\)</span> without correction. The Freeman-Tukey transformation, however, has no simple inverse: the back-transformation needs a sample size, and for a pooled estimate there is no single <span class="math inline">\(n\)</span>. Common choices (the harmonic mean of the <span class="math inline">\(n_i\)</span>, as in <code>transf.ipft.hm</code>) can produce misleading back-transformed estimates when sample sizes vary widely <span class="citation">(<a href="sec-references.html#ref-schwarzer2019seriously">Schwarzer et al. 2019</a>)</span>; <span class="citation">Doi and Xu (<a href="sec-references.html#ref-doi2021freemantukey">2021</a>)</span> dispute how often this matters in practice. The <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> documentation in <code>metafor</code> now advises against using the double-arcsine transformation for meta-analysis. The more principled alternative is a binomial GLMM (a random-effects logistic regression), which models the counts directly and needs neither a transformation of <span class="math inline">\(p_i\)</span> nor a continuity correction <span class="citation">(<a href="sec-references.html#ref-stijnen2010random">Stijnen et al. 2010</a>; <a href="sec-references.html#ref-lin2020metaanalysis">Lin and Chu 2020</a>)</span>.</p>
+<p>The <code>dat.pritz1997</code> dataset contains 14 single-arm studies of hyperdynamic therapy for cerebral vasospasm, with the number of patients who improved:</p>
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pr</span>  <span class="op">&lt;-</span> <span class="va">dat.pritz1997</span></span>
+<span><span class="va">plo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PLO"</span>, xi <span class="op">=</span> <span class="va">xi</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">pr</span><span class="op">)</span></span>
+<span><span class="va">pft</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PFT"</span>, xi <span class="op">=</span> <span class="va">xi</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">pr</span><span class="op">)</span></span>
+<span><span class="va">pas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PAS"</span>, xi <span class="op">=</span> <span class="va">xi</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">pr</span><span class="op">)</span></span>
+<span><span class="va">fit_plo</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">plo</span><span class="op">)</span></span>
+<span><span class="va">fit_pft</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">pft</span><span class="op">)</span></span>
+<span><span class="va">fit_pas</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">pas</span><span class="op">)</span></span>
+<span><span class="va">fit_glmm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.glmm.html">rma.glmm</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"PLO"</span>, xi <span class="op">=</span> <span class="va">xi</span>, ni <span class="op">=</span> <span class="va">ni</span>, data <span class="op">=</span> <span class="va">pr</span><span class="op">)</span></span>
+<span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span></span>
+<span>  <span class="st">"logit, normal-normal"</span>  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_plo</span>,  transf <span class="op">=</span> <span class="va">transf.ilogit</span><span class="op">)</span>,</span>
+<span>  <span class="st">"Freeman-Tukey (hm)"</span>    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_pft</span>,  transf <span class="op">=</span> <span class="va">transf.ipft.hm</span>,</span>
+<span>                                    targs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>ni <span class="op">=</span> <span class="va">pr</span><span class="op">$</span><span class="va">ni</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"arcsine"</span>               <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_pas</span>,  transf <span class="op">=</span> <span class="va">transf.iarcsin</span><span class="op">)</span>,</span>
+<span>  <span class="st">"binomial GLMM (logit)"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_glmm</span>, transf <span class="op">=</span> <span class="va">transf.ilogit</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">props</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">sapply</a></span><span class="op">(</span><span class="va">preds</span>, <span class="kw">function</span><span class="op">(</span><span class="va">p</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"pred"</span>, <span class="st">"ci.lb"</span>, <span class="st">"ci.ub"</span>, <span class="st">"pi.lb"</span>, <span class="st">"pi.ub"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">props</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                        pred ci.lb ci.ub pi.lb pi.ub</span></span>
+<span><span class="co">#&gt; logit, normal-normal  0.757 0.661 0.834 0.466 0.918</span></span>
+<span><span class="co">#&gt; Freeman-Tukey (hm)    0.803 0.702 0.889 0.465 0.999</span></span>
+<span><span class="co">#&gt; arcsine               0.813 0.704 0.902 0.414 0.999</span></span>
+<span><span class="co">#&gt; binomial GLMM (logit) 0.798 0.692 0.875 0.443 0.952</span></span></code></pre></div>
+<p>The four analyses of the same 14 studies give pooled success rates between 0.76 and 0.81. The normal-normal logit model is the lowest, partly because two studies (Tanabe et al., 10 of 10 improved, and Hadeishi et al., 12 of 12) need a continuity correction on the logit scale; the binomial GLMM uses their counts as is and estimates 0.80 (95% CI 0.69 to 0.87). The Freeman-Tukey and arcsine prediction intervals extend to 0.999, an artifact of back-transforming a symmetric interval through a bounded function. For new analyses of proportions, the binomial GLMM is the recommended default.</p>
+</div>
+<div id="sec-effect-sizes-irr" class="section level3" number="3.6.2">
+<h3>
+<span class="header-section-number">3.6.2</span> Incidence rates and rate ratios<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-irr"><i class="fas fa-link"></i></a>
+</h3>
+<p>When outcomes are counts of events accumulated over person-time <span class="math inline">\(t\)</span> (strokes per patient-year, infections per catheter-day), the natural effect size for a two-group comparison is the log incidence rate ratio,</p>
+<p><span class="math display">\[
+\ln \text{IRR} = \ln\!\left(\frac{x_1 / t_1}{x_2 / t_2}\right), \qquad \widehat{\operatorname{Var}}(\ln \text{IRR}) = \frac{1}{x_1} + \frac{1}{x_2},
+\]</span></p>
+<p>which assumes that events follow a Poisson process within each group. The <code>dat.hart1999</code> dataset contains six trials of warfarin for stroke prevention in atrial fibrillation, with person-years of follow-up:</p>
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">hart</span> <span class="op">&lt;-</span> <span class="va">dat.hart1999</span></span>
+<span><span class="va">irr</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"IRR"</span>, x1i <span class="op">=</span> <span class="va">x1i</span>, t1i <span class="op">=</span> <span class="va">t1i</span>, x2i <span class="op">=</span> <span class="va">x2i</span>, t2i <span class="op">=</span> <span class="va">t2i</span>,</span>
+<span>               data <span class="op">=</span> <span class="va">hart</span>, slab <span class="op">=</span> <span class="va">study</span><span class="op">)</span></span>
+<span><span class="va">irr</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"study"</span>, <span class="st">"x1i"</span>, <span class="st">"t1i"</span>, <span class="st">"x2i"</span>, <span class="st">"t2i"</span>, <span class="st">"yi"</span>, <span class="st">"vi"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    study x1i t1i x2i t2i      yi     vi </span></span>
+<span><span class="co">#&gt; 1 AFASAK   9 413  19 398 -0.7842 0.1637 </span></span>
+<span><span class="co">#&gt; 2   SPAF   8 263  19 245 -0.9359 0.1776 </span></span>
+<span><span class="co">#&gt; 3 BAATAF   3 487  13 435 -1.5793 0.4103 </span></span>
+<span><span class="co">#&gt; 4   CAFA   6 237   9 241 -0.3887 0.2778 </span></span>
+<span><span class="co">#&gt; 5 SPINAF   7 489  23 483 -1.2019 0.1863 </span></span>
+<span><span class="co">#&gt; 6   EAFT  20 507  50 405 -1.1409 0.0700</span></span>
+<span><span class="va">fit_irr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">irr</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html">predict</a></span><span class="op">(</span><span class="va">fit_irr</span>, transf <span class="op">=</span> <span class="va">exp</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;    pred  ci.lb  ci.ub  pi.lb  pi.ub </span></span>
+<span><span class="co">#&gt;  0.3617 0.2626 0.4984 0.2626 0.4984</span></span></code></pre></div>
+<p>The pooled rate ratio of 0.36 means that the stroke rate under warfarin is about a third of the control rate. Using person-time instead of the number randomized matters when follow-up differs between arms or trials; when events are rare, the Poisson GLMM in <code>rma.glmm(measure = "IRR")</code> again avoids continuity corrections.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-reported" class="section level2" number="3.7">
+<h2>
+<span class="header-section-number">3.7</span> Computing effect sizes from reported statistics<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-reported"><i class="fas fa-link"></i></a>
+</h2>
+<p>Papers do not always report the summary statistics that the formulas above need. A substantial part of data extraction consists of recovering an effect size and its variance from whatever <em>is</em> reported. Each recovery step should be documented in the extraction sheet, along with the exact numbers and page used.</p>
+<div id="sec-effect-sizes-tests" class="section level3" number="3.7.1">
+<h3>
+<span class="header-section-number">3.7.1</span> Test statistics and p-values<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-tests"><i class="fas fa-link"></i></a>
+</h3>
+<p>For a two-group comparison with an independent-samples <span class="math inline">\(t\)</span> statistic,</p>
+<p><span class="math display">\[
+d = t \sqrt{\frac{1}{n_1} + \frac{1}{n_2}},
+\]</span></p>
+<p>and the small-sample correction and variance formula for <span class="math inline">\(g\)</span> apply as before. An <span class="math inline">\(F\)</span> statistic from a one-way ANOVA with two groups (one numerator degree of freedom) satisfies <span class="math inline">\(t = \sqrt{F}\)</span>, with the sign taken from the direction of the mean difference reported in the text; <span class="math inline">\(F\)</span> statistics with more than one numerator degree of freedom cannot be converted to a single two-group contrast without additional information. A <span class="math inline">\(\chi^2\)</span> statistic with one degree of freedom from a <span class="math inline">\(2 \times 2\)</span> table gives the phi coefficient <span class="math inline">\(\phi = \sqrt{\chi^2/N}\)</span>, which can be converted to <span class="math inline">\(d\)</span> (see Section <a href="sec-effect-sizes.html#sec-effect-sizes-conversions">3.8</a>). An exact two-sided <span class="math inline">\(p\)</span>-value can be converted back to <span class="math inline">\(|t|\)</span> with the quantile function, for example <code>qt(1 - p/2, df = n1 + n2 - 2)</code>. Statements such as “<span class="math inline">\(p &lt; .05\)</span>” only give a bound; using the bound as if it were the exact value biases the effect size toward zero, and such studies are better flagged for sensitivity analysis.</p>
+<p><code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> accepts <span class="math inline">\(t\)</span> statistics directly through the <code>ti</code> argument for SMDs, correlations and partial correlations:</p>
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMD"</span>, ti <span class="op">=</span> <span class="fl">2.10</span>, n1i <span class="op">=</span> <span class="fl">30</span>, n2i <span class="op">=</span> <span class="fl">32</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;       yi     vi </span></span>
+<span><span class="co">#&gt; 1 0.5270 0.0668</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>d_from_t <span class="op">=</span> <span class="fl">2.10</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">30</span> <span class="op">+</span> <span class="fl">1</span> <span class="op">/</span> <span class="fl">32</span><span class="op">)</span>,</span>
+<span>  t_from_p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html">qt</a></span><span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="fl">0.04</span> <span class="op">/</span> <span class="fl">2</span>, df <span class="op">=</span> <span class="fl">30</span> <span class="op">+</span> <span class="fl">32</span> <span class="op">-</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; d_from_t t_from_p </span></span>
+<span><span class="co">#&gt;   0.5337   2.0994</span></span></code></pre></div>
+<p>The unstandardized <span class="math inline">\(d = 0.534\)</span> becomes <span class="math inline">\(g = 0.527\)</span> after the small-sample correction. The second line shows that an exact <span class="math inline">\(p = .04\)</span> with 60 degrees of freedom corresponds to <span class="math inline">\(|t| = 2.10\)</span>, so the two routes agree.</p>
+</div>
+<div id="sec-effect-sizes-ci" class="section level3" number="3.7.2">
+<h3>
+<span class="header-section-number">3.7.2</span> Confidence intervals to standard errors<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-ci"><i class="fas fa-link"></i></a>
+</h3>
+<p>Many papers, especially in medicine, report a point estimate with a 95% confidence interval rather than a standard error. For a ratio measure the interval is symmetric on the log scale, so</p>
+<p><span class="math display">\[
+\widehat{SE} = \frac{\ln(\text{UL}) - \ln(\text{LL})}{2 \times 1.96}.
+\]</span></p>
+<p><code><a href="https://wviechtb.github.io/metafor/reference/conv.wald.html">metafor::conv.wald()</a></code> does this conversion (and also accepts a test statistic or <span class="math inline">\(p\)</span>-value), and with <code>check = TRUE</code> (the default) it warns when the interval is noticeably asymmetric on the transformed scale, which usually signals a transcription error or an interval that was not computed by the Wald method.</p>
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ors</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, or <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.85</span>, <span class="fl">0.72</span>, <span class="fl">2.40</span><span class="op">)</span>,</span>
+<span>                  lb <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1.10</span>, <span class="fl">0.51</span>, <span class="fl">1.05</span><span class="op">)</span>, ub <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">3.11</span>, <span class="fl">1.02</span>, <span class="fl">5.49</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/conv.wald.html">conv.wald</a></span><span class="op">(</span>out <span class="op">=</span> <span class="va">or</span>, ci.lb <span class="op">=</span> <span class="va">lb</span>, ci.ub <span class="op">=</span> <span class="va">ub</span>, data <span class="op">=</span> <span class="va">ors</span>, transf <span class="op">=</span> <span class="va">log</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   study   or   lb   ub      yi     vi </span></span>
+<span><span class="co">#&gt; 1     1 1.85 1.10 3.11  0.6152 0.0703 </span></span>
+<span><span class="co">#&gt; 2     2 0.72 0.51 1.02 -0.3285 0.0313 </span></span>
+<span><span class="co">#&gt; 3     3 2.40 1.05 5.49  0.8755 0.1781</span></span></code></pre></div>
+<p>For the first study, <span class="math inline">\(\ln(1.85) = 0.615\)</span> and <span class="math inline">\(\widehat{SE} = [\ln(3.11) - \ln(1.10)]/3.92 = 0.265\)</span>, so <span class="math inline">\(v = 0.070\)</span>. Adjusted odds ratios from logistic regressions are extracted the same way, with the caveat that they condition on study-specific covariate sets and are not directly comparable with unadjusted odds ratios (Chapter <a href="sec-causal-estimates.html#sec-causal-estimates">14</a> discusses this in more depth).</p>
+</div>
+<div id="sec-effect-sizes-fivenum" class="section level3" number="3.7.3">
+<h3>
+<span class="header-section-number">3.7.3</span> Medians, quartiles and ranges<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-fivenum"><i class="fas fa-link"></i></a>
+</h3>
+<p>Skewed outcomes such as length of stay, costs or biomarker concentrations are often summarized by medians with the interquartile range or the full range. Several methods estimate the mean and SD from the five-number summary (minimum <span class="math inline">\(a\)</span>, first quartile <span class="math inline">\(q_1\)</span>, median <span class="math inline">\(m\)</span>, third quartile <span class="math inline">\(q_3\)</span>, maximum <span class="math inline">\(b\)</span>) under an assumption of approximate normality. For the mean, <span class="citation">Luo et al. (<a href="sec-references.html#ref-luo2016optimally">2016</a>)</span> proposed weighted combinations such as</p>
+<p><span class="math display">\[
+\bar X \approx \frac{4}{4 + n^{0.75}} \cdot \frac{a + b}{2} + \frac{n^{0.75}}{4 + n^{0.75}} \cdot m
+\qquad \text{and} \qquad
+\bar X \approx \left(0.7 + \frac{0.39}{n}\right) \frac{q_1 + q_3}{2} + \left(0.3 - \frac{0.39}{n}\right) m,
+\]</span></p>
+<p>and for the SD, <span class="citation">Wan et al. (<a href="sec-references.html#ref-wan2014estimating">2014</a>)</span> proposed dividing the range or the IQR by the expected range or IQR of a standard normal sample of size <span class="math inline">\(n\)</span>,</p>
+<p><span class="math display">\[
+S \approx \frac{b - a}{2\,\Phi^{-1}\!\left(\frac{n - 0.375}{n + 0.25}\right)}
+\qquad \text{and} \qquad
+S \approx \frac{q_3 - q_1}{2\,\Phi^{-1}\!\left(\frac{0.75 n - 0.125}{n + 0.25}\right)}.
+\]</span></p>
+<p>When all five numbers are available, <span class="citation">Shi et al. (<a href="sec-references.html#ref-shi2020optimally">2020</a>)</span> combine both sources of information for the SD. These methods replaced the older approximations of <span class="citation">Hozo et al. (<a href="sec-references.html#ref-hozo2005estimating">2005</a>)</span>, which perform poorly for large <span class="math inline">\(n\)</span>. <code><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">metafor::conv.fivenum()</a></code> implements these estimators as its default (<code>method = "luo/wan/shi"</code>), and also offers the quantile-estimation, Box-Cox and mean-of-log-normal approaches developed by McGrath and colleagues for skewed data (these require the <code>estmeansd</code> package; see <code><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">?conv.fivenum</a></code> for the original references).</p>
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>study <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">4</span>,</span>
+<span>                 min <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="cn">NA</span>, <span class="fl">1</span>, <span class="cn">NA</span><span class="op">)</span>, q1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">12</span>, <span class="fl">5</span>, <span class="fl">8</span><span class="op">)</span>,</span>
+<span>                 median <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">18</span>, <span class="fl">11</span>, <span class="fl">14</span><span class="op">)</span>, q3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">26</span>, <span class="fl">19</span>, <span class="fl">22</span><span class="op">)</span>,</span>
+<span>                 max <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">40</span>, <span class="cn">NA</span>, <span class="fl">35</span>, <span class="cn">NA</span><span class="op">)</span>, n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">45</span>, <span class="fl">60</span>, <span class="fl">38</span>, <span class="fl">120</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">conv.fivenum</a></span><span class="op">(</span>min <span class="op">=</span> <span class="va">min</span>, q1 <span class="op">=</span> <span class="va">q1</span>, median <span class="op">=</span> <span class="va">median</span>, q3 <span class="op">=</span> <span class="va">q3</span>, max <span class="op">=</span> <span class="va">max</span>,</span>
+<span>             n <span class="op">=</span> <span class="va">n</span>, data <span class="op">=</span> <span class="va">fn</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   study min q1 median q3 max   n  mean    sd</span></span>
+<span><span class="co">#&gt; 1     1   2 NA     15 NA  40  45    NA    NA</span></span>
+<span><span class="co">#&gt; 2     2  NA 12     18 26  NA  60 18.71 10.63</span></span>
+<span><span class="co">#&gt; 3     3   1  5     11 19  35  38    NA    NA</span></span>
+<span><span class="co">#&gt; 4     4  NA  8     14 22  NA 120 14.70 10.51</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">conv.fivenum</a></span><span class="op">(</span>min <span class="op">=</span> <span class="va">min</span>, q1 <span class="op">=</span> <span class="va">q1</span>, median <span class="op">=</span> <span class="va">median</span>, q3 <span class="op">=</span> <span class="va">q3</span>, max <span class="op">=</span> <span class="va">max</span>,</span>
+<span>             n <span class="op">=</span> <span class="va">n</span>, data <span class="op">=</span> <span class="va">fn</span>, test <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   study min q1 median q3 max   n  mean     sd</span></span>
+<span><span class="co">#&gt; 1     1   2 NA     15 NA  40  45 16.12  8.626</span></span>
+<span><span class="co">#&gt; 2     2  NA 12     18 26  NA  60 18.71 10.634</span></span>
+<span><span class="co">#&gt; 3     3   1  5     11 19  35  38 12.48  9.042</span></span>
+<span><span class="co">#&gt; 4     4  NA  8     14 22  NA 120 14.70 10.505</span></span></code></pre></div>
+<p>By default, <code><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">conv.fivenum()</a></code> applies a test of skewness to each study and declines to estimate a mean and SD when the summary is too asymmetric for the normal-theory formulas. Studies 1 and 3 are flagged (their medians sit much closer to the minimum than to the maximum), so the first call returns <code>NA</code> for them. Setting <code>test = FALSE</code> forces the computation: for study 2 the Luo and Wan formulas give a mean of 18.71 and an SD of 10.63, which is easy to verify by hand from the equations above. Skewness is itself informative. If the medians are far from the centres of the ranges, the outcome is probably better analyzed as a ratio of means or of medians, or on the log scale (<code>dist = "lnorm"</code>), than as a mean difference based on normal-theory estimates.</p>
+</div>
+<div id="sec-effect-sizes-regression" class="section level3" number="3.7.4">
+<h3>
+<span class="header-section-number">3.7.4</span> Regression coefficients<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-regression"><i class="fas fa-link"></i></a>
+</h3>
+<p>When the predictor of interest is a binary indicator (treatment versus control) in a regression without other covariates, its unstandardized coefficient <span class="math inline">\(b\)</span> is the raw mean difference. Dividing by the <em>pooled within-group</em> SD gives <span class="math inline">\(d\)</span>. Papers often report only the total SD of the outcome, <span class="math inline">\(S_Y\)</span>, which includes the between-group difference; the within-group variance can be recovered as</p>
+<p><span class="math display">\[
+S_p^2 = \frac{(N - 1) S_Y^2 - b^2\, n_1 n_2 / N}{N - 2}.
+\]</span></p>
+<p>When covariates are in the model, <span class="math inline">\(b\)</span> is an adjusted difference, and dividing it by an unadjusted SD gives a quantity whose meaning depends on the covariates. For continuous predictors, standardized coefficients <span class="math inline">\(\beta\)</span> are not correlations. <span class="citation">Peterson and Brown (<a href="sec-references.html#ref-peterson2005use">2005</a>)</span> proposed imputing <span class="math inline">\(r\)</span> from <span class="math inline">\(\beta\)</span> with a simple linear rule, but <span class="citation">Roth et al. (<a href="sec-references.html#ref-roth2018using">2018</a>)</span> showed that this imputation can bias both the mean correlation and the estimated variability of true effects, so it should be avoided or at least confined to a sensitivity analysis. Converting the coefficient’s <span class="math inline">\(t\)</span> statistic to a partial or semi-partial correlation, as above, is usually the better option.</p>
+</div>
+<div id="sec-effect-sizes-esc" class="section level3" number="3.7.5">
+<h3>
+<span class="header-section-number">3.7.5</span> The esc package<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-esc"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>esc</code> package collects many of these conversions behind a uniform interface; each function returns the effect size, its standard error, variance, confidence interval and inverse-variance weight in the requested metric (<code>es.type = "d"</code>, <code>"g"</code>, <code>"r"</code>, <code>"or"</code>, <code>"logit"</code>, and others).</p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_t.html">esc_t</a></span><span class="op">(</span>t <span class="op">=</span> <span class="fl">2.10</span>, grp1n <span class="op">=</span> <span class="fl">30</span>, grp2n <span class="op">=</span> <span class="fl">32</span>, es.type <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Effect Size Calculation for Meta Analysis</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Conversion: t-value to effect size Hedges' g</span></span>
+<span><span class="co">#&gt;     Effect Size:   0.5270</span></span>
+<span><span class="co">#&gt;  Standard Error:   0.2586</span></span>
+<span><span class="co">#&gt;        Variance:   0.0669</span></span>
+<span><span class="co">#&gt;        Lower CI:   0.0201</span></span>
+<span><span class="co">#&gt;        Upper CI:   1.0338</span></span>
+<span><span class="co">#&gt;          Weight:  14.9521</span></span>
+<span><span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_f.html">esc_f</a></span><span class="op">(</span>f <span class="op">=</span> <span class="fl">4.41</span>, grp1n <span class="op">=</span> <span class="fl">30</span>, grp2n <span class="op">=</span> <span class="fl">32</span>, es.type <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Effect Size Calculation for Meta Analysis</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Conversion: F-value (one-way-Anova) to effect size Hedges' g</span></span>
+<span><span class="co">#&gt;     Effect Size:   0.5270</span></span>
+<span><span class="co">#&gt;  Standard Error:   0.2586</span></span>
+<span><span class="co">#&gt;        Variance:   0.0669</span></span>
+<span><span class="co">#&gt;        Lower CI:   0.0201</span></span>
+<span><span class="co">#&gt;        Upper CI:   1.0338</span></span>
+<span><span class="co">#&gt;          Weight:  14.9521</span></span>
+<span><span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_chisq.html">esc_chisq</a></span><span class="op">(</span>chisq <span class="op">=</span> <span class="fl">5.2</span>, totaln <span class="op">=</span> <span class="fl">120</span>, es.type <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Effect Size Calculation for Meta Analysis</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Conversion: chi-squared-value to effect size d</span></span>
+<span><span class="co">#&gt;     Effect Size:   0.4257</span></span>
+<span><span class="co">#&gt;  Standard Error:   0.1867</span></span>
+<span><span class="co">#&gt;        Variance:   0.0348</span></span>
+<span><span class="co">#&gt;        Lower CI:   0.0598</span></span>
+<span><span class="co">#&gt;        Upper CI:   0.7915</span></span>
+<span><span class="co">#&gt;          Weight:  28.7000</span></span>
+<span><span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_B.html">esc_B</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">1.2</span>, sdy <span class="op">=</span> <span class="fl">2.6</span>, grp1n <span class="op">=</span> <span class="fl">40</span>, grp2n <span class="op">=</span> <span class="fl">38</span>, es.type <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Effect Size Calculation for Meta Analysis</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;      Conversion: unstandardized regression coefficient to effect size d</span></span>
+<span><span class="co">#&gt;     Effect Size:   0.4714</span></span>
+<span><span class="co">#&gt;  Standard Error:   0.2297</span></span>
+<span><span class="co">#&gt;        Variance:   0.0527</span></span>
+<span><span class="co">#&gt;        Lower CI:   0.0213</span></span>
+<span><span class="co">#&gt;        Upper CI:   0.9215</span></span>
+<span><span class="co">#&gt;          Weight:  18.9608</span></span></code></pre></div>
+<p>The <span class="math inline">\(t\)</span> and the one-degree-of-freedom <span class="math inline">\(F\)</span> give identical results (<span class="math inline">\(2.10^2 = 4.41\)</span>), <span class="math inline">\(g = 0.527\)</span>, matching <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> above. The <span class="math inline">\(\chi^2\)</span> of 5.2 with <span class="math inline">\(N = 120\)</span> corresponds to <span class="math inline">\(\phi = 0.208\)</span> and <span class="math inline">\(d = 0.426\)</span>. For the regression coefficient, <code><a href="https://strengejacke.github.io/esc/reference/esc_B.html">esc_B()</a></code> treats <code>sdy</code> as the total SD and removes the between-group component before standardizing, which is why it returns <span class="math inline">\(d = 0.471\)</span> rather than <span class="math inline">\(1.2/2.6 = 0.462\)</span>.</p>
+<p><code><a href="https://strengejacke.github.io/esc/reference/combine_esc.html">combine_esc()</a></code> stacks several such results into a data frame that can be passed straight to <code><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma()</a></code>:</p>
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">es_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://strengejacke.github.io/esc/reference/combine_esc.html">combine_esc</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_t.html">esc_t</a></span><span class="op">(</span>t <span class="op">=</span> <span class="fl">2.10</span>, grp1n <span class="op">=</span> <span class="fl">30</span>, grp2n <span class="op">=</span> <span class="fl">32</span>, es.type <span class="op">=</span> <span class="st">"g"</span>, study <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_mean_sd.html">esc_mean_sd</a></span><span class="op">(</span>grp1m <span class="op">=</span> <span class="fl">10.3</span>, grp1sd <span class="op">=</span> <span class="fl">2.5</span>, grp1n <span class="op">=</span> <span class="fl">40</span>,</span>
+<span>              grp2m <span class="op">=</span> <span class="fl">9.1</span>, grp2sd <span class="op">=</span> <span class="fl">2.8</span>, grp2n <span class="op">=</span> <span class="fl">38</span>, es.type <span class="op">=</span> <span class="st">"g"</span>, study <span class="op">=</span> <span class="st">"B"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="https://strengejacke.github.io/esc/reference/esc_B.html">esc_B</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">1.2</span>, sdy <span class="op">=</span> <span class="fl">2.6</span>, grp1n <span class="op">=</span> <span class="fl">40</span>, grp2n <span class="op">=</span> <span class="fl">38</span>, es.type <span class="op">=</span> <span class="st">"g"</span>, study <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">es_all</span></span>
+<span><span class="co">#&gt;   study     es weight sample.size     se     var     ci.lo  ci.hi measure</span></span>
+<span><span class="co">#&gt; 1     A 0.5270  14.95          62 0.2586 0.06688  0.020109 1.0338       g</span></span>
+<span><span class="co">#&gt; 2     B 0.4483  19.00          78 0.2294 0.05263 -0.001343 0.8979       g</span></span>
+<span><span class="co">#&gt; 3     C 0.4667  18.96          78 0.2297 0.05274  0.016636 0.9169       g</span></span>
+<span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">es</span>, vi <span class="op">=</span> <span class="va">var</span>, data <span class="op">=</span> <span class="va">es_all</span>, slab <span class="op">=</span> <span class="va">study</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Random-Effects Model (k = 3; tau^2 estimator: REML)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0568)</span></span>
+<span><span class="co">#&gt; tau (square root of estimated tau^2 value):      0</span></span>
+<span><span class="co">#&gt; I^2 (total heterogeneity / total variability):   0.00%</span></span>
+<span><span class="co">#&gt; H^2 (total variability / sampling variability):  1.00</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Test for Heterogeneity:</span></span>
+<span><span class="co">#&gt; Q(df = 2) = 0.0550, p-val = 0.9729</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model Results:</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; estimate      se    zval    pval   ci.lb   ci.ub      </span></span>
+<span><span class="co">#&gt;   0.4771  0.1375  3.4708  0.0005  0.2077  0.7466  *** </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span></code></pre></div>
+<p>The three studies reported their results in three different ways (a <span class="math inline">\(t\)</span> statistic, means and SDs, a regression coefficient), yet end up on a common <span class="math inline">\(g\)</span> scale and are pooled in one line, giving <span class="math inline">\(\hat\mu = 0.48\)</span> (95% CI 0.21 to 0.75) with no detectable heterogeneity. The same could be done with <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> and hand calculation; the value of <code>esc</code> is mainly that the conversions are documented and consistent.</p>
+</div>
+</div>
+<div id="sec-effect-sizes-conversions" class="section level2" number="3.8">
+<h2>
+<span class="header-section-number">3.8</span> Converting between metrics<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-conversions"><i class="fas fa-link"></i></a>
+</h2>
+<p>When a few studies report a different metric from the rest, conversion lets them contribute. All conversions rest on distributional assumptions that should be stated.</p>
+<p><strong>Log odds ratio and SMD.</strong> If a binary outcome arises from dichotomizing a continuous latent variable that follows a logistic distribution with equal variance in both groups, the log odds ratio is proportional to the standardized mean difference on the latent scale:</p>
+<p><span class="math display">\[
+d = \ln \text{OR} \times \frac{\sqrt{3}}{\pi}, \qquad \operatorname{Var}(d) = \operatorname{Var}(\ln \text{OR}) \times \frac{3}{\pi^2},
+\]</span></p>
+<p>since the standard logistic distribution has SD <span class="math inline">\(\pi/\sqrt{3} \approx 1.81\)</span> <span class="citation">(<a href="sec-references.html#ref-hasselblad1995meta">Hasselblad and Hedges 1995</a>; <a href="sec-references.html#ref-chinn2000simple">Chinn 2000</a>)</span>. Under a normal latent variable the conversion factor is about <span class="math inline">\(1/1.65\)</span> instead (the Cox transformation); <span class="citation">Sánchez-Meca et al. (<a href="sec-references.html#ref-sanchezmeca2003effectsize">2003</a>)</span> compared the options by simulation and found that the logistic and Cox conversions both perform reasonably when the latent distributions are close to normal with equal variances. In <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code>, <code>measure = "OR2DL"</code> and <code>"OR2DN"</code> compute these directly from <span class="math inline">\(2 \times 2\)</span> tables, and <code><a href="https://wviechtb.github.io/metafor/reference/conv.delta.html">conv.delta()</a></code> transforms existing <code>yi</code>/<code>vi</code> pairs by the delta method:</p>
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">or2d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"OR2DL"</span>, ai <span class="op">=</span> <span class="va">tpos</span>, bi <span class="op">=</span> <span class="va">tneg</span>, ci <span class="op">=</span> <span class="va">cpos</span>, di <span class="op">=</span> <span class="va">cneg</span>,</span>
+<span>               data <span class="op">=</span> <span class="va">dat.bcg</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span>lnOR <span class="op">=</span> <span class="va">lor</span><span class="op">$</span><span class="va">yi</span>, d_OR2DL <span class="op">=</span> <span class="va">or2d</span><span class="op">$</span><span class="va">yi</span>, d_by_hand <span class="op">=</span> <span class="va">lor</span><span class="op">$</span><span class="va">yi</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op">/</span> <span class="va">pi</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         lnOR d_OR2DL d_by_hand</span></span>
+<span><span class="co">#&gt; [1,] -0.9387 -0.5175   -0.5175</span></span>
+<span><span class="co">#&gt; [2,] -1.6662 -0.9186   -0.9186</span></span>
+<span><span class="co">#&gt; [3,] -1.3863 -0.7643   -0.7643</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/conv.delta.html">conv.delta</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, data <span class="op">=</span> <span class="va">lor</span>, transf <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span> <span class="op">/</span> <span class="va">pi</span>,</span>
+<span>                replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   trial           author year tpos tneg cpos cneg ablat  alloc      yi     vi </span></span>
+<span><span class="co">#&gt; 1     1          Aronson 1948    4  119   11  128    44 random -0.5175 0.1086 </span></span>
+<span><span class="co">#&gt; 2     2 Ferguson &amp; Simes 1949    6  300   29  274    55 random -0.9186 0.0633 </span></span>
+<span><span class="co">#&gt; 3     3  Rosenthal et al 1960    3  228   11  209    42 random -0.7643 0.1317</span></span></code></pre></div>
+<p>For the Aronson trial, <span class="math inline">\(\ln\text{OR} = -0.939\)</span> converts to <span class="math inline">\(d = -0.518\)</span>, and the three routes agree. Because <code>lor</code> already contains <code>yi</code> and <code>vi</code>, <code><a href="https://wviechtb.github.io/metafor/reference/conv.delta.html">conv.delta()</a></code> needs <code>replace = TRUE</code>; with the default <code>replace = "ifna"</code> it only fills in missing values and would silently return the log odds ratios unchanged.</p>
+<p><strong>Correlation and SMD.</strong> A point-biserial correlation <span class="math inline">\(r\)</span> between a continuous outcome and a two-group indicator, and the SMD <span class="math inline">\(d\)</span> between the groups, are related by</p>
+<p><span class="math display">\[
+d = \frac{r \sqrt{a}}{\sqrt{1 - r^2}}, \qquad r = \frac{d}{\sqrt{d^2 + a}}, \qquad a = \frac{(n_1 + n_2)^2}{n_1 n_2},
+\]</span></p>
+<p>with <span class="math inline">\(a = 4\)</span> for equal group sizes <span class="citation">(<a href="sec-references.html#ref-borenstein2021introduction">Borenstein et al. 2021</a>; <a href="sec-references.html#ref-rosenthal1994parametric"><span class="nocase">Rosenthal et al.</span> 1994</a>)</span>. The <code>effectsize</code> package implements these conversions:</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>r_from_d <span class="op">=</span> <span class="fu">effectsize</span><span class="fu">::</span><span class="fu"><a href="https://easystats.github.io/effectsize/reference/d_to_r.html">d_to_r</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span>, d_from_r <span class="op">=</span> <span class="fu">effectsize</span><span class="fu">::</span><span class="fu"><a href="https://easystats.github.io/effectsize/reference/d_to_r.html">r_to_d</a></span><span class="op">(</span><span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; r_from_d d_from_r </span></span>
+<span><span class="co">#&gt;   0.2425   0.6290</span></span></code></pre></div>
+<p>A <span class="math inline">\(d\)</span> of 0.5 corresponds to <span class="math inline">\(r = 0.243\)</span> with equal groups, and <span class="math inline">\(r = 0.3\)</span> to <span class="math inline">\(d = 0.629\)</span>. The conversion is valid only when the binary variable is a genuine two-group variable. If a continuous variable was dichotomized (for example “high” versus “low” anxiety by a median split), the point-biserial <span class="math inline">\(r\)</span> underestimates the correlation with the underlying continuous variable, by a factor of about 0.80 for a median split, and the conversion should go through the biserial correlation or a dichotomization correction instead <span class="citation">(<a href="sec-references.html#ref-hunter1990">Hunter and Schmidt 1990</a>)</span>.</p>
+<div class="rmdwarning">
+<p>Every conversion imports assumptions about distributions, variances and the nature of the variables. Two practical checks protect against problems: code a “converted” indicator for each effect size and test it as a moderator, and run the main analysis with and without the converted studies (Chapter <a href="sec-sensitivity.html#sec-sensitivity">8</a>).</p>
+</div>
+</div>
+<div id="sec-effect-sizes-cluster" class="section level2" number="3.9">
+<h2>
+<span class="header-section-number">3.9</span> Cluster-randomized trials<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-cluster"><i class="fas fa-link"></i></a>
+</h2>
+<p>In cluster-randomized trials (schools, clinics, stores, villages assigned to conditions), individuals within a cluster are correlated, and an analysis that ignores the clustering overstates the precision of the effect estimate. If a trial reports an individual-level analysis, its standard error must be inflated before it enters a meta-analysis. With average cluster size <span class="math inline">\(m\)</span> and intraclass correlation <span class="math inline">\(\rho_{\text{ICC}}\)</span>, the design effect is</p>
+<p><span class="math display">\[
+\text{DE} = 1 + (m - 1)\,\rho_{\text{ICC}},
+\]</span></p>
+<p>and the effective sample size is <span class="math inline">\(n / \text{DE}\)</span>. The simplest correction multiplies the naive sampling variance by DE, or equivalently divides each group’s sample size (and, for binary outcomes, its event count) by DE before computing the effect size <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span>. Even small ICCs have large effects when clusters are large: with <span class="math inline">\(m = 25\)</span> and <span class="math inline">\(\rho_{\text{ICC}} = 0.05\)</span>, <span class="math inline">\(\text{DE} = 1 + 24 \times 0.05 = 2.2\)</span>, so a trial of 400 pupils carries the information of about 182 independent pupils.</p>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">design_effect</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span>, <span class="va">icc</span><span class="op">)</span> <span class="fl">1</span> <span class="op">+</span> <span class="op">(</span><span class="va">m</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="va">icc</span></span>
+<span><span class="va">de</span> <span class="op">&lt;-</span> <span class="fu">design_effect</span><span class="op">(</span>m <span class="op">=</span> <span class="fl">25</span>, icc <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
+<span><span class="va">g_naive</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc</a></span><span class="op">(</span>measure <span class="op">=</span> <span class="st">"SMD"</span>, m1i <span class="op">=</span> <span class="fl">52.1</span>, sd1i <span class="op">=</span> <span class="fl">9.8</span>, n1i <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>                  m2i <span class="op">=</span> <span class="fl">49.6</span>, sd2i <span class="op">=</span> <span class="fl">10.1</span>, n2i <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>DE <span class="op">=</span> <span class="va">de</span>, n_eff <span class="op">=</span> <span class="fl">400</span> <span class="op">/</span> <span class="va">de</span>, g <span class="op">=</span> <span class="va">g_naive</span><span class="op">$</span><span class="va">yi</span>,</span>
+<span>  var_naive <span class="op">=</span> <span class="va">g_naive</span><span class="op">$</span><span class="va">vi</span>, var_adjusted <span class="op">=</span> <span class="va">g_naive</span><span class="op">$</span><span class="va">vi</span> <span class="op">*</span> <span class="va">de</span><span class="op">)</span></span>
+<span><span class="co">#&gt;           DE        n_eff            g    var_naive var_adjusted </span></span>
+<span><span class="co">#&gt;      2.20000    181.81818      0.25075      0.01008      0.02217</span></span></code></pre></div>
+<p>When the ICC is not reported, it can be borrowed from other trials in the review or from published compilations for the outcome and cluster type, with a sensitivity analysis over a plausible range. For cluster-randomized designs there is also a question of <em>which</em> standard deviation should standardize an SMD (the within-cluster SD, or the total SD including between-cluster variation). <span class="citation">Hedges (<a href="sec-references.html#ref-hedges2007effect">2007</a>)</span> gives estimators and variances for each choice; the total-variance version is comparable with SMDs from individually randomized trials.</p>
+</div>
+<div id="sec-effect-sizes-artifacts" class="section level2" number="3.10">
+<h2>
+<span class="header-section-number">3.10</span> Psychometric artifact corrections<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-artifacts"><i class="fas fa-link"></i></a>
+</h2>
+<p>The Hunter-Schmidt approach to meta-analysis, developed in personnel and organizational psychology, starts from the observation that observed correlations are attenuated by study <em>artifacts</em>: sampling error, measurement error in the independent and dependent variables, dichotomization of continuous variables, range restriction, imperfect construct validity, and transcription errors <span class="citation">(<a href="sec-references.html#ref-schmidt2015a">Schmidt and Hunter 2015</a>)</span>. Most of these artifacts reduce observed correlations below the construct-level correlation of substantive interest. The goal of a psychometric meta-analysis is to estimate the mean and the standard deviation of the <em>construct-level</em> (true-score) correlations <span class="math inline">\(\rho\)</span>, correcting each artifact for which information is available. This differs from the approaches in the rest of this chapter, which take the observed effect sizes as the estimand.</p>
+<div id="sec-effect-sizes-hs-barebones" class="section level3" number="3.10.1">
+<h3>
+<span class="header-section-number">3.10.1</span> Sampling error and weighting<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-hs-barebones"><i class="fas fa-link"></i></a>
+</h3>
+<p>The “bare-bones” Hunter-Schmidt analysis corrects only for sampling error. It pools <em>untransformed</em> correlations with sample-size weights,</p>
+<p><span class="math display">\[
+\bar r = \frac{\sum_i n_i r_i}{\sum_i n_i}, \qquad
+S_r^2 = \frac{\sum_i n_i (r_i - \bar r)^2}{\sum_i n_i}, \qquad
+S_e^2 = \frac{(1 - \bar r^2)^2}{\bar n - 1},
+\]</span></p>
+<p>and estimates the variance of population correlations as <span class="math inline">\(\hat\sigma_\rho^2 = S_r^2 - S_e^2\)</span>, where <span class="math inline">\(\bar n\)</span> is the average sample size. Two features distinguish this approach from the inverse-variance analysis of Fisher’s <span class="math inline">\(z\)</span> above. First, weighting by <span class="math inline">\(n_i\)</span> rather than by <span class="math inline">\(1/\widehat{\operatorname{Var}}(r_i)\)</span> avoids the dependence between the weights and the observed <span class="math inline">\(r_i\)</span>. Weighting by sample size is generally preferable to an unweighted mean because it gives large studies more influence, and in applied comparisons weighted and unweighted means can diverge substantially <span class="citation">(<a href="sec-references.html#ref-fuller1999comparing">Fuller and Hester 1999</a>)</span>. Second, the analysis stays on the <span class="math inline">\(r\)</span> scale. Hunter and Schmidt argue that averaging on the <span class="math inline">\(z\)</span> scale yields an upwardly biased estimate of the mean correlation when true correlations vary: because <span class="math inline">\(\tanh\)</span> is concave for positive values, the back-transformed mean <span class="math inline">\(z\)</span> estimates something closer to the median of the <span class="math inline">\(\rho\)</span> distribution than its mean, and the difference grows with heterogeneity. In simulations comparing the two random-effects traditions, <span class="citation">Hall and Brannick (<a href="sec-references.html#ref-hall2002">2002</a>)</span> found that the Hunter-Schmidt approach estimated the mean population correlation more accurately when true correlations varied. In practice the two give similar point estimates unless correlations are large and heterogeneous; for the Molloy data, the back-transformed <span class="math inline">\(z\)</span>-based estimate of 0.149 compares with 0.152 from an inverse-variance analysis of untransformed correlations and 0.123 for the sample-size weighted mean.</p>
+<p>Several packages offer the Fisher transformation (for example <code>DescTools::FisherZ()</code> and <code><a href="https://rdrr.io/pkg/psych/man/fisherz.html">psych::fisherz()</a></code>), but base R already provides it as <code><a href="https://rdrr.io/r/base/Hyperbolic.html">atanh()</a></code>, with <code><a href="https://rdrr.io/r/base/Hyperbolic.html">tanh()</a></code> as the inverse, and <code>metafor</code> exposes the same pair as <code><a href="https://wviechtb.github.io/metafor/reference/transf.html">transf.rtoz()</a></code> and <code><a href="https://wviechtb.github.io/metafor/reference/transf.html">transf.ztor()</a></code>. A correct hand computation for <span class="math inline">\(r = 0.5\)</span>, <span class="math inline">\(n = 200\)</span> is:</p>
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fl">0.5</span>; <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">z</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html">atanh</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>                       <span class="co"># 0.5 * log((1 + r) / (1 - r))</span></span>
+<span><span class="va">se_z</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">ci_r</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Hyperbolic.html">tanh</a></span><span class="op">(</span><span class="va">z</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span> <span class="op">*</span> <span class="va">se_z</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>z <span class="op">=</span> <span class="va">z</span>, se_z <span class="op">=</span> <span class="va">se_z</span>, r_lb <span class="op">=</span> <span class="va">ci_r</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, r_ub <span class="op">=</span> <span class="va">ci_r</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>  se_r <span class="op">=</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">r</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt;       z    se_z    r_lb    r_ub    se_r </span></span>
+<span><span class="co">#&gt; 0.54931 0.07125 0.38819 0.59731 0.05317</span></span></code></pre></div>
+<p>The interval is asymmetric on the <span class="math inline">\(r\)</span> scale (0.389 to 0.597 around 0.5), as it should be. The large-sample standard error of <span class="math inline">\(r\)</span> is <span class="math inline">\((1 - r^2)/\sqrt{n - 1}\)</span>; the expression <span class="math inline">\((1 - r^2)/\sqrt{n - 2}\)</span> that appears in some sources is a variant that differs only trivially for moderate <span class="math inline">\(n\)</span>.</p>
+</div>
+<div id="sec-effect-sizes-reliability" class="section level3" number="3.10.2">
+<h3>
+<span class="header-section-number">3.10.2</span> Measurement error<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-reliability"><i class="fas fa-link"></i></a>
+</h3>
+<p>If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are measured with reliabilities <span class="math inline">\(r_{XX}\)</span> and <span class="math inline">\(r_{YY}\)</span>, classical test theory implies that the observed correlation is attenuated relative to the true-score correlation, <span class="math inline">\(\rho_{XY} = \rho_{T_X T_Y} \sqrt{r_{XX}\, r_{YY}}\)</span>. The disattenuated correlation and its standard error are</p>
+<p><span class="math display">\[
+r_c = \frac{r_{XY}}{\sqrt{r_{XX}}\sqrt{r_{YY}}}, \qquad
+SE(r_c) = \frac{SE(r_{XY})}{\sqrt{r_{XX}}\sqrt{r_{YY}}}.
+\]</span></p>
+<p>The corrected correlation is always larger in absolute value than the observed one, and its standard error is larger by the same factor, which reflects the extra uncertainty from imperfect measurement. For a standardized mean difference between groups that are classified without error, only the outcome is unreliable, so the observed <span class="math inline">\(d\)</span> is attenuated by <span class="math inline">\(\sqrt{r_{YY}}\)</span> and the correction divides by <span class="math inline">\(\sqrt{r_{YY}}\)</span> alone.</p>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r_xy</span> <span class="op">&lt;-</span> <span class="fl">0.50</span>; <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
+<span><span class="va">r_xx</span> <span class="op">&lt;-</span> <span class="fl">0.90</span>; <span class="va">r_yy</span> <span class="op">&lt;-</span> <span class="fl">0.80</span></span>
+<span><span class="va">a</span>     <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">r_xx</span> <span class="op">*</span> <span class="va">r_yy</span><span class="op">)</span>              <span class="co"># attenuation factor</span></span>
+<span><span class="va">se_r</span>  <span class="op">&lt;-</span> <span class="op">(</span><span class="fl">1</span> <span class="op">-</span> <span class="va">r_xy</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="va">n</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>attenuation <span class="op">=</span> <span class="va">a</span>, r_corrected <span class="op">=</span> <span class="va">r_xy</span> <span class="op">/</span> <span class="va">a</span>,</span>
+<span>  se_observed <span class="op">=</span> <span class="va">se_r</span>, se_corrected <span class="op">=</span> <span class="va">se_r</span> <span class="op">/</span> <span class="va">a</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  attenuation  r_corrected  se_observed se_corrected </span></span>
+<span><span class="co">#&gt;      0.84853      0.58926      0.05317      0.06266</span></span></code></pre></div>
+<p>With reliabilities of 0.90 and 0.80 the attenuation factor is 0.849, so an observed correlation of 0.50 corresponds to a true-score correlation of 0.589. The correction should use reliabilities estimated in the same sample where possible, and the type of reliability matters: internal consistency (coefficient alpha) captures random response and item-specific error but not transient error, test-retest coefficients capture transient but not item-specific error, and only a coefficient of equivalence and stability (parallel forms administered on different occasions) captures all three <span class="citation">(<a href="sec-references.html#ref-schmidt2015a">Schmidt and Hunter 2015</a>)</span>. When reliabilities are reported for only some studies, Hunter-Schmidt methods use <em>artifact distributions</em>, correcting the mean and variance of the observed correlations using the distribution of reliabilities across the studies that report them.</p>
+</div>
+<div id="sec-effect-sizes-range" class="section level3" number="3.10.3">
+<h3>
+<span class="header-section-number">3.10.3</span> Range restriction<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-range"><i class="fas fa-link"></i></a>
+</h3>
+<p>If a study’s sample was selected on <span class="math inline">\(X\)</span> (for example, only applicants above a test cutoff were hired, and job performance is observed only for them), the SD of <span class="math inline">\(X\)</span> in the sample is smaller than in the population of interest, and the observed correlation is attenuated. Let <span class="math inline">\(u_X = s_X / S_X\)</span> be the ratio of the restricted to the unrestricted SD. For <em>direct</em> range restriction on <span class="math inline">\(X\)</span>, Thorndike’s Case II correction is</p>
+<p><span class="math display">\[
+r_c = \frac{r / u_X}{\sqrt{1 + r^2 \left(1/u_X^2 - 1\right)}}.
+\]</span></p>
+<p>Selection is more often <em>indirect</em>, on a third variable correlated with <span class="math inline">\(X\)</span> (such as an overall hiring judgement). <span class="citation">Hunter et al. (<a href="sec-references.html#ref-hunter2006implications">2006</a>)</span> developed a correction for indirect range restriction (Case IV) that first corrects for measurement error in the restricted sample and then applies the range restriction correction to true scores, and showed that applying the Case II formula when restriction is indirect underestimates the true correlation substantially. The order of corrections matters (reliability estimates obtained in restricted samples must themselves be adjusted), and the standard errors of corrected correlations require delta-method approximations; these details are handled by dedicated software.</p>
+</div>
+<div id="sec-effect-sizes-psychmeta" class="section level3" number="3.10.4">
+<h3>
+<span class="header-section-number">3.10.4</span> A psychometric meta-analysis with psychmeta<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-psychmeta"><i class="fas fa-link"></i></a>
+</h3>
+<p>The <code>psychmeta</code> package <span class="citation">(<a href="sec-references.html#ref-dahlke2018psychmeta">Dahlke and Wiernik 2018</a>)</span> implements bare-bones, individual-correction and artifact-distribution meta-analyses. The dataset <code>data_r_gonzalezmule_2014</code> contains 43 correlations between general mental ability and organizational citizenship behaviour, with the reliability of each measure (<code>rxxi</code>, <code>ryyi</code>) and a range-restriction ratio for ability (<code>ux = 0.63</code>). We first run a bare-bones analysis and then individual corrections, once for measurement error only and once for measurement error plus indirect range restriction.</p>
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gm</span> <span class="op">&lt;-</span> <span class="va">data_r_gonzalezmule_2014</span></span>
+<span><span class="va">bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/ma_r.html">ma_r_bb</a></span><span class="op">(</span>r <span class="op">=</span> <span class="va">rxyi</span>, n <span class="op">=</span> <span class="va">n</span>, data <span class="op">=</span> <span class="va">gm</span><span class="op">)</span></span>
+<span><span class="va">ic_meas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/ma_r.html">ma_r</a></span><span class="op">(</span>rxyi <span class="op">=</span> <span class="va">rxyi</span>, n <span class="op">=</span> <span class="va">n</span>, rxx <span class="op">=</span> <span class="va">rxxi</span>, ryy <span class="op">=</span> <span class="va">ryyi</span>, ma_method <span class="op">=</span> <span class="st">"ic"</span>,</span>
+<span>                correct_rr <span class="op">=</span> <span class="cn">FALSE</span>, data <span class="op">=</span> <span class="va">gm</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  **** Running ma_r: Meta-analysis of correlations ****</span></span>
+<span><span class="va">ic_full</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/ma_r.html">ma_r</a></span><span class="op">(</span>rxyi <span class="op">=</span> <span class="va">rxyi</span>, n <span class="op">=</span> <span class="va">n</span>, rxx <span class="op">=</span> <span class="va">rxxi</span>, ryy <span class="op">=</span> <span class="va">ryyi</span>, ux <span class="op">=</span> <span class="va">ux</span>,</span>
+<span>                ma_method <span class="op">=</span> <span class="st">"ic"</span>, data <span class="op">=</span> <span class="va">gm</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  **** Running ma_r: Meta-analysis of correlations ****</span></span>
+<span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"k"</span>, <span class="st">"N"</span>, <span class="st">"mean_r"</span>, <span class="st">"sd_res"</span><span class="op">)</span></span>
+<span><span class="va">tab_bb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/get_stuff.html">get_metatab</a></span><span class="op">(</span><span class="va">bb</span><span class="op">)</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">cols</span>, <span class="st">"CI_LL_95"</span>, <span class="st">"CI_UL_95"</span>,</span>
+<span>                                             <span class="st">"CR_LL_80"</span>, <span class="st">"CR_UL_80"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">tab_ic</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span>  <span class="st">"reliability only"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/get_stuff.html">get_metatab</a></span><span class="op">(</span><span class="va">ic_meas</span>, ma_method <span class="op">=</span> <span class="st">"ic"</span>,</span>
+<span>                                                 correction_type <span class="op">=</span> <span class="st">"ts"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"reliability + range restriction"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/psychmeta/man/get_stuff.html">get_metatab</a></span><span class="op">(</span><span class="va">ic_full</span>,</span>
+<span>                                                 ma_method <span class="op">=</span> <span class="st">"ic"</span>, correction_type <span class="op">=</span> <span class="st">"ts"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">tab_bb</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    k     N mean_r sd_res CI_LL_95 CI_UL_95 CR_LL_80 CR_UL_80</span></span>
+<span><span class="co">#&gt; 1 43 12507  0.126  0.084    0.094    0.157    0.016    0.235</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">tab_ic</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"mean_r"</span>, <span class="st">"mean_rho"</span>, <span class="st">"sd_rho"</span>, <span class="st">"CI_LL_95"</span>, <span class="st">"CI_UL_95"</span>,</span>
+<span>                 <span class="st">"CR_LL_80"</span>, <span class="st">"CR_UL_80"</span><span class="op">)</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                                 mean_r mean_rho sd_rho CI_LL_95 CI_UL_95</span></span>
+<span><span class="co">#&gt; reliability only                 0.126    0.142  0.096    0.106    0.178</span></span>
+<span><span class="co">#&gt; reliability + range restriction  0.126    0.235  0.152    0.179    0.291</span></span>
+<span><span class="co">#&gt;                                 CR_LL_80 CR_UL_80</span></span>
+<span><span class="co">#&gt; reliability only                   0.017    0.267</span></span>
+<span><span class="co">#&gt; reliability + range restriction    0.038    0.433</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">ic_full</span><span class="op">$</span><span class="va">meta_tables</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">individual_correction</span>, <span class="st">"method_details"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;                   Correction Frequency</span></span>
+<span><span class="co">#&gt; 1 Indirect RR in X (Case IV)        43</span></span></code></pre></div>
+<p>The bare-bones analysis gives a sample-size weighted mean observed correlation of 0.126 across 43 samples and 12,507 participants, with a residual SD of 0.084 after removing sampling error variance. Correcting for unreliability in both measures raises the mean true-score correlation to 0.142, and adding the correction for indirect range restriction on ability (which <code>psychmeta</code> selects automatically from the available artifacts, as the method details show) raises it further, to <span class="math inline">\(\bar\rho = 0.235\)</span> with <span class="math inline">\(\text{SD}_\rho = 0.152\)</span>. The 80% credibility interval (0.038 to 0.433) describes the spread of construct-level correlations across settings; it plays the role that the prediction interval plays in the random-effects model of Chapter <a href="sec-models.html#sec-models">4</a>. The confidence interval (0.179 to 0.291) describes uncertainty about the mean.</p>
+<div class="rmdnote">
+<p>Corrections for artifacts change the estimand: the question is no longer “what correlation will a typical study observe?” but “what is the relationship between the constructs, free of measurement error and selection?”. Which question is relevant depends on the purpose. Validity generalization in personnel selection asks about operational validity (corrected for criterion unreliability and range restriction, but not for predictor unreliability, because selection decisions must use the fallible predictor). Theory testing asks about construct-level relations. The meta-analyst should state which correction targets which question, and report observed and corrected results side by side.</p>
+</div>
+</div>
+</div>
+<div id="sec-effect-sizes-recommendations" class="section level2" number="3.11">
+<h2>
+<span class="header-section-number">3.11</span> Practical recommendations<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-recommendations"><i class="fas fa-link"></i></a>
+</h2>
+<p>Define the effect size metric, its sign convention, and the hierarchy of extraction rules (which statistics to prefer when several are reported, how to handle adjusted versus unadjusted estimates) in the protocol, before data extraction begins. Extract the raw ingredients (means, SDs, counts, <span class="math inline">\(n\)</span>, test statistics, correlations) rather than effect sizes computed by the primary authors, and compute all effect sizes with one documented script, so that formulas are applied consistently and the computations can be audited.</p>
+<p>For continuous outcomes on a common scale, use the raw mean difference; otherwise Hedges’ <span class="math inline">\(g\)</span> with the exact correction. Use the log ratio of means for ratio-scale outcomes with multiplicative effects. For pre-post designs, prefer raw-score standardization whenever designs are mixed or <span class="math inline">\(r\)</span> must be imputed, and report a sensitivity analysis over plausible values of <span class="math inline">\(r\)</span>. For binary outcomes, analyze log odds ratios or log risk ratios and translate the pooled result into absolute terms at relevant baseline risks; for sparse data, avoid continuity corrections in favour of Mantel-Haenszel, Peto or GLMM methods. Pool correlations on Fisher’s <span class="math inline">\(z\)</span> scale (or with Hunter-Schmidt methods if artifact corrections are the goal), and analyze proportions with binomial GLMMs rather than with the double-arcsine transformation.</p>
+<p>When studies need conversion, prefer conversions with mild assumptions (<span class="math inline">\(t\)</span> to <span class="math inline">\(d\)</span>, CI to SE) over conversions with strong ones (odds ratio to <span class="math inline">\(d\)</span>, <span class="math inline">\(\beta\)</span> to <span class="math inline">\(r\)</span>), and flag every converted or imputed value for sensitivity analysis. Inflate the variances of cluster-randomized trials analyzed at the individual level.</p>
+</div>
+<div id="sec-effect-sizes-pitfalls" class="section level2" number="3.12">
+<h2>
+<span class="header-section-number">3.12</span> Common pitfalls<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-pitfalls"><i class="fas fa-link"></i></a>
+</h2>
+<p>The most damaging errors in effect size computation are mundane. Standard errors are mistaken for standard deviations (a reported “mean ± SE” read as “mean ± SD” understates the SD by a factor of <span class="math inline">\(\sqrt{n}\)</span> and inflates the SMD by the same factor). Signs are inconsistent across studies. Change-score SMDs from within-subject designs are pooled with between-subject SMDs as if they were the same parameter. The same participants contribute to several effect sizes (multiple outcomes, multiple treatment arms sharing one control group) without any adjustment, which violates the independence assumption of standard models; Chapter <a href="sec-dependent-effects.html#sec-dependent-effects">6</a> treats this problem in detail. Inexact <span class="math inline">\(p\)</span>-values (“<span class="math inline">\(p &lt; .05\)</span>”) are converted as if they were exact. Effect sizes computed by primary authors with different formulas (Cohen’s <span class="math inline">\(d\)</span> from a paired <span class="math inline">\(t\)</span> test, <span class="math inline">\(\eta^2\)</span> from a factorial ANOVA) are taken at face value. Finally, the double-arcsine back-transformation and continuity corrections are applied by default, without checking whether they distort the result. A reproducible extraction script, a second independent extractor, and a table of every effect size next to its raw ingredients catch most of these.</p>
+</div>
+<div id="sec-effect-sizes-takeaways" class="section level2" number="3.13">
+<h2>
+<span class="header-section-number">3.13</span> Key takeaways<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-takeaways"><i class="fas fa-link"></i></a>
+</h2>
+<ul>
+<li>Every meta-analysis rests on study-level pairs <span class="math inline">\((y_i, v_i)\)</span>; the effect size metric determines what the pooled estimate means, and errors in <span class="math inline">\(y_i\)</span> or <span class="math inline">\(v_i\)</span> cannot be fixed by later modelling.</li>
+<li>The raw mean difference is preferable when all studies share a scale; otherwise Hedges’ <span class="math inline">\(g\)</span> with the exact small-sample correction is the standard SMD. Pre-post SMDs standardized by the change-score SD (SMCC) estimate a different, larger parameter than raw-score SMDs (SMCR), and SMCC is highly sensitive to the often-imputed pre-post correlation.</li>
+<li>Ratio measures (OR, RR, IRR, ROM) are analyzed on the log scale. Correlations are pooled on Fisher’s <span class="math inline">\(z\)</span> scale with variance <span class="math inline">\(1/(n - 3)\)</span>, or with Hunter-Schmidt sample-size weighting when artifact corrections are the goal.</li>
+<li>Continuity corrections and the Freeman-Tukey back-transformation can distort results for sparse data and proportions near 0 or 1; GLMMs model the counts directly and avoid both.</li>
+<li>Recovering effect sizes from <span class="math inline">\(t\)</span>, <span class="math inline">\(F\)</span>, <span class="math inline">\(\chi^2\)</span>, <span class="math inline">\(p\)</span>-values, confidence intervals and five-number summaries is routine with <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code>, <code><a href="https://wviechtb.github.io/metafor/reference/conv.wald.html">conv.wald()</a></code>, <code><a href="https://wviechtb.github.io/metafor/reference/conv.fivenum.html">conv.fivenum()</a></code> and the <code>esc</code> package, but each conversion carries assumptions that should be documented and probed in sensitivity analyses.</li>
+<li>Cluster-randomized trials analyzed at the individual level need their variances inflated by the design effect <span class="math inline">\(1 + (m - 1)\rho_{\text{ICC}}\)</span>.</li>
+<li>Psychometric corrections for unreliability and range restriction change the estimand from observed to construct-level correlations; report both, and use dedicated software such as <code>psychmeta</code> for the corrected analysis.</li>
+</ul>
+</div>
+<div id="sec-effect-sizes-reading" class="section level2" number="3.14">
+<h2>
+<span class="header-section-number">3.14</span> Further reading<a class="anchor" aria-label="anchor" href="#sec-effect-sizes-reading"><i class="fas fa-link"></i></a>
+</h2>
+<p><span class="citation">Borenstein et al. (<a href="sec-references.html#ref-borenstein2021introduction">2021</a>)</span> give an accessible treatment of effect size computation for the main designs, with worked formulas, and the Cochrane Handbook <span class="citation">(<a href="sec-references.html#ref-higgins2019cochrane">Higgins et al. 2019</a>)</span> covers effect measures for binary, continuous and time-to-event outcomes and the handling of cluster-randomized and crossover trials from a clinical perspective. <span class="citation">Morris and DeShon (<a href="sec-references.html#ref-morris2002combining">2002</a>)</span> remains the reference for combining repeated-measures and independent-groups designs, and <span class="citation">Morris (<a href="sec-references.html#ref-morris2007estimating">2007</a>)</span> for pretest-posttest-control designs. For correlations and the psychometric approach, <span class="citation">Schmidt and Hunter (<a href="sec-references.html#ref-schmidt2015a">2015</a>)</span> is the comprehensive source, <span class="citation">Hunter et al. (<a href="sec-references.html#ref-hunter2006implications">2006</a>)</span> describes the indirect range restriction correction, and <span class="citation">Dahlke and Wiernik (<a href="sec-references.html#ref-dahlke2018psychmeta">2018</a>)</span> document its implementation in R. The help page of <code><a href="https://wviechtb.github.io/metafor/reference/escalc.html">escalc()</a></code> in <code>metafor</code> <span class="citation">(<a href="sec-references.html#ref-viechtbauer2010conducting">Viechtbauer 2010</a>)</span> is itself a compact reference for dozens of effect size measures, with formulas and original citations.</p>
+
+</div>
+</div>
+
+
+
+  <div class="chapter-nav">
+<div class="prev"><a href="sec-systematic-review.html"><span class="header-section-number">2</span> The Systematic Review Workflow</a></div>
+<div class="next"><a href="sec-models.html"><span class="header-section-number">4</span> Common-Effect and Random-Effects Models</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes"><span class="header-section-number">3</span> Effect Sizes</a></li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-what"><span class="header-section-number">3.1</span> What an effect size is</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-choosing"><span class="header-section-number">3.1.1</span> Choosing a metric</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-direction"><span class="header-section-number">3.1.2</span> Direction and sign conventions</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-continuous"><span class="header-section-number">3.2</span> Continuous outcomes from two independent groups</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-md"><span class="header-section-number">3.2.1</span> Raw mean difference</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-smd"><span class="header-section-number">3.2.2</span> Standardized mean difference: Cohen’s d and Hedges’ g</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-glass"><span class="header-section-number">3.2.3</span> Glass’s delta</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-rom"><span class="header-section-number">3.2.4</span> Ratio of means</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-normand"><span class="header-section-number">3.2.5</span> Worked example: specialist stroke care</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-prepost"><span class="header-section-number">3.3</span> Pre-post and change-score designs</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-prepost-r"><span class="header-section-number">3.3.1</span> The missing pre-post correlation</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-ppc"><span class="header-section-number">3.3.2</span> Designs with a control group</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-binary"><span class="header-section-number">3.4</span> Binary outcomes</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec-effect-sizes-zero"><span class="header-section-number">3.4.1</span> Zero cells and continuity corrections</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-correlations"><span class="header-section-number">3.5</span> Correlations</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#sec-effect-sizes-partial"><span class="header-section-number">3.5.1</span> Partial and semi-partial correlations</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-proportions"><span class="header-section-number">3.6</span> Proportions and rates</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-single-prop"><span class="header-section-number">3.6.1</span> Single proportions</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-irr"><span class="header-section-number">3.6.2</span> Incidence rates and rate ratios</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-reported"><span class="header-section-number">3.7</span> Computing effect sizes from reported statistics</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-tests"><span class="header-section-number">3.7.1</span> Test statistics and p-values</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-ci"><span class="header-section-number">3.7.2</span> Confidence intervals to standard errors</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-fivenum"><span class="header-section-number">3.7.3</span> Medians, quartiles and ranges</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-regression"><span class="header-section-number">3.7.4</span> Regression coefficients</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-esc"><span class="header-section-number">3.7.5</span> The esc package</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-effect-sizes-conversions"><span class="header-section-number">3.8</span> Converting between metrics</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-cluster"><span class="header-section-number">3.9</span> Cluster-randomized trials</a></li>
+<li>
+<a class="nav-link" href="#sec-effect-sizes-artifacts"><span class="header-section-number">3.10</span> Psychometric artifact corrections</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#sec-effect-sizes-hs-barebones"><span class="header-section-number">3.10.1</span> Sampling error and weighting</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-reliability"><span class="header-section-number">3.10.2</span> Measurement error</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-range"><span class="header-section-number">3.10.3</span> Range restriction</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-psychmeta"><span class="header-section-number">3.10.4</span> A psychometric meta-analysis with psychmeta</a></li>
+</ul>
+</li>
+<li><a class="nav-link" href="#sec-effect-sizes-recommendations"><span class="header-section-number">3.11</span> Practical recommendations</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-pitfalls"><span class="header-section-number">3.12</span> Common pitfalls</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-takeaways"><span class="header-section-number">3.13</span> Key takeaways</a></li>
+<li><a class="nav-link" href="#sec-effect-sizes-reading"><span class="header-section-number">3.14</span> Further reading</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/mikenguyen13/meta_analysis/blob/master/03-effect-sizes.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/mikenguyen13/meta_analysis/edit/master/03-effect-sizes.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
