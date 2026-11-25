@@ -1,18 +1,16 @@
 Package: metaanalysisbook
 Title: Meta-Analysis: A Practical and Modern Guide with R
 Version: 1.0.0
-Authors@R:
-    person("Mike", "Nguyen", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-3432-8595"))
-Description: Not an R package. This file lists the packages needed to build
-    the book so that the build can install them with remotes or pak.
+Authors@R: person("Mike", "Nguyen", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3432-8595"))
+Description: Not an R package. This file lists the packages needed to build the book so that the build can install them with remotes or pak.
 License: CC BY-NC-SA 4.0
 URL: https://mikenguyen13.github.io/meta_analysis/
 Encoding: UTF-8
 Depends: R (>= 4.3)
-Imports:
+Imports: 
     bayesmeta,
     bayesplot,
+    BH,
     BiasedUrn,
     bookdown,
     boot,
@@ -55,13 +53,17 @@ Imports:
     psychmeta,
     PublicationBias,
     puniform,
+    RcppEigen,
+    RcppParallel,
     rmarkdown,
     rms,
     RoBMA,
     robumeta,
     robvis,
     rstan,
+    rstantools,
     semPlot,
+    StanHeaders,
     tidybayes,
     tidyr,
     weightr,
