@@ -50,6 +50,7 @@ Imports:
     metaselection,
     metaSEM,
     metasens,
+    mice,
     multinma,
     MuMIn,
     netmeta,

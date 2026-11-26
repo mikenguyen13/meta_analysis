@@ -12,7 +12,7 @@ fp <- function(p) ifelse(p < 0.001, "< .001", paste0("= ", sub("^0", "", formatC
 
 A meta-analytic result is the output of a long chain of decisions: which studies to include, which effect size to extract, which metric to use, which model and estimator to fit, and what to do with studies that look unusual. Each decision is defensible, but several are not uniquely determined by the data or the protocol. Sensitivity analysis asks whether the conclusions survive reasonable changes to those decisions; diagnostics ask whether the fitted model describes the data adequately and whether a few studies drive the result. Both are required by reporting guidelines and by common sense: a pooled estimate that flips sign when one study is removed, or that depends on an arbitrary choice of heterogeneity estimator, is not a finding but a fragile coincidence.
 
-This chapter covers three layers. The first is *study-level diagnostics*: outlier and influence statistics, leave-one-out analysis, and graphical tools such as Baujat, GOSH, radial, and normal quantile plots. The second is *analysis-level sensitivity*: cumulative meta-analysis and its sequential extensions, bootstrap intervals, and sensitivity to the estimator of $\tau^2$, to risk-of-bias exclusions, and to the effect-size metric. The third is the *multiverse* or *specification-curve* approach, which runs all reasonable combinations of choices at once and displays the distribution of results [@voracek2019which]. Publication bias, a special and important kind of sensitivity analysis, has its own chapter (Chapter \@ref(sec-publication-bias)).
+This chapter covers three layers. The first is *study-level diagnostics*: outlier and influence statistics, leave-one-out analysis, and graphical tools such as Baujat, GOSH, radial, and normal quantile plots. The second is *analysis-level sensitivity*: cumulative meta-analysis and its sequential extensions, bootstrap intervals, and sensitivity to the estimator of $\tau^2$, to risk-of-bias exclusions, to the effect-size metric, and to assumptions about participants whose outcomes are missing. The third is the *multiverse* or *specification-curve* approach, which runs all reasonable combinations of choices at once and displays the distribution of results [@voracek2019which]. Publication bias, a special and important kind of sensitivity analysis, has its own chapter (Chapter \@ref(sec-publication-bias)).
 
 ## Outliers, leverage, and influence {#sec-sensitivity-concepts}
 
@@ -319,6 +319,177 @@ round(metric_tab, 4)
 
 The log risk ratio (`r f2(metric_tab["RR", "estimate"], 3)`) and log odds ratio (`r f2(metric_tab["OR", "estimate"], 3)`) are nearly identical because tuberculosis is rare in all trials, and both show $I^2$ around 92%. The risk difference is small in absolute terms (`r f2(100 * metric_tab["RD", "estimate"], 2)` percentage points) and almost perfectly heterogeneous ($I^2 =$ `r f2(metric_tab["RD", "I2"], 1)`%), because absolute effects scale with baseline risk, which varied widely across settings. Relative measures are usually more stable across populations than absolute ones, which is the standard argument for pooling on a ratio scale and converting to absolute effects for a specified baseline risk afterwards.
 
+## Missing participant outcome data {#sec-sensitivity-missing}
+
+Most trials lose participants: they withdraw, are lost to follow-up, or have no outcome measured. Most meta-analyses then pool the *available-case* results, the outcomes of the participants who were observed. That analysis is unbiased only if the missing participants would have had, on average, the same outcomes as the observed participants in the same arm, a missing-at-random assumption that the data cannot confirm. When dropout is heavy, or differs between arms, the assumption carries real weight, and the risk-of-bias tools treat "missing outcome data" as a domain of its own (Chapter \@ref(sec-systematic-review)). @akl2015handling surveyed the approaches proposed for handling such participants in meta-analysis; the coherent modern framework is the *pattern-mixture model*, reviewed by @mavridis2020dealing. Each arm's outcome is a mixture of the observed and the missing participants, and the analyst specifies how the missing participants differ from the observed ones through an *informative missingness parameter*. Because the parameter is not identified by the data, the honest analysis is a sensitivity analysis over plausible values, not a single "corrected" estimate.
+
+### Imputation scenarios for binary outcomes {#sec-sensitivity-missing-binary}
+
+For a binary outcome the informative missingness parameter is the *informative missingness odds ratio* (IMOR): the odds of the event among missing participants divided by the odds among observed participants in the same arm [@higgins2008imputation]. An IMOR of 1 is the available-case analysis. The familiar ad hoc imputations are special cases: imputing every missing participant as a non-event sets the IMOR to 0 (ICA-0), imputing all as events sets it to infinity (ICA-1), and the "best case" and "worst case" analyses use opposite extremes in the two arms. These are not plausible scenarios but bounds, and treating imputed participants as if they had been observed also overstates precision. @gamble2005uncertainty proposed instead to turn the best- and worst-case results into an uncertainty interval for each study and to inflate its standard error accordingly. `metasens::metamiss()` implements all of these for `meta` objects.
+
+The example uses ten simulated placebo-controlled trials with a binary response outcome, in which dropout is more frequent on placebo.
+
+```{r sens-miss-data}
+set.seed(2026)
+k <- 10
+N.e <- round(runif(k, 60, 220)); N.c <- round(runif(k, 60, 220))
+p.e <- plogis(qlogis(0.35) + 0.45 + rnorm(k, 0, 0.2))
+p.c <- plogis(qlogis(0.35) + rnorm(k, 0, 0.2))
+m.e <- rbinom(k, N.e, runif(k, 0.05, 0.20))   # missing, active arm
+m.c <- rbinom(k, N.c, runif(k, 0.15, 0.35))   # missing, placebo arm
+r.e <- rbinom(k, N.e - m.e, p.e)
+r.c <- rbinom(k, N.c - m.c, p.c)
+trials <- data.frame(trial = paste("Trial", 1:k),
+                     r.e, f.e = N.e - m.e - r.e, m.e,
+                     r.c, f.c = N.c - m.c - r.c, m.c)
+c(missing_active = sum(m.e) / sum(N.e), missing_placebo = sum(m.c) / sum(N.c))
+```
+
+```{r sens-miss-scenarios}
+aca <- meta::metabin(r.e, r.e + f.e, r.c, r.c + f.c, data = trials, studlab = trial,
+               sm = "RR", method = "Inverse", method.tau = "REML",
+               common = FALSE)
+scen <- c("Available case" = NA, "ICA-0 (missing = no response)" = "0",
+          "ICA-1 (missing = response)" = "1",
+          "Missing at placebo risk (ICA-pc)" = "pc",
+          "Best case for active" = "b", "Worst case for active" = "w",
+          "Gamble-Hollis" = "GH")
+miss_tab <- t(sapply(names(scen), function(s) {
+  fit <- if (is.na(scen[[s]])) aca else
+    metasens::metamiss(aca, m.e, m.c, method.miss = scen[[s]], small.values = "undesirable")
+  c(RR = exp(fit$TE.random), lower = exp(fit$lower.random),
+    upper = exp(fit$upper.random), tau2 = fit$tau2)
+}))
+round(miss_tab, 3)
+```
+
+The available-case risk ratio is `r f2(miss_tab[1, "RR"])` (95% CI `r f2(miss_tab[1, "lower"])` to `r f2(miss_tab[1, "upper"])`). Because more placebo patients are missing, counting them all as non-responders favours the active arm (RR `r f2(miss_tab[2, "RR"])`), and counting them all as responders removes most of the effect (RR `r f2(miss_tab[3, "RR"])`). The best- and worst-case bounds run from `r f2(miss_tab["Worst case for active", "RR"])` to `r f2(miss_tab["Best case for active", "RR"])`, so even the direction of the effect is not determined by the data alone. Those extremes assume that every missing participant behaves identically, which no one believes, and they keep the observed-data precision. The Gamble-Hollis interval (`r f2(miss_tab["Gamble-Hollis", "lower"])` to `r f2(miss_tab["Gamble-Hollis", "upper"])`) is centred on the available-case estimate but is wider, and it now includes 1.
+
+### Informative missingness odds ratios with uncertainty {#sec-sensitivity-missing-imor}
+
+A better analysis states a plausible IMOR for each arm and also acknowledges that it is uncertain. @white2008allowing placed a normal distribution on the log IMOR, $\lambda \sim N(\mu_\lambda, \sigma_\lambda^2)$, and derived the study's effect size and variance from the pattern-mixture model. With observed risk $p$ among the $n$ observed of $N$ randomized participants, $\pi = n/N$, and risk among the missing $p_m = \operatorname{expit}\{\operatorname{logit}(p) + \lambda\}$, the risk among all randomized participants is
+$$
+p_{\text{tot}} = \pi p + (1 - \pi)\, p_m ,
+$$
+and the log risk ratio is $\log p_{\text{tot},E} - \log p_{\text{tot},C}$. A first-order Taylor expansion in $(p, \pi, \lambda)$ gives the variance, which now contains a term in $\sigma_\lambda^2$ weighted by the proportion missing. Studies with more missing data therefore lose weight, which is the main practical effect of the method [@mavridis2020dealing]. If the log IMORs of the two arms are believed to be correlated (with correlation $\rho$), the covariance term reduces the variance of the contrast. Stata's `metamiss` and `metamiss2` implement this model [@chaimani2018allowing]; the function below is a compact R version for risk ratios.
+
+```{r sens-miss-imor}
+imor_arm <- function(r, f, m, mu) {
+  n <- r + f; N <- n + m; p <- r / n; pi <- n / N
+  pm <- plogis(qlogis(p) + mu)
+  pt <- pi * p + (1 - pi) * pm
+  d_p  <- pi + (1 - pi) * pm * (1 - pm) / (p * (1 - p))
+  d_pi <- p - pm
+  list(pt = pt,
+       v_obs = d_p^2 * p * (1 - p) / n + d_pi^2 * pi * (1 - pi) / N,
+       d_lambda = (1 - pi) * pm * (1 - pm))
+}
+imor_rr <- function(d, mu.e, mu.c, sd.e, sd.c = sd.e, rho = 0) {
+  e <- with(d, imor_arm(r.e, f.e, m.e, mu.e))
+  ctl <- with(d, imor_arm(r.c, f.c, m.c, mu.c))
+  a.e <- e$d_lambda / e$pt
+  a.c <- ctl$d_lambda / ctl$pt
+  data.frame(yi = log(e$pt / ctl$pt),
+             vi = e$v_obs / e$pt^2 + ctl$v_obs / ctl$pt^2 +
+                  a.e^2 * sd.e^2 + a.c^2 * sd.c^2 -
+                  2 * rho * sd.e * sd.c * a.e * a.c)
+}
+pool_rr <- function(es) {
+  fit <- rma(yi, vi, data = es)
+  c(RR = exp(coef(fit)[[1]]), lower = exp(fit$ci.lb), upper = exp(fit$ci.ub),
+    tau2 = fit$tau2)
+}
+# centred on missing at random, increasing uncertainty about the IMOR
+imor_tab <- t(sapply(c(0, 0.5, 1, 1.5, 2), function(s)
+  pool_rr(imor_rr(trials, mu.e = 0, mu.c = 0, sd.e = s))))
+rownames(imor_tab) <- paste("sd(log IMOR) =", c(0, 0.5, 1, 1.5, 2))
+round(imor_tab, 3)
+```
+
+With $\sigma_\lambda = 0$ the model reproduces the available-case estimate. Allowing the log IMOR a standard deviation of 1, the value @mavridis2020dealing use as an example, so that IMORs between about 1/7 and 7 are plausible, leaves the point estimate almost unchanged but widens the interval to `r f2(imor_tab[3, "lower"])` to `r f2(imor_tab[3, "upper"])`; at $\sigma_\lambda = 2$ the lower limit reaches `r f2(imor_tab[5, "lower"])`. The Taylor approximation is conservative when $\sigma_\lambda$ is large; `metamiss2` also offers a parametric bootstrap that avoids it.
+
+Centring the IMOR away from 1 encodes a belief about *why* people left. Patients who leave a placebo arm often do so because they are not improving, which suggests an IMOR below 1 for response on placebo. Figure \@ref(fig:sens-miss-imor-fig) varies the mean IMOR in the placebo arm for three assumptions about the active arm, keeping $\sigma_\lambda = 1$ throughout.
+
+```{r sens-miss-imor-fig, fig.cap = "Pooled risk ratio (with 95% CI) as a function of the assumed mean IMOR in the placebo arm, for three mean IMORs in the active arm, with a standard deviation of 1 on each log IMOR. The dashed line marks the available-case estimate.", fig.width = 7, fig.height = 4}
+grid <- expand.grid(mu.c = seq(log(1/4), log(4), length.out = 25),
+                    mu.e = log(c(1/2, 1, 2)))
+grid <- cbind(grid, t(mapply(function(me, mc)
+  pool_rr(imor_rr(trials, mu.e = me, mu.c = mc, sd.e = 1)), grid$mu.e, grid$mu.c)))
+grid$active <- factor(paste("Active-arm IMOR =", round(exp(grid$mu.e), 2)),
+                      levels = paste("Active-arm IMOR =", c(0.5, 1, 2)))
+ggplot(grid, aes(exp(mu.c), RR, colour = active, fill = active)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.15, colour = NA) +
+  geom_line(linewidth = 0.8) +
+  geom_hline(yintercept = 1) +
+  geom_hline(yintercept = miss_tab[1, "RR"], linetype = "dashed") +
+  scale_x_log10(breaks = c(0.25, 0.5, 1, 2, 4)) +
+  scale_y_log10() +
+  labs(x = "Mean IMOR in the placebo arm (log scale)",
+       y = "Pooled risk ratio (log scale)", colour = NULL, fill = NULL) +
+  theme_minimal() + theme(legend.position = "bottom")
+```
+
+```{r sens-miss-imor-summary, include = FALSE}
+g_mar <- grid[abs(grid$mu.e) < 1e-8, ]
+g_lo  <- g_mar[which.min(g_mar$mu.c), ]
+g_hi  <- g_mar[which.max(g_mar$mu.c), ]
+g_worst <- grid[which.min(grid$lower), ]
+```
+
+When both arms are centred on missing at random and the placebo IMOR moves from 1/4 to 4, the pooled risk ratio falls from `r f2(g_lo$RR)` to `r f2(g_hi$RR)`. The least favourable combination shown, missing active-arm patients half as likely to respond and missing placebo patients four times as likely, gives `r f2(g_worst$RR)` (95% CI `r f2(g_worst$lower)` to `r f2(g_worst$upper)`). A conclusion that holds over the range of IMORs that clinical experts consider plausible can be reported as robust to missing data; one that holds only near IMOR = 1 cannot. Eliciting those ranges from clinicians before seeing the results, as in the examples of @white2008allowing and @mavridis2020dealing, is the step that turns this from a mechanical exercise into evidence.
+
+### Continuous outcomes: the IMDoM {#sec-sensitivity-missing-continuous}
+
+For continuous outcomes, @mavridis2015allowing defined the *informative missingness difference of means* (IMDoM), $\lambda = \mu_{\text{miss}} - \mu_{\text{obs}}$ in each arm, and the analogous log ratio of means (IMRoM) for positive outcomes. Under the pattern-mixture model the mean of all randomized participants is $\bar y_{\text{tot}} = \bar y_{\text{obs}} + (1 - \pi)\lambda$, so with $\lambda \sim N(\mu_\lambda, \sigma_\lambda^2)$ a first-order expansion gives
+$$
+\operatorname{Var}(\bar y_{\text{tot}}) \approx \frac{s^2}{n} + (1 - \pi)^2 \sigma_\lambda^2 + \mu_\lambda^2 \frac{\pi (1 - \pi)}{N}.
+$$
+The example simulates eight trials of a symptom score (lower is better) with differential dropout.
+
+```{r sens-miss-imdom}
+set.seed(11)
+k2 <- 8
+cont <- data.frame(trial = paste("Trial", 1:k2),
+                   N.e = round(runif(k2, 50, 200)), N.c = round(runif(k2, 50, 200)))
+cont$m.e <- rbinom(k2, cont$N.e, 0.15)
+cont$m.c <- rbinom(k2, cont$N.c, 0.30)
+cont$n.e <- cont$N.e - cont$m.e
+cont$n.c <- cont$N.c - cont$m.c
+cont$y.e <- rnorm(k2, 20 - 3, 1.5)
+cont$y.c <- rnorm(k2, 20, 1.5)
+cont$s.e <- runif(k2, 7, 9)
+cont$s.c <- runif(k2, 7, 9)
+
+imdom_md <- function(d, mu.e, mu.c, sd.e, sd.c = sd.e, rho = 0) {
+  arm <- function(y, s, n, m, mu, sdl) {
+    N <- n + m; pi <- n / N
+    list(y = y + (1 - pi) * mu,
+         v = s^2 / n + (1 - pi)^2 * sdl^2 + mu^2 * pi * (1 - pi) / N,
+         w = 1 - pi)
+  }
+  e <- with(d, arm(y.e, s.e, n.e, m.e, mu.e, sd.e))
+  ctl <- with(d, arm(y.c, s.c, n.c, m.c, mu.c, sd.c))
+  data.frame(yi = e$y - ctl$y, vi = e$v + ctl$v - 2 * rho * sd.e * sd.c * e$w * ctl$w)
+}
+scen_c <- rbind(
+  "Missing at random"                    = c(0, 0, 0),
+  "MAR, sd(IMDoM) = 4"                   = c(0, 0, 4),
+  "Dropouts worse by 4 in both arms"     = c(4, 4, 4),
+  "Placebo dropouts worse by 6, active 0" = c(0, 6, 4),
+  "Active dropouts worse by 6, placebo 0" = c(6, 0, 4))
+md_tab <- t(apply(scen_c, 1, function(z) {
+  fit <- rma(yi, vi, data = imdom_md(cont, z[1], z[2], z[3]))
+  c(MD = coef(fit)[[1]], lower = fit$ci.lb, upper = fit$ci.ub)
+}))
+round(md_tab, 2)
+```
+
+Under missing at random the mean difference is `r f2(md_tab[1, "MD"])` points. Uncertainty about the IMDoM, with a standard deviation of 4 points (half an outcome SD), widens the interval without moving the estimate. A common shift in both arms would cancel only if both arms lost the same proportion of participants; here twice as many placebo patients are missing, so assuming all dropouts are 4 points worse moves the estimate to `r f2(md_tab[3, "MD"])`. Differential assumptions matter: if missing placebo patients are 6 points worse than observed ones, the benefit grows to `r f2(md_tab[4, "MD"])`; if instead missing active-arm patients are 6 points worse, it shrinks to `r f2(md_tab[5, "MD"])` (95% CI `r f2(md_tab[5, "lower"])` to `r f2(md_tab[5, "upper"])`). When outcomes are pooled as standardized mean differences it is convenient to express the IMDoM in units of the outcome SD, and as for the IMOR its distribution is best elicited from clinicians; @chaimani2018allowing describe the corresponding Stata implementation. A related problem, outcomes imputed by last observation carried forward in the primary trials, has its own extension of the model [@mavridis2018allowing].
+
+### Network meta-analysis and robustness {#sec-sensitivity-missing-nma}
+
+The same pattern-mixture model extends to network meta-analysis, where it is most naturally fitted in one stage within a Bayesian model: the informative missingness parameters get prior distributions, and the model can assume them identical, exchangeable, or independent across trials and interventions [@spineli2019participants; @mavridis2015allowing]. The `rnmamod` package (which uses JAGS) fits these models for pairwise and network meta-analysis and runs the sensitivity analysis over a grid of IMOR or IMDoM scenarios. To summarize the grid in one number, @spineli2021quantifying proposed a *robustness index*: a measure of how far the results under the alternative scenarios diverge from the primary analysis, with a threshold beyond which the primary result is declared not robust. The package also provides `robustness_index_user()` for sensitivity analyses carried out with `metafor` or `netmeta`. Whatever the software, the reporting principle is the same: give the proportion of missing data per arm, the primary assumption with its justification, and the range of results across the plausible scenarios, and downgrade the certainty of evidence for risk of bias when those results disagree (Chapter \@ref(sec-reporting)).
+
 ## Handling outliers: delete, downweight, or model? {#sec-sensitivity-outliers}
 
 Once an outlying or influential study has been identified, there are three broad responses, and none is automatically right.
@@ -466,9 +637,10 @@ Treating influence thresholds as significance tests and deleting every flagged s
 - Cumulative meta-analysis shows how the evidence accumulated over time; bootstrap and profile intervals show how weakly $\tau^2$ is determined.
 - Repeated updating inflates the Type I error. Trial sequential analysis compares the accrued information with a heterogeneity-adjusted required information size and uses alpha-spending boundaries; its inputs are assumptions, and it is most defensible when planned prospectively.
 - The pooled mean is often robust to the $\tau^2$ estimator, but conclusions can depend strongly on the set of studies and the effect-size metric.
+- Available-case analysis assumes missing participants resemble observed ones. Pattern-mixture models with informative missingness parameters (IMOR for binary, IMDoM for continuous outcomes), given a distribution rather than a fixed value, show how far conclusions depend on that assumption; best- and worst-case imputations are bounds, not scenarios.
 - Outliers can be deleted, downweighted, or modelled; each is a choice to justify, and reporting several side by side is usually best.
 - Specification curves display the results of all defensible combinations of analytic choices and reveal which choices matter.
 
 ## Further reading {#sec-sensitivity-reading}
 
-@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @wetterslev2008trial and @wetterslev2009estimating introduced trial sequential analysis and the diversity-adjusted information size, building on @pogue1997cumulating and the spending functions of @lan1983discrete; @kulinskaya2013trial and @higgins2010sequential discuss the difficulties of sequential random-effects meta-analysis, and @atal2019statistical define the fragility index of a meta-analysis. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.
+@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @wetterslev2008trial and @wetterslev2009estimating introduced trial sequential analysis and the diversity-adjusted information size, building on @pogue1997cumulating and the spending functions of @lan1983discrete; @kulinskaya2013trial and @higgins2010sequential discuss the difficulties of sequential random-effects meta-analysis, and @atal2019statistical define the fragility index of a meta-analysis. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. For missing participant data, @mavridis2020dealing give the best overview; @higgins2008imputation and @white2008allowing introduced the IMOR and its two-stage treatment with uncertainty, @mavridis2015allowing the IMDoM and the extension to networks, and @spineli2021quantifying the robustness index. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.

@@ -578,6 +578,70 @@ conv.fivenum(min = min, q1 = q1, median = median, q3 = q3, max = max,
 
 By default, `conv.fivenum()` applies a test of skewness to each study and declines to estimate a mean and SD when the summary is too asymmetric for the normal-theory formulas. Studies 1 and 3 are flagged (their medians sit much closer to the minimum than to the maximum), so the first call returns `NA` for them. Setting `test = FALSE` forces the computation: for study 2 the Luo and Wan formulas give a mean of 18.71 and an SD of 10.63, which is easy to verify by hand from the equations above. Skewness is itself informative. If the medians are far from the centres of the ranges, the outcome is probably better analyzed as a ratio of means or of medians, or on the log scale (`dist = "lnorm"`), than as a mean difference based on normal-theory estimates.
 
+### Missing standard deviations {#sec-effect-sizes-missing-sd}
+
+Sometimes a study reports means and sample sizes but no SD, no five-number summary and no test statistic from which an SD could be recovered. Dropping such studies is the default, but it wastes data and biases the result if the missingness is related to the effect. @weir2018dealing reviewed the many proposals for filling the gap. The simplest borrows an SD from elsewhere: the SD of the same instrument in other studies of the review, a pooled SD across those studies, or, for ratio-scale outcomes, a pooled coefficient of variation multiplied by the study's own mean. @furukawa2006imputing compared standardized mean differences computed with borrowed SDs against those computed from the actual SDs in antidepressant trials and found close agreement. Single imputation of this kind treats the imputed value as known, so the study's variance is too small. *Multiple imputation* draws several plausible SDs per study from a model fitted to the studies that report one (for example, log SD regressed on log mean and log sample size), runs the meta-analysis on each completed data set, and combines the results with Rubin's rules. @kambach2020consequences studied these options by simulation and found that the performance of imputation depends on the structure of the data set, in particular on whether the SDs are related to the effect sizes.
+
+The example uses the plant-growth experiments of `dat.curtis1998`, analyzed as log ratios of means, after deleting both SDs from a random 30% of the studies.
+
+```{r es-missing-sd}
+library(mice)
+f2 <- function(x, d = 2) formatC(x, format = "f", digits = d)
+full <- rma(measure = "ROM", m1i = m1i, sd1i = sd1i, n1i = n1i,
+            m2i = m2i, sd2i = sd2i, n2i = n2i, data = dat.curtis1998)
+
+set.seed(2026)
+dm <- dat.curtis1998
+gone <- sample(nrow(dm), round(0.3 * nrow(dm)))
+dm$sd1i[gone] <- NA
+dm$sd2i[gone] <- NA
+
+fit_rom <- function(d) rma(measure = "ROM", m1i = m1i, sd1i = sd1i, n1i = n1i,
+                           m2i = m2i, sd2i = sd2i, n2i = n2i, data = d)
+
+# 1. complete case: studies without SDs are dropped
+cc <- suppressWarnings(fit_rom(dm))
+
+# 2. single imputation from a pooled coefficient of variation per arm
+pooled_cv <- function(sd, m, n) {
+  ok <- !is.na(sd)
+  sqrt(sum((n[ok] - 1) * (sd[ok] / m[ok])^2) / sum(n[ok] - 1))
+}
+db <- dm
+db$sd1i[gone] <- pooled_cv(dm$sd1i, dm$m1i, dm$n1i) * dm$m1i[gone]
+db$sd2i[gone] <- pooled_cv(dm$sd2i, dm$m2i, dm$n2i) * dm$m2i[gone]
+borrow <- fit_rom(db)
+
+# 3. multiple imputation of log SDs (predictive mean matching), Rubin's rules
+M <- 20
+imp_in <- with(dm, data.frame(lsd1 = log(sd1i), lsd2 = log(sd2i),
+                              lm1 = log(m1i), lm2 = log(m2i),
+                              ln1 = log(n1i), ln2 = log(n2i)))
+imp <- mice(imp_in, m = M, method = "pmm", printFlag = FALSE, seed = 2026)
+mi_fits <- lapply(seq_len(M), function(i) {
+  ci <- complete(imp, i)
+  d <- dm
+  d$sd1i <- exp(ci$lsd1)
+  d$sd2i <- exp(ci$lsd2)
+  fit_rom(d)
+})
+q <- sapply(mi_fits, coef)
+w_var <- mean(sapply(mi_fits, function(f) f$se^2))   # within-imputation
+b_var <- var(q)                                      # between-imputation
+mi <- c(estimate = mean(q), se = sqrt(w_var + (1 + 1 / M) * b_var),
+        tau2 = mean(sapply(mi_fits, `[[`, "tau2")))
+
+sd_tab <- rbind(
+  "All SDs (reference)" = c(coef(full), full$se, full$tau2, full$k),
+  "Complete case"       = c(coef(cc), cc$se, cc$tau2, cc$k),
+  "Pooled CV"           = c(coef(borrow), borrow$se, borrow$tau2, borrow$k),
+  "Multiple imputation" = c(mi, nrow(dm)))
+colnames(sd_tab) <- c("log ROM", "SE", "tau2", "k")
+round(sd_tab, 4)
+```
+
+With all SDs the pooled log ratio of means is `r f2(sd_tab[1, 1], 3)`. Dropping the `r length(gone)` studies without SDs moves it to `r f2(sd_tab[2, 1], 3)` with a larger standard error; the studies were deleted completely at random, so this shift is chance, not bias, but in a real review there is no way to know that. Filling the gaps with a pooled coefficient of variation keeps all `r nrow(dm)` studies, yet the estimate (`r f2(sd_tab[3, 1], 3)`) stays close to the complete-case value, because every imputed study receives the same relative SD and therefore a weight that ignores its actual precision. Multiple imputation recovers an estimate of `r f2(sd_tab[4, 1], 3)`, close to the reference, and its standard error (`r f2(sd_tab[4, 2], 4)`) is larger than the single-imputation one because it includes the between-imputation variance. One run on one data set proves nothing about the methods in general; the point is that the choice can matter and should be reported as a sensitivity analysis. The same machinery applies to missing sample sizes and to the imputed pre-post correlations of Section \@ref(sec-effect-sizes-prepost-r). Missing *outcome data for participants*, rather than missing summary statistics, is a different problem and is treated in Section \@ref(sec-sensitivity-missing).
+
 ### Regression coefficients {#sec-effect-sizes-regression}
 
 When the predictor of interest is a binary indicator (treatment versus control) in a regression without other covariates, its unstandardized coefficient $b$ is the raw mean difference. Dividing by the *pooled within-group* SD gives $d$. Papers often report only the total SD of the outcome, $S_Y$, which includes the between-group difference; the within-group variance can be recovered as

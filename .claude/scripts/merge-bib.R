@@ -18,7 +18,12 @@ dups <- unique(keys[duplicated(tolower(keys))])
 keep <- all[!duplicated(tolower(keys))]
 keys <- vapply(keep, key_of, "")
 o <- order(tolower(keys))
-out <- unlist(lapply(keep[o], function(e) c(trimws(e, "right"), "")))
+drop_trailing_blank <- function(e) {
+  e <- trimws(e, "right")
+  while (length(e) && e[length(e)] == "") e <- e[-length(e)]
+  e
+}
+out <- unlist(lapply(keep[o], function(e) c(drop_trailing_blank(e), "")))
 writeLines(out, "references.bib", useBytes = TRUE)
 cat("references.bib:", length(keep), "entries;", length(dups), "duplicate keys dropped\n")
 if (length(dups)) cat("  duplicates:", paste(dups, collapse = ", "), "\n")
