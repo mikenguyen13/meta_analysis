@@ -50,6 +50,7 @@ Imports:
     metaselection,
     metaSEM,
     metasens,
+    fragility,
     mice,
     multinma,
     MuMIn,

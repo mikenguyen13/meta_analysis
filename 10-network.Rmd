@@ -451,6 +451,92 @@ The models so far assume transitivity: effect modifiers are balanced across comp
 
 @phillippo2017methods stress three points that are easy to miss. First, a comparison is *anchored* when the two trials share a common comparator, so that only effect modifiers need to be balanced; an *unanchored* comparison of single arms, common when one of the trials is uncontrolled, also requires that all prognostic factors be balanced, an assumption they describe as widely regarded as infeasible. Second, MAIC and STC deliver an estimate for the population of the aggregate-data trial, which need not be the population for which the decision is made, and analyses submitted for the same indication can rest on different or even incompatible assumptions. Third, reweighting costs precision: the effective sample size $(\sum_i w_i)^2 / \sum_i w_i^2$ of a MAIC is often a small fraction of the original IPD and should always be reported. Neither method extends naturally beyond two trials. *Multilevel network meta-regression* (ML-NMR) generalizes population adjustment to networks of any size: it integrates an individual-level regression model over the covariate distribution of each aggregate-data study, so that IPD and aggregate data enter one coherent network meta-regression, and it can produce estimates for any target population with known covariate distribution [@phillippo2020multilevel]. ML-NMR is implemented in `multinma` through `set_ipd()`, `set_agd_arm()`, `combine_network()` and the `regression` argument of `nma()`. Because population adjustment rests on the choice of effect modifiers, that choice should be specified in advance from clinical knowledge and supported by evidence, not selected from the data at hand.
 
+### A worked MAIC example {#sec-network-maic}
+
+MAIC needs nothing beyond base R, so we can write it out in full. We simulate an anchored setting in which the truth is known. A company holds the IPD of an AB trial (1,000 participants, mean age 56, 45% men) and sees only the published summaries of an AC trial (600 participants, mean age 62, 65% men): the means of the two covariates and the log odds ratio of C versus A with its standard error. Age and sex are prognostic, and both modify the effect of B: B works better in older participants and worse in men. The effect of C is not modified. Because the AC population is older but has more men, the B versus A effect in the AC population differs from the one estimated in the AB trial, and the unadjusted (Bucher) indirect comparison of Section \@ref(sec-network-indirect) mixes two populations.
+
+```{r nma-maic-data}
+set.seed(2026)
+sim_trial <- function(n, mean_age, p_male, modified) {
+  age <- rnorm(n, mean_age, 8)
+  male <- rbinom(n, 1, p_male)
+  trt <- rep(0:1, length.out = n)
+  effect <- if (modified) -0.6 + 0.08 * (age - 60) - 0.6 * male else -0.4
+  lp <- -0.5 + 0.04 * (age - 60) + 0.3 * male + trt * effect
+  data.frame(age, male, trt, y = rbinom(n, 1, plogis(lp)))
+}
+ipd_ab <- sim_trial(1000, 56, 0.45, modified = TRUE)    # B vs A, IPD available
+trial_ac <- sim_trial(600, 62, 0.65, modified = FALSE)  # C vs A, summaries only
+tab_ac <- table(trial_ac$trt, trial_ac$y)
+agd_ac <- list(age = mean(trial_ac$age), male = mean(trial_ac$male),
+               logor = log(tab_ac[2, 2] * tab_ac[1, 1] / (tab_ac[2, 1] * tab_ac[1, 2])),
+               se = sqrt(sum(1 / tab_ac)))
+rm(trial_ac, tab_ac)  # from here on only the published summaries are used
+unlist(agd_ac)
+```
+
+The weights $w_i = \exp(\mathbf x_i^\top\boldsymbol\alpha)$ must make the weighted covariate means of the IPD equal to the published means $\bar{\mathbf x}_{AC}$. @signorovitch2010comparative showed that after centring the covariates at the target, $\tilde{\mathbf x}_i = \mathbf x_i - \bar{\mathbf x}_{AC}$, the moment conditions $\sum_i \tilde{\mathbf x}_i \exp(\tilde{\mathbf x}_i^\top\boldsymbol\alpha) = \mathbf 0$ are the gradient of the convex function $Q(\boldsymbol\alpha) = \sum_i \exp(\tilde{\mathbf x}_i^\top\boldsymbol\alpha)$, so the weights come from a simple minimisation. The weighted B versus A log odds ratio is then contrasted with the published C versus A one. Its standard error should include the uncertainty in the weights; we use a nonparametric bootstrap that re-estimates the weights in each resample, because the robust sandwich estimator underestimates the variability when the effective sample size is small [@remiroazocar2021methods].
+
+```{r nma-maic-fit}
+maic_weights <- function(X, target) {
+  Xc <- sweep(X, 2, target)
+  Q <- function(a) sum(exp(Xc %*% a))
+  grad <- function(a) colSums(Xc * as.vector(exp(Xc %*% a)))
+  alpha <- optim(rep(0, ncol(X)), Q, grad, method = "BFGS")$par
+  as.vector(exp(Xc %*% alpha))
+}
+log_or <- function(y, trt, w = rep(1, length(y))) {
+  unname(coef(suppressWarnings(glm(y ~ trt, family = binomial, weights = w)))[2])
+}
+X <- as.matrix(ipd_ab[, c("age", "male")])
+target <- c(agd_ac$age, agd_ac$male)
+w <- maic_weights(X, target)
+rbind(unweighted = colMeans(X), weighted = colSums(X * w) / sum(w), target = target)
+ess <- sum(w)^2 / sum(w^2)
+d_ab <- c(unadjusted = log_or(ipd_ab$y, ipd_ab$trt), MAIC = log_or(ipd_ab$y, ipd_ab$trt, w))
+boot_ab <- replicate(500, {
+  i <- sample(nrow(ipd_ab), replace = TRUE)
+  log_or(ipd_ab$y[i], ipd_ab$trt[i], maic_weights(X[i, ], target))
+})
+se_ab <- c(unadjusted = sqrt(vcov(glm(y ~ trt, family = binomial, data = ipd_ab))[2, 2]),
+           MAIC = sd(boot_ab))
+d_bc <- d_ab - agd_ac$logor
+se_bc <- sqrt(se_ab^2 + agd_ac$se^2)
+round(cbind(d_AB = d_ab, d_BC = d_bc, lower = d_bc - 1.96 * se_bc,
+            upper = d_bc + 1.96 * se_bc), 3)
+round(ess)
+```
+
+```{r nma-maic-truth, include = FALSE}
+fmt2 <- function(x, d = 2) formatC(x, format = "f", digits = d)
+marg_logor <- function(mean_age, p_male, n = 2e6) {
+  set.seed(1)
+  age <- rnorm(n, mean_age, 8); male <- rbinom(n, 1, p_male)
+  base <- -0.5 + 0.04 * (age - 60) + 0.3 * male
+  qlogis(mean(plogis(base - 0.6 + 0.08 * (age - 60) - 0.6 * male))) - qlogis(mean(plogis(base)))
+}
+true_ab_ipd <- marg_logor(56, 0.45)
+true_ab_ac <- marg_logor(62, 0.65)
+```
+
+The weighted means match the target exactly, as the method of moments guarantees. The price is precision: the effective sample size is `r round(ess)` of the `r nrow(ipd_ab)` participants, and the standard error of the B versus A log odds ratio rises from `r fmt2(se_ab[1], 3)` (unweighted, model-based) to `r fmt2(se_ab[2], 3)` (weighted, bootstrap). Reweighting moves that log odds ratio from `r fmt2(d_ab[1])` to `r fmt2(d_ab[2])`. Because we simulated the data, we can compute the true marginal values from the data-generating model with a very large sample: `r fmt2(true_ab_ipd)` in the AB trial population and `r fmt2(true_ab_ac)` in the AC trial population. The unadjusted estimate targets the first, MAIC the second, and only the second can be combined with the published C versus A effect. The B versus C log odds ratio is `r fmt2(d_bc[1])` without adjustment and `r fmt2(d_bc[2])` (95% CI `r fmt2(d_bc[2] - 1.96 * se_bc[2])` to `r fmt2(d_bc[2] + 1.96 * se_bc[2])`) with MAIC. The adjustment changes the conclusion: the unadjusted interval excludes zero, the wider MAIC interval does not.
+
+A single data set cannot show bias, so we repeat the simulation 200 times and average the two estimates of the B versus A effect:
+
+```{r nma-maic-repeat}
+set.seed(11)
+reps <- t(replicate(200, {
+  ipd <- sim_trial(1000, 56, 0.45, modified = TRUE)
+  ac <- sim_trial(600, 62, 0.65, modified = FALSE)
+  Xr <- as.matrix(ipd[, c("age", "male")])
+  wr <- maic_weights(Xr, c(mean(ac$age), mean(ac$male)))
+  c(unadjusted = log_or(ipd$y, ipd$trt), MAIC = log_or(ipd$y, ipd$trt, wr))
+}))
+round(colMeans(reps), 3)
+```
+
+Across replications the unadjusted estimate centres on the B versus A effect in the AB trial population (`r fmt2(colMeans(reps)[1])`, against a true value of `r fmt2(true_ab_ipd)`) and MAIC on the effect in the AC trial population (`r fmt2(colMeans(reps)[2])`, against a true value of `r fmt2(true_ab_ac)`). This is the pattern found by @remiroazocar2021methods in a much larger simulation: MAIC was unbiased when its assumptions held, while the unadjusted comparison was biased under covariate imbalance with effect modification. They also showed why the target is the *marginal* effect: the odds ratio is non-collapsible, so an outcome regression that reports a *conditional* odds ratio at the mean covariate values, the way STC is often applied, estimates a different quantity from the marginal C versus A effect it is contrasted with. MAIC balances only the covariates that are included, and only their means unless higher moments are added to $\mathbf x_i$; in this example, as in practice, the result is only as good as the list of effect modifiers.
+
 ## Certainty of evidence and reporting {#sec-network-certainty}
 
 An NMA produces many estimates whose credibility varies: a comparison supported by large, low-risk-of-bias, head-to-head trials deserves more confidence than one inferred through a long chain of small trials. Two frameworks extend GRADE (Chapter \@ref(sec-reporting)) to networks. The GRADE Working Group approach rates direct and indirect evidence separately and then rates the network estimate [@puhan2014grade]. *CINeMA* (Confidence in Network Meta-Analysis) evaluates each network estimate on six domains: within-study bias, reporting bias, indirectness, imprecision, heterogeneity, and incoherence [@nikolakopoulou2020cinema]. Its distinguishing feature is the use of the *contribution matrix*, which quantifies how much each direct comparison contributes to each network estimate, so that risk-of-bias judgements about individual trials propagate to the network estimates in proportion to their influence. A free web application implements the framework [@papakonstantinou2020cinema]. Imprecision and heterogeneity are judged against a pre-specified range of clinical equivalence, so the analyst must state what size of effect matters before looking at the results.
@@ -537,4 +623,4 @@ The recommendation of group counselling is most sensitive to the evidence compar
 
 ## Further reading {#sec-network-reading}
 
-@dias2018network is the most complete treatment of Bayesian NMA for decision making, building on the NICE Decision Support Unit technical documents [@dias2012evidence; @dias2013evidence]. The Cochrane Handbook chapter by @chaimani2019undertaking is a concise guide to planning and conducting a network meta-analysis within a systematic review. @salanti2012indirect and @cipriani2013conceptual discuss the conceptual assumptions and the main controversies. For the frequentist theory, read @rucker2012network and the `netmeta` software paper by @balduzzi2023netmeta; for multi-arm trials, @rucker2014reduce. Inconsistency models are covered by @higgins2012consistency, @white2012consistency and @dias2010checking. @white2019comparison compares contrast-based and arm-based models. Component NMA is introduced by @welton2009mixed and @rucker2019network. Population-adjusted comparisons with individual data are developed in @phillippo2020multilevel. For certainty of evidence and reporting, see @nikolakopoulou2020cinema, @puhan2014grade and @hutton2015prisma.
+@dias2018network is the most complete treatment of Bayesian NMA for decision making, building on the NICE Decision Support Unit technical documents [@dias2012evidence; @dias2013evidence]. The Cochrane Handbook chapter by @chaimani2019undertaking is a concise guide to planning and conducting a network meta-analysis within a systematic review. @salanti2012indirect and @cipriani2013conceptual discuss the conceptual assumptions and the main controversies. For the frequentist theory, read @rucker2012network and the `netmeta` software paper by @balduzzi2023netmeta; for multi-arm trials, @rucker2014reduce. Inconsistency models are covered by @higgins2012consistency, @white2012consistency and @dias2010checking. @white2019comparison compares contrast-based and arm-based models. Component NMA is introduced by @welton2009mixed and @rucker2019network. Population-adjusted comparisons with individual data are developed in @phillippo2020multilevel, and @remiroazocar2021methods compare MAIC, STC, and unadjusted comparisons by simulation. For certainty of evidence and reporting, see @nikolakopoulou2020cinema, @puhan2014grade and @hutton2015prisma.
