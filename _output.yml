@@ -4,7 +4,7 @@ bookdown::bs4_book:
     base: https://github.com/mikenguyen13/meta_analysis
     branch: master
   includes:
-    in_header: [google_analytics.html]
+    in_header: [google_analytics.html, favicon.html]
   css: style.css
   theme:
     primary: "#1f4e79"
