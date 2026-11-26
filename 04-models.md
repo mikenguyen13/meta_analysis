@@ -783,7 +783,7 @@ glmm_el
 #> H^2 (total variability / sampling variability):  1.70
 #> 
 #> Tests for Heterogeneity:
-#> Wld(df = 16) = 11.8734, p-val = 0.7527
+#> Wld(df = 16) = 11.8790, p-val = 0.7523
 #> LRT(df = 16) = 28.6093, p-val = 0.0267
 #> 
 #> Model Results:

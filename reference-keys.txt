@@ -38,6 +38,7 @@ fig:sens-qq
 fig:sens-cumul-forest
 fig:sens-tsa-plot
 fig:sens-labbe
+fig:sens-miss-imor-fig
 fig:sens-spec-curve
 tab:sens-report
 fig:bayes-crins-tau
@@ -151,6 +152,7 @@ sec-effect-sizes-reported
 sec-effect-sizes-tests
 sec-effect-sizes-ci
 sec-effect-sizes-fivenum
+sec-effect-sizes-missing-sd
 sec-effect-sizes-regression
 sec-effect-sizes-esc
 sec-effect-sizes-conversions
@@ -311,6 +313,11 @@ sec-sensitivity-choices
 sec-sensitivity-estimator
 sec-sensitivity-rob
 sec-sensitivity-metric
+sec-sensitivity-missing
+sec-sensitivity-missing-binary
+sec-sensitivity-missing-imor
+sec-sensitivity-missing-continuous
+sec-sensitivity-missing-nma
 sec-sensitivity-outliers
 sec-sensitivity-multilevel
 sec-sensitivity-multiverse

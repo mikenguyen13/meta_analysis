@@ -277,7 +277,7 @@ instance because true effects differ systematically between small and large stud
 <span class="header-section-number">7.3</span> Running examples<a class="anchor" aria-label="anchor" href="#sec-publication-bias-data"><i class="fas fa-link"></i></a>
 </h2>
 <p>We use three public datasets from the <code>metadat</code> package (loaded with <code>metafor</code>).</p>
-<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/guido-s/meta/">meta</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/guido-s/metasens">metasens</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mathurlabstanford/PublicationBias">PublicationBias</a></span><span class="op">)</span></span>
@@ -346,7 +346,7 @@ region drawn around the pooled estimate, <span class="math inline">\(\hat\mu \pm
 estimates would fall if they all estimated the same parameter. Under a random-effects model the
 expected scatter is <span class="math inline">\(\sqrt{\sigma^2 + \tau^2}\)</span>, so even a symmetric funnel will have points
 outside the region when heterogeneity is substantial.</p>
-<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/funnel.html">funnel</a></span><span class="op">(</span><span class="va">res_ets</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.8</span><span class="op">)</span>, las <span class="op">=</span> <span class="fl">1</span>, digits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>       xlab <span class="op">=</span> <span class="st">"Log odds ratio"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
@@ -377,7 +377,7 @@ logic is that publication bias driven by significance should remove studies from
 non-significant region (the white area around zero). If the apparent gap in the funnel lies
 inside the significance regions, significance-driven selection is an unlikely explanation and
 other causes of asymmetry, such as heterogeneity or quality differences, deserve more attention.</p>
-<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/funnel.html">funnel</a></span><span class="op">(</span><span class="va">res_ets</span>, level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">90</span>, <span class="fl">95</span>, <span class="fl">99</span><span class="op">)</span>, shade <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"gray55"</span>, <span class="st">"gray75"</span><span class="op">)</span>,</span>
 <span>       refline <span class="op">=</span> <span class="fl">0</span>, legend <span class="op">=</span> <span class="st">"bottomleft"</span>, las <span class="op">=</span> <span class="fl">1</span>, main <span class="op">=</span> <span class="st">"Tobacco smoke (ETS)"</span>,</span>
@@ -391,7 +391,7 @@ other causes of asymmetry, such as heterogeneity or quality differences, deserve
 Figure 7.2: Contour-enhanced funnel plots. Left: tobacco-smoke studies. Right: cholera vaccine trials. Shaded regions mark two-sided p-values between 0.10 and 0.05 (dark grey), between 0.05 and 0.01 (medium grey), and below 0.01 (light grey, the plot background); the white region around zero contains results with p &gt; 0.10.
 </p>
 </div>
-<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
 <p>The two panels of Figure <a href="sec-publication-bias.html#fig:pubbias-contour">7.2</a> tell different stories. In the tobacco-smoke
 data most studies, small and large, sit in the white non-significant region: only 7 of 37 are
@@ -432,7 +432,7 @@ The default fits a mixed-effects meta-regression with the standard error as mode
 allows for residual heterogeneity; <code>model = "lm"</code> gives Egger’s original weighted regression
 with a multiplicative dispersion parameter. Other predictors (the variance, the sample size, or
 transformations of it) can be chosen with <code>predictor</code>.</p>
-<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/regtest.html">regtest</a></span><span class="op">(</span><span class="va">res_ets</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Regression Test for Funnel Plot Asymmetry</span></span>
@@ -482,7 +482,7 @@ to the common-effect estimate <span class="math inline">\(\hat\mu_{FE}\)</span> 
 y_i^* = \frac{y_i - \hat\mu_{FE}}{\sqrt{\sigma_i^2 - v_{FE}}} ,
 \]</span>
 and Kendall’s rank correlation <span class="math inline">\(\tau_K\)</span> between <span class="math inline">\(y_i^*\)</span> and <span class="math inline">\(\sigma_i^2\)</span> is tested against zero.</p>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/ranktest.html">ranktest</a></span><span class="op">(</span><span class="va">res_ets</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Rank Correlation Test for Funnel Plot Asymmetry</span></span>
@@ -520,7 +520,7 @@ The same logic applies to log odds ratios, whose variance depends on the event c
 <p>The writing-to-learn data report only the total sample size <span class="math inline">\(N_i\)</span>, so we approximate equal
 group sizes, <span class="math inline">\(W_i = \sqrt{4/N_i}\)</span>. The <code><a href="https://wviechtb.github.io/metafor/reference/regtest.html">regtest()</a></code> option <code>predictor = "sqrtninv"</code> uses
 <span class="math inline">\(1/\sqrt{N_i}\)</span>, which differs from <span class="math inline">\(W_i\)</span> by a constant factor and gives the same test.</p>
-<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">wtl</span><span class="op">$</span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fl">4</span> <span class="op">/</span> <span class="va">wtl</span><span class="op">$</span><span class="va">ni</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">W</span>, data <span class="op">=</span> <span class="va">wtl</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -571,7 +571,7 @@ on <span class="math inline">\(\sqrt{V_i}\)</span>; unlike the usual variance of
 and does not depend on the estimated effect. <span class="citation">Peters (<a href="sec-references.html#ref-peters2006comparison">2006</a>)</span> regress the log odds ratio on
 the inverse of the total sample size, with weights based on the average event probability. Both
 are implemented in <code><a href="https://rdrr.io/pkg/meta/man/metabias.html">meta::metabias()</a></code>.</p>
-<div class="sourceCode" id="cb133"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_chol</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/meta/man/metabin.html">metabin</a></span><span class="op">(</span>event.e <span class="op">=</span> <span class="va">ai</span>, n.e <span class="op">=</span> <span class="va">n1i</span>, event.c <span class="op">=</span> <span class="va">ci</span>, n.c <span class="op">=</span> <span class="va">n2i</span>,</span>
 <span>                  studlab <span class="op">=</span> <span class="va">study</span>, data <span class="op">=</span> <span class="va">chol</span>, sm <span class="op">=</span> <span class="st">"OR"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/meta/man/metabias.html">metabias</a></span><span class="op">(</span><span class="va">m_chol</span>, method.bias <span class="op">=</span> <span class="st">"Egger"</span><span class="op">)</span></span>
@@ -632,7 +632,7 @@ asymmetric studies on the side with more extreme results from the ranks of the d
 re-estimate the center from the remaining symmetric part; repeat until <span class="math inline">\(k_0\)</span> stabilizes; (4) fill
 in the trimmed studies together with their mirror images about the final center and compute the
 adjusted estimate.</p>
-<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb135"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tf_ets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/trimfill.html">trimfill</a></span><span class="op">(</span><span class="va">res_ets</span><span class="op">)</span></span>
 <span><span class="va">tf_ets</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -667,7 +667,7 @@ adjusted estimate.</p>
 Figure 7.3: Trim-and-fill applied to the tobacco-smoke studies. Open circles are the seven imputed mirror-image studies.
 </p>
 </div>
-<div class="sourceCode" id="cb135"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tf_wtl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/trimfill.html">trimfill</a></span><span class="op">(</span><span class="va">res_wtl</span><span class="op">)</span></span>
 <span><span class="va">tf_wtl</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -728,7 +728,7 @@ rejected, report the PEESE intercept, otherwise report the PET intercept.</p>
 <p>Stanley and Doucouliagos fit these models by ordinary weighted least squares with a
 multiplicative dispersion parameter (<code><a href="https://rdrr.io/r/stats/lm.html">lm()</a></code> with weights). Many applied meta-analysts fit them as
 random-effects meta-regressions with <code><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma()</a></code>, which allows for additive heterogeneity. We fit both.</p>
-<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb137"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pet_re</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">sei</span>, data <span class="op">=</span> <span class="va">wtl</span><span class="op">)</span></span>
 <span><span class="va">peese_re</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/rma.uni.html">rma</a></span><span class="op">(</span><span class="va">yi</span>, <span class="va">vi</span>, mods <span class="op">=</span> <span class="op">~</span> <span class="va">vi</span>,  data <span class="op">=</span> <span class="va">wtl</span><span class="op">)</span></span>
 <span><span class="va">pet_wls</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">~</span> <span class="va">sei</span>, weights <span class="op">=</span> <span class="fl">1</span> <span class="op">/</span> <span class="va">vi</span>, data <span class="op">=</span> <span class="va">wtl</span><span class="op">)</span></span>
@@ -745,7 +745,7 @@ random-effects meta-regressions with <code><a href="https://wviechtb.github.io/m
 <span>  <span class="op">}</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">se</span><span class="op">)</span>, p_one_sided <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unname.html">unname</a></span><span class="op">(</span><span class="va">p1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>PET_rma <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">pet_re</span><span class="op">)</span>, PEESE_rma <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">peese_re</span><span class="op">)</span>,</span>
+<span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://amices.org/mice/reference/cbind.html">rbind</a></span><span class="op">(</span>PET_rma <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">pet_re</span><span class="op">)</span>, PEESE_rma <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">peese_re</span><span class="op">)</span>,</span>
 <span>            PET_wls <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">pet_wls</span><span class="op">)</span>, PEESE_wls <span class="op">=</span> <span class="fu">icpt</span><span class="op">(</span><span class="va">peese_wls</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">pp</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           estimate    se p_one_sided</span></span>
@@ -761,7 +761,7 @@ random-effects meta-regressions with <code><a href="https://wviechtb.github.io/m
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>selected <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">use_peese</span><span class="op">)</span> <span class="st">"PEESE"</span> <span class="kw">else</span> <span class="st">"PET"</span>,</span>
 <span>             estimate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">out</span><span class="op">[[</span><span class="st">"estimate"</span><span class="op">]</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span>, se <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">out</span><span class="op">[[</span><span class="st">"se"</span><span class="op">]</span><span class="op">]</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span>rma <span class="op">=</span> <span class="fu">pet_peese</span><span class="op">(</span><span class="va">pet_re</span>, <span class="va">peese_re</span><span class="op">)</span>, wls <span class="op">=</span> <span class="fu">pet_peese</span><span class="op">(</span><span class="va">pet_wls</span>, <span class="va">peese_wls</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://amices.org/mice/reference/cbind.html">rbind</a></span><span class="op">(</span>rma <span class="op">=</span> <span class="fu">pet_peese</span><span class="op">(</span><span class="va">pet_re</span>, <span class="va">peese_re</span><span class="op">)</span>, wls <span class="op">=</span> <span class="fu">pet_peese</span><span class="op">(</span><span class="va">pet_wls</span>, <span class="va">peese_wls</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;     selected estimate    se</span></span>
 <span><span class="co">#&gt; rma      PET   -0.036 0.109</span></span>
 <span><span class="co">#&gt; wls      PET   -0.056 0.090</span></span></code></pre></div>
@@ -812,7 +812,7 @@ With <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\tau^
 (3PSM). The parameter <span class="math inline">\(\omega\)</span> is the probability that a non-significant result is published
 relative to a significant one. In <code>metafor</code>, <code><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel()</a></code> takes a fitted <code>rma</code> object and
 re-estimates it by maximum likelihood under the chosen weight function.</p>
-<div class="sourceCode" id="cb137"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel</a></span><span class="op">(</span><span class="va">res_wtl</span>, type <span class="op">=</span> <span class="st">"stepfun"</span>, steps <span class="op">=</span> <span class="fl">0.025</span><span class="op">)</span></span>
 <span><span class="va">sel3</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -849,7 +849,7 @@ runs from 0 to 1.15, which illustrates how weakly a dataset of 48 studies identi
 selection process.</p>
 <p>A four-parameter model adds a cut at <span class="math inline">\(p = 0.5\)</span>, separating results that are non-significant but
 in the expected direction from those in the opposite direction:</p>
-<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel</a></span><span class="op">(</span><span class="va">res_wtl</span>, type <span class="op">=</span> <span class="st">"stepfun"</span>, steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sel4</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -899,7 +899,7 @@ available), and these must be recorded rather than ignored. And when weight func
 overlaid, they must be on the same scale: rescaling only some curves misleads, and <code>plot(..., scale = TRUE)</code> would stretch each curve to span 0 to 1, which exaggerates differences. Except for
 the beta function, every weight function equals 1 as <span class="math inline">\(p \to 0\)</span>, so the unscaled curves are
 directly comparable, and we plot only the fits that succeeded.</p>
-<div class="sourceCode" id="cb139"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"stepfun"</span>, <span class="st">"beta"</span>, <span class="st">"halfnorm"</span>, <span class="st">"negexp"</span>, <span class="st">"logistic"</span>, <span class="st">"power"</span>, <span class="st">"negexppow"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fit_sel</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">type</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1016,7 +1016,7 @@ directly comparable, and we plot only the fits that succeeded.</p>
 </tr>
 </tbody>
 </table></div>
-<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ok</span> <span class="op">&lt;-</span> <span class="va">types</span><span class="op">[</span><span class="va">sel_tab</span><span class="op">$</span><span class="va">warning</span> <span class="op">==</span> <span class="st">""</span><span class="op">]</span></span>
 <span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/palette.html">palette.colors</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">ok</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>, palette <span class="op">=</span> <span class="st">"Okabe-Ito"</span><span class="op">)</span><span class="op">[</span><span class="op">-</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span><span class="op">(</span><span class="va">ok</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1050,7 +1050,7 @@ moderators of the effect size <span class="citation">(<a href="sec-references.ht
 adjusted models side by side. We call it with the <code>::</code> operator rather than attaching the
 package, because <code>weightr</code> masks <code>metafor</code>’s <code><a href="https://fbartos.github.io/RoBMA/reference/funnel.html">funnel()</a></code> function and the <code>metadat</code> copy of the
 writing-to-learn data.</p>
-<div class="sourceCode" id="cb141"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">weightr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/weightr/man/weightfunct.html">weightfunct</a></span><span class="op">(</span>effect <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, v <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">vi</span>, steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Unadjusted Model (k = 48):</span></span>
@@ -1128,7 +1128,7 @@ critical values <span class="math inline">\(z = \pm 1.96\)</span>, allowing diff
 positive, non-significant, and significant negative results, combined with a normal or <span class="math inline">\(t\)</span>
 distribution of true effects. In one-sided <span class="math inline">\(p\)</span>-value terms, the cut points are 0.025 and 0.975,
 so the same model can be fitted with <code><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel()</a></code>:</p>
-<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb143"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sel_ak</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wviechtb.github.io/metafor/reference/selmodel.html">selmodel</a></span><span class="op">(</span><span class="va">res_wtl</span>, type <span class="op">=</span> <span class="st">"stepfun"</span>, steps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">sel_ak</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1183,7 +1183,7 @@ each implying a probability of publication for the smallest study, and reports h
 estimate changes. The adjusted estimate reported by <code><a href="https://rdrr.io/pkg/metasens/man/copas.html">metasens::copas()</a></code> is the one with the least
 selection that is consistent with the data, in the sense that a test of residual selection bias
 is no longer significant at the 10% level.</p>
-<div class="sourceCode" id="cb143"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m_ets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/meta/man/metagen.html">metagen</a></span><span class="op">(</span>TE <span class="op">=</span> <span class="va">yi</span>, seTE <span class="op">=</span> <span class="va">sei</span>, studlab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">author</span>, <span class="va">year</span><span class="op">)</span>,</span>
 <span>                 data <span class="op">=</span> <span class="va">ets</span>, sm <span class="op">=</span> <span class="st">"OR"</span><span class="op">)</span></span>
 <span><span class="va">cop_ets</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/metasens/man/copas.html">copas</a></span><span class="op">(</span><span class="va">m_ets</span><span class="op">)</span></span>
@@ -1225,7 +1225,7 @@ precision (<span class="math inline">\(\sigma_i = 0\)</span>) is <span class="ma
 estimate. This is conceptually close to PET but within a random-effects framework. The “limit
 meta-analysis” itself inflates the precision of every study by a common factor and yields
 shrunken study-specific estimates.</p>
-<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb145"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/metasens/man/limitmeta.html">limitmeta</a></span><span class="op">(</span><span class="va">m_ets</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Result of limit meta-analysis:</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -1278,7 +1278,7 @@ assume normal random effects. The method requires no distributional assumption a
 effects, handles clustered estimates, and uses small-sample corrections that make it usable in
 small meta-analyses, which makes it
 attractive as a complement to the selection models.</p>
-<div class="sourceCode" id="cb145"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://mathurlabstanford.github.io/PublicationBias/reference/pubbias_meta.html">pubbias_meta</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, vi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">vi</span>, selection_ratio <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>             model_type <span class="op">=</span> <span class="st">"robust"</span>, favor_positive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">$</span><span class="va">stats</span></span>
 <span><span class="co">#&gt;     model estimate      se ci_lower ci_upper  p_value</span></span>
@@ -1305,7 +1305,7 @@ the pooled estimate of the non-affirmative studies alone, the <em>worst-case</em
 that estimate is positive. For <span class="math inline">\(q = 0.1\)</span>, a modest effect, the S-values are 7.5 for the point
 estimate and 1.46 for the confidence limit: selection need only be mild for the lower confidence
 limit to fall below 0.1.</p>
-<div class="sourceCode" id="cb146"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">etas</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.5</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span>, <span class="fl">12</span>, <span class="fl">20</span>, <span class="fl">50</span><span class="op">)</span></span>
 <span><span class="va">sens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">etas</span>, <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mathurlabstanford.github.io/PublicationBias/reference/pubbias_meta.html">pubbias_meta</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, vi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">vi</span>, selection_ratio <span class="op">=</span> <span class="va">e</span>,</span>
@@ -1376,7 +1376,7 @@ test have <span class="math inline">\(p &lt; 0.10\)</span>. The function below d
 that makes each step visible. It approximates each study’s test by a <span class="math inline">\(z\)</span>-test, <span class="math inline">\(z_i = y_i/\sigma_i\)</span>,
 which is adequate when the original studies used large-sample tests; with the original <span class="math inline">\(t\)</span> or
 <span class="math inline">\(F\)</span> statistics the same logic applies with the corresponding (non-central) distributions.</p>
-<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb148"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pcurve_test</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">yi</span>, <span class="va">sei</span>, <span class="va">alpha</span> <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="va">yi</span> <span class="op">/</span> <span class="va">sei</span></span>
 <span>  <span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">)</span></span>
@@ -1400,7 +1400,7 @@ which is adequate when the original studies used large-sample tests; with the or
 <span>  <span class="va">pow_half</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">z_half</span> <span class="op">-</span> <span class="va">ncp33</span>, lower.tail <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span>  <span class="va">pp33_full</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">z</span> <span class="op">-</span> <span class="va">ncp33</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">z_full</span> <span class="op">-</span> <span class="va">ncp33</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="op">(</span><span class="fl">1</span> <span class="op">/</span> <span class="fl">3</span><span class="op">)</span></span>
 <span>  <span class="va">pp33_half</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">z</span><span class="op">[</span><span class="va">half</span><span class="op">]</span> <span class="op">-</span> <span class="va">ncp33</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="va">z_half</span> <span class="op">-</span> <span class="va">ncp33</span><span class="op">)</span><span class="op">)</span> <span class="op">/</span> <span class="va">pow_half</span></span>
-<span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span><span class="st">"Right skew, full curve"</span>      <span class="op">=</span> <span class="fu">stouffer</span><span class="op">(</span><span class="va">pp0_full</span><span class="op">)</span>,</span>
+<span>  <span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://amices.org/mice/reference/cbind.html">rbind</a></span><span class="op">(</span><span class="st">"Right skew, full curve"</span>      <span class="op">=</span> <span class="fu">stouffer</span><span class="op">(</span><span class="va">pp0_full</span><span class="op">)</span>,</span>
 <span>               <span class="st">"Right skew, half curve"</span>      <span class="op">=</span> <span class="fu">stouffer</span><span class="op">(</span><span class="va">pp0_half</span><span class="op">)</span>,</span>
 <span>               <span class="st">"Flatter than 33%, full curve"</span> <span class="op">=</span> <span class="fu">stouffer</span><span class="op">(</span><span class="va">pp33_full</span><span class="op">)</span>,</span>
 <span>               <span class="st">"Flatter than 33%, half curve"</span> <span class="op">=</span> <span class="fu">stouffer</span><span class="op">(</span><span class="va">pp33_half</span><span class="op">)</span><span class="op">)</span></span>
@@ -1409,7 +1409,7 @@ which is adequate when the original studies used large-sample tests; with the or
 <span><span class="op">}</span></span></code></pre></div>
 <p>Before applying it, we check that the function behaves as intended on simulated data where the
 truth is known: a null effect (flat <span class="math inline">\(p\)</span>-curve) and studies with exactly 33% power.</p>
-<div class="sourceCode" id="cb148"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb149"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="va">se_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">4000</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span><span class="op">)</span></span>
 <span><span class="va">ncp33</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/uniroot.html">uniroot</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">qnorm</a></span><span class="op">(</span><span class="fl">0.975</span><span class="op">)</span> <span class="op">-</span> <span class="va">m</span>, lower.tail <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">/</span><span class="fl">3</span>,</span>
@@ -1434,7 +1434,7 @@ truth is known: a null effect (flat <span class="math inline">\(p\)</span>-curve
 <span><span class="co">#&gt;        1330         942</span></span></code></pre></div>
 <p>Under the null, the right-skew tests are not significant and the flatness tests reject strongly;
 under 33% power, the right-skew tests reject and the flatness tests do not, as they should. Now the writing-to-learn data:</p>
-<div class="sourceCode" id="cb149"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb150"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pc_wtl</span> <span class="op">&lt;-</span> <span class="fu">pcurve_test</span><span class="op">(</span><span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, <span class="va">wtl</span><span class="op">$</span><span class="va">sei</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">pc_wtl</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                                    Z      p</span></span>
@@ -1448,7 +1448,7 @@ under 33% power, the right-skew tests reject and the flatness tests do not, as t
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="va">pc_wtl</span>, <span class="st">"k"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; significant   below_025 </span></span>
 <span><span class="co">#&gt;          14           8</span></span></code></pre></div>
-<div class="sourceCode" id="cb150"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb151"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p_sig</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">wtl</span>, <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">/</span> <span class="va">sei</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="va">wtl</span><span class="op">$</span><span class="va">yi</span> <span class="op">&gt;</span> <span class="fl">0</span> <span class="op">&amp;</span></span>
 <span>                <span class="fu"><a href="https://rdrr.io/r/base/with.html">with</a></span><span class="op">(</span><span class="va">wtl</span>, <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">pnorm</a></span><span class="op">(</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">yi</span> <span class="op">/</span> <span class="va">sei</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">]</span></span>
 <span><span class="va">bins</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.05</span>, by <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
@@ -1496,7 +1496,7 @@ estimate <span class="math inline">\(\hat\mu\)</span> is the value at which the 
 <code>"P"</code>, which uses the Irwin-Hall distribution of a sum of uniform variables, it solves
 <span class="math inline">\(\sum_i q_i(\mu) = k/2\)</span> (method <code>"LNP"</code> instead solves <span class="math inline">\(\sum_i -\ln q_i(\mu) = k\)</span>). A test for publication bias compares the <span class="math inline">\(p\)</span>-uniform
 estimate to the common-effect estimate from all studies <span class="citation">(<a href="sec-references.html#ref-vanaert2016conducting">Aert et al. 2016</a>)</span>.</p>
-<div class="sourceCode" id="cb151"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/puniform/man/puniform.html">puniform</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, vi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">vi</span>, side <span class="op">=</span> <span class="st">"right"</span>, method <span class="op">=</span> <span class="st">"P"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Method: P</span></span>
@@ -1531,7 +1531,7 @@ conditioning each one on whether it is significant or not, and estimates both <s
 by maximum likelihood. Conditioning on the significance status removes the need to estimate the
 relative publication probability, so the method is closely related to a step-function selection
 model with one cut point but has one fewer parameter.</p>
-<div class="sourceCode" id="cb152"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb153"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/puniform/man/puni_star.html">puni_star</a></span><span class="op">(</span>yi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, vi <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">vi</span>, side <span class="op">=</span> <span class="st">"right"</span>, method <span class="op">=</span> <span class="st">"ML"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Method: ML (k = 48; ksig = 14)</span></span>
@@ -1594,7 +1594,7 @@ bound <span class="math inline">\(\text{FDR}_{\max} = (1/\text{EDR} - 1)\,\alpha
 2,000 conducted tests, 40% have no effect and the rest have non-centrality parameters drawn from
 a gamma distribution, so power varies widely. All significant results are published and only
 10% of the others.</p>
-<div class="sourceCode" id="cb153"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fbartos.github.io/zcurve/">zcurve</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="va">k_all</span> <span class="op">&lt;-</span> <span class="fl">2000</span></span>
@@ -1607,7 +1607,7 @@ a gamma distribution, so power varies widely. All significant results are publis
 <span><span class="va">reported</span> <span class="op">&lt;-</span> <span class="va">sig_all</span> <span class="op">|</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="va">k_all</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.10</span></span>
 <span><span class="va">z_rep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">z_all</span><span class="op">[</span><span class="va">reported</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">zc_sim</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://fbartos.github.io/zcurve/reference/zcurve.html">zcurve</a></span><span class="op">(</span><span class="va">z_rep</span>, bootstrap <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="va">zc_sim_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span><span class="op">(</span></span>
+<span><span class="va">zc_sim_tab</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://amices.org/mice/reference/cbind.html">rbind</a></span><span class="op">(</span></span>
 <span>  truth  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>ODR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">z_rep</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">crit</span><span class="op">)</span>, EDR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">power_all</span><span class="op">)</span>,</span>
 <span>             ERR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="va">power_dir</span><span class="op">[</span><span class="va">sig_all</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  zcurve <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>ODR <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">z_rep</span><span class="op">)</span> <span class="op">&gt;</span> <span class="va">crit</span><span class="op">)</span>, EDR <span class="op">=</span> <span class="fu"><a href="https://fbartos.github.io/zcurve/reference/zcurve.estimates.html">EDR</a></span><span class="op">(</span><span class="va">zc_sim</span><span class="op">)</span><span class="op">$</span><span class="va">Estimate</span>,</span>
@@ -1625,7 +1625,7 @@ results: the writing-to-learn data have only 14, far too few to pin down seven m
 A better-suited example comes with the <code>zcurve</code> package, which contains the <span class="math inline">\(z\)</span>-statistics of 90
 original studies from the Reproducibility Project: Psychology
 <span class="citation">(<a href="sec-references.html#ref-opensciencecollaboration2015estimating">Open Science Collaboration 2015</a>)</span>, in which each study was replicated.</p>
-<div class="sourceCode" id="cb154"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">2026</span><span class="op">)</span></span>
 <span><span class="va">zc_osc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://fbartos.github.io/zcurve/reference/zcurve.html">zcurve</a></span><span class="op">(</span><span class="va">OSC.z</span>, bootstrap <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">zc_osc</span>, all <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -1645,7 +1645,7 @@ original studies from the Reproducibility Project: Psychology
 <span><span class="co">#&gt; Model converged in 37 + 142 iterations</span></span>
 <span><span class="co">#&gt; Fitted using 73 z-values. 90 supplied, 85 significant (ODR = 0.94, 95% CI [0.87, 0.98]).</span></span>
 <span><span class="co">#&gt; Q = -60.61, 95% CI[-70.52, -44.91]</span></span></code></pre></div>
-<div class="sourceCode" id="cb155"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb156"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">zc_osc</span>, CI <span class="op">=</span> <span class="cn">TRUE</span>, annotation <span class="op">=</span> <span class="cn">TRUE</span>, main <span class="op">=</span> <span class="st">""</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <span style="display:block;" id="fig:pubbias-zcurve-plot"></span>
@@ -1690,7 +1690,7 @@ X^2 = \frac{(O - E)^2}{E} + \frac{(O - E)^2}{k - E}
 is approximately <span class="math inline">\(\chi^2_1\)</span> under the null. <code><a href="https://wviechtb.github.io/metafor/reference/tes.html">metafor::tes()</a></code> implements it, along with an
 exact version and a “limit estimate”, the true effect at which the test would just become
 significant.</p>
-<div class="sourceCode" id="cb156"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb157"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://wviechtb.github.io/metafor/reference/tes.html">tes</a></span><span class="op">(</span><span class="va">res_wtl</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Test of Excess Significance</span></span>
@@ -1733,7 +1733,7 @@ two-weight-function ensemble of <span class="citation">Maier et al. (<a href="se
 Chapter <a href="sec-bayesian.html#sec-bayesian">9</a>. Here we show a small fit to the writing-to-learn data. RoBMA uses
 JAGS; the chunk below is run in the book’s continuous-integration build with a deliberately small
 number of samples, and nothing later in the chapter depends on its result.</p>
-<div class="sourceCode" id="cb157"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb158"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://fbartos.github.io/RoBMA/">RoBMA</a></span><span class="op">)</span></span>
 <span><span class="va">fit_robma</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://fbartos.github.io/RoBMA/reference/RoBMA.html">RoBMA</a></span><span class="op">(</span>d <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">yi</span>, se <span class="op">=</span> <span class="va">wtl</span><span class="op">$</span><span class="va">sei</span>,</span>
 <span>                   study_names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">wtl</span><span class="op">$</span><span class="va">author</span>, <span class="va">wtl</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
@@ -1841,7 +1841,7 @@ intensity, risk of bias) to see whether they account for the asymmetry.</li>
 <strong>Conclude</strong> in terms of robustness: does the conclusion survive plausible selection? Feed the
 assessment into the certainty rating of the evidence (Chapter <a href="sec-reporting.html#sec-reporting">15</a>).</li>
 </ol>
-<div class="sourceCode" id="cb158"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb159"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span></span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Random effects (REML)"</span>, <span class="st">"Trim-and-fill"</span>, <span class="st">"PET (rma)"</span>, <span class="st">"PEESE (rma)"</span>,</span>
 <span>             <span class="st">"3PSM"</span>, <span class="st">"4PSM"</span>, <span class="st">"Mathur-VanderWeele, eta = 4"</span>, <span class="st">"p-uniform"</span>, <span class="st">"p-uniform*"</span><span class="op">)</span>,</span>
@@ -2049,7 +2049,7 @@ discovery rates.</p>
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-25.</p>
+    <p>"<strong>Meta-Analysis: A Practical and Modern Guide with R</strong>" was written by Mike Nguyen. It was last built on 2026-11-26.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
