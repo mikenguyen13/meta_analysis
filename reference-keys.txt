@@ -307,6 +307,7 @@ sec-sensitivity-sequential
 sec-sensitivity-ris
 sec-sensitivity-tsa
 sec-sensitivity-tsa-critique
+sec-sensitivity-fragility
 sec-sensitivity-labbe
 sec-sensitivity-bootstrap
 sec-sensitivity-choices
@@ -383,6 +384,7 @@ sec-network-multinma
 sec-network-ume
 sec-network-gemtc
 sec-network-population-adjustment
+sec-network-maic
 sec-network-certainty
 sec-network-threshold
 sec-network-pitfalls

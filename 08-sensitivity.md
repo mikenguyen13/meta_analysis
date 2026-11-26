@@ -417,7 +417,39 @@ First, the required information size depends on inputs that are chosen, not esti
 
 In practice, TSA is most defensible for a living or prospectively planned meta-analysis whose information size and boundaries are specified in the protocol. Used retrospectively, as here, it is best read as a sensitivity analysis that asks how much the evidence would have to grow before a conventional $p < .05$ could be trusted, and the TSA-adjusted interval should be reported alongside, not instead of, the conventional one.
 
-A related descriptive measure is the *fragility index* of a meta-analysis, defined by @atal2019statistical as the minimum number of participants in one or more trials whose event status would have to change (from event to non-event or the reverse) to change the statistical significance of the pooled effect. In a cross-sectional study of 906 Cochrane meta-analyses with binary outcomes, they found that the significance of a third of them depended on five or fewer participants. Like TSA, the fragility index inherits the arbitrariness of the 5% threshold, but it is a vivid way to show that a "significant" pooled result can rest on very few events.
+### Fragility index {#sec-sensitivity-fragility}
+
+A related descriptive measure is the *fragility index* (FI). For a single trial, @walsh2014statistical defined it as the smallest number of participants whose status would have to change from non-event to event to turn a statistically significant result into a non-significant one. @atal2019statistical extended it to meta-analysis: the minimum number of participants in one or more trials whose event status would have to change (from event to non-event or the reverse) to change the statistical significance of the pooled effect. In a cross-sectional study of 906 Cochrane meta-analyses with binary outcomes, they found that the significance of a third of them depended on five or fewer participants.
+
+Searching all combinations of modifications is infeasible, so the FI of a meta-analysis is found with a greedy algorithm. At each step every single-participant change is tried (one event fewer in one arm of one trial, or one event more in the other), the meta-analysis is refitted, and the change that moves the relevant confidence limit furthest in the required direction (towards the null value for a significant result, across it for a non-significant one) is kept; the steps are repeated until the significance changes. The FI is the number of steps, and the *fragility quotient* (FQ) divides it by the total sample size. `frag.ma()` in the `fragility` package implements this algorithm for odds ratios, risk ratios, and risk differences, with any `metafor` estimator of $\tau^2$ [@lin2022assessing]. We apply it to the oxygen trials under both models:
+
+
+``` r
+fi_ce <- fragility::frag.ma(e0 = eC, n0 = nC, e1 = eI, n1 = nI, data = po,
+                            measure = "RR", method = "EE")
+fi_re <- fragility::frag.ma(e0 = eC, n0 = nC, e1 = eI, n1 = nI, data = po,
+                            measure = "RR", method = "DL")
+data.frame(model = c("common effect", "random effects (DL)"),
+           p = c(fi_ce$pval.ori, fi_re$pval.ori),
+           FI = c(fi_ce$FI, fi_re$FI), FQ_percent = 100 * c(fi_ce$FQ, fi_re$FQ),
+           direction = c(fi_ce$dir, fi_re$dir))
+#>                 model       p FI FQ_percent
+#> 1       common effect 0.04555  1    0.01385
+#> 2 random effects (DL) 0.18410 11    0.15238
+#>                                  direction
+#> 1 significance altered to non-significance
+#> 2 non-significance altered to significance
+table(po$study[fi_re$sid.iter])
+#> 
+#> Gardella 2008    Pryor 2004 
+#>             5             6
+```
+
+
+
+The common-effect analysis is just significant ($p =$ 0.046) and has a fragility index of 1: changing the outcome of a single participant, in the Mayzler 2005 trial, makes it non-significant. The random-effects analysis is not significant ($p =$ 0.184), and its fragility index of 11 counts the changes needed to make it significant. They fall in only 2 trials, Gardella 2008 and Pryor 2004: 6 fewer infections in the high-oxygen arm and 5 more in the control arm. Out of 7,219 randomised participants, both indices are tiny, which is the same message as the trial sequential analysis: the significance of the pooled result is not a stable property of these data.
+
+The FI has to be read with care. It is a step function of the significance level, and its size depends on the sample size, which is why the FQ is reported alongside; there are no accepted thresholds for calling a result fragile, and @lin2022assessing suggest examining the FI over a range of $\alpha$ (`frag.ma.alpha()`) rather than at .05 alone and warn against choosing among methods to obtain a preferred value. The FI is also closely related to the $p$-value it starts from, so it adds a vivid scale (participants rather than probabilities) more than new information, and whether a modification is plausible depends on the outcome: a handful of changed events is a small error for a common outcome and a large one for a rare outcome [@lin2022assessing]. Like TSA, the fragility index inherits the arbitrariness of the 5% threshold, but it is a vivid way to show that a "significant" pooled result can rest on very few events.
 
 ## L'Abbé plot {#sec-sensitivity-labbe}
 
@@ -971,4 +1003,4 @@ Treating influence thresholds as significance tests and deleting every flagged s
 
 ## Further reading {#sec-sensitivity-reading}
 
-@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @wetterslev2008trial and @wetterslev2009estimating introduced trial sequential analysis and the diversity-adjusted information size, building on @pogue1997cumulating and the spending functions of @lan1983discrete; @kulinskaya2013trial and @higgins2010sequential discuss the difficulties of sequential random-effects meta-analysis, and @atal2019statistical define the fragility index of a meta-analysis. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. For missing participant data, @mavridis2020dealing give the best overview; @higgins2008imputation and @white2008allowing introduced the IMOR and its two-stage treatment with uncertainty, @mavridis2015allowing the IMDoM and the extension to networks, and @spineli2021quantifying the robustness index. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.
+@viechtbauer2010outlier is the standard reference for outlier and influence diagnostics in random- and mixed-effects meta-analysis. @baujat2002graphical, @olkin2012gosh, @galbraith1988note, and @labbe1987meta introduced the Baujat, GOSH, radial, and L'Abbé plots, and @lau1992cumulative showed what cumulative meta-analysis can reveal. @wetterslev2008trial and @wetterslev2009estimating introduced trial sequential analysis and the diversity-adjusted information size, building on @pogue1997cumulating and the spending functions of @lan1983discrete; @kulinskaya2013trial and @higgins2010sequential discuss the difficulties of sequential random-effects meta-analysis, and @atal2019statistical define the fragility index of a meta-analysis, extending the trial-level index of @walsh2014statistical; @lin2022assessing describe the `fragility` package. @veroniki2015methods review estimators of the between-study variance and @langan2018comparison compare them by simulation; @viechtbauer2005bias studies the bias and efficiency of the main estimators. @efron1994introduction is the classic introduction to the bootstrap. For missing participant data, @mavridis2020dealing give the best overview; @higgins2008imputation and @white2008allowing introduced the IMOR and its two-stage treatment with uncertainty, @mavridis2015allowing the IMDoM and the extension to networks, and @spineli2021quantifying the robustness index. @steegen2016increasing and @simonsohn2020specification introduced multiverse and specification-curve analysis, and @voracek2019which adapted them to meta-analysis. @harrer2021doing give an applied treatment of many of these diagnostics in R.
