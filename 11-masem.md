@@ -1020,8 +1020,8 @@ summary(os_fit0, fitIndices = TRUE)
 #> TLI: 0.8239   (also known as NNFI) 
 #> RMSEA:  0.01139  [95% CI (0.003446, 0.02035)]
 #> Prob(RMSEA <= 0.05): 1
-#> timestamp: 2026-11-26 02:09:55 
-#> Wall clock time: 0.1477 secs 
+#> timestamp: 2026-11-28 04:28:38 
+#> Wall clock time: 0.08308 secs 
 #> optimizer:  SLSQP 
 #> OpenMx version number: 2.22.11 
 #> Need help?  See help(mxSummary)

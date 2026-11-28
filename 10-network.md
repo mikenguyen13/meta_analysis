@@ -597,7 +597,7 @@ print(fit_re, pars = c("d", "tau"))
 #> d[Self-help]                 1
 #> tau                          1
 #> 
-#> Samples were drawn using NUTS(diag_e) at Thu Nov 26 02:08:47 2026.
+#> Samples were drawn using NUTS(diag_e) at Sat Nov 28 04:27:57 2026.
 #> For each parameter, n_eff is a crude measure of effective sample size,
 #> and Rhat is the potential scale reduction factor on split chains (at 
 #> convergence, Rhat=1).

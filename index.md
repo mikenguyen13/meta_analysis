@@ -1,7 +1,7 @@
 ---
 title: "Meta-Analysis: A Practical and Modern Guide with R"
 author: "Mike Nguyen"
-date: "2026-11-26"
+date: "2026-11-28"
 documentclass: book
 bibliography: [references.bib, packages.bib]
 biblio-style: apalike
