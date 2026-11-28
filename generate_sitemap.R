@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
-# generate_sitemap.R - writes sitemap.xml into the rendered book output dir.
+# generate_sitemap.R - writes sitemap.xml into the rendered book output dir and
+# gives every page a <link rel="canonical"> to its URL on the site (bs4_book sets
+# og:url but no canonical link).
 # Run after bookdown::render_book():  Rscript generate_sitemap.R
 # The site URL is read from the `url:` field in index.Rmd.
 
@@ -31,3 +33,19 @@ xml <- c('<?xml version="1.0" encoding="UTF-8"?>',
          "</urlset>")
 writeLines(xml, file.path(out_dir, "sitemap.xml"))
 cat("Wrote", file.path(out_dir, "sitemap.xml"), "-", length(pages), "URLs\n")
+
+# Canonical link on every page, pointing at the same URL the sitemap lists.
+canonical <- 0L
+for (i in seq_along(pages)) {
+  f <- file.path(out_dir, pages[i])
+  html <- readLines(f, warn = FALSE, encoding = "UTF-8")
+  if (any(grepl('rel="canonical"', html, fixed = TRUE))) next
+  head_end <- grep("</head>", html, fixed = TRUE)[1]
+  if (is.na(head_end)) next
+  html <- append(html, paste0('<link rel="canonical" href="', loc[i], '">'), head_end - 1)
+  con <- file(f, open = "wb")
+  writeLines(enc2utf8(html), con, useBytes = TRUE)
+  close(con)
+  canonical <- canonical + 1L
+}
+cat("Added a canonical link to", canonical, "pages\n")
